@@ -1,0 +1,50 @@
+name: HTML build & deploy to gh-pages
+
+on: [push]
+
+jobs:
+  html_build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: lovasoa/setup-emscripten@master
+      with:
+        emscripten-version: '1.38.47'
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - name: Build html
+      run: |
+        python initialize_project.py
+        ls gu/
+        cd html
+        emconfigure cmake .
+        make
+    - name: Upload Artifacts # The project is then uploaded as an artifact named 'site'.
+      uses: actions/upload-artifact@v1
+      with:
+        name: site
+        path: html/out
+
+  deploy:
+
+    needs: [html_build]
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Download Artifacts # The built project is downloaded into the 'site' folder.
+      uses: actions/download-artifact@v1
+      with:
+        name: site
+
+    - name: Build and Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: 'site' # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.

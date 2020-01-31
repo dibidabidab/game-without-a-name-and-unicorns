@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: none;
+            background-color: black;
+            overflow: hidden;
+        }
+
+        /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+        canvas {
+            border: 0px none;
+            padding: 0px;
+            background-color: black;
+        }
+
+        progress {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+    </style>
+</head>
+
+<body onresize="makeCanvasFullPage()">
+
+    <progress id="progress" max="100" value="0"></progress>
+    
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+
+    <script type='text/javascript'>
+        const progressElement = document.getElementById('progress')
+        const canvas = document.getElementById('canvas')
+
+        canvas.addEventListener("webglcontextlost", e => {
+            alert('WebGL context lost. You will need to reload the page.')
+            e.preventDefault()
+        }, false)
+
+        function makeCanvasFullPage() {
+            Module.setCanvasSize(window.innerWidth, window.innerHeight)
+        }
+
+        var Module = {
+            preRun: [],
+            postRun: [makeCanvasFullPage, () => canvas.click()],
+            print: console.log,
+            printErr: console.error,
+            canvas,
+            setStatus: text => {
+                console.log(text)
+
+                var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/)
+                if (m) {
+                    progressElement.value = parseInt(m[2]) * 100
+                    progressElement.max = parseInt(m[4]) * 100
+                    progressElement.hidden = false
+                } else {
+                    progressElement.value = null
+                    progressElement.max = null
+                    progressElement.hidden = true
+                }
+            },
+            totalDependencies: 0,
+            monitorRunDependencies: left => {
+                this.totalDependencies = Math.max(this.totalDependencies, left)
+                Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.')
+            }
+        };
+    </script>
+    {{{ SCRIPT }}}
+</body>
+
+</html>
