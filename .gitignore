@@ -1,3 +1,6 @@
+*/.idea/*
+*.cbp
+
 desktop/out/*
 html/out/*
 

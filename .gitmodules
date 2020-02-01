@@ -1,0 +1,6 @@
+[submodule "gu"]
+	path = gu
+	url = https://github.com/hilkojj/cpp-game-utils.git
+[submodule "entt"]
+	path = entt
+	url = git@github.com:skypjack/entt.git
