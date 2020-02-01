@@ -1,6 +1,8 @@
 
 ### [Play game in browser](https://hilkojj.github.io/dibidabidab/game.html)
 
+[![BCH compliance](https://bettercodehub.com/edge/badge/hilkojj/dibidabidab?branch=master)](https://bettercodehub.com/)
+
 ## Usage
 
 Clone this repository.

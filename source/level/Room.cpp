@@ -30,6 +30,7 @@ Room::Room(uint8 *data) : Room(data[0], data[1])
 {
     memcpy(tiles, &data[2], width * height);
     std::cout << "Loaded room from binary.\n";
+    refreshOutlines();
 }
 
 Room::~Room()

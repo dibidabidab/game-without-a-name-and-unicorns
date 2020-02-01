@@ -92,6 +92,9 @@ class LevelScreen : public Screen
         for (int x = 0; x < room->width; x++)
             for (int y = 0; y < room->height; y++)
                 DebugTileRenderer::renderTile(lineRenderer, room->getTile(x, y), x, y, color);
+
+        for (auto &outline : room->getOutlines())
+            lineRenderer.line(vec3(outline.first, 0), vec3(outline.second, 0), mu::Z + mu::X);
     }
 };
 
