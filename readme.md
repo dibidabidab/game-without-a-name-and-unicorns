@@ -1,7 +1,9 @@
 
+### [Play game in browser](https://hilkojj.github.io/dibidabidab/game.html)
+
 ## Usage
 
-Fork/clone this repository.
+Clone this repository.
 
 run `python3 initialize_project.py` to download dependencies.
 

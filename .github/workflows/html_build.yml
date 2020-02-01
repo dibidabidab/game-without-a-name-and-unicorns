@@ -21,7 +21,7 @@ jobs:
         ls gu/
         cd html
         emconfigure cmake .
-        make
+        make -j8
     - name: Upload Artifacts # The project is then uploaded as an artifact named 'site'.
       uses: actions/upload-artifact@v1
       with:
