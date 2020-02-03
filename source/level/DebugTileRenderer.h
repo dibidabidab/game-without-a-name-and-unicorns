@@ -38,6 +38,9 @@ namespace DebugTileRenderer
                 lineRenderer.line(vec3(x, y, 0), vec3(x, y + 1, 0), color);
                 lineRenderer.line(vec3(x, y + 1, 0), vec3(x + 1, y + 1, 0), color);
                 break;
+            case Tile::platform:
+                lineRenderer.line(vec3(x, y + 1, 0), vec3(x + 1, y + 1, 0), color);
+                break;
         }
     }
 };
