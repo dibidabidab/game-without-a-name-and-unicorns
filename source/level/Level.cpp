@@ -3,7 +3,8 @@
 #include <fstream>
 
 #include "Level.h"
-#include "ecs/systems/PhysicsSystem.h"
+#include "ecs/systems/physics/PhysicsSystem.h"
+#include "ecs/systems/PlatformerMovementSystem.h"
 
 #define DEFAULT_ROOM_PATH "default_room.room"
 
@@ -16,6 +17,11 @@ Level::Level()
     }
     else currentRoom = new Room(20, 18);
 
+    // todo: remove this, this is just so that the player doesn't fall into the void
+    currentRoom->setTile(1, 0, Tile::full);
+    currentRoom->setTile(2, 0, Tile::full);
+
+    systems.push_back(new PlatformerMovementSystem());
     systems.push_back(new PhysicsSystem());
 
     for (auto sys : systems) sys->init(this);

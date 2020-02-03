@@ -3,6 +3,7 @@
 #define GAME_ROOM_H
 
 #include <vector>
+#include <functional>
 #include <utils/math_utils.h>
 #include "RoomOutliner.h"
 
@@ -43,27 +44,25 @@ class Room
 
     ~Room();
 
-    inline Tile getTile(uint8 x, uint8 y) const
-    {
-        if (!inRoom(x, y)) return Tile::empty;
-        return tiles[x * height + y];
-    }
+    Tile getTile(uint8 x, uint8 y) const;
 
-    inline void setTile(uint8 x, uint8 y, Tile tile)
-    {
-        if (inRoom(x, y))
-        {
-            tiles[x * height + y] = tile;
-            refreshOutlines();
-        }
-    }
+    void setTile(uint8 x, uint8 y, Tile tile);
 
-    inline bool inRoom(uint8 x, uint8 y) const
-    {
-        return x < width && y < height;
-    }
+    bool inRoom(uint8 x, uint8 y) const;
 
     const RoomOutlines &getOutlines() const { return outlines; }
+
+    /**
+     * Loops through the room's tiles in a 2 dimensional loop
+     * @param pixelCoordsMin    position of the first tile in pixels
+     * @param pixelCoordsMax    position of the last tile in pixels
+     * @param callback          function to be called for each tile
+     */
+    void loopThroughTiles(
+            const ivec2 &pixelCoordsMin, const ivec2 &pixelCoordsMax,
+
+            const std::function<void(ivec2 tileCoords, Tile tile)> &callback
+    ) const;
 
     /**
      * Exports this room to binary data, which will be APPENDED to `out`
@@ -71,10 +70,7 @@ class Room
     void toBinary(std::vector<unsigned char> &out);
 
   private:
-    void refreshOutlines() {
-        outlines.clear();
-        RoomOutliner::getOutlines(this, outlines);
-    }
+    void refreshOutlines();
 
 };
 

@@ -13,6 +13,7 @@
 #include "level/RoomEditor.h"
 #include "level/DebugTileRenderer.h"
 #include "level/ecs/components/Physics.h"
+#include "level/ecs/components/PlatformerMovement.h"
 
 class LevelScreen : public Screen
 {
@@ -32,12 +33,14 @@ class LevelScreen : public Screen
         cam.lookAt(mu::ZERO_3);
 
         auto player = level.entities.create();
-        level.entities.assign<Physics>(player, ivec2(5, 13), ivec2(32, 32));
+        level.entities.assign<Physics>(player, ivec2(5, 13), ivec2(32, 52));
+        level.entities.assign<LocalPlayer>(player);
+        level.entities.assign<PlatformerMovement>(player);
     }
 
     void render(double deltaTime) override
     {
-        level.update(deltaTime);
+        level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
 
         fbo->bind();
         glClearColor(.5, 0, .1, 1);
@@ -57,7 +60,7 @@ class LevelScreen : public Screen
         lineRenderer.scale = 1;
 
         level.entities.view<Physics>().each([&](auto e, Physics &p) {
-            p.body.draw(lineRenderer, mu::X);
+            p.draw(lineRenderer, mu::X);
         });
 
         fbo->unbind();
@@ -67,8 +70,8 @@ class LevelScreen : public Screen
 
     void onResize() override
     {
-        cam.viewportWidth = int(gu::widthPixels / 3);
-        cam.viewportHeight = int(gu::heightPixels / 3);
+        cam.viewportWidth = int(gu::widthPixels / 2);
+        cam.viewportHeight = int(gu::heightPixels / 2);
         cam.update();
 
         // create a new framebuffer to render the pixelated scene to:
