@@ -25,6 +25,8 @@ class PlatformerMovementSystem : public LevelSystem
             if (movement.jump && physics.touches.floor && physics.velocity.y <= 0) physics.velocity.y = movement.jumpVelocity;
 
             physics.velocity.x = ((movement.left ? -1 : 0) + (movement.right ? 1 : 0)) * movement.walkVelocity;
+
+            physics.ignorePlatforms = movement.fall;
         });
     }
 };

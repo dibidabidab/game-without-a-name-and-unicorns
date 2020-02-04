@@ -68,7 +68,6 @@ void Room::refreshOutlines()
 void Room::loopThroughTiles(const ivec2 &pixelCoordsMin, const ivec2 &pixelCoordsMax,
                             const std::function<void(ivec2 tileCoords, Tile tile)> &callback) const
 {
-    std::cout << to_string(pixelCoordsMin) << "->" << to_string(pixelCoordsMax) << "\n\n";
     for (int x = pixelCoordsMin.x / Level::PIXELS_PER_BLOCK; x <= pixelCoordsMax.x / Level::PIXELS_PER_BLOCK; x++)
     {
         for (int y = pixelCoordsMin.y / Level::PIXELS_PER_BLOCK; y <= pixelCoordsMax.y / Level::PIXELS_PER_BLOCK; y++)

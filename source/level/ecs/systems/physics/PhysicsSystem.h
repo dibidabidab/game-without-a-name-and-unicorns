@@ -53,6 +53,7 @@ class PhysicsSystem : public LevelSystem
     {
         vec2 pixelsToMove = vec2(physics.velocity) * vec2(deltaTime);
         pixelsToMove += physics.velocityAccumulator; // add remains of previous update.
+        bool moved = false;
         while (true)
         {
             Move toDo;
@@ -65,12 +66,15 @@ class PhysicsSystem : public LevelSystem
             ivec2 prevPos = physics.body.center;
 
             if (tryMove(physics, toDo)) // move succeeded -> decrease pixelsToMove:
+            {
+                moved = true;
                 pixelsToMove -= physics.body.center - prevPos;
-            // move is not possible:
+            } // move is not possible:
             else if (toDo == Move::left || toDo == Move::right)  pixelsToMove.x = 0; // cant move horizontally anymore.
             else                                                 pixelsToMove.y = 0; // cant move vertically anymore.
         }
         physics.velocityAccumulator = pixelsToMove; // store remains for next update
+        if (!moved) updateTerrainCollisions(physics); // terrain might have changed
     }
 
     /**
@@ -133,9 +137,14 @@ class PhysicsSystem : public LevelSystem
             case right: p.body.center.x++; break;
             case none:                     break;
         }
+        updateTerrainCollisions(p);
+    }
+
+    void updateTerrainCollisions(Physics &p)
+    {
         AABB outlineBox = p.body;
         outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
-        p.touches = collisionDetector->detect(outlineBox);
+        p.touches = collisionDetector->detect(outlineBox, p.ignorePlatforms);
     }
 
 };

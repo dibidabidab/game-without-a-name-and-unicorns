@@ -13,6 +13,11 @@
 struct AABB
 {
     ivec2 halfSize, center;
+
+    inline ivec2 topRight() const    { return center + halfSize; }
+    inline ivec2 bottomRight() const { return center + ivec2(halfSize.x, -halfSize.y); }
+    inline ivec2 bottomLeft() const  { return center - halfSize; }
+    inline ivec2 topLeft() const     { return center + ivec2(-halfSize.x, halfSize.y); }
 };
 
 class PhysicsSystem;
@@ -24,6 +29,8 @@ struct Physics
     float gravity = 9.8 * Level::PIXELS_PER_BLOCK;
     vec2 velocity;
 
+    bool ignorePlatforms = false;
+
     TerrainCollisions touches;
 
     // used by PhysicsSystem:
@@ -31,10 +38,18 @@ struct Physics
 
     void draw(DebugLineRenderer &lineRenderer, const vec3 &color)
     {
-        lineRenderer.line(vec3(body.center - body.halfSize, 0), vec3(body.center - ivec2(body.halfSize.x, -body.halfSize.y), 0), touches.leftWall  ? mu::Y : color);
-        lineRenderer.line(vec3(body.center + body.halfSize, 0), vec3(body.center + ivec2(body.halfSize.x, -body.halfSize.y), 0), touches.rightWall ? mu::Y : color);
-        lineRenderer.line(vec3(body.center - body.halfSize, 0), vec3(body.center - ivec2(-body.halfSize.x, body.halfSize.y), 0), touches.floor     ? mu::Y : color);
-        lineRenderer.line(vec3(body.center + body.halfSize, 0), vec3(body.center + ivec2(-body.halfSize.x, body.halfSize.y), 0), touches.ceiling   ? mu::Y : color);
+        lineRenderer.line(vec3(body.bottomLeft(), 0), vec3(body.topLeft(), 0), touches.leftWall  ? mu::Y : color);
+        lineRenderer.line(vec3(body.topRight(), 0), vec3(body.bottomRight(), 0), touches.rightWall ? mu::Y : color);
+        lineRenderer.line(vec3(body.bottomLeft(), 0), vec3(body.bottomRight(), 0), touches.floor     ? mu::Y : color);
+        lineRenderer.line(vec3(body.topLeft(), 0), vec3(body.topRight(), 0), touches.ceiling   ? mu::Y : color);
+        if (touches.slopeUp)
+            lineRenderer.axes(vec3(body.bottomRight(), 0), 2, mu::Y);
+        if (touches.slopeDown)
+            lineRenderer.axes(vec3(body.bottomLeft(), 0), 2, mu::Y);
+        if (touches.slopedCeilingDown)
+            lineRenderer.axes(vec3(body.topRight(), 0), 2, mu::Y);
+        if (touches.slopedCeilingUp)
+            lineRenderer.axes(vec3(body.topLeft(), 0), 2, mu::Y);
     }
 
 };

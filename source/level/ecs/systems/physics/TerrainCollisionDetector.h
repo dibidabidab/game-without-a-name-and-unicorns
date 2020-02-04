@@ -8,12 +8,14 @@ struct AABB;
 struct TerrainCollisions
 {
     bool
-        floor     = false,
-        slopeDown = false,
-        slopeUp   = false,
-        ceiling   = false,
-        leftWall  = false,
-        rightWall = false;
+        floor             = false,
+        slopeDown         = false,
+        slopeUp           = false,
+        ceiling           = false,
+        slopedCeilingDown = false,
+        slopedCeilingUp   = false,
+        leftWall          = false,
+        rightWall         = false;
 };
 
 class TerrainCollisionDetector
@@ -23,16 +25,21 @@ class TerrainCollisionDetector
   public:
     explicit TerrainCollisionDetector(Room *room) : room(room) {};
 
-    TerrainCollisions detect(AABB aabb);
+    /**
+     * Detects collisions with the terrain.
+     */
+    TerrainCollisions detect(const AABB &aabb, bool ignorePlatforms);
 
   private:
 
-    bool ceilingIntersection(AABB aabb);
-    bool slopeDownIntersection(AABB aabb);
-    bool slopeUpIntersection(AABB aabb);
-    bool floorIntersection(AABB aabb);
-    bool leftWallIntersection(AABB aabb);
-    bool rightWallIntersection(AABB aabb);
+    bool ceilingIntersection(const AABB &aabb);
+    bool slopedCeilingDownIntersection(const AABB &aabb);
+    bool slopedCeilingUpIntersection(const AABB &aabb);
+    bool slopeDownIntersection(const AABB &aabb);
+    bool slopeUpIntersection(const AABB &aabb);
+    bool floorIntersection(const AABB &aabb, bool ignorePlatforms);
+    bool leftWallIntersection(const AABB &aabb);
+    bool rightWallIntersection(const AABB &aabb);
 
 };
 

@@ -86,17 +86,17 @@ class LevelScreen : public Screen
 
         // grid
         for (int x = 0; x < room->width; x++)
-            lineRenderer.line(vec3(x, 0, 0), vec3(x, room->height, 0), vec3(.3));
+            lineRenderer.line(vec2(x, 0), vec2(x, room->height), vec3(.3));
         for (int y = 0; y < room->height; y++)
-            lineRenderer.line(vec3(0, y, 0), vec3(room->width, y, 0), vec3(.3));
+            lineRenderer.line(vec2(0, y), vec2(room->width, y), vec3(.3));
 
         // x-axis
         lineRenderer.line(
-                vec3(0), vec3(room->width, 0, 0), mu::X
+                vec3(0), vec2(room->width, 0), mu::X
         );
         // y-axis
         lineRenderer.line(
-                vec3(0), vec3(0, room->height, 0), mu::Y
+                vec3(0), vec2(0, room->height), mu::Y
         );
     }
 
@@ -110,7 +110,7 @@ class LevelScreen : public Screen
                 DebugTileRenderer::renderTile(lineRenderer, room->getTile(x, y), x, y, color);
         // tile outlines:
         for (auto &outline : room->getOutlines())
-            lineRenderer.line(vec3(outline.first, 0), vec3(outline.second, 0), mu::Z + mu::X);
+            lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);
     }
 };
 
