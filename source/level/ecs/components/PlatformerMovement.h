@@ -9,6 +9,9 @@ struct PlatformerMovement
     float walkVelocity = 30;
 
     bool jump = false, left = false, right = false, fall = false;
+
+    // used by system:
+    float fallPressedTimer = 0;
 };
 
 // todo: move this to other file?:

@@ -18,6 +18,7 @@ struct TerrainCollisions
         rightWall         = false;
 };
 
+// TODO, bug: when Tile::slope_up and Tile::slope_down are placed next to each other -> player can fall through them
 class TerrainCollisionDetector
 {
     Room *room;

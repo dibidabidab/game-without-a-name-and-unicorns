@@ -26,7 +26,15 @@ class PlatformerMovementSystem : public LevelSystem
 
             physics.velocity.x = ((movement.left ? -1 : 0) + (movement.right ? 1 : 0)) * movement.walkVelocity;
 
-            physics.ignorePlatforms = movement.fall;
+            // ignore platforms when down-arrow is pressed:
+            if (movement.fall)
+            {
+                physics.ignorePlatforms = true;
+                movement.fallPressedTimer = 0;
+            }
+            // ignore platforms for at least 0.2 sec since down-arrow was pressed:
+            if (physics.ignorePlatforms && (movement.fallPressedTimer += deltaTime) > .2 && !movement.fall)
+                physics.ignorePlatforms = false;
         });
     }
 };

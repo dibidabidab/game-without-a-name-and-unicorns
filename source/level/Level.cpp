@@ -6,7 +6,7 @@
 #include "ecs/systems/physics/PhysicsSystem.h"
 #include "ecs/systems/PlatformerMovementSystem.h"
 
-#define DEFAULT_ROOM_PATH "default_room.room"
+#define DEFAULT_ROOM_PATH "assets/default_room.room"
 
 Level::Level()
 {
