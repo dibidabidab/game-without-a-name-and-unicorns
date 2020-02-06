@@ -5,8 +5,8 @@
 
 struct PlatformerMovement
 {
-    float jumpVelocity = 100;
-    float walkVelocity = 30;
+    float jumpVelocity = 120;
+    float walkVelocity = 50;
 
     bool jump = false, left = false, right = false, fall = false;
 
