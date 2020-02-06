@@ -14,6 +14,8 @@
 #include "level/DebugTileRenderer.h"
 #include "level/ecs/components/Physics.h"
 #include "level/ecs/components/PlatformerMovement.h"
+#include "level/ecs/components/Networked.h"
+#include "macro_magic/component.h"
 
 class LevelScreen : public Screen
 {
@@ -36,6 +38,12 @@ class LevelScreen : public Screen
         level.entities.assign<Physics>(player, ivec2(5, 13), ivec2(32, 52));
         level.entities.assign<LocalPlayer>(player);
         level.entities.assign<PlatformerMovement>(player);
+        level.entities.assign<Networked>(player,
+            // to send:
+            Networked::components<PlatformerMovement>(),
+            // to receive:
+            Networked::components<>()
+        );
     }
 
     void render(double deltaTime) override

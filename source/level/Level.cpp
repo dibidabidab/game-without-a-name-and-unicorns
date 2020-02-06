@@ -5,6 +5,7 @@
 #include "Level.h"
 #include "ecs/systems/physics/PhysicsSystem.h"
 #include "ecs/systems/PlatformerMovementSystem.h"
+#include "ecs/systems/NetworkingSystem.h"
 
 #define DEFAULT_ROOM_PATH "assets/default_room.room"
 
@@ -23,6 +24,7 @@ Level::Level()
 
     systems.push_back(new PlatformerMovementSystem());
     systems.push_back(new PhysicsSystem());
+    systems.push_back(new NetworkingSystem());
 
     for (auto sys : systems) sys->init(this);
 }

@@ -2,9 +2,6 @@
 #include "gu/game_utils.h"
 
 #include "LevelScreen.h"
-#include "level/ecs/networking/NetworkedComponent.h"
-#include "macro_magic/json_reflectable.h"
-#include "macro_magic/component.h"
 
 int main() {
     gu::Config config;
@@ -19,19 +16,11 @@ int main() {
 
     std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
 
-//    LevelScreen scr;
-//
-//    gu::setScreen(&scr);
-//
-//    gu::run();
+    LevelScreen scr;
 
-    NetworkedComponent<Test> h;
-//    NetworkedComponent<Test2> h2;
-//    NetworkedComponent<Test2> h3;
+    gu::setScreen(&scr);
 
-    std::cout << h.getComponentTypeHash() << '\n';
-//    std::cout << h2.getComponentTypeHash() << '\n';
-//    std::cout << h3.getComponentTypeHash() << '\n';
+    gu::run();
 
     return 0;
 }

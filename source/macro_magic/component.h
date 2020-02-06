@@ -4,9 +4,25 @@
 
 #include "json_reflectable.h"
 
-#define FIELD(type, name, default_value) (type) name
+template<typename T>
+size_t hashValue(const T &v)
+{
+    return std::hash<T>{}(v);
+}
 
-#define COMPONENT(component_name, ...)\
+#define HASH_FIELD(X) \
+    hash ^= hashValue(X) + 0x9e3779b9 + (hash << 6u) + (hash >> 2u)
+
+#define HASH(...)\
+    size_t getHash()\
+    {\
+        size_t hash = 0;\
+        DOFOREACH_SEMICOLON(HASH_FIELD, __VA_ARGS__)\
+        return hash;\
+    }\
+
+
+#define COMPONENT(component_name, hash_func, ...)\
     struct component_name {\
         constexpr static const char *COMPONENT_NAME = #component_name;\
         \
@@ -14,24 +30,35 @@
         \
         REFLECTABLE(__VA_ARGS__)\
         \
-        size_t getHash()\
-        {\
-            return 0;\
-        }\
+        hash_func\
         \
         size_t prevHash = 0;\
     };
 
+
 COMPONENT(
+    // component name:
     Test,
 
-    FIELD(int, poep, 3),
-    FIELD(float, kaas, 3.0)
+    // values to calculate hash:
+    HASH(ham, kaas),
+
+    // fields:
+    FIELD_DEF_VAL (int, ham, 2),
+    FIELD         (float, kaas)
 )
 
-//COMPONENT(
-//    Test2,
-//    (int) henkie
-//)
+
+COMPONENT(
+// component name:
+        Test2,
+
+// values to calculate hash:
+        HASH(ham, kaas),
+
+// fields:
+        FIELD_DEF_VAL (int, ham, 2),
+        FIELD         (float, kaas)
+)
 
 #endif //GAME_COMPONENT_H
