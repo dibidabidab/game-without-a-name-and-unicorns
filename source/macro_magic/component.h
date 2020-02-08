@@ -23,18 +23,17 @@ size_t hashValue(const T &v)
 
 
 #define COMPONENT(component_name, hash_func, ...)\
-    struct component_name {\
+    REFLECTABLE_STRUCT(component_name, __VA_ARGS__)\
+        \
         constexpr static const char *COMPONENT_NAME = #component_name;\
         \
         inline static const size_t COMPONENT_TYPE_HASH = std::hash<std::string_view>{}(#component_name);\
         \
-        REFLECTABLE(__VA_ARGS__)\
-        \
         hash_func\
         \
-        size_t prevHash = 0;\
-    };
+        size_t prevHash = 0;
 
+#define END_COMPONENT(component_name) END_REFLECTABLE_STRUCT(component_name)
 
 COMPONENT(
     // component name:
@@ -47,18 +46,6 @@ COMPONENT(
     FIELD_DEF_VAL (int, ham, 2),
     FIELD         (float, kaas)
 )
-
-
-COMPONENT(
-// component name:
-        Test2,
-
-// values to calculate hash:
-        HASH(ham, kaas),
-
-// fields:
-        FIELD_DEF_VAL (int, ham, 2),
-        FIELD         (float, kaas)
-)
+END_COMPONENT(Test)
 
 #endif //GAME_COMPONENT_H

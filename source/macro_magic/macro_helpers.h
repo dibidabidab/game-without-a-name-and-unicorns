@@ -212,6 +212,26 @@
 #define DOFOREACH_SEMICOLON_15(m, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) m(x1); m(x2); m(x3); m(x4); m(x5); m(x6); m(x7); m(x8); m(x9); m(x10); m(x11); m(x12); m(x13); m(x14); m(x15);
 
 
+#define DOFOREACH_NO_DELIMITER(macro, ...) DOFOREACH_PASS1(CAT_TOKENS(DOFOREACH_NO_DELIMITER_, NARGS(__VA_ARGS__)), (macro, __VA_ARGS__))
+
+#define DOFOREACH_NO_DELIMITER_0(m)
+#define DOFOREACH_NO_DELIMITER_1(m, x1) m(x1)
+#define DOFOREACH_NO_DELIMITER_2(m, x1, x2) m(x1) m(x2)
+#define DOFOREACH_NO_DELIMITER_3(m, x1, x2, x3) m(x1) m(x2) m(x3)
+#define DOFOREACH_NO_DELIMITER_4(m, x1, x2, x3, x4) m(x1) m(x2) m(x3) m(x4)
+#define DOFOREACH_NO_DELIMITER_5(m, x1, x2, x3, x4, x5) m(x1) m(x2) m(x3) m(x4) m(x5)
+#define DOFOREACH_NO_DELIMITER_6(m, x1, x2, x3, x4, x5, x6)  m(x1) m(x2) m(x3) m(x4) m(x5) m(x6)
+#define DOFOREACH_NO_DELIMITER_7(m, x1, x2, x3, x4, x5, x6, x7) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7)
+#define DOFOREACH_NO_DELIMITER_8(m, x1, x2, x3, x4, x5, x6, x7, x8) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7) m(x8)
+#define DOFOREACH_NO_DELIMITER_9(m, x1, x2, x3, x4, x5, x6, x7, x8, x9) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7) m(x8) m(x9)
+#define DOFOREACH_NO_DELIMITER_10(m, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7) m(x8) m(x9) m(x10)
+#define DOFOREACH_NO_DELIMITER_11(m, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7) m(x8) m(x9) m(x10) m(x11)
+#define DOFOREACH_NO_DELIMITER_12(m, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7) m(x8) m(x9) m(x10) m(x11) m(x12)
+#define DOFOREACH_NO_DELIMITER_13(m, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7) m(x8) m(x9) m(x10) m(x11) m(x12) m(x13)
+#define DOFOREACH_NO_DELIMITER_14(m, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7) m(x8) m(x9) m(x10) m(x11) m(x12) m(x13) m(x14)
+#define DOFOREACH_NO_DELIMITER_15(m, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) m(x1) m(x2) m(x3) m(x4) m(x5) m(x6) m(x7) m(x8) m(x9) m(x10) m(x11) m(x12) m(x13) m(x14) m(x15)
+
+
 
 
 //

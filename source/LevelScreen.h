@@ -27,6 +27,8 @@ class LevelScreen : public Screen
 
     FrameBuffer *fbo = nullptr;
 
+    entt::entity player = level.entities.create();
+
   public:
 
     LevelScreen() : cam(.1, 100, 0, 0)
@@ -34,13 +36,12 @@ class LevelScreen : public Screen
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
 
-        auto player = level.entities.create();
         level.entities.assign<Physics>(player, ivec2(5, 13), ivec2(32, 52));
         level.entities.assign<LocalPlayer>(player);
         level.entities.assign<PlatformerMovement>(player);
         level.entities.assign<Networked>(player,
             // to send:
-            Networked::components<PlatformerMovement>(),
+            Networked::components<PlatformerMovement, Physics>(),
             // to receive:
             Networked::components<>()
         );
@@ -49,6 +50,16 @@ class LevelScreen : public Screen
     void render(double deltaTime) override
     {
         level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
+
+//        static bool added = false;
+//        if (!added && level.getTime() > 3)
+//        {
+//            added = true;
+//            level.entities.assign<PlatformerMovement>(player);
+//        }
+
+        if (KeyInput::justPressed(GLFW_KEY_DELETE))
+            level.entities.destroy(player);
 
         fbo->bind();
         glClearColor(.5, 0, .1, 1);

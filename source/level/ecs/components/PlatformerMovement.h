@@ -4,17 +4,6 @@
 
 #include "../../../macro_magic/component.h"
 
-//struct PlatformerMovement
-//{
-//    float jumpVelocity = 120;
-//    float walkVelocity = 50;
-//
-//    bool jump = false, left = false, right = false, fall = false;
-//
-//    // used by system:
-//    float fallPressedTimer = 0;
-//};
-
 COMPONENT(
     PlatformerMovement,
     HASH(jump, left, right, fall, jumpVelocity, walkVelocity),
@@ -25,10 +14,12 @@ COMPONENT(
     FIELD(bool, jump),
     FIELD(bool, left),
     FIELD(bool, right),
-    FIELD(bool, fall),
-
-    FIELD_DEF_VAL(float, fallPressedTimer, 0)
+    FIELD(bool, fall)
 )
+    // used by system:
+    float fallPressedTimer = 0;
+
+END_COMPONENT(PlatformerMovement)
 
 // todo: move this to other file?:
 struct LocalPlayer {};

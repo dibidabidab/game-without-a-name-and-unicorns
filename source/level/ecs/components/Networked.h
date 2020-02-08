@@ -7,33 +7,31 @@
 #include "../networking/NetworkedComponent.h"
 #include "Physics.h"
 
-typedef std::vector<AbstractNetworkedComponent *> NetworkedComponents;
+struct NetworkedComponents_
+{
+    std::vector<AbstractNetworkedComponent *> list;
+
+    ~NetworkedComponents_()
+    {
+//        for (auto *c : list) delete c;
+    }
+};
+
+typedef std::shared_ptr<NetworkedComponents_> NetworkedComponents;
 
 struct Networked
 {
 
     NetworkedComponents toSend, toReceive;
 
+    int networkID = rand();
+
     std::map<size_t, bool> componentPresence;
-
-    Networked(NetworkedComponents toSend, NetworkedComponents toReceive)
-        : toSend(toSend), toReceive(toReceive) {}
-
-    Networked(const Networked &n)
-    {
-        throw gu_err("yeah, this is gonna break");
-    }
-
-    ~Networked()
-    {
-        for (auto *c : toSend)    delete c;
-        for (auto *c : toReceive) delete c;
-    }
 
     template <typename... ComponentTypes>
     static NetworkedComponents components()
     {
-        return { new NetworkedComponent<ComponentTypes>()... };
+        return std::make_shared<NetworkedComponents_>(NetworkedComponents_{{ new NetworkedComponent<ComponentTypes>()... }});
     }
 
 };

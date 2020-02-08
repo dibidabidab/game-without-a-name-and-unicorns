@@ -2,6 +2,8 @@
 #ifndef GAME_TERRAINCOLLISIONDETECTOR_H
 #define GAME_TERRAINCOLLISIONDETECTOR_H
 
+#include "../../../../macro_magic/json_reflectable.h"
+
 class Room;
 struct AABB;
 
