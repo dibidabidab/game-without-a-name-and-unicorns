@@ -4,7 +4,7 @@
 
 
 #include <utils/gu_error.h>
-#include "../networking/NetworkedComponent.h"
+#include "../systems/networking/NetworkedComponent.h"
 #include "Physics.h"
 
 struct NetworkedComponents_
@@ -13,6 +13,7 @@ struct NetworkedComponents_
 
     ~NetworkedComponents_()
     {
+        // todo
 //        for (auto *c : list) delete c;
     }
 };
@@ -29,7 +30,7 @@ struct Networked
     std::map<size_t, bool> componentPresence;
 
     template <typename... ComponentTypes>
-    static NetworkedComponents components()
+    inline static NetworkedComponents components()
     {
         return std::make_shared<NetworkedComponents_>(NetworkedComponents_{{ new NetworkedComponent<ComponentTypes>()... }});
     }

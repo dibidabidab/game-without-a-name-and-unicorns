@@ -20,7 +20,7 @@ void Room::toBinary(std::vector<unsigned char> &out)
     out.push_back(width);
     out.push_back(height);
 
-    uint8 tilesOffset = out.size();
+    int tilesOffset = out.size();
 
     out.resize(tilesOffset + width * height);
 

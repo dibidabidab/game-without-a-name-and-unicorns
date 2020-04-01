@@ -5,7 +5,7 @@
 #include "Level.h"
 #include "ecs/systems/physics/PhysicsSystem.h"
 #include "ecs/systems/PlatformerMovementSystem.h"
-#include "ecs/systems/NetworkingSystem.h"
+#include "ecs/systems/networking/NetworkingSystem.h"
 
 #define DEFAULT_ROOM_PATH "assets/default_room.room"
 

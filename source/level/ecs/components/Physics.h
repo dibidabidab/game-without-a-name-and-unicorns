@@ -45,7 +45,7 @@ END_REFLECTABLE_STRUCT(AABB)
 COMPONENT(
     Physics,
 
-    HASH(body.halfSize.x, body.halfSize.y, velocity.x, velocity.y),
+    HASH(body.halfSize.x, body.halfSize.y, int(velocity.x) / 10, int(velocity.y) / 10, body.center.x / 10, body.center.y / 10),
 
     FIELD           (AABB,  body),
     FIELD_DEF_VAL   (float, gravity, 9.8 * Level::PIXELS_PER_BLOCK),

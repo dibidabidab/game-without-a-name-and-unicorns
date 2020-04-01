@@ -15,6 +15,17 @@ set_property(TARGET game PROPERTY CXX_STANDARD_REQUIRED ON)
 add_subdirectory(../gu/library/ ./bin/gu)
 target_link_libraries(game gameutils)
 
+
+# ---WEBSOCKETPP---
+include_directories(../websocketpp)
+target_include_directories(game PUBLIC ../websocketpp)
+
+
+# ---ASIO---
+include_directories(../asio/asio/include)
+target_include_directories(game PUBLIC ../asio/asio/include)
+
+
 # -no-pie is used to get 'application/x-application' as mime type instead of 'application/x-sharedlib'
 set(CMAKE_CXX_FLAGS  "-no-pie -O3")
 

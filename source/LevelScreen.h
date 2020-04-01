@@ -79,7 +79,7 @@ class LevelScreen : public Screen
         lineRenderer.scale = 1;
 
         level.entities.view<Physics>().each([&](auto e, Physics &p) {
-            p.draw(lineRenderer, mu::X);
+            p.draw(lineRenderer, mu::Z);
         });
 
         fbo->unbind();

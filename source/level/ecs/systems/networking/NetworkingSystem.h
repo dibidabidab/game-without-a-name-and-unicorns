@@ -3,9 +3,9 @@
 #define GAME_NETWORKINGSYSTEM_H
 
 
-#include "LevelSystem.h"
-#include "../../Level.h"
-#include "../components/Networked.h"
+#include "../LevelSystem.h"
+#include "../../../Level.h"
+#include "../../components/Networked.h"
 
 class NetworkingSystem : public LevelSystem
 {

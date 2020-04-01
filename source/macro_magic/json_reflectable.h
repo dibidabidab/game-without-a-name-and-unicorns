@@ -6,6 +6,8 @@
 #include "json.hpp"
 #include "utils/gu_error.h"
 
+#define FIELDS(type, ...) DOFOREACH( , __VA_ARGS__)
+
 #define FIELD(type, name)                        ()                (type) name
 
 #define FIELD_DEF_VAL(type, name, default_value) (= default_value) (type) name
