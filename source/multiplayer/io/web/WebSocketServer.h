@@ -9,11 +9,12 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include "WebSocket.h"
+#include "../SocketServer.h"
 
 typedef websocketpp::server<websocketpp::config::asio> websockserver;
 typedef std::shared_ptr<websocketpp::connection<websocketpp::config::asio>> websockcon;
 
-class WebSocketServer
+class WebSocketServer : public SocketServer
 {
     websockserver server;
     std::map<websockcon, WebSocket *> connectionToWebSocket;
@@ -23,11 +24,9 @@ class WebSocketServer
 
     const int port;
 
-    std::function<void(WebSocket *)> onNewSocket;
+    void start() override;
 
-    void start();
-
-    void stop();
+    void stop() override;
 
     ~WebSocketServer();
 

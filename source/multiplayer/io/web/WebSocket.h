@@ -2,6 +2,8 @@
 #ifndef GAME_WEBSOCKET_H
 #define GAME_WEBSOCKET_H
 
+#include <utils/gu_error.h>
+
 #ifdef EMSCRIPTEN
 
 #include <emscripten/websocket.h>
@@ -24,55 +26,28 @@ class WebSocketServer;
 
 #endif
 
-#include <string>
-#include <functional>
+#include "../Socket.h"
 
 /**
  * Wrapper class for websockets on different platforms.
  */
-class WebSocket
+class WebSocket : public Socket
 {
 
   public:
-    /**
-     * URL this socket is connected to.
-     * Will be empty if this socket was created by a server instead of a client.
-     */
-    const std::string url;
-
-    std::function<void(WebSocket *)>
-            onOpen              = [](auto){},
-            onConnectionFailed  = [](auto){},
-            onClose             = [](auto){};
-    std::function<void(WebSocket *, const char *data, int size)>
-            onMessage           = [](auto, auto, auto){};
-
     /**
      * Create a WebSocket.
      * call .open() to actually connect
      */
     WebSocket(const std::string &url);
 
-    /**
-     * Try to open the connection
-     * @return success
-     */
-    void open();
+    void open() override;
 
-    /**
-     * send data over the socket
-     */
-    void send(const char *data, unsigned int length);
+    void send(const char *data, unsigned int length) override;
 
-    /**
-     * close the socket
-     */
-    void close();
+    void close() override;
 
-    /**
-     * Returns true if the websocket is ready to use
-     */
-    bool isOpened() const { return opened; }
+    bool isOpened() const override { return opened; }
 
   private:
 

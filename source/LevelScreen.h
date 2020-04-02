@@ -51,13 +51,6 @@ class LevelScreen : public Screen
     {
         level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
 
-//        static bool added = false;
-//        if (!added && level.getTime() > 3)
-//        {
-//            added = true;
-//            level.entities.assign<PlatformerMovement>(player);
-//        }
-
         if (KeyInput::justPressed(GLFW_KEY_DELETE))
             level.entities.destroy(player);
 

@@ -3,12 +3,7 @@
 #define GAME_COMPONENT_H
 
 #include "json_reflectable.h"
-
-template<typename T>
-size_t hashValue(const T &v)
-{
-    return std::hash<T>{}(v);
-}
+#include <utils/hashing.h>
 
 #define HASH_FIELD(X) \
     hash ^= hashValue(X) + 0x9e3779b9 + (hash << 6u) + (hash >> 2u)
@@ -27,7 +22,7 @@ size_t hashValue(const T &v)
         \
         constexpr static const char *COMPONENT_NAME = #component_name;\
         \
-        inline static const size_t COMPONENT_TYPE_HASH = std::hash<std::string_view>{}(#component_name);\
+        inline static const size_t COMPONENT_TYPE_HASH = hashStringCrossPlatform(#component_name);\
         \
         hash_func\
         \

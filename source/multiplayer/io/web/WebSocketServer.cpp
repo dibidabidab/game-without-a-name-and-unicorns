@@ -1,7 +1,6 @@
 
 #ifndef EMSCRIPTEN
 
-#include <utils/gu_error.h>
 #include "WebSocketServer.h"
 
 
@@ -50,10 +49,9 @@ WebSocketServer::WebSocketServer(int port) : port(port)
 WebSocketServer::~WebSocketServer()
 {
     if (!server.stopped())
-        throw gu_err(
-                "WebSocketServer-object on port " + std::to_string(port)
-                + " destroyed before actual server was stopped.\nDid the object go out of scope?"
-        );
+        std::cerr <<
+                "WebSocketServer-object on port " << std::to_string(port)
+                << " destroyed before actual server was stopped. Did the object go out of scope?";
 
     for (auto &sock : connectionToWebSocket)
         delete sock.second;

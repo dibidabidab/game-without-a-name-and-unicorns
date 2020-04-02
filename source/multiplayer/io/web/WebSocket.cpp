@@ -1,6 +1,4 @@
 
-#include <utils/gu_error.h>
-
 #include "WebSocket.h"
 
 #ifdef EMSCRIPTEN
@@ -14,7 +12,7 @@ struct EmscriptenCallbackFunctions
         WebSocket *sock = (WebSocket *) userData;
         sock->opened = true;
 
-        printf("open(eventType=%d)\n", eventType);
+//        printf("open(eventType=%d)\n", eventType);
 
         sock->onOpen(sock);
         return 0;
@@ -22,7 +20,7 @@ struct EmscriptenCallbackFunctions
 
     static EM_BOOL onClose(int eventType, const EmscriptenWebSocketCloseEvent *e, void *userData)
     {
-        printf("close(eventType=%d, wasClean=%d, code=%d, reason=%s)\n", eventType, e->wasClean, e->code, e->reason);
+//        printf("close(eventType=%d, wasClean=%d, code=%d, reason=%s)\n", eventType, e->wasClean, e->code, e->reason);
 
         WebSocket *sock = (WebSocket *) userData;
 
@@ -42,7 +40,7 @@ struct EmscriptenCallbackFunctions
 
     static EM_BOOL onMessage(int eventType, const EmscriptenWebSocketMessageEvent *e, void *userData)
     {
-        printf("message(eventType=%d, data=%p, numBytes=%d, isText=%d)\n", eventType, e->data, e->numBytes, e->isText);
+//        printf("message(eventType=%d, data=%p, numBytes=%d, isText=%d)\n", eventType, e->data, e->numBytes, e->isText);
 
         WebSocket *sock = (WebSocket *) userData;
 
@@ -50,10 +48,10 @@ struct EmscriptenCallbackFunctions
             printf("IGNORED text data: \"%s\"\n", e->data);
         else
         {
-            printf("binary data:");
-            for(int i = 0; i < e->numBytes; ++i)
-                printf(" %02X", e->data[i]);
-            printf("\n");
+//            printf("binary data:");
+//            for(int i = 0; i < e->numBytes; ++i)
+//                printf(" %02X", e->data[i]);
+//            printf("\n");
 
             sock->onMessage(sock, (char *) e->data, e->numBytes);
         }
@@ -66,15 +64,22 @@ struct EmscriptenCallbackFunctions
 WebSocket::WebSocket(websockcon connection)
     :   connectionCreatedByServer(connection),
         opened(true),
-        url("[" + connection->get_raw_socket().remote_endpoint().address().to_string() + "]:"
+        Socket("[" + connection->get_raw_socket().remote_endpoint().address().to_string() + "]:"
             + std::to_string(connection->get_raw_socket().remote_endpoint().port()))
 {
+}
+
+WebSocket::~WebSocket()
+{
+    if (client && !client->stopped())
+        std::cerr << "WebSocket-object to " << url << " destroyed before actual socket was closed. Did the object go out of scope?";
+    delete client;
 }
 
 #endif
 
 
-WebSocket::WebSocket(const std::string &url) : url(url)
+WebSocket::WebSocket(const std::string &url) : Socket(url)
 {
 }
 
@@ -100,6 +105,7 @@ void WebSocket::open()
     {
         printf("WebSocket creation failed, error code %d!\n", (EMSCRIPTEN_RESULT) emSockId);
         onConnectionFailed(this);
+        return;
     }
 
     emscripten_websocket_set_onopen_callback(emSockId, (void*) this, EmscriptenCallbackFunctions::onOpen);
@@ -183,11 +189,3 @@ void WebSocket::close()
 
     #endif
 }
-
-WebSocket::~WebSocket()
-{
-    if (client && !client->stopped())
-        throw gu_err("WebSocket-object to " + url + " destroyed before actual socket was closed.\nDid the object go out of scope?");
-    delete client;
-}
-

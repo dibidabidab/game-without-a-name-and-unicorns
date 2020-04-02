@@ -2,8 +2,9 @@
 #include "gu/game_utils.h"
 
 #include "LevelScreen.h"
-#include "multiplayer/io/WebSocket.h"
-#include "multiplayer/io/WebSocketServer.h"
+#include "multiplayer/io/web/WebSocket.h"
+#include "multiplayer/io/web/WebSocketServer.h"
+#include "multiplayer/io/MultiplayerIO.h"
 
 #ifndef EMSCRIPTEN
 #include <asio.hpp>
@@ -16,11 +17,11 @@
 
 void websocksvr()
 {
-    WebSocketServer *server = new WebSocketServer(25565);
+    auto *server = new WebSocketServer(25565);
 
     server->onNewSocket = [](auto sock) {
         std::cout << "wowie " << sock->url << "\n";
-        sock->onMessage = [](WebSocket *sock, const char *data, int size) {
+        sock->onMessage = [](Socket *sock, const char *data, int size) {
             std::cout << "received " << size << " bytes from " << sock->url << '\n';
 
             sock->send(data, size);
@@ -38,7 +39,7 @@ void websock()
 
     WebSocket *ws = new WebSocket("ws://192.168.2.5:25565");
 
-    ws->onOpen = [&](WebSocket *ws) {
+    ws->onOpen = [&](Socket *ws) {
         std::cout << "wowie socket is open\n";
 
         std::vector<char> data{'a', 'b', 'c'};
@@ -63,7 +64,42 @@ void websock()
 
 #endif
 
-int main() {
+struct Testttt {
+    int b;
+};
+
+void addListener(MultiplayerIO &io)
+{
+    io.addPacketListener<Testttt>([](auto data, auto size) {
+        assert(size == sizeof(int));
+        return new Testttt{((int *) data)[0]};
+    },
+    [](Testttt *packet) {
+        std::cout << packet->b << " whaaat \n";
+    });
+}
+
+int main()
+{
+
+    std::cout << typeHashCrossPlatform<WebSocket>() << '\n';
+    std::cout << typeHashCrossPlatform<WebSocket>() << '\n';
+    std::cout << typeHashCrossPlatform<Level>() << '\n';
+    std::cout << typeHashCrossPlatform<WebSocket>() << '\n';
+
+    MultiplayerIO io;
+    addListener(io);
+
+    std::vector<char> data;
+    data.resize(sizeof(uint32) + sizeof(int));
+    uint32 type = typeHashCrossPlatform<Testttt>();
+    memcpy(&data[0], &type, sizeof(uint32));
+    int b = 4444;
+    memcpy(&data[sizeof(uint32)], &b, sizeof(int));
+
+    io.test(&data[0], data.size());
+
+    return 0;
 
 #ifndef EMSCRIPTEN
 //    websocksvr();
@@ -79,7 +115,7 @@ int main() {
         std::vector<char> data{'a', 'b', 'c'};
         ws.send(&data[0], 3);
     };
-    ws.onClose = [&](auto) {
+    ws.onClose = [](auto) {
         std::cout << "socket is closed :C\n";
 
         EM_ASM(
@@ -96,6 +132,10 @@ int main() {
     ws.open();
 
 #endif
+
+//    gu::beforeRender = [&](double deltaTime) {
+//        std::cout << "poepie\n";
+//    };
 
     gu::Config config;
     config.width = 1900;
