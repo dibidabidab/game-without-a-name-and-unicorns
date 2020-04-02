@@ -14,7 +14,7 @@ struct EmscriptenCallbackFunctions
 
 //        printf("open(eventType=%d)\n", eventType);
 
-        sock->onOpen(sock);
+        sock->onOpen();
         return 0;
     }
 
@@ -25,9 +25,9 @@ struct EmscriptenCallbackFunctions
         WebSocket *sock = (WebSocket *) userData;
 
         if (sock->opened)
-            sock->onClose(sock);
+            sock->onClose();
         else
-            sock->onConnectionFailed(sock);
+            sock->onConnectionFailed();
 
         return 0;
     }
@@ -53,7 +53,7 @@ struct EmscriptenCallbackFunctions
 //                printf(" %02X", e->data[i]);
 //            printf("\n");
 
-            sock->onMessage(sock, (char *) e->data, e->numBytes);
+            sock->onMessage((char *) e->data, e->numBytes);
         }
         return 0;
     }
@@ -104,7 +104,7 @@ void WebSocket::open()
     if (emSockId <= 0)
     {
         printf("WebSocket creation failed, error code %d!\n", (EMSCRIPTEN_RESULT) emSockId);
-        onConnectionFailed(this);
+        onConnectionFailed();
         return;
     }
 
@@ -124,19 +124,19 @@ void WebSocket::open()
     client->set_open_handler([&](websocketpp::connection_hdl hdl) {
 
         opened = true;
-        onOpen(this);
+        onOpen();
     });
     client->set_message_handler([&](websocketpp::connection_hdl hdl, websockserver::message_ptr msg) {
 
-        onMessage(this, msg->get_payload().data(), msg->get_payload().size());
+        onMessage(msg->get_payload().data(), msg->get_payload().size());
     });
     client->set_close_handler([&](websocketpp::connection_hdl hdl) {
 
-        onClose(this);
+        onClose();
     });
     client->set_fail_handler([&](websocketpp::connection_hdl hdl) {
 
-        onConnectionFailed(this);
+        onConnectionFailed();
     });
     client->init_asio();
 

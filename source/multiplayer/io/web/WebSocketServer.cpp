@@ -27,7 +27,7 @@ WebSocketServer::WebSocketServer(int port) : port(port)
 
         WebSocket *sock = connectionToWebSocket[conn];
 
-        sock->onMessage(sock, msg->get_payload().data(), msg->get_payload().size());
+        sock->onMessage(msg->get_payload().data(), msg->get_payload().size());
     });
     server.set_close_handler([&](websocketpp::connection_hdl hdl) {
 
@@ -35,7 +35,7 @@ WebSocketServer::WebSocketServer(int port) : port(port)
 
         WebSocket *sock = connectionToWebSocket[conn];
 
-        sock->onClose(sock);
+        sock->onClose();
 
         std::cout << sock->url << " SOCKET WAS CLOSED\n";
 

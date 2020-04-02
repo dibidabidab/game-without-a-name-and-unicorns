@@ -5,78 +5,197 @@
 #include <utils/math_utils.h>
 #include <map>
 #include <utils/hashing.h>
+#include <json.hpp>
+#include <utils/gu_error.h>
 
 
 #include "SocketServer.h"
+#include "Socket.h"
 
-struct PacketListener
+
+struct PacketReceiver
 {
+    std::function<void*(PacketReceiver*, const char *data, int size)> function;
 
-    std::function<void*(PacketListener*, const char *data, int size)> preparer;
+    template <class PacketType>
+    using Func = std::function<PacketType*(const char *data, int size)>;
 
-    std::function<void(PacketListener*, void*)> handler;
+    void *realFunction; // can be casted to Func<?>*
+};
 
-    void *realPreparer, *realHandler;
+struct PacketHandler
+{
+    std::function<void(PacketHandler*, void*)> function;
+
+    template <class PacketType>
+    using Func = std::function<void(PacketType*)>;
+
+    void *realFunction; // can be casted to Func<?>*
+};
+
+struct PacketSender
+{
+    std::function<void(PacketSender*, void*, std::vector<char> &out)> function;
+
+    template <class PacketType>
+    using Func = std::function<void(PacketType*, std::vector<char> &out)>;
+
+    void *realFunction; // can be casted to Func<?>*
 
 };
 
+
 typedef uint32 PacketTypeHash;
+
+template <class Type>
+inline const char *typeName()
+{
+    return typeid(Type).name();
+}
+
+template <class Type>
+inline PacketTypeHash typeHashCrossPlatform()
+{
+    return hashStringCrossPlatform(typeName<Type>());
+}
+
 
 class MultiplayerIO
 {
 
-    std::map<PacketTypeHash, PacketListener*> packetListeners;
+    std::map<PacketTypeHash, std::string> packetTypeNames;
+    std::map<PacketTypeHash, PacketReceiver*> packetReceivers;
+    std::map<PacketTypeHash, PacketHandler*> packetHandlers;
+    std::map<PacketTypeHash, PacketSender*> packetSenders;
+
+    Socket *socket = NULL;
+
+    int packetsReceived = 0;
 
   public:
 
-    template <class PacketType>
-    using Preparer = std::function<PacketType*(const char *data, int size)>;
+    MultiplayerIO() = default;
+    MultiplayerIO(Socket *socket);
 
-    template <class PacketType>
-    using Handler = std::function<void(PacketType*)>;
-
-    template <class PacketType>
-    void addPacketListener(
-
-            Preparer<PacketType> preparer,
-
-            Handler<PacketType> handler
-    )
+    template <class Type>
+    void addPacketReceiver(PacketReceiver::Func<Type> func)
     {
-        auto listener = new PacketListener;
+        PacketTypeHash hash = typeHashCrossPlatform<Type>();
+        registerName<Type>();
 
-        listener->realPreparer = (void *) new Preparer<PacketType>(preparer);
-        listener->realHandler = (void *) new Handler<PacketType>(handler);
+        auto receiver = packetReceivers[hash] = new PacketReceiver;
 
-        listener->preparer = [&](auto listener, auto data, auto size)
+        receiver->realFunction = (void *) new PacketReceiver::Func<Type>(func);
+
+        receiver->function = [](auto receiver, auto data, auto size)
         {
-            auto realPreparer = (Preparer<PacketType> *) listener->realPreparer;
+            auto realFunction = (PacketReceiver::Func<Type> *) receiver->realFunction;
 
-            return (void *) realPreparer->operator()(data, size);
+            return (void *) realFunction->operator()(data, size);
         };
-
-        listener->handler = [&](auto listener, void *packet)
-        {
-            auto realHandler = (Handler<PacketType> *) listener->realHandler;
-
-            realHandler->operator()((PacketType *) packet);
-        };
-
-        packetListeners[typeHashCrossPlatform<PacketType>()] = listener;
     }
 
-    void test(const char *data, int size)
+    template <class Type>
+    void addPacketHandler(PacketHandler::Func<Type> func)
     {
+        PacketTypeHash hash = typeHashCrossPlatform<Type>();
+        registerName<Type>();
+
+        auto handler = packetHandlers[hash] = new PacketHandler;
+
+        handler->realFunction = (void *) new PacketHandler::Func<Type>(func);
+
+        handler->function = [](auto handler, void *packet)
+        {
+            auto realFunction = (PacketHandler::Func<Type> *) handler->realFunction;
+
+            realFunction->operator()((Type *) packet);
+        };
+    }
+
+    template <class Type>
+    void addJsonPacketHandler(PacketHandler::Func<Type> func)
+    {
+        addJsonPacketType<Type>();
+        addPacketHandler<Type>(func);
+    }
+
+    template <class Type>
+    void addPacketSender(PacketSender::Func<Type> func)
+    {
+        PacketTypeHash hash = typeHashCrossPlatform<Type>();
+        registerName<Type>();
+
+        auto sender = packetSenders[hash] = new PacketSender;
+
+        sender->realFunction = (void *) new PacketSender::Func<Type>(func);
+
+        sender->function = [](auto sender, void *packet, auto &out)
+        {
+            auto realFunction = (PacketSender::Func<Type> *) sender->realFunction;
+
+            realFunction->operator()((Type *) packet, out);
+        };
+    }
+
+    template <class Type>
+    void addJsonPacketType()
+    {
+        addPacketReceiver<Type>([](auto data, auto size) {
+
+            auto packet = new Type;
+
+            json::from_ubjson(data, size).get_to(*packet);
+
+            return packet;
+        });
+        addPacketSender<Type>([](Type *packet, std::vector<char> &out) {
+
+            json j = *packet;
+            json::to_ubjson(j, out, false, false);
+        });
+    }
+
+    template <class Type>
+    void send(Type &packet)
+    {
+        PacketTypeHash hash = typeHashCrossPlatform<Type>();
+
         static int typeHashSize = sizeof(PacketTypeHash);
 
-        assert(size >= typeHashSize);
+        std::vector<char> out(typeHashSize);
+        memcpy(&out[0], &hash, typeHashSize);
 
-        PacketTypeHash packetType = ((PacketTypeHash *) data)[0];
+        auto sender = packetSenders[hash];
 
-        auto listener = packetListeners[packetType];
+        if (!sender)
+            throw gu_err("tried to send packet, but no sender was registered.");
 
-        void *packet = listener->preparer(listener, data + typeHashSize, size - typeHashSize);
-        listener->handler(listener, packet);
+        sender->function(sender, &packet, out);
+
+        if (socket)
+            socket->send(&out[0], out.size());
+    }
+
+    void printTypes()
+    {
+        for (auto t : packetTypeNames)
+            std::cout << t.second << ": " << t.first << '\n';
+    }
+
+    int nrOfPacketsReceived() const { return packetsReceived; }
+
+    ~MultiplayerIO();
+
+  private:
+
+    void handleInput(const char *data, int size);
+
+    template <class Type>
+    void registerName()
+    {
+        PacketTypeHash hash = typeHashCrossPlatform<Type>();
+        packetTypeNames[hash] = typeName<Type>();
     }
 
 };

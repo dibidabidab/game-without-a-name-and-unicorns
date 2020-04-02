@@ -16,12 +16,12 @@ class Socket
      */
     const std::string url;
 
-    std::function<void(Socket *)>
-            onOpen              = [](auto){},
-            onConnectionFailed  = [](auto){},
-            onClose             = [](auto){};
-    std::function<void(Socket *, const char *data, int size)>
-            onMessage           = [](auto, auto, auto){};
+    std::function<void()>
+            onOpen              = [](){},
+            onConnectionFailed  = [](){},
+            onClose             = [](){};
+    std::function<void(const char *data, int size)>
+            onMessage           = [](auto, auto){};
 
 
     /**
