@@ -20,7 +20,7 @@ END_REFLECTABLE_STRUCT(ChatMsg)
 #include <websocketpp/config/asio_no_tls_client.hpp>
 
 
-void websocksvr()
+WebSocketServer *websocksvr()
 {
     auto *server = new WebSocketServer(25565);
 
@@ -28,13 +28,10 @@ void websocksvr()
 
         std::cout << "wowie " << sock->url << "\n";
 
-        auto io = new MultiplayerIO(sock);
+        auto io = new MultiplayerIO(sock, MultiplayerIO::PacketHandlingMode::IMMEDIATELY_ON_SOCKET_THREAD);
 
         io->addJsonPacketHandler<ChatMsg>([=](auto msg) {
-            std::cout << "received " << msg->text << '\n';
-
-//            ChatMsg toSend {"from server to client"};
-            io->send(*msg);
+            std::cout << "Server received: " << msg->text << '\n';
             delete msg;
         });
         io->printTypes();
@@ -44,14 +41,14 @@ void websocksvr()
 //
 //            sock->send(data, size);
 //        };
-        sock->onClose = [=](){
+        sock->onClose = [=]() {
             std::cout << "awwwww bye\n";
-
             delete io;
         };
     };
 
     server->start();
+    return server;
 }
 
 
@@ -63,23 +60,25 @@ void websocksvr()
 
 int main()
 {
+    double time = 0;
 #ifndef EMSCRIPTEN
-//    websocksvr();
+    auto svr = websocksvr();
+
+    gu::beforeRender = [&](double deltaTime) {
+
+        time += deltaTime;
+        if (time > 10)
+            svr->stop();
+    };
 
 //#else
-
-    WebSocket *ws = new WebSocket("ws://192.168.2.5:25565");
+    SharedSocket ws = SharedSocket(new WebSocket("ws://192.168.2.5:25565"));
 
     auto io = new MultiplayerIO(ws);
 
     io->addJsonPacketHandler<ChatMsg>([=](auto msg) {
-//        std::cout << "received: " << msg->text << '\n';
+        std::cout << "Client received: " << msg->text << '\n';
         delete msg;
-
-        ChatMsg toSend {"pizza" + std::to_string(io->nrOfPacketsReceived())};
-        io->send(toSend);
-
-        std::cout << "sent" << '\n';
     });
     io->printTypes();
 
@@ -100,7 +99,6 @@ int main()
 //    };
     ws->onClose = [=]() {
         std::cout << "socket is closed :C\n";
-        delete io;
 
         #ifdef EMSCRIPTEN
         EM_ASM(
@@ -120,18 +118,36 @@ int main()
 
     ws->open();
 
-#endif
+    gu::beforeRender = [&](double deltaTime) {
 
-//    gu::beforeRender = [&](double deltaTime) {
-//        std::cout << "poepie\n";
-//    };
+        time += deltaTime;
+        if (time > 10)
+            svr->stop();
+
+        if (io)
+        {
+            if (ws->isClosed())
+            {
+                delete io;
+                io = NULL;
+                ws = NULL;
+                return;
+            }
+
+            io->handlePackets();
+            ChatMsg toSend {"hi"};
+//            io->send(toSend);
+        }
+    };
+
+#endif
 
     gu::Config config;
     config.width = 1900;
     config.height = 900;
     config.title = "My game";
     config.showFPSInTitleBar = true; // note: this option will hide the default title.
-    config.vsync = false;
+    config.vsync = true;
     config.samples = 0;
     if (!gu::init(config))
         return -1;

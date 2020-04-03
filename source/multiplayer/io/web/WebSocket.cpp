@@ -25,7 +25,10 @@ struct EmscriptenCallbackFunctions
         WebSocket *sock = (WebSocket *) userData;
 
         if (sock->opened)
+        {
+            sock->closed = true;
             sock->onClose();
+        }
         else
             sock->onConnectionFailed();
 
@@ -74,6 +77,7 @@ WebSocket::~WebSocket()
     if (client && !client->stopped())
         std::cerr << "WebSocket-object to " << url << " destroyed before actual socket was closed. Did the object go out of scope?";
     delete client;
+    std::cout << "WebSocket ended\n";
 }
 
 #endif
@@ -132,6 +136,7 @@ void WebSocket::open()
     });
     client->set_close_handler([&](websocketpp::connection_hdl hdl) {
 
+        closed = true;
         onClose();
     });
     client->set_fail_handler([&](websocketpp::connection_hdl hdl) {

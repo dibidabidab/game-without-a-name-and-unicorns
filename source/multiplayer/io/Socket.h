@@ -43,6 +43,11 @@ class Socket
      * Returns true if the socket is ready to use
      */
     virtual bool isOpened() const = 0;
+
+    /**
+     * Returns true if socket is opened and now closed.
+     */
+    virtual bool isClosed() const = 0;
 };
 
 

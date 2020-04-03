@@ -49,9 +49,11 @@ class WebSocket : public Socket
 
     bool isOpened() const override { return opened; }
 
+    bool isClosed() const override { return closed; }
+
   private:
 
-    bool opened = false;
+    bool opened = false, closed = false;
 
     #ifdef EMSCRIPTEN
 

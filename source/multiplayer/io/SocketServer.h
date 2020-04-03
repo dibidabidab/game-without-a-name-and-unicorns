@@ -4,10 +4,12 @@
 
 class Socket;
 
+typedef std::shared_ptr<Socket> SharedSocket;
+
 class SocketServer
 {
   public:
-    std::function<void(Socket *)> onNewSocket;
+    std::function<void(SharedSocket)> onNewSocket;
 
     virtual void start() = 0;
 

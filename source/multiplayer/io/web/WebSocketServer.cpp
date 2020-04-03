@@ -17,32 +17,40 @@ WebSocketServer::WebSocketServer(int port) : port(port)
 
         std::cout << conn->get_raw_socket().remote_endpoint() << " OPENED SOCKET TO SERVER\n";
 
-        WebSocket *sock = new WebSocket(conn);
+        SharedSocket sock = SharedSocket(new WebSocket(conn));
 
-        connectionToWebSocket[conn] = sock;
+        mapMutex.lock();
+        connectionToSocket[conn] = sock;
+        mapMutex.unlock();
         onNewSocket(sock);
     });
     server.set_message_handler([&](websocketpp::connection_hdl hdl, websockserver::message_ptr msg) {
         auto conn = server.get_con_from_hdl(hdl);
 
-        WebSocket *sock = connectionToWebSocket[conn];
+        SharedSocket sock = connectionToSocket[conn];
 
         sock->onMessage(msg->get_payload().data(), msg->get_payload().size());
     });
     server.set_close_handler([&](websocketpp::connection_hdl hdl) {
 
+        mapMutex.lock();
         auto conn = server.get_con_from_hdl(hdl);
 
-        WebSocket *sock = connectionToWebSocket[conn];
+        SharedSocket sock = connectionToSocket[conn];
 
+        ((WebSocket *)sock.get())->closed = true;
         sock->onClose();
 
         std::cout << sock->url << " SOCKET WAS CLOSED\n";
 
-        connectionToWebSocket.erase(conn);
-        delete sock;
+        connectionToSocket.erase(conn);
 
-        std::cout << "(" << connectionToWebSocket.size() << " WebSocket(s) active)\n";
+        std::cout << "(" << connectionToSocket.size() << " WebSocket(s) active)\n";
+
+        if (stopCalled && connectionToSocket.empty())
+            server.stop();
+
+        mapMutex.unlock();
     });
 }
 
@@ -52,9 +60,6 @@ WebSocketServer::~WebSocketServer()
         std::cerr <<
                 "WebSocketServer-object on port " << std::to_string(port)
                 << " destroyed before actual server was stopped. Did the object go out of scope?";
-
-    for (auto &sock : connectionToWebSocket)
-        delete sock.second;
 }
 
 void WebSocketServer::start()
@@ -64,12 +69,20 @@ void WebSocketServer::start()
     server.start_accept();
     std::thread([&] {
         server.run();
+        std::cout << "WebSocketServer stopped\n";
     }).detach();
 }
 
 void WebSocketServer::stop()
 {
-    server.stop();
+    if (stopCalled) return;
+    mapMutex.lock();
+    stopCalled = true;
+    server.stop_listening();
+    for (const auto& s : connectionToSocket)
+        s.second->close();
+
+    mapMutex.unlock();
 }
 
 #endif

@@ -4,6 +4,7 @@
 
 #include <utils/math_utils.h>
 #include <map>
+#include <mutex>
 #include <utils/hashing.h>
 #include <json.hpp>
 #include <utils/gu_error.h>
@@ -62,20 +63,33 @@ inline PacketTypeHash typeHashCrossPlatform()
 
 class MultiplayerIO
 {
+  public:
+
+    enum PacketHandlingMode
+    {
+        IMMEDIATELY_ON_SOCKET_THREAD,
+        AFTER_CALLING_handle_packets_ON_ANY_THREAD
+    };
+
+  private:
 
     std::map<PacketTypeHash, std::string> packetTypeNames;
     std::map<PacketTypeHash, PacketReceiver*> packetReceivers;
     std::map<PacketTypeHash, PacketHandler*> packetHandlers;
     std::map<PacketTypeHash, PacketSender*> packetSenders;
 
-    Socket *socket = NULL;
+    std::mutex unhandledPacketsMutex;
+    std::map<PacketTypeHash, std::vector<void *>> unhandledPackets;
+
+    SharedSocket socket;
 
     int packetsReceived = 0;
 
+    const PacketHandlingMode handlingMode;
+
   public:
 
-    MultiplayerIO() = default;
-    MultiplayerIO(Socket *socket);
+    MultiplayerIO(SharedSocket, PacketHandlingMode=AFTER_CALLING_handle_packets_ON_ANY_THREAD);
 
     template <class Type>
     void addPacketReceiver(PacketReceiver::Func<Type> func)
@@ -177,11 +191,9 @@ class MultiplayerIO
             socket->send(&out[0], out.size());
     }
 
-    void printTypes()
-    {
-        for (auto t : packetTypeNames)
-            std::cout << t.second << ": " << t.first << '\n';
-    }
+    void handlePackets();
+    
+    void printTypes();
 
     int nrOfPacketsReceived() const { return packetsReceived; }
 
@@ -197,6 +209,8 @@ class MultiplayerIO
         PacketTypeHash hash = typeHashCrossPlatform<Type>();
         packetTypeNames[hash] = typeName<Type>();
     }
+
+    void handlePacket(PacketTypeHash typeHash, void *packet);
 
 };
 

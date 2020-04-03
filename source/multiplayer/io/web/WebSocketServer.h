@@ -17,7 +17,10 @@ typedef std::shared_ptr<websocketpp::connection<websocketpp::config::asio>> webs
 class WebSocketServer : public SocketServer
 {
     websockserver server;
-    std::map<websockcon, WebSocket *> connectionToWebSocket;
+    std::map<websockcon, SharedSocket> connectionToSocket;
+    bool stopCalled = false;
+
+    std::mutex mapMutex;
 
   public:
     explicit WebSocketServer(int port);
