@@ -25,8 +25,6 @@ class WebSocketServer : public SocketServer
   public:
     explicit WebSocketServer(int port);
 
-    const int port;
-
     void start() override;
 
     void stop() override;

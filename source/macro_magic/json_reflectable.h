@@ -49,17 +49,17 @@
             DOFOREACH_SEMICOLON(PULL_FIELD_OUT_JSON, __VA_ARGS__)\
         }\
         \
-        void updatePartiallyFromJson(const json &j)\
-        {\
-            for (auto &el : j.items())\
-            {\
-                auto &key = el.key();\
-                DOFOREACH_NO_DELIMITER(IF_KEY_PULL_FIELD_OUT_JSON, __VA_ARGS__)\
-                {\
-                    throw gu_err(key + " is not a member of " + #className);\
-                }\
-            }\
-        }
+//        void updatePartiallyFromJson(const json &j)\
+//        {\
+//            for (auto &el : j.items())\
+//            {\
+//                auto &key = el.key();\
+//                DOFOREACH_NO_DELIMITER(IF_KEY_PULL_FIELD_OUT_JSON, __VA_ARGS__)\
+//                {\
+//                    throw gu_err(key + " is not a member of " + #className);\
+//                }\
+//            }\
+//        }
 
 #define END_REFLECTABLE_STRUCT(className)\
     };\

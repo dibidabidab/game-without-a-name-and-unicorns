@@ -81,13 +81,13 @@ class MultiplayerIO
     std::mutex unhandledPacketsMutex;
     std::map<PacketTypeHash, std::vector<void *>> unhandledPackets;
 
-    SharedSocket socket;
-
     int packetsReceived = 0;
 
     const PacketHandlingMode handlingMode;
 
   public:
+
+    const SharedSocket socket;
 
     MultiplayerIO(SharedSocket, PacketHandlingMode=AFTER_CALLING_handle_packets_ON_ANY_THREAD);
 

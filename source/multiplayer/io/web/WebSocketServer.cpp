@@ -5,7 +5,7 @@
 
 
 
-WebSocketServer::WebSocketServer(int port) : port(port)
+WebSocketServer::WebSocketServer(int port) : SocketServer(port)
 {
     server.set_access_channels(websocketpp::log::alevel::all);
     server.clear_access_channels(websocketpp::log::alevel::all);

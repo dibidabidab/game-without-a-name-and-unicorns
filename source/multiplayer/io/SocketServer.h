@@ -9,6 +9,10 @@ typedef std::shared_ptr<Socket> SharedSocket;
 class SocketServer
 {
   public:
+    explicit SocketServer(int port) : port(port) {};
+
+    const int port;
+
     std::function<void(SharedSocket)> onNewSocket;
 
     virtual void start() = 0;

@@ -4,150 +4,90 @@
 #include "multiplayer/io/web/WebSocket.h"
 #include "multiplayer/io/web/WebSocketServer.h"
 #include "multiplayer/io/MultiplayerIO.h"
+#include "multiplayer/session/MultiplayerClientSession.h"
+#include "multiplayer/session/MultiplayerServerSession.h"
 
-REFLECTABLE_STRUCT(
-        ChatMsg,
+#ifdef EMSCRIPTEN
+EM_JS(const char *, promptJS, (const char *text), {
 
-        FIELD(std::string, text)
-)
-END_REFLECTABLE_STRUCT(ChatMsg)
+    var input = prompt(UTF8ToString(text));
+    var lengthBytes = lengthBytesUTF8(input) + 1;
+    var stringOnWasmHeap = _malloc(lengthBytes);
+    stringToUTF8(input, stringOnWasmHeap, lengthBytes);
+    return stringOnWasmHeap;
+});
+EM_JS(void, alertJS, (const char *text), {
 
-#ifndef EMSCRIPTEN
-#include <asio.hpp>
-#include <websocketpp/server.hpp>
-#include <websocketpp/client.hpp>
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/config/asio_no_tls_client.hpp>
+    alert(UTF8ToString(text));
+});
+EM_JS(const char *, urlHash, (), {
 
-
-WebSocketServer *websocksvr()
-{
-    auto *server = new WebSocketServer(25565);
-
-    server->onNewSocket = [](auto sock) {
-
-        std::cout << "wowie " << sock->url << "\n";
-
-        auto io = new MultiplayerIO(sock, MultiplayerIO::PacketHandlingMode::IMMEDIATELY_ON_SOCKET_THREAD);
-
-        io->addJsonPacketHandler<ChatMsg>([=](auto msg) {
-            std::cout << "Server received: " << msg->text << '\n';
-            delete msg;
-        });
-        io->printTypes();
-
-//        sock->onMessage = [](Socket *sock, const char *data, int size) {
-//            std::cout << "received " << size << " bytes from " << sock->url << '\n';
-//
-//            sock->send(data, size);
-//        };
-        sock->onClose = [=]() {
-            std::cout << "awwwww bye\n";
-            delete io;
-        };
-    };
-
-    server->start();
-    return server;
-}
-
-
-
-#else
-#include <emscripten/websocket.h>
-
+    var input = prompt(UTF8ToString(text));
+    var lengthBytes = lengthBytesUTF8(input) + 1;
+    var stringOnWasmHeap = _malloc(lengthBytes);
+    stringToUTF8(input, stringOnWasmHeap, lengthBytes);
+    return stringOnWasmHeap;
+});
 #endif
 
-int main()
+std::string prompt(std::string text)
 {
-    double time = 0;
+#ifdef EMSCRIPTEN
+    const char *input = promptJS(text.c_str());
+    std::string inputStr(input);
+    free((char *)input);
+    return inputStr;
+#else
+    std::string input;
+    std::cout << text << ": ";
+    std::getline(std::cin, input);
+    return input;
+#endif
+}
+
+int main(int argc, char *argv[])
+{
 #ifndef EMSCRIPTEN
-    auto svr = websocksvr();
+    MultiplayerServerSession mpSession(new WebSocketServer(25565));
 
-    gu::beforeRender = [&](double deltaTime) {
+#else
+    SharedSocket ws = SharedSocket(new WebSocket(argc > 1 ? std::string(argv[1]) : "ws://192.168.2.5:25565"));
+    MultiplayerClientSession mpSession(ws);
 
-        time += deltaTime;
-        if (time > 10)
-            svr->stop();
+    ws->onOpen = [&]() {
+        mpSession.join(prompt("Enter your name"));
     };
-
-//#else
-    SharedSocket ws = SharedSocket(new WebSocket("ws://192.168.2.5:25565"));
-
-    auto io = new MultiplayerIO(ws);
-
-    io->addJsonPacketHandler<ChatMsg>([=](auto msg) {
-        std::cout << "Client received: " << msg->text << '\n';
-        delete msg;
-    });
-    io->printTypes();
-
-    std::cout << io << '\n';
-
-    ws->onOpen = [=]() {
-        std::cout << "wowie socket is open\n";
-
-        ChatMsg toSend {"first pizza"};
-        std::cout << io << '\n';
-        io->send(toSend);
-
-//        std::vector<char> data{'a', 'b', 'c'};
-//        ws->send(&data[0], 3);
-    };
-//    ws->onMessage = [](auto, const char *data, int size) {
-//        std::cout << "received " << size << " bytes\n";
-//    };
-    ws->onClose = [=]() {
-        std::cout << "socket is closed :C\n";
-
+    mpSession.onJoinRequestDeclined = [&](auto reason) {
         #ifdef EMSCRIPTEN
-        EM_ASM(
-                alert("Websocket was closed");
-        );
+        alertJS(reason.c_str());
         #endif
+        mpSession.join(prompt("Try again. Enter your name"));
     };
     ws->onConnectionFailed = []() {
         std::cout << "connection failed :C\n";
 
         #ifdef EMSCRIPTEN
         EM_ASM(
-                alert("Websocket connection failed");
+            alert("Websocket connection failed");
         );
         #endif
     };
-
     ws->open();
+
+
+#endif
 
     gu::beforeRender = [&](double deltaTime) {
 
-        time += deltaTime;
-        if (time > 10)
-            svr->stop();
-
-        if (io)
-        {
-            if (ws->isClosed())
-            {
-                delete io;
-                io = NULL;
-                ws = NULL;
-                return;
-            }
-
-            io->handlePackets();
-            ChatMsg toSend {"hi"};
-//            io->send(toSend);
-        }
+        mpSession.update(deltaTime);
     };
-
-#endif
 
     gu::Config config;
     config.width = 1900;
     config.height = 900;
     config.title = "My game";
     config.showFPSInTitleBar = true; // note: this option will hide the default title.
-    config.vsync = true;
+    config.vsync = false;
     config.samples = 0;
     if (!gu::init(config))
         return -1;

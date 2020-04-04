@@ -158,6 +158,11 @@ void WebSocket::open()
 
 void WebSocket::send(const char *data, unsigned int length)
 {
+    if (closed)
+    {
+        std::cerr << "tried to send data on already closed WebSocket\n";
+        return;
+    }
     #ifdef EMSCRIPTEN
 
     emscripten_websocket_send_binary(emSockId, (void *) data, length);

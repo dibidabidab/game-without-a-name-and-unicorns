@@ -60,8 +60,9 @@ MultiplayerIO::~MultiplayerIO()
     for (auto &h : packetHandlers) delete h.second;
     for (auto &s : packetSenders) delete s.second;
 
-    if (!unhandledPackets.empty())
-        std::cerr << "MultiplayerIO deleted before handling remaining packets!\n";
+    for (auto &p : unhandledPackets)
+        if (!p.second.empty())
+            std::cerr << "MultiplayerIO deleted before handling remaining packets!\n";
 
     std::cout << "io ended\n";
 }
@@ -78,8 +79,6 @@ void MultiplayerIO::handlePackets()
     for (auto &uP : unhandledPackets)
     {
         PacketTypeHash hash = uP.first;
-
-        std::cout << "handle " << uP.second.size() << " " << packetTypeNames[hash] << "-packet(s)\n";
 
         for (auto packet : uP.second) handlePacket(hash, packet);
         uP.second.clear();
