@@ -1,6 +1,7 @@
 
 #include <files/file.h>
 #include <fstream>
+#include <gu/game_utils.h>
 
 #include "Level.h"
 #include "ecs/systems/physics/PhysicsSystem.h"
@@ -18,9 +19,9 @@ Level::Level()
     }
     else currentRoom = new Room(20, 18);
 
-    systems.push_back(new PlatformerMovementSystem());
-    systems.push_back(new PhysicsSystem());
-    systems.push_back(new NetworkingSystem());
+    systems.push_back(new PlatformerMovementSystem("pltf movmnt"));
+    systems.push_back(new PhysicsSystem("physics"));
+    systems.push_back(new NetworkingSystem("networking"));
 
     for (auto sys : systems) sys->init(this);
 }
@@ -34,11 +35,13 @@ Level::~Level()
 
 void Level::update(double deltaTime)
 {
+    gu::profiler::Zone levelUpdateZone("level update");
     time += deltaTime;
 
     for (auto sys : systems)
     {
         if (sys->disabled) continue;
+        gu::profiler::Zone sysZone(sys->name);
 
         if (sys->updateFrequency == .0) sys->update(deltaTime, this);
         else

@@ -6,8 +6,13 @@ class Level;
 
 class LevelSystem
 {
+  public:
+    const std::string name;
+
+    LevelSystem(std::string name) : name(std::move(name)) {}
 
   protected:
+
     float updateFrequency = 0; // update this system every n seconds. if n = 0 then update(deltaTime) is called, else update(n)
     float updateAccumulator = 0;
 

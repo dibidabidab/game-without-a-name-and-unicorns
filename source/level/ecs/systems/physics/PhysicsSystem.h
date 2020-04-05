@@ -17,6 +17,7 @@ namespace
 
 class PhysicsSystem : public LevelSystem
 {
+    using LevelSystem::LevelSystem;
   protected:
     void update(double deltaTime, Level *lvl) override
     {

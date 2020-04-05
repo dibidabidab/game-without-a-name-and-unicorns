@@ -67,6 +67,8 @@ struct NetworkedComponent : public AbstractNetworkedComponent
     void componentToJsonIfChanged(bool &hasChanged, bool &componentPresent, json &out, const entt::entity &e,
                                   entt::registry &reg) override
     {
+        gu::profiler::Zone z("toJson");
+
         Component *com = reg.try_get<Component>(e);
         componentPresent = com != nullptr;
         hasChanged = false;

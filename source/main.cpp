@@ -48,7 +48,7 @@ std::string prompt(std::string text)
 int main(int argc, char *argv[])
 {
 #ifndef EMSCRIPTEN
-    MultiplayerServerSession mpSession(new WebSocketServer(25565));
+    MultiplayerServerSession mpSession(new WebSocketServer(55555));
 
 #else
     SharedSocket ws = SharedSocket(new WebSocket(argc > 1 ? std::string(argv[1]) : "ws://192.168.2.5:25565"));
@@ -77,24 +77,26 @@ int main(int argc, char *argv[])
 
 #endif
 
-    gu::beforeRender = [&](double deltaTime) {
+    Level level;
 
+    gu::beforeRender = [&](double deltaTime) {
         mpSession.update(deltaTime);
+        level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
     };
 
     gu::Config config;
     config.width = 1900;
     config.height = 900;
-    config.title = "My game";
-    config.showFPSInTitleBar = true; // note: this option will hide the default title.
+    config.title = "dibidabidab";
     config.vsync = false;
     config.samples = 0;
+    config.printOpenGLMessages = false;
     if (!gu::init(config))
         return -1;
 
     std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
 
-    LevelScreen scr;
+    LevelScreen scr(&level);
 
     gu::setScreen(&scr);
 

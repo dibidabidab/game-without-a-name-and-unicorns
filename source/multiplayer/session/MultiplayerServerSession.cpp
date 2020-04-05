@@ -1,5 +1,7 @@
 
+#include <gu/profiler.h>
 #include "MultiplayerServerSession.h"
+#include "../../level/ecs/components/Physics.h"
 
 using namespace Packet::from_player;
 using namespace Packet::from_server;
@@ -92,21 +94,43 @@ void MultiplayerServerSession::handleJoinRequest(Player *player, join_request *r
 
 void MultiplayerServerSession::update(double deltaTime)
 {
+    gu::profiler::Zone zone("server");
+
     playersJoiningAndLeaving.lock();
     for (int i = playersJoining.size() - 1; i >= 0; i--) // weird loop because handleJoinRequest() might delete item
         playersJoining[i]->io->handlePackets();
     playersJoiningAndLeaving.unlock();
 
-    for (auto &p : players)
-        p->io->handlePackets();
+    {
+        gu::profiler::Zone zone("packets in");
+        for (auto &p : players)
+        {
+            gu::profiler::Zone zone(p->name);
+            p->io->handlePackets();
+        }
+    }
 
+    handleLeavingPlayers();
+}
+
+void MultiplayerServerSession::handleLeavingPlayers()
+{
     playersJoiningAndLeaving.lock();
     for (int pId : playersLeaving)
     {
-        auto deleted = deletePlayer(pId);
-        std::cout << deleted->name << " @" << deleted->io->socket->url << " left\n";
-        player_left msg { pId };
-        sendPacketToAllPlayers(msg);
+        if (getPlayer(pId) == NULL)
+        {
+            // this means that the player didn't join before leaving
+            auto deleted = deletePlayer(pId, playersJoining);
+            std::cout << deleted->io->socket->url << " left without joining\n";
+        }
+        else
+        {
+            auto deleted = deletePlayer(pId, players);
+            std::cout << deleted->name << " @" << deleted->io->socket->url << " left\n";
+            player_left msg { pId };
+            sendPacketToAllPlayers(msg);
+        }
     }
     playersLeaving.clear();
     playersJoiningAndLeaving.unlock();

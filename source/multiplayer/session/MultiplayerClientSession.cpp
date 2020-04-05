@@ -1,9 +1,11 @@
 #include <memory>
 
 #include <utility>
+#include <gu/profiler.h>
 
 
 #include "MultiplayerClientSession.h"
+#include "../../level/ecs/components/Physics.h"
 
 using namespace Packet::from_player;
 using namespace Packet::from_server;
@@ -50,7 +52,11 @@ MultiplayerClientSession::MultiplayerClientSession(SharedSocket socket) : io(soc
 
 void MultiplayerClientSession::update(double deltaTime)
 {
-    io.handlePackets();
+    gu::profiler::Zone zone("multiplayer client");
+    {
+        gu::profiler::Zone zone("packets in");
+        io.handlePackets();
+    }
 }
 
 void MultiplayerClientSession::join(std::string username)

@@ -28,7 +28,9 @@ class MultiplayerSession
      */
     void validateUsername(const std::string &name, std::string &declineReason) const;
 
-    Player_ptr deletePlayer(int id);
+    Player_ptr deletePlayer(int id) { return deletePlayer(id, players); }
+
+    Player_ptr deletePlayer(int id, std::vector<Player_ptr> &players);
 
     Player_ptr getPlayer(int id);
 

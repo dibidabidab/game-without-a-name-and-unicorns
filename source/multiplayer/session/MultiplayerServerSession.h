@@ -33,6 +33,8 @@ class MultiplayerServerSession : public MultiplayerSession
 
     void handleJoinRequest(Player *, Packet::from_player::join_request *);
 
+    void handleLeavingPlayers();
+
 };
 
 

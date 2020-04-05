@@ -18,7 +18,7 @@ void MultiplayerSession::validateUsername(const std::string &name, std::string &
             declineReason = "Username already taken. :(";
 }
 
-Player_ptr MultiplayerSession::deletePlayer(int pId)
+Player_ptr MultiplayerSession::deletePlayer(int pId, std::vector<Player_ptr> &players)
 {
     for (int i = 0; i < players.size(); i++)
     {

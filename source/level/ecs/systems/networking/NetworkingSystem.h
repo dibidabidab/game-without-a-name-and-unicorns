@@ -9,6 +9,7 @@
 
 class NetworkingSystem : public LevelSystem
 {
+    using LevelSystem::LevelSystem;
   protected:
     void init(Level *lvl) override
     {
@@ -34,6 +35,7 @@ class NetworkingSystem : public LevelSystem
 
             for (auto *c : networked.toSend->list)
             {
+                gu::profiler::Zone z(c->getComponentTypeName());
                 json jsonToSend;
                 bool hasChanged, isPresent;
                 c->componentToJsonIfChanged(hasChanged, isPresent, jsonToSend, e, lvl->entities);
@@ -47,7 +49,7 @@ class NetworkingSystem : public LevelSystem
 
                 if (hasChanged)
                 {
-                    std::cout << c->getComponentTypeName() << " changed for " << int(e) << ":" << networked.networkID << ":\n" << jsonToSend << "\n";
+//                    std::cout << c->getComponentTypeName() << " changed for " << int(e) << ":" << networked.networkID << ":\n" << jsonToSend << "\n";
                 }
             }
         });

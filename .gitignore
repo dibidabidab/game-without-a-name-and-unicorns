@@ -1,5 +1,6 @@
 */.idea/*
 *.cbp
+imgui.ini
 
 desktop/out/*
 html/out/*
