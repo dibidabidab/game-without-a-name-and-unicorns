@@ -1,10 +1,12 @@
 
 #include <files/file.h>
 #include <fstream>
+#include <gu/game_utils.h>
 
 #include "Level.h"
 #include "ecs/systems/physics/PhysicsSystem.h"
 #include "ecs/systems/PlatformerMovementSystem.h"
+#include "ecs/systems/networking/NetworkingSystem.h"
 
 #define DEFAULT_ROOM_PATH "assets/default_room.room"
 
@@ -17,12 +19,9 @@ Level::Level()
     }
     else currentRoom = new Room(20, 18);
 
-    // todo: remove this, this is just so that the player doesn't fall into the void
-    currentRoom->setTile(1, 0, Tile::full);
-    currentRoom->setTile(2, 0, Tile::full);
-
-    systems.push_back(new PlatformerMovementSystem());
-    systems.push_back(new PhysicsSystem());
+    systems.push_back(new PlatformerMovementSystem("pltf movmnt"));
+    systems.push_back(new PhysicsSystem("physics"));
+    systems.push_back(new NetworkingSystem("networking"));
 
     for (auto sys : systems) sys->init(this);
 }
@@ -36,11 +35,13 @@ Level::~Level()
 
 void Level::update(double deltaTime)
 {
+    gu::profiler::Zone levelUpdateZone("level update");
     time += deltaTime;
 
     for (auto sys : systems)
     {
         if (sys->disabled) continue;
+        gu::profiler::Zone sysZone(sys->name);
 
         if (sys->updateFrequency == .0) sys->update(deltaTime, this);
         else

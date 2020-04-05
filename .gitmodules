@@ -4,3 +4,9 @@
 [submodule "entt"]
 	path = entt
 	url = https://github.com/skypjack/entt.git
+[submodule "asio"]
+	path = asio
+	url = https://github.com/chriskohlhoff/asio
+[submodule "websocketpp"]
+	path = websocketpp
+	url = https://github.com/zaphoyd/websocketpp

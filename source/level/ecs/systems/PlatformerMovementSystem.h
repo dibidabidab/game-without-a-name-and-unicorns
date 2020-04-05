@@ -11,14 +11,15 @@
 
 class PlatformerMovementSystem : public LevelSystem
 {
+    using LevelSystem::LevelSystem;
   protected:
     void update(double deltaTime, Level *lvl) override
     {
         lvl->entities.view<PlatformerMovement, LocalPlayer>().each([&](PlatformerMovement &movement, LocalPlayer) {
-            movement.jump = KeyInput::pressed(GLFW_KEY_SPACE);
-            movement.left = KeyInput::pressed(GLFW_KEY_LEFT);
-            movement.right = KeyInput::pressed(GLFW_KEY_RIGHT);
-            movement.fall = KeyInput::pressed(GLFW_KEY_DOWN);
+            movement.jump  = KeyInput::pressed(GLFW_KEY_SPACE);
+            movement.left  = KeyInput::pressed(GLFW_KEY_A);
+            movement.right = KeyInput::pressed(GLFW_KEY_D);
+            movement.fall  = KeyInput::pressed(GLFW_KEY_S);
         });
         lvl->entities.view<PlatformerMovement, Physics>().each([&](PlatformerMovement &movement, Physics &physics) {
 
@@ -33,7 +34,7 @@ class PlatformerMovementSystem : public LevelSystem
                 movement.fallPressedTimer = 0;
             }
             // ignore platforms for at least 0.2 sec since down-arrow was pressed:
-            if (physics.ignorePlatforms && (movement.fallPressedTimer += deltaTime) > .2 && !movement.fall)
+            if (physics.ignorePlatforms && (movement.fallPressedTimer += deltaTime) > .1 && !movement.fall)
                 physics.ignorePlatforms = false;
         });
     }

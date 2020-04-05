@@ -15,7 +15,13 @@ set_property(TARGET game PROPERTY CXX_STANDARD_REQUIRED ON)
 add_subdirectory(../gu/library/ ./bin/gu)
 target_link_libraries(game gameutils)
 
-set(CMAKE_CXX_FLAGS  "-O3")
+
+# ---ASIO---
+include_directories(../asio/asio/include)
+target_include_directories(game PUBLIC ../asio/asio/include)
+
+
+set(CMAKE_CXX_FLAGS  "-O3 -lwebsocket.js")
 
 set_target_properties(game PROPERTIES SUFFIX ".html")
 set_target_properties(game PROPERTIES LINK_FLAGS "-s WASM=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s BINARYEN_METHOD='native-wasm' --preload-file ../assets --shell-file index.html")

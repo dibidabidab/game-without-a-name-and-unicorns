@@ -8,16 +8,19 @@
 #include <graphics/orthographic_camera.h>
 #include <graphics/frame_buffer.h>
 #include <utils/quad_renderer.h>
+#include <imgui.h>
 
 #include "level/Level.h"
 #include "level/RoomEditor.h"
 #include "level/DebugTileRenderer.h"
 #include "level/ecs/components/Physics.h"
 #include "level/ecs/components/PlatformerMovement.h"
+#include "level/ecs/components/Networked.h"
+#include "macro_magic/component.h"
 
 class LevelScreen : public Screen
 {
-    Level level;
+    Level *level = NULL;
 
     DebugLineRenderer lineRenderer;
 
@@ -25,28 +28,35 @@ class LevelScreen : public Screen
 
     FrameBuffer *fbo = nullptr;
 
+    entt::entity player = level->entities.create();
+
   public:
 
-    LevelScreen() : cam(.1, 100, 0, 0)
+    LevelScreen(Level *level) : level(level), cam(.1, 100, 0, 0)
     {
+        assert(level != NULL);
+
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
 
-        auto player = level.entities.create();
-        level.entities.assign<Physics>(player, ivec2(5, 13), ivec2(32, 52));
-        level.entities.assign<LocalPlayer>(player);
-        level.entities.assign<PlatformerMovement>(player);
+        level->entities.assign<Physics>(player, ivec2(5, 13), ivec2(32, 52));
+        level->entities.assign<LocalPlayer>(player);
+        level->entities.assign<PlatformerMovement>(player);
+        level->entities.assign<Networked>(player,
+            // to send:
+            Networked::components<PlatformerMovement, Physics>(),
+            // to receive:
+            Networked::components<>()
+        );
     }
 
     void render(double deltaTime) override
     {
-        level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
-
         fbo->bind();
         glClearColor(.5, 0, .1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Room *room = level.getCurrentRoom();
+        Room *room = level->getCurrentRoom();
 
         lineRenderer.projection = cam.combined;
 
@@ -59,8 +69,8 @@ class LevelScreen : public Screen
         roomEditor.update(cam, room, lineRenderer);
         lineRenderer.scale = 1;
 
-        level.entities.view<Physics>().each([&](auto e, Physics &p) {
-            p.draw(lineRenderer, mu::X);
+        level->entities.view<Physics>().each([&](auto e, Physics &p) {
+            p.draw(lineRenderer, mu::Z);
         });
 
         fbo->unbind();
@@ -82,7 +92,7 @@ class LevelScreen : public Screen
 
     void renderDebugBackground()
     {
-        Room *room = level.getCurrentRoom();
+        Room *room = level->getCurrentRoom();
 
         // grid
         for (int x = 0; x < room->width; x++)
@@ -102,7 +112,7 @@ class LevelScreen : public Screen
 
     void renderDebugTiles()
     {
-        Room *room = level.getCurrentRoom();
+        Room *room = level->getCurrentRoom();
         auto color = vec3(1);
         // all tiles:
         for (int x = 0; x < room->width; x++)
