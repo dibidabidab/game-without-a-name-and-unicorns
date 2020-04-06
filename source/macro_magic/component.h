@@ -27,7 +27,6 @@
         hash_func\
         \
         size_t prevHash = 0;
-
 #define END_COMPONENT(component_name) END_REFLECTABLE_STRUCT(component_name)
 
 COMPONENT(

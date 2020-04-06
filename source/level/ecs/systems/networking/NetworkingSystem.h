@@ -33,23 +33,26 @@ class NetworkingSystem : public LevelSystem
     {
         lvl->entities.view<Networked>().each([&](auto e, Networked &networked) {
 
+            if (!networked.toSend) return;
+
             for (auto *c : networked.toSend->list)
             {
-                gu::profiler::Zone z(c->getComponentTypeName());
+                gu::profiler::Zone z(c->getDataTypeName());
                 json jsonToSend;
-                bool hasChanged, isPresent;
-                c->componentToJsonIfChanged(hasChanged, isPresent, jsonToSend, e, lvl->entities);
+                bool hasChanged = false, isPresent = true;
+                c->dataToJsonIfChanged(hasChanged, isPresent, jsonToSend, e, lvl->entities);
 
-                bool wasPresent = networked.componentPresence[c->getComponentTypeHash()];
+                bool wasPresent = networked.dataPresence[c->getDataTypeHash()];
 
                 if (wasPresent && !isPresent)
                 {
-                    std::cout << c->getComponentTypeName() << " was deleted from " << int(e) << ":" << networked.networkID <<"\n";
+                    networked.dataPresence[c->getDataTypeHash()] = false;
+                    std::cout << c->getDataTypeName() << " was deleted from " << int(e) << ":" << networked.networkID <<"\n";
                 }
 
                 if (hasChanged)
                 {
-//                    std::cout << c->getComponentTypeName() << " changed for " << int(e) << ":" << networked.networkID << ":\n" << jsonToSend << "\n";
+                    std::cout << c->getDataTypeName() << " changed for " << int(e) << ":" << networked.networkID << ":\n" << jsonToSend << "\n";
                 }
             }
         });

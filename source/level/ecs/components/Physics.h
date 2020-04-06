@@ -27,27 +27,34 @@ namespace nlohmann {
 /**
  * 2d pixel based Axis Aligned Bounding Box
  */
-REFLECTABLE_STRUCT(
+COMPONENT(
     AABB,
+
+    HASH(
+        halfSize.x, halfSize.y,
+        center.x / centerHashStep, center.y / centerHashStep
+    ),
 
     FIELD(ivec2, halfSize),
     FIELD(ivec2, center)
 )
+    int centerHashStep = 10;
 
     inline ivec2 topRight() const    { return center + halfSize; }
     inline ivec2 bottomRight() const { return center + ivec2(halfSize.x, -halfSize.y); }
     inline ivec2 bottomLeft() const  { return center - halfSize; }
     inline ivec2 topLeft() const     { return center + ivec2(-halfSize.x, halfSize.y); }
 
-END_REFLECTABLE_STRUCT(AABB)
+END_COMPONENT(AABB)
 
 
 COMPONENT(
     Physics,
 
-    HASH(body.halfSize.x, body.halfSize.y, int(velocity.x) / 10, int(velocity.y) / 10, body.center.x / 10, body.center.y / 10),
+    HASH(
+        int(velocity.x) / 10, int(velocity.y) / 10
+    ),
 
-    FIELD           (AABB,  body),
     FIELD_DEF_VAL   (float, gravity, 9.8 * Level::PIXELS_PER_BLOCK),
     FIELD           (vec2,  velocity),
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
@@ -58,7 +65,7 @@ COMPONENT(
     // used by PhysicsSystem:
     vec2 velocityAccumulator;
 
-    void draw(DebugLineRenderer &lineRenderer, const vec3 &color) const
+    void draw(const AABB &body, DebugLineRenderer &lineRenderer, const vec3 &color) const
     {
         lineRenderer.line(body.bottomLeft(), body.topLeft(), touches.leftWall    ? mu::Y : color);
         lineRenderer.line(body.topRight(), body.bottomRight(), touches.rightWall ? mu::Y : color);

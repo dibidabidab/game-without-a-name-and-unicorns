@@ -159,14 +159,14 @@ class MultiplayerIO
 
             auto packet = new Type;
 
-            json::from_ubjson(data, size).get_to(*packet);
+            json::from_cbor(data, size).get_to(*packet);
 
             return packet;
         });
         addPacketSender<Type>([](Type *packet, std::vector<char> &out) {
 
             json j = *packet;
-            json::to_ubjson(j, out, false, false);
+            json::to_cbor(j, out);
         });
     }
 

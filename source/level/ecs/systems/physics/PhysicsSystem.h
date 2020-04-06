@@ -23,9 +23,9 @@ class PhysicsSystem : public LevelSystem
     {
         collisionDetector = new TerrainCollisionDetector(lvl->getCurrentRoom());
 
-        lvl->entities.view<Physics>().each([&](Physics &physics) {
+        lvl->entities.view<Physics, AABB>().each([&](Physics &physics, AABB &body) {
 
-            updatePosition(physics, deltaTime);
+            updatePosition(physics, body, deltaTime);
             updateVelocity(physics, deltaTime);
         });
     }
@@ -50,7 +50,7 @@ class PhysicsSystem : public LevelSystem
     /**
      * Updates the position of a body using its velocity
      */
-    void updatePosition(Physics &physics, double deltaTime)
+    void updatePosition(Physics &physics, AABB &body, double deltaTime)
     {
         vec2 pixelsToMove = vec2(physics.velocity) * vec2(deltaTime);
         pixelsToMove += physics.velocityAccumulator; // add remains of previous update.
@@ -64,24 +64,24 @@ class PhysicsSystem : public LevelSystem
             else if (pixelsToMove.y <= -1)   toDo = Move::down;
             else break;
 
-            ivec2 prevPos = physics.body.center;
+            ivec2 prevPos = body.center;
 
-            if (tryMove(physics, toDo)) // move succeeded -> decrease pixelsToMove:
+            if (tryMove(physics, body, toDo)) // move succeeded -> decrease pixelsToMove:
             {
                 moved = true;
-                pixelsToMove -= physics.body.center - prevPos;
+                pixelsToMove -= body.center - prevPos;
             } // move is not possible:
             else if (toDo == Move::left || toDo == Move::right)  pixelsToMove.x = 0; // cant move horizontally anymore.
             else                                                 pixelsToMove.y = 0; // cant move vertically anymore.
         }
         physics.velocityAccumulator = pixelsToMove; // store remains for next update
-        if (!moved) updateTerrainCollisions(physics); // terrain might have changed
+        if (!moved) updateTerrainCollisions(physics, body); // terrain might have changed
     }
 
     /**
      * Will try to do the move, returns true if success
      */
-    bool tryMove(Physics &physics, Move toDo)
+    bool tryMove(Physics &physics, AABB &body, Move toDo)
     {
         std::vector<Move> movesToDo;
 
@@ -92,7 +92,7 @@ class PhysicsSystem : public LevelSystem
             if (!canDoMove(physics, toDo)) return false;
         }
         for (auto move : movesToDo)
-            doMove(physics, move);
+            doMove(physics, body, move);
         return true;
     }
 
@@ -128,22 +128,22 @@ class PhysicsSystem : public LevelSystem
     /**
      * Executes the move (without checking if the move is possible to do)
      */
-    void doMove(Physics &p, Move move)
+    void doMove(Physics &p, AABB &body, Move move)
     {
         switch (move)
         {
-            case up:    p.body.center.y++; break;
-            case down:  p.body.center.y--; break;
-            case left:  p.body.center.x--; break;
-            case right: p.body.center.x++; break;
+            case up:    body.center.y++; break;
+            case down:  body.center.y--; break;
+            case left:  body.center.x--; break;
+            case right: body.center.x++; break;
             case none:                     break;
         }
-        updateTerrainCollisions(p);
+        updateTerrainCollisions(p, body);
     }
 
-    void updateTerrainCollisions(Physics &p)
+    void updateTerrainCollisions(Physics &p, AABB &body)
     {
-        AABB outlineBox = p.body;
+        AABB outlineBox = body;
         outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
         p.touches = collisionDetector->detect(outlineBox, p.ignorePlatforms);
     }

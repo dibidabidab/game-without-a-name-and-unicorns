@@ -4,37 +4,96 @@
 
 
 #include <utils/gu_error.h>
-#include "../systems/networking/NetworkedComponent.h"
+#include "../systems/networking/NetworkedData.h"
 #include "Physics.h"
 
-struct NetworkedComponents_
-{
-    std::vector<AbstractNetworkedComponent *> list;
+class NetworkingSystem;
 
-    ~NetworkedComponents_()
+/**
+ * List of data types to send/receive
+ */
+struct NetworkedDataList
+{
+    bool contains(const char *dataType) const
     {
-        // todo
-//        for (auto *c : list) delete c;
+        for (const AbstractNetworkedData *d : list)
+            if (strcmp(d->getDataTypeName(), dataType) == 0) return true;
+        return false;
     }
+
+    /**
+     * Add a Component to the list
+     * @tparam Component stuct made with the COMPONENT() macro
+     */
+    template <class Component>
+    void component()
+    {
+        auto c = new NetworkedComponent<Component>();
+        add(c);
+        destructors.push_back([=] {
+            delete c;
+        });
+    }
+
+    /**
+     * Add Components to the list
+     * @tparam ComponentTypes stucts made with the COMPONENT() macro
+     */
+    template <typename... ComponentTypes>
+    void components()
+    {
+        (component<ComponentTypes>(), ...);
+    }
+
+    /**
+     * Add a Component-group to the list
+     *
+     * A Component-group
+     *      - sends ALL components when one or more have changed
+     *      - receives ALL components in 1 packet
+     *
+     * @tparam ComponentTypes stucts made with the COMPONENT() macro
+     */
+    template <typename... ComponentTypes>
+    void componentGroup()
+    {
+        auto group = new NetworkedComponentGroup<ComponentTypes...>();
+        add(group);
+        destructors.push_back([=] {
+            delete group;
+        });
+    }
+
+    ~NetworkedDataList()
+    {
+        for (auto &d : destructors) d();
+    }
+
+  private:
+    friend NetworkingSystem;
+
+    std::vector<AbstractNetworkedData *> list;
+
+    void add(AbstractNetworkedData *d)
+    {
+        assert(!contains(d->getDataTypeName()));
+        list.push_back(d);
+    }
+
+    std::vector<std::function<void()>> destructors;
 };
 
-typedef std::shared_ptr<NetworkedComponents_> NetworkedComponents;
-
+/**
+ * Useful for sending or receiving data associated with an entity over the network
+ */
 struct Networked
 {
+    NetworkedDataList *toSend = NULL, *toReceive = NULL;
 
-    NetworkedComponents toSend, toReceive;
-
+    // used to identify an entity across clients
     int networkID = rand();
 
-    std::map<size_t, bool> componentPresence;
-
-    template <typename... ComponentTypes>
-    inline static NetworkedComponents components()
-    {
-        return std::make_shared<NetworkedComponents_>(NetworkedComponents_{{ new NetworkedComponent<ComponentTypes>()... }});
-    }
-
+    std::map<size_t, bool> dataPresence;
 };
 
 #endif

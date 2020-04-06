@@ -39,15 +39,16 @@ class LevelScreen : public Screen
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
 
-        level->entities.assign<Physics>(player, ivec2(5, 13), ivec2(32, 52));
+        level->entities.assign<Physics>(player);
+        level->entities.assign<AABB>(player, ivec2(5, 13), ivec2(32, 52));
         level->entities.assign<LocalPlayer>(player);
         level->entities.assign<PlatformerMovement>(player);
-        level->entities.assign<Networked>(player,
-            // to send:
-            Networked::components<PlatformerMovement, Physics>(),
-            // to receive:
-            Networked::components<>()
-        );
+
+        static NetworkedDataList toSend;
+        toSend.components<PlatformerMovement>();
+        toSend.componentGroup<Physics, AABB>(); // if any changes -> send all
+
+        level->entities.assign<Networked>(player, &toSend);
     }
 
     void render(double deltaTime) override
@@ -69,8 +70,8 @@ class LevelScreen : public Screen
         roomEditor.update(cam, room, lineRenderer);
         lineRenderer.scale = 1;
 
-        level->entities.view<Physics>().each([&](auto e, Physics &p) {
-            p.draw(lineRenderer, mu::Z);
+        level->entities.view<Physics, AABB>().each([&](auto e, Physics &p, AABB &body) {
+            p.draw(body, lineRenderer, mu::Z);
         });
 
         fbo->unbind();
