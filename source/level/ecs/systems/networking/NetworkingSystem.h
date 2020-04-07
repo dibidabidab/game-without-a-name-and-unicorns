@@ -52,7 +52,7 @@ class NetworkingSystem : public LevelSystem
 
                 if (hasChanged)
                 {
-                    std::cout << c->getDataTypeName() << " changed for " << int(e) << ":" << networked.networkID << ":\n" << jsonToSend << "\n";
+//                    std::cout << c->getDataTypeName() << " changed for " << int(e) << ":" << networked.networkID << ":\n" << jsonToSend << "\n";
                 }
             }
         });

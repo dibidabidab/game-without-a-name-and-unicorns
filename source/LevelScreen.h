@@ -17,6 +17,7 @@
 #include "level/ecs/components/PlatformerMovement.h"
 #include "level/ecs/components/Networked.h"
 #include "macro_magic/component.h"
+#include "level/ecs/EntityInspector.h"
 
 class LevelScreen : public Screen
 {
@@ -43,12 +44,35 @@ class LevelScreen : public Screen
         level->entities.assign<AABB>(player, ivec2(5, 13), ivec2(32, 52));
         level->entities.assign<LocalPlayer>(player);
         level->entities.assign<PlatformerMovement>(player);
+//        level->entities.assign<Inspecting>(player);
 
-        static NetworkedDataList toSend;
-        toSend.components<PlatformerMovement>();
-        toSend.componentGroup<Physics, AABB>(); // if any changes -> send all
+        auto toSend = std::make_shared<NetworkedDataList>();
+        toSend->components<PlatformerMovement>();
+        toSend->componentGroup<Physics, AABB>(); // if any changes -> send all
 
-        level->entities.assign<Networked>(player, &toSend);
+        level->entities.assign<Networked>(player, rand(), toSend);
+
+        for (int i = 0; i < 10; i++)
+        {
+            auto player = level->entities.create();
+            level->entities.assign<Physics>(player);
+            level->entities.assign<AABB>(player, ivec2(5, 13), ivec2(52 + i * -2, 52));
+            level->entities.assign<LocalPlayer>(player);
+            level->entities.assign<PlatformerMovement>(player, 20.f + i * 3);
+
+            level->entities.assign<Networked>(player, rand(), toSend);
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            auto player = level->entities.create();
+            level->entities.assign<Physics>(player);
+            level->entities.assign<AABB>(player, ivec2(13, 13 + i * 2), ivec2(32, 52));
+//            level->entities.assign<LocalPlayer>(player);
+            level->entities.assign<PlatformerMovement>(player, 20.f + i * 3);
+
+            level->entities.assign<Networked>(player, rand(), toSend);
+        }
     }
 
     void render(double deltaTime) override
@@ -67,7 +91,12 @@ class LevelScreen : public Screen
         renderDebugTiles();
 
         static RoomEditor roomEditor;
-        roomEditor.update(cam, room, lineRenderer);
+        static bool editRoom = false;
+//        if (!editRoom) editRoom = ImGui::Button("edit room");
+//        else {
+//            editRoom = !ImGui::Button("stop editing room");
+//            roomEditor.update(cam, room, lineRenderer);
+//        }
         lineRenderer.scale = 1;
 
         level->entities.view<Physics, AABB>().each([&](auto e, Physics &p, AABB &body) {
@@ -77,6 +106,8 @@ class LevelScreen : public Screen
         fbo->unbind();
 
         QuadRenderer::render(fbo->colorTexture);
+
+        EntityInspector(&level->entities).drawGUI(&cam, lineRenderer);
     }
 
     void onResize() override

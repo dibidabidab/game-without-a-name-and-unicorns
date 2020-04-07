@@ -86,14 +86,16 @@ struct NetworkedDataList
 /**
  * Useful for sending or receiving data associated with an entity over the network
  */
-struct Networked
-{
-    NetworkedDataList *toSend = NULL, *toReceive = NULL;
+COMPONENT(
+    Networked, HASH(networkID),
 
-    // used to identify an entity across clients
-    int networkID = rand();
+    FIELD_DEF_VAL(int, networkID, rand()) // used to identify an entity across clients
+)
+
+    std::shared_ptr<NetworkedDataList> toSend, toReceive;
 
     std::map<size_t, bool> dataPresence;
-};
+
+END_COMPONENT(Networked)
 
 #endif

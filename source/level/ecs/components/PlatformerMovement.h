@@ -8,8 +8,8 @@ COMPONENT(
     PlatformerMovement,
     HASH(jump, left, right, fall, jumpVelocity, walkVelocity),
 
-    FIELD_DEF_VAL(float, jumpVelocity, 120),
     FIELD_DEF_VAL(float, walkVelocity, 50),
+    FIELD_DEF_VAL(float, jumpVelocity, 120),
 
     FIELD(bool, jump),
     FIELD(bool, left),
@@ -22,6 +22,8 @@ COMPONENT(
 END_COMPONENT(PlatformerMovement)
 
 // todo: move this to other file?:
-struct LocalPlayer {};
+COMPONENT(
+    LocalPlayer, HASH(0), FIELD(int, _)
+)END_COMPONENT(LocalPlayer)
 
 #endif

@@ -94,6 +94,9 @@ int main(int argc, char *argv[])
     if (!gu::init(config))
         return -1;
 
+    ImGui::GetStyle().FrameRounding = 4;
+    ImGui::GetStyle().ItemSpacing.y = 6;
+
     std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
 
     LevelScreen scr(&level);

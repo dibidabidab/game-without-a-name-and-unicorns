@@ -19,6 +19,11 @@ struct AbstractNetworkedData
     virtual const char *getDataTypeName() const = 0;
 
     /**
+     * Returns a json description of the data type
+     */
+    virtual const json getJsonDescription() const = 0;
+
+    /**
      * Updates entity `e` with the data received in json format.
      */
     virtual void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) = 0;
@@ -52,6 +57,11 @@ struct NetworkedComponent : public AbstractNetworkedData
     }
 
     const char *getDataTypeName() const override
+    {
+        return Component::COMPONENT_NAME;
+    }
+
+    const json getJsonDescription() const override
     {
         return Component::COMPONENT_NAME;
     }
@@ -133,6 +143,13 @@ struct NetworkedComponentGroup : public AbstractNetworkedData
     const char *getDataTypeName() const override
     {
         return combinedName.c_str();
+    }
+
+    const json getJsonDescription() const override
+    {
+        json j = json::array();
+        (j.push_back(ComponentTypes::COMPONENT_NAME), ...);
+        return j;
     }
 
     void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override

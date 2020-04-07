@@ -19,7 +19,7 @@ namespace nlohmann {
 
         static void from_json(const json& j, glm::vec<len, type, something>& v) {
             for (int i = 0; i < len; i++)
-                v[i] = j[i];
+                v[i] = j.at(i);
         }
     };
 }
@@ -45,8 +45,21 @@ COMPONENT(
     inline ivec2 bottomLeft() const  { return center - halfSize; }
     inline ivec2 topLeft() const     { return center + ivec2(-halfSize.x, halfSize.y); }
 
-END_COMPONENT(AABB)
+    void draw(DebugLineRenderer &lineRenderer, const vec3 &color) const
+    {
+        lineRenderer.line(bottomLeft(), topLeft(), color);
+        lineRenderer.line(topRight(), bottomRight(), color);
+        lineRenderer.line(bottomLeft(), bottomRight(), color);
+        lineRenderer.line(topLeft(), topRight(), color);
+    }
 
+    template <class vec>
+    bool contains(const vec &p) const
+    {
+        return p.x >= center.x - halfSize.x && p.x <= center.x + halfSize.x && p.y >= center.y - halfSize.y && p.y <= center.y + halfSize.y;
+    }
+
+END_COMPONENT(AABB)
 
 COMPONENT(
     Physics,
