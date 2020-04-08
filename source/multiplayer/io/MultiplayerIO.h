@@ -8,6 +8,7 @@
 #include <utils/hashing.h>
 #include <json.hpp>
 #include <utils/gu_error.h>
+#include <utils/type_name.h>
 
 
 #include "SocketServer.h"
@@ -49,15 +50,9 @@ struct PacketSender
 typedef uint32 PacketTypeHash;
 
 template <class Type>
-inline const char *typeName()
-{
-    return typeid(Type).name();
-}
-
-template <class Type>
 inline PacketTypeHash typeHashCrossPlatform()
 {
-    return hashStringCrossPlatform(typeName<Type>());
+    return hashStringCrossPlatform(getTypeName<Type>()) ;
 }
 
 
@@ -207,7 +202,7 @@ class MultiplayerIO
     void registerName()
     {
         PacketTypeHash hash = typeHashCrossPlatform<Type>();
-        packetTypeNames[hash] = typeName<Type>();
+        packetTypeNames[hash] = getTypeName<Type>();
     }
 
     void handlePacket(PacketTypeHash typeHash, void *packet);
