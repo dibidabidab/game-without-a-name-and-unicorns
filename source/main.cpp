@@ -77,36 +77,42 @@ int main(int argc, char *argv[])
 
 #endif
 
-    Level level;
+    {
+        Level level;
 
-    gu::beforeRender = [&](double deltaTime) {
-        mpSession.update(deltaTime);
-        level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
+        gu::beforeRender = [&](double deltaTime) {
+            mpSession.update(deltaTime);
+            level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
 
-        if (KeyInput::justPressed(GLFW_KEY_F11))
-            gu::fullscreen = !gu::fullscreen;
-    };
+            if (KeyInput::justPressed(GLFW_KEY_F11))
+                gu::fullscreen = !gu::fullscreen;
+        };
 
-    gu::Config config;
-    config.width = 1900;
-    config.height = 900;
-    config.title = "dibidabidab";
-    config.vsync = false;
-    config.samples = 0;
-    config.printOpenGLMessages = false;
-    if (!gu::init(config))
-        return -1;
+        gu::Config config;
+        config.width = 1900;
+        config.height = 900;
+        config.title = "dibidabidab";
+        config.vsync = false;
+        config.samples = 0;
+        config.printOpenGLMessages = false;
+        if (!gu::init(config))
+            return -1;
 
-    ImGui::GetStyle().FrameRounding = 4;
-    ImGui::GetStyle().ItemSpacing.y = 6;
+        ImGui::GetStyle().FrameRounding = 4;
+        ImGui::GetStyle().ItemSpacing.y = 6;
 
-    std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
+        std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
 
-    LevelScreen scr(&level);
+        LevelScreen scr(&level);
 
-    gu::setScreen(&scr);
+        gu::setScreen(&scr);
 
-    gu::run();
+        gu::run();
+    }
 
-    std::quick_exit(0);
+    #ifdef EMSCRIPTEN
+    return 0;
+    #else
+    quick_exit(0);
+    #endif
 }

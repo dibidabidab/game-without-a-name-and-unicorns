@@ -1,8 +1,35 @@
-name: HTML build & deploy to gh-pages
+name: Build & deploy to gh-pages
 
 on: [push]
 
 jobs:
+  
+  linux_build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - name: Build linux
+      run: |
+        sudo apt-get install xorg-dev -y
+        sudo apt-get install freeglut3-dev -y
+        python initialize_project.py
+        cd desktop
+        cmake .
+        make -j8
+        cd out
+        mkdir assets
+        cp -a ../../assets/. assets/
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: linux_build
+        path: desktop/out
+        
+    
   html_build:
 
     runs-on: ubuntu-latest
@@ -30,19 +57,29 @@ jobs:
 
   deploy:
 
-    needs: [html_build]
+    needs: [html_build, linux_build]
 
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v1
 
-    - name: Download Artifacts # The built project is downloaded into the 'site' folder.
+    - name: Download HTML build
       uses: actions/download-artifact@v1
       with:
         name: site
+        
+    - name: Download Linux build
+      uses: actions/download-artifact@v1
+      with:
+        name: linux_build
+        
+    - name: Zip linux build
+      run: |
+        cd linux_build
+        zip -r ../site/game-linux.zip ./*
 
-    - name: Build and Deploy
+    - name: Deploy to GH-pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
