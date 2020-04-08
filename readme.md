@@ -1,6 +1,9 @@
 
 ### [Play game in browser](https://hilkojj.github.io/dibidabidab/game.html)
+#### [Download for Linux](https://hilkojj.github.io/dibidabidab/game-linux.zip)
+#### [Download for Windows](https://hilkojj.github.io/dibidabidab/game-windows.zip)
 
+[![Build & deploy to gh-pages](https://github.com/hilkojj/dibidabidab/workflows/Build%20&%20deploy%20to%20gh-pages/badge.svg)](https://github.com/hilkojj/dibidabidab/actions)
 [![BCH compliance](https://bettercodehub.com/edge/badge/hilkojj/dibidabidab?branch=master)](https://bettercodehub.com/)
 
 ## Usage
@@ -15,11 +18,11 @@ run `python3 initialize_project.py` to download dependencies.
 
 `cmake .` (only the first time, and everytime you add new files)
 
-`make`
+`make -j8` (or `cmake --build . -j8 --config Release`)
 
 `cd ..`
 
-`./desktop/out/game`
+`./desktop/out/game` (or `./desktop/out/Release/game.exe`)
 
 
 ### Compile for HTML/Web
@@ -36,11 +39,15 @@ run `python3 initialize_project.py` to download dependencies.
 
 ### Configure GitHub build & deploy automation
 
-This repository contains a Github Workflow which automates the building and deploying of the HTML game to GitHub Pages.
+This repository contains a Github Workflow which automates the building and deploying of the game to GitHub Pages.
+The workflow will generate the following files:
+- `game.html` and asset files (directly playable in browser)
+- `game-linux.zip`
+- `game-windows.zip`
 
-This workflow can be found in `.github/workflows/html_build.yml` and in the Actions tab on GitHub.
+This workflow can be found in `.github/workflows/` and in the Actions tab on GitHub.
 
-This workflow will require a secret access token in order to deploy your game to GitHub pages.
+This workflow will require a secret access token in order to deploy the game to GitHub pages.
 
 #### Steps to add the secret access token:
 

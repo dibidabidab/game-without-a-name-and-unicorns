@@ -3,7 +3,7 @@ name: Build & deploy to gh-pages
 on: [push]
 
 jobs:
-  
+
   linux_build:
     runs-on: ubuntu-latest
     
@@ -29,7 +29,33 @@ jobs:
         name: linux_build
         path: desktop/out
         
+  windows_build:
     
+    runs-on: windows-latest    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - uses: seanmiddleditch/gha-setup-vsdevenv@master
+    - name: Build windows
+      run: |
+        python initialize_project.py
+        cd desktop
+        cmake .
+        mkdir out
+        cmake --build . -j8 --config Release
+        cd out/Release/
+        rm game.exp game.lib
+        mkdir assets
+        cp -a ../../../assets/. assets/
+      shell: bash
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: windows_build
+        path: desktop/out/Release
+
   html_build:
 
     runs-on: ubuntu-latest
@@ -57,7 +83,7 @@ jobs:
 
   deploy:
 
-    needs: [html_build, linux_build]
+    needs: [html_build, linux_build, windows_build]
 
     runs-on: ubuntu-latest
     steps:
@@ -73,11 +99,18 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: linux_build
-        
-    - name: Zip linux build
+
+    - name: Download Windows build
+      uses: actions/download-artifact@v1
+      with:
+        name: windows_build
+
+    - name: Zip builds
       run: |
         cd linux_build
         zip -r ../site/game-linux.zip ./*
+        cd ../windows_build
+        zip -r ../site/game-windows.zip ./*
 
     - name: Deploy to GH-pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
