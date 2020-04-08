@@ -2,6 +2,7 @@
 #ifndef GAME_COMPONENT_H
 #define GAME_COMPONENT_H
 
+#include "../../entt/src/entt/entity/registry.hpp"
 #include "json_reflectable.h"
 #include <utils/hashing.h>
 
@@ -16,11 +17,19 @@ struct ComponentUtils
     std::function<void(entt::entity, entt::registry *)> removeComponent;
 
     template <class Component>
-    static ComponentUtils *create()
+    const static ComponentUtils *create()
     {
+        if (!utils) utils = new std::map<const char *, ComponentUtils *>();
+        if (!names) names = new std::vector<const char *>();
+
+        // for some reason ComponentUtils::create<Component>() is called multiple times for the same Component on Windows.... wtf...
+        if (getFor(Component::COMPONENT_NAME))
+            return getFor(Component::COMPONENT_NAME);
+
         auto u = new ComponentUtils();
-        utils[Component::COMPONENT_NAME] = u;
-        names.push_back(Component::COMPONENT_NAME);
+
+        utils->operator[](Component::COMPONENT_NAME) = u;
+        names->push_back(Component::COMPONENT_NAME);
 
         u->entityHasComponent = [] (entt::entity e, const entt::registry *reg)
         {
@@ -47,17 +56,17 @@ struct ComponentUtils
 
     static const ComponentUtils *getFor(const char *componentName)
     {
-        return utils[componentName];
+        return utils->operator[](componentName);
     }
 
-    static const std::vector<const char *> getAllComponentTypeNames()
+    static const std::vector<const char *> &getAllComponentTypeNames()
     {
-        return names;
+        return *names;
     }
 
   private:
-    static inline std::map<const char *, ComponentUtils *> utils;
-    static inline std::vector<const char *> names;
+    static std::map<const char *, ComponentUtils *> *utils;
+    static std::vector<const char *> *names;
 
 };
 

@@ -33,16 +33,19 @@ struct ReflectableStructInfo
               structFieldIsFixedSize(structFieldIsFixedSize),
               nrOfFields(fieldNames.size())
     {
-        infos[name] = this;
+        if (infos == NULL)
+            infos = new std::map<std::string, ReflectableStructInfo *>();
+
+        infos->operator[](name) = this;
     }
 
     static const ReflectableStructInfo *getFor(const char *typeName)
     {
-        return infos[typeName];
+        return infos->operator[](typeName);
     }
 
   private:
-    inline static std::map<const char *, ReflectableStructInfo *> infos;
+    static std::map<std::string, ReflectableStructInfo *> *infos;
 
 };
 
@@ -88,8 +91,14 @@ struct ReflectableStructInfo
 #define PUT_FIELD_NAME_IN_VEC(field) \
     ARGNAME_AS_STRING(EAT field)
 
+#define TOSTRING_(f) \
+    TOSTRING(f)
+
+#define TOSTRING__(f) \
+    TOSTRING_(f)
+
 #define PUT_FIELD_TYPE_NAME_IN_VEC(field) \
-    TOSTRING(ARGTYPE(EAT field))
+    TOSTRING__(ARGTYPE(EAT field))
 
 
 template <class FieldType>

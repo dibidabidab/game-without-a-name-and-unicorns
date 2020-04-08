@@ -22,19 +22,15 @@ target_include_directories(game PUBLIC ../websocketpp)
 
 
 # ---ASIO---
-# C++11 defines
-#if (MSVC)
-#    add_definitions (-D_WEBSOCKETPP_CPP11_FUNCTIONAL_)
-#    add_definitions (-D_WEBSOCKETPP_CPP11_SYSTEM_ERROR_)
-#    add_definitions (-D_WEBSOCKETPP_CPP11_RANDOM_DEVICE_)
-#    add_definitions (-D_WEBSOCKETPP_CPP11_MEMORY_)
-#else()
-    add_definitions (-D_WEBSOCKETPP_CPP11_STL_)
-#endif()
+add_definitions (-D_WEBSOCKETPP_CPP11_STL_)
 include_directories(../asio/asio/include)
 target_include_directories(game PUBLIC ../asio/asio/include)
 
+if (MSVC)
+    set(CMAKE_CXX_FLAGS  "/Ox /EHsc")
 
-# -no-pie is used to get 'application/x-application' as mime type instead of 'application/x-sharedlib'
-set(CMAKE_CXX_FLAGS  "-no-pie -O3")
+else()
+    # -no-pie is used to get 'application/x-application' as mime type instead of 'application/x-sharedlib'
+    set(CMAKE_CXX_FLAGS  "-no-pie -O3")
 
+endif()

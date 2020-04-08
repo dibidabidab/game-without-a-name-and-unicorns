@@ -108,5 +108,5 @@ int main(int argc, char *argv[])
 
     gu::run();
 
-    return 0;
+    std::quick_exit(0);
 }
