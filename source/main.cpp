@@ -82,6 +82,9 @@ int main(int argc, char *argv[])
     gu::beforeRender = [&](double deltaTime) {
         mpSession.update(deltaTime);
         level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
+
+        if (KeyInput::justPressed(GLFW_KEY_F11))
+            gu::fullscreen = !gu::fullscreen;
     };
 
     gu::Config config;

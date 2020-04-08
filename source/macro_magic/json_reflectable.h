@@ -18,37 +18,19 @@ struct ReflectableStructInfo
 
     const bool_vec
         fieldIsPrimitive,          // true for fields that have a primitive value (numbers, booleans, strings, null)
-        structFieldIsFixedSize,    // true for fields that are structured (not primitive) but cannot be extended. e.g.: vec3 must always be an array of length 3
-        structFieldAcceptsBool,    // true for fields that are structured and can be extended with a bool
-        structFieldAcceptsFloat,   // true for fields that are structured and can be extended with a float
-        structFieldAcceptsInt,     // true for fields that are structured and can be extended with a int
-        structFieldAcceptsString,  // true for fields that are structured and can be extended with a string
-        structFieldAcceptsArray,   // true for fields that are structured and can be extended with an array
-        structFieldAcceptsObject;  // true for fields that are structured and can be extended with an object
+        structFieldIsFixedSize;    // true for fields that are structured (not primitive) but cannot be extended. e.g.: vec3 must always be an array of length 3
 
     const int nrOfFields;
 
     ReflectableStructInfo(
             const char *name, const str_vec &fieldNames, const str_vec &fieldTypeNames,
             const bool_vec &fieldIsStructured,
-            const bool_vec &structFieldIsFixedSize,
-            const bool_vec &structFieldAcceptsBool,
-            const bool_vec &structFieldAcceptsFloat,
-            const bool_vec &structFieldAcceptsInt,
-            const bool_vec &structFieldAcceptsString,
-            const bool_vec &structFieldAcceptsArray,
-            const bool_vec &structFieldAcceptsObject
+            const bool_vec &structFieldIsFixedSize
         )
 
             : name(name), fieldNames(fieldNames), fieldTypeNames(fieldTypeNames),
               fieldIsPrimitive(fieldIsStructured),
               structFieldIsFixedSize(structFieldIsFixedSize),
-              structFieldAcceptsBool(structFieldAcceptsBool),
-              structFieldAcceptsFloat(structFieldAcceptsFloat),
-              structFieldAcceptsInt(structFieldAcceptsInt),
-              structFieldAcceptsString(structFieldAcceptsString),
-              structFieldAcceptsArray(structFieldAcceptsArray),
-              structFieldAcceptsObject(structFieldAcceptsObject),
               nrOfFields(fieldNames.size())
     {
         infos[name] = this;
@@ -129,52 +111,11 @@ bool isStructFieldFixedSize()
     return j.is_structured() && !j.empty();
 }
 
-template <class FieldType, class InsertItem>
-bool doesStructFieldAcceptType()
-{
-    json j = FieldType();
-
-    if (!j.is_structured() || !j.empty()) return false;
-
-    if (j.is_array())
-        j.push_back(InsertItem());
-    else if (j.is_object())
-        j["0"] = InsertItem();
-
-    try
-    {
-        FieldType f = j;
-    }
-    catch (std::exception&)
-    {
-        return false;
-    }
-    return true;
-}
-
 #define IS_FIELD_TYPE_PRIMITIVE(field) \
     isFieldTypePrimitive<ARGTYPE(EAT field)>()
 
 #define IS_FIELD_TYPE_FIXED_SIZE(field) \
     isStructFieldFixedSize<ARGTYPE(EAT field)>()
-
-#define DOES_STRUCT_FIELD_ACCEPT_BOOL(field) \
-    doesStructFieldAcceptType<ARGTYPE(EAT field), bool>()
-
-#define DOES_STRUCT_FIELD_ACCEPT_FLOAT(field) \
-    doesStructFieldAcceptType<ARGTYPE(EAT field), float>()
-
-#define DOES_STRUCT_FIELD_ACCEPT_INT(field) \
-    doesStructFieldAcceptType<ARGTYPE(EAT field), int>()
-
-#define DOES_STRUCT_FIELD_ACCEPT_STRING(field) \
-    doesStructFieldAcceptType<ARGTYPE(EAT field), std::string>()
-
-#define DOES_STRUCT_FIELD_ACCEPT_ARRAY(field) \
-    doesStructFieldAcceptType<ARGTYPE(EAT field), json::array_t>()
-
-#define DOES_STRUCT_FIELD_ACCEPT_OBJECT(field) \
-    doesStructFieldAcceptType<ARGTYPE(EAT field), json::object_t>()
 
 #define REFLECTABLE_STRUCT(className, ...)\
     struct className {\
@@ -190,18 +131,6 @@ bool doesStructFieldAcceptType()
             DOFOREACH(IS_FIELD_TYPE_PRIMITIVE, __VA_ARGS__)\
         }, {\
             DOFOREACH(IS_FIELD_TYPE_FIXED_SIZE, __VA_ARGS__)\
-        }, {\
-            DOFOREACH(DOES_STRUCT_FIELD_ACCEPT_BOOL, __VA_ARGS__)\
-        }, {\
-            DOFOREACH(DOES_STRUCT_FIELD_ACCEPT_FLOAT, __VA_ARGS__)\
-        }, {\
-            DOFOREACH(DOES_STRUCT_FIELD_ACCEPT_INT, __VA_ARGS__)\
-        }, {\
-            DOFOREACH(DOES_STRUCT_FIELD_ACCEPT_STRING, __VA_ARGS__)\
-        }, {\
-            DOFOREACH(DOES_STRUCT_FIELD_ACCEPT_ARRAY, __VA_ARGS__)\
-        }, {\
-            DOFOREACH(DOES_STRUCT_FIELD_ACCEPT_OBJECT, __VA_ARGS__)\
         });\
         void toJson(json &j) const\
         {\

@@ -258,16 +258,7 @@ void drawJsonValue(json &value, Inspecting &ins, bool arrayPreview=true)
     }
 }
 
-void drawJsonTree(
-        json &obj, Inspecting &ins, bool editStructure=true,
-
-        bool addBoolButton=true,
-        bool addIntButton=true,
-        bool addFloatButton=true,
-        bool addStringButton=true,
-        bool addArrayButton=true,
-        bool addObjectButton=true
-)
+void drawJsonTree(json &obj, Inspecting &ins, bool editStructure=true)
 {
     int i = 0;
     int eraseI = -1;
@@ -333,36 +324,18 @@ void drawJsonTree(
         if (obj.is_array())
         {
             ImGui::NextColumn();
-            if (addFloatButton)
-            {
-                if (ImGui::Button("float")) obj.push_back(float(0));
-                ImGui::SameLine();
-            }
-            if (addIntButton)
-            {
-                if (ImGui::Button("int")) obj.push_back(int(0));
-                ImGui::SameLine();
-            }
-            if (addStringButton)
-            {
-                if (ImGui::Button("string")) obj.push_back("");
-                ImGui::SameLine();
-            }
-            if (addBoolButton)
-            {
-                if (ImGui::Button("bool")) obj.push_back(bool(false));
-                ImGui::SameLine();
-            }
-            if (addArrayButton)
-            {
-                if (ImGui::Button("array")) obj.push_back(json::array());
-                ImGui::SameLine();
-            }
-            if (addObjectButton)
-            {
-                if (ImGui::Button("object")) obj.push_back(json::object());
-                ImGui::SameLine();
-            }
+            if (ImGui::Button("float")) obj.push_back(float(0));
+            ImGui::SameLine();
+            if (ImGui::Button("int")) obj.push_back(int(0));
+            ImGui::SameLine();
+            if (ImGui::Button("string")) obj.push_back("");
+            ImGui::SameLine();
+            if (ImGui::Button("bool")) obj.push_back(bool(false));
+            ImGui::SameLine();
+            if (ImGui::Button("array")) obj.push_back(json::array());
+            ImGui::SameLine();
+            if (ImGui::Button("object")) obj.push_back(json::object());
+            ImGui::SameLine();
             ImGui::NextColumn();
         } else
         {
@@ -370,36 +343,18 @@ void drawJsonTree(
             drawStringInput(newKey, ins, false, "  ");
 
             ImGui::NextColumn();
-            if (addFloatButton)
-            {
-                if (ImGui::Button("float")) obj[newKey] = float(0);
-                ImGui::SameLine();
-            }
-            if (addIntButton)
-            {
-                if (ImGui::Button("int")) obj[newKey] = int(0);
-                ImGui::SameLine();
-            }
-            if (addStringButton)
-            {
-                if (ImGui::Button("string")) obj[newKey] = "";
-                ImGui::SameLine();
-            }
-            if (addBoolButton)
-            {
-                if (ImGui::Button("bool")) obj[newKey] = bool(false);
-                ImGui::SameLine();
-            }
-            if (addArrayButton)
-            {
-                if (ImGui::Button("array")) obj[newKey] = json::array();
-                ImGui::SameLine();
-            }
-            if (addObjectButton)
-            {
-                if (ImGui::Button("object")) obj[newKey] = json::object();
-                ImGui::SameLine();
-            }
+            if (ImGui::Button("float")) obj[newKey] = float(0);
+            ImGui::SameLine();
+            if (ImGui::Button("int")) obj[newKey] = int(0);
+            ImGui::SameLine();
+            if (ImGui::Button("string")) obj[newKey] = "";
+            ImGui::SameLine();
+            if (ImGui::Button("bool")) obj[newKey] = bool(false);
+            ImGui::SameLine();
+            if (ImGui::Button("array")) obj[newKey] = json::array();
+            ImGui::SameLine();
+            if (ImGui::Button("object")) obj[newKey] = json::object();
+            ImGui::SameLine();
             ImGui::NextColumn();
         }
         ImGui::Separator();
@@ -452,13 +407,7 @@ void drawFieldsTree(json &valuesArray, const ReflectableStructInfo *info, Inspec
                 drawFieldsTree(value, subInfo, ins);
             else drawJsonTree(
                     value, ins,
-                    !info->structFieldIsFixedSize[i],
-                    info->structFieldAcceptsBool[i],
-                    info->structFieldAcceptsInt[i],
-                    info->structFieldAcceptsFloat[i],
-                    info->structFieldAcceptsString[i],
-                    info->structFieldAcceptsArray[i],
-                    info->structFieldAcceptsObject[i]
+                    !info->structFieldIsFixedSize[i]
             );
             ins.currentPath.pop_back();
             ImGui::TreePop();
