@@ -12,14 +12,12 @@ class MultiplayerClientSession : public MultiplayerSession
 
   public:
 
-    std::function<void(const std::string &reason)> onJoinRequestDeclined = [](auto){};
-
     /**
      * NOTE: does not open the socket, so open the socket before or after constructing.
      */
     MultiplayerClientSession(SharedSocket);
 
-    void join(std::string username);
+    void join(std::string username) override;
 
     bool isServer() const override { return false; }
 

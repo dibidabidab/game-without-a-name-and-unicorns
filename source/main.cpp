@@ -57,12 +57,6 @@ int main(int argc, char *argv[])
     ws->onOpen = [&]() {
         mpSession.join(prompt("Enter your name"));
     };
-    mpSession.onJoinRequestDeclined = [&](auto reason) {
-        #ifdef EMSCRIPTEN
-        alertJS(reason.c_str());
-        #endif
-        mpSession.join(prompt("Try again. Enter your name"));
-    };
     ws->onConnectionFailed = []() {
         std::cout << "connection failed :C\n";
 
@@ -115,8 +109,16 @@ int main(int argc, char *argv[])
                 gu::fullscreen = !gu::fullscreen;
         };
 
+        mpSession.onJoinRequestDeclined = [&](auto reason) {
+            #ifdef EMSCRIPTEN
+            alertJS(reason.c_str());
+            #endif
+            mpSession.join(prompt("Try again. Enter your name"));
+        };
+
         #ifndef EMSCRIPTEN
-        mpSession.setLevel(new Level());
+        mpSession.setLevel(Level::testLevel());
+        mpSession.join(prompt("Enter your name"));
         #else
         ws->open();
         #endif

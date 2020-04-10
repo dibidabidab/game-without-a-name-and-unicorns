@@ -7,6 +7,7 @@
 #include "MultiplayerClientSession.h"
 #include "../../level/ecs/components/Physics.h"
 
+using namespace Packet;
 using namespace Packet::from_player;
 using namespace Packet::from_server;
 
@@ -46,8 +47,19 @@ MultiplayerClientSession::MultiplayerClientSession(SharedSocket socket) : io(soc
     io.addJsonPacketHandler<Level>([&](auto *newLevel) {
         delete level;
         level = newLevel;
+        addNetworkingSystemsToRooms();
+        level->initialize();
         onNewLevel(level);
     });
+    io.addJsonPacketHandler<entity_created>([&](entity_created *packet) {
+        std::cout << "received newly created entity " << packet->networkId << '\n';
+        delete packet;
+    });
+    io.addJsonPacketHandler<entity_data_update>([&](entity_data_update *packet) {
+
+        delete packet;
+    });
+
     socket->onClose = [&]
     {
         std::cout << "k bye\n";

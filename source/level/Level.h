@@ -2,6 +2,7 @@
 #ifndef GAME_LEVEL_H
 #define GAME_LEVEL_H
 
+#include <json.hpp>
 #include "room/Room.h"
 
 class Level
@@ -30,6 +31,8 @@ class Level
     double getTime() const { return time; }
 
     bool isUpdating() const { return updating; }
+
+    void initialize();
 
     /**
      * Updates the level and it's Rooms.

@@ -29,8 +29,6 @@ class RoomScreen : public Screen
 
     FrameBuffer *fbo = nullptr;
 
-    entt::entity player = room->entities.create();
-
   public:
 
     RoomScreen(Room *room) : room(room), cam(.1, 100, 0, 0)
@@ -39,39 +37,6 @@ class RoomScreen : public Screen
 
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
-
-        room->entities.assign<Physics>(player);
-        room->entities.assign<AABB>(player, ivec2(5, 13), ivec2(32, 52));
-//        room->entities.assign<PlayerControlled>(player);
-        room->entities.assign<PlatformerMovement>(player);
-
-        auto toSend = std::make_shared<NetworkedDataList>();
-        toSend->components<PlatformerMovement>();
-        toSend->componentGroup<Physics, AABB>(); // if any changes -> send all
-
-        room->entities.assign<Networked>(player, rand(), toSend);
-
-        for (int i = 0; i < 10; i++)
-        {
-            auto player = room->entities.create();
-            room->entities.assign<Physics>(player);
-            room->entities.assign<AABB>(player, ivec2(5, 13), ivec2(52 + i * -2, 52));
-//            room->entities.assign<LocalPlayer>(player);
-            room->entities.assign<PlatformerMovement>(player, 20.f + i * 3);
-
-            room->entities.assign<Networked>(player, rand(), toSend);
-        }
-
-        for (int i = 0; i < 10; i++)
-        {
-            auto player = room->entities.create();
-            room->entities.assign<Physics>(player);
-            room->entities.assign<AABB>(player, ivec2(13, 13 + i * 2), ivec2(32, 52));
-//            level->entities.assign<LocalPlayer>(player);
-            room->entities.assign<PlatformerMovement>(player, 20.f + i * 3);
-
-            room->entities.assign<Networked>(player, rand(), toSend);
-        }
     }
 
     void render(double deltaTime) override

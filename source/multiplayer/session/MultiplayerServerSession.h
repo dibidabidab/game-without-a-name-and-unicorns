@@ -2,13 +2,13 @@
 #ifndef GAME_MULTIPLAYERSERVERSESSION_H
 #define GAME_MULTIPLAYERSERVERSESSION_H
 
-
+#include <atomic>
 #include "MultiplayerSession.h"
 
 class MultiplayerServerSession : public MultiplayerSession
 {
 
-    int playerIdCounter = 0;
+    std::atomic_int playerIdCounter = 0;
     std::vector<Player_ptr> playersJoining;
     std::vector<int> playersLeaving;
     std::mutex playersJoiningAndLeaving;
@@ -25,17 +25,17 @@ class MultiplayerServerSession : public MultiplayerSession
 
     void setLevel(Level *);
 
-  private:
-    template <class PacketType>
-    void sendPacketToAllPlayers(PacketType &packet)
-    {
-        for (auto &p : players)
-            if (p->io) p->io->send(packet); // wait what.. todo: only serialize packet once, instead for each player
-    }
+    void join(std::string username) override;
 
-    void handleJoinRequest(Player *, Packet::from_player::join_request *);
+  private:
+
+    bool handleJoinRequest(Player_ptr &player, Packet::from_player::join_request *, std::string &declineReason);
 
     void handleLeavingPlayers();
+
+    void createPlayerEntity(Player_ptr &player);
+
+    void removePlayerEntities(int playerId);
 
 };
 

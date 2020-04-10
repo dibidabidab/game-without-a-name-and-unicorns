@@ -2,7 +2,11 @@
 #include <gu/profiler.h>
 #include "MultiplayerServerSession.h"
 #include "../../level/ecs/components/Physics.h"
+#include "../../level/ecs/components/PlatformerMovement.h"
+#include "../../level/ecs/components/Networked.h"
+#include "../../level/ecs/components/PlayerControlled.h"
 
+using namespace Packet;
 using namespace Packet::from_player;
 using namespace Packet::from_server;
 
@@ -40,10 +44,40 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : serve
         io->addJsonPacketType<player_left>();
 
         io->addJsonPacketType<Level>();
+        io->addJsonPacketType<entity_created>();
+        io->addJsonPacketHandler<entity_data_update>([&](entity_data_update *packet) {
+
+            delete packet;
+        });
 
         io->addJsonPacketHandler<join_request>([=](join_request *req){
 
-            handleJoinRequest(player, req);
+            std::cout << req->name << " @" << player->io->socket->url << " attempting to join.\n";
+
+            for (int i = 0; i < playersJoining.size(); i++)
+            {
+                if (playersJoining[i].get() != player)
+                    continue;
+
+                std::string declineReason;
+
+                if (handleJoinRequest(playersJoining[i], req, declineReason))
+                {
+                    std::cout << player->name << " @" << player->io->socket->url << " joined!\n";
+
+                    // playersJoiningAndLeaving.lock(); is already locked in MultiplayerServerSession::update
+                    playersJoining[i] = playersJoining.back();
+                    playersJoining.pop_back();
+                    // playersJoiningAndLeaving.unlock();
+                }
+                else
+                {
+                    join_request_declined p { declineReason };
+                    player->io->send(p);
+                }
+                break;
+            }
+            delete req;
         });
     };
 
@@ -51,49 +85,39 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : serve
 }
 
 
-void MultiplayerServerSession::handleJoinRequest(Player *player, join_request *req)
+bool MultiplayerServerSession::handleJoinRequest(Player_ptr &player, join_request *req, std::string &declineReason)
 {
-    std::cout << req->name << " @" << player->io->socket->url << " attempting to join.\n";
-
-    std::string declineReason;
     validateUsername(req->name, declineReason);
 
     if (!declineReason.empty())
-    {
-        join_request_declined p { declineReason };
-        player->io->send(p);
-        delete req;
-        return;
-    }
+        return false;
 
     player->name = req->name;
 
-    for (int i = 0; i < playersJoining.size(); i++)
+    player_joined msg { *player };
+    sendPacketToAllPlayers(msg); // send to all players, except newly joined player
+
+    players.push_back(player);
+
+    if (player->io)
     {
-        if (playersJoining[i].get() != player)
-            continue;
-
-        std::cout << player->name << " @" << player->io->socket->url << " joined!\n";
-
-        player_joined msg { *player };
-        sendPacketToAllPlayers(msg); // send to all players, except newly joined player
-
-        players.push_back(playersJoining[i]);
-
-//        playersJoiningAndLeaving.lock(); is already locked in MultiplayerServerSession::update
-        playersJoining[i] = playersJoining.back();
-        playersJoining.pop_back();
-//        playersJoiningAndLeaving.unlock();
-
         join_request_accepted acceptMsg { player->id };
         for (auto &p : players) acceptMsg.players.push_back(*p.get());
-        player->io->send(acceptMsg);
 
-        if (level)
-            player->io->send(*level);
-        break;
+        player->io->send(acceptMsg);
     }
-    delete req;
+    else
+    {
+        assert(!localPlayer); // no support for split screen yet :P
+        localPlayer = player;
+    }
+    if (level)
+    {
+        if (player->io)
+            player->io->send(*level);
+        createPlayerEntity(player);
+    }
+    return true;
 }
 
 void MultiplayerServerSession::update(double deltaTime)
@@ -107,7 +131,7 @@ void MultiplayerServerSession::update(double deltaTime)
 
     {
         gu::profiler::Zone zone("packets in");
-        for (auto &p : players)
+        for (auto &p : players) if (p->io)
         {
             gu::profiler::Zone zone(p->name);
             p->io->handlePackets();
@@ -136,6 +160,7 @@ void MultiplayerServerSession::handleLeavingPlayers()
             std::cout << deleted->name << " @" << deleted->io->socket->url << " left\n";
             player_left msg { pId };
             sendPacketToAllPlayers(msg);
+            removePlayerEntities(pId);
         }
     }
     playersLeaving.clear();
@@ -148,7 +173,56 @@ void MultiplayerServerSession::setLevel(Level *newLevel)
         throw gu_err("cant set a level while updating");
     delete level;
     level = newLevel;
+    addNetworkingSystemsToRooms();
+    level->initialize();
 
     sendPacketToAllPlayers(*newLevel);
     onNewLevel(level);
+
+    for (auto &p : players)
+        createPlayerEntity(p);
+}
+
+void MultiplayerServerSession::createPlayerEntity(Player_ptr &player)
+{
+    Room &room = level->getRoom(0);
+
+    entt::entity playerEntity = room.entities.create();
+
+    room.entities.assign<Physics>(playerEntity);
+    room.entities.assign<AABB>(playerEntity, ivec2(5, 13), ivec2(32, 52));
+    room.entities.assign<PlayerControlled>(playerEntity, player->id);
+    room.entities.assign<PlatformerMovement>(playerEntity);
+
+    static std::shared_ptr<NetworkedDataList> toSend;
+    if (!toSend)
+    {
+        toSend = std::make_shared<NetworkedDataList>();
+        toSend->components<PlatformerMovement>();
+        toSend->componentGroup<Physics, AABB>(); // if any changes -> send all
+    }
+    room.entities.assign<Networked>(playerEntity, rand(), toSend);
+}
+
+void MultiplayerServerSession::removePlayerEntities(int playerId)
+{
+    for (int i = 0; i < level->getNrOfRooms(); i++)
+    {
+        Room &r = level->getRoom(i);
+        r.entities.view<PlayerControlled>().each([&] (entt::entity e, PlayerControlled &pC) {
+            if (pC.playerId == playerId)
+                r.entities.destroy(e);
+        });
+    }
+}
+
+void MultiplayerServerSession::join(std::string username)
+{
+    std::cout << username << " attempting to join as local player.\n";
+
+    Player_ptr p = std::make_shared<Player>();
+    p->id = ++playerIdCounter;
+    std::string declineReason;
+    if (!handleJoinRequest(p, new join_request { username }, declineReason))
+        onJoinRequestDeclined(declineReason);
 }

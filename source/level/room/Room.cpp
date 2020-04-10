@@ -5,19 +5,32 @@
 #include "../ecs/systems/physics/PhysicsSystem.h"
 #include "../ecs/systems/PlatformerMovementSystem.h"
 #include "../ecs/systems/networking/NetworkingSystem.h"
+#include "../ecs/systems/PlayerControlSystem.h"
+
+Room::Room(ivec2 size)
+{
+    tileMap = new TileMap(size);
+}
+
+void Room::initialize(Level *lvl, int roomI_)
+{
+    assert(!initialized);
+    assert(lvl != NULL);
+
+    level = lvl;
+    roomI = roomI_;
+    systems.push_front(new PhysicsSystem("physics"));
+    systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
+    systems.push_front(new PlayerControlSystem("player control"));
+
+    for (auto sys : systems) sys->init(this);
+    initialized = true;
+}
 
 void Room::update(double deltaTime)
 {
     if (!initialized)
-    {
-        systems.push_back(new PlatformerMovementSystem("pltf movmnt"));
-        systems.push_back(new PhysicsSystem("physics"));
-        systems.push_back(new NetworkingSystem("networking"));
-
-        for (auto sys : systems) sys->init(this);
-        initialized = true;
-    }
-
+        throw gu_err("Cannot update non-initialized Room!");
     for (auto sys : systems)
     {
         if (sys->disabled) continue;
@@ -48,11 +61,6 @@ TileMap &Room::getMap() const
     return *tileMap;
 }
 
-Room::Room(ivec2 size)
-{
-    tileMap = new TileMap(size);
-}
-
 void to_json(json &j, const Room &r)
 {
 
@@ -72,4 +80,10 @@ void from_json(const json &j, Room &r)
     std::string tileMapBase64 = j.at("tileMapBase64");
     auto tileMapBinary = base64::decode(&tileMapBase64[0], tileMapBase64.size());
     r.tileMap->fromBinary(&tileMapBinary[0], tileMapBinary.size());
+}
+
+void Room::addSystem(EntitySystem *sys)
+{
+    assert(!initialized);
+    systems.push_back(sys);
 }

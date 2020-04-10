@@ -3,6 +3,7 @@
 #define GAME_NETWORKEDDATA_H
 
 #include <json.hpp>
+#include <gu/game_utils.h>
 
 typedef size_t hash;
 
@@ -39,6 +40,8 @@ struct AbstractNetworkedData
      */
     virtual void dataToJsonIfChanged(bool &hasChanged, bool &dataPresent, json &out, const entt::entity &e,
                                      entt::registry &reg) = 0;
+
+    virtual void dataToJson(json &out, const entt::entity &e, entt::registry &reg) = 0;
 
     virtual ~AbstractNetworkedData() = default;
 };
@@ -103,6 +106,14 @@ struct NetworkedComponent : public AbstractNetworkedData
             com->prevHash = newHash;
         }
     }
+
+    void dataToJson(json &out, const entt::entity &e, entt::registry &reg) override
+    {
+        Component *com = reg.try_get<Component>(e);
+        assert(com != NULL);
+        com->toJsonArray(out);
+    }
+
 };
 
 
@@ -193,6 +204,11 @@ struct NetworkedComponentGroup : public AbstractNetworkedData
             // output to json
             out = json::array({ reg.get<ComponentTypes>(e)... });
         }
+    }
+
+    void dataToJson(json &out, const entt::entity &e, entt::registry &reg) override
+    {
+        out = json::array({ reg.get<ComponentTypes>(e)... });
     }
 };
 

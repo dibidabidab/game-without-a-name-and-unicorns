@@ -168,22 +168,29 @@ class MultiplayerIO
     template <class Type>
     void send(Type &packet)
     {
+        std::vector<char> out;
+        send<Type>(packet, out);
+    }
+
+    template <class Type>
+    void send(Type &packet, std::vector<char> &sentData)
+    {
         PacketTypeHash hash = typeHashCrossPlatform<Type>();
 
         static int typeHashSize = sizeof(PacketTypeHash);
 
-        std::vector<char> out(typeHashSize);
-        memcpy(&out[0], &hash, typeHashSize);
+        sentData.resize(typeHashSize);
+        memcpy(&sentData[0], &hash, typeHashSize);
 
         auto sender = packetSenders[hash];
 
         if (!sender)
             throw gu_err("tried to send packet, but no sender was registered.");
 
-        sender->function(sender, &packet, out);
+        sender->function(sender, &packet, sentData);
 
         if (socket)
-            socket->send(&out[0], out.size());
+            socket->send(&sentData[0], sentData.size());
     }
 
     void handlePackets();
