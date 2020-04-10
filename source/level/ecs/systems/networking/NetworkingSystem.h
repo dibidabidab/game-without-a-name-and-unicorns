@@ -3,18 +3,18 @@
 #define GAME_NETWORKINGSYSTEM_H
 
 
-#include "../LevelSystem.h"
+#include "../EntitySystem.h"
 #include "../../../Level.h"
 #include "../../components/Networked.h"
 
-class NetworkingSystem : public LevelSystem
+class NetworkingSystem : public EntitySystem
 {
-    using LevelSystem::LevelSystem;
+    using EntitySystem::EntitySystem;
   protected:
-    void init(Level *lvl) override
+    void init(Room *room) override
     {
-        lvl->entities.on_construct<Networked>().connect<&NetworkingSystem::onCreated>(this);
-        lvl->entities.on_destroy<Networked>().connect<&NetworkingSystem::onDestroyed>(this);
+        room->entities.on_construct<Networked>().connect<&NetworkingSystem::onCreated>(this);
+        room->entities.on_destroy<Networked>().connect<&NetworkingSystem::onDestroyed>(this);
     }
 
     void onCreated(entt::registry &reg, entt::entity entity)
@@ -29,9 +29,9 @@ class NetworkingSystem : public LevelSystem
         std::cout << "Entity " << int(entity) << ":" << networked.networkID << " destroyed\n";
     }
 
-    void update(double deltaTime, Level *lvl) override
+    void update(double deltaTime, Room *room) override
     {
-        lvl->entities.view<Networked>().each([&](auto e, Networked &networked) {
+        room->entities.view<Networked>().each([&](auto e, Networked &networked) {
 
             if (!networked.toSend) return;
 
@@ -40,7 +40,7 @@ class NetworkingSystem : public LevelSystem
                 gu::profiler::Zone z(c->getDataTypeName());
                 json jsonToSend;
                 bool hasChanged = false, isPresent = true;
-                c->dataToJsonIfChanged(hasChanged, isPresent, jsonToSend, e, lvl->entities);
+                c->dataToJsonIfChanged(hasChanged, isPresent, jsonToSend, e, room->entities);
 
                 bool wasPresent = networked.dataPresence[c->getDataTypeHash()];
 

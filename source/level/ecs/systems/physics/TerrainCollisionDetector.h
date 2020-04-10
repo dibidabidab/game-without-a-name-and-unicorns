@@ -4,7 +4,7 @@
 
 #include "../../../../macro_magic/json_reflectable.h"
 
-class Room;
+class TileMap;
 struct AABB;
 
 struct TerrainCollisions
@@ -23,10 +23,10 @@ struct TerrainCollisions
 // TODO, bug: when Tile::slope_up and Tile::slope_down are placed next to each other -> player can fall through them
 class TerrainCollisionDetector
 {
-    Room *room;
+    TileMap *map;
 
   public:
-    explicit TerrainCollisionDetector(Room *room) : room(room) {};
+    explicit TerrainCollisionDetector(TileMap &map) : map(&map) {};
 
     /**
      * Detects collisions with the terrain.

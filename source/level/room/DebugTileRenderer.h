@@ -4,7 +4,7 @@
 
 
 #include <graphics/3d/debug_line_renderer.h>
-#include "Room.h"
+#include "TileMap.h"
 
 namespace DebugTileRenderer
 {

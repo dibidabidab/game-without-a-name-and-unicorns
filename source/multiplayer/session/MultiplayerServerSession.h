@@ -23,12 +23,14 @@ class MultiplayerServerSession : public MultiplayerSession
 
     void update(double deltaTime) override;
 
+    void setLevel(Level *);
+
   private:
     template <class PacketType>
     void sendPacketToAllPlayers(PacketType &packet)
     {
         for (auto &p : players)
-            if (p->io) p->io->send(packet);
+            if (p->io) p->io->send(packet); // wait what.. todo: only serialize packet once, instead for each player
     }
 
     void handleJoinRequest(Player *, Packet::from_player::join_request *);

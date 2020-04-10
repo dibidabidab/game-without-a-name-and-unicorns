@@ -4,24 +4,25 @@
 
 
 #include <input/key_input.h>
-#include "LevelSystem.h"
+#include "EntitySystem.h"
 #include "../../Level.h"
 #include "../components/Physics.h"
 #include "../components/PlatformerMovement.h"
+#include "../components/PlayerControlled.h"
 
-class PlatformerMovementSystem : public LevelSystem
+class PlatformerMovementSystem : public EntitySystem
 {
-    using LevelSystem::LevelSystem;
+    using EntitySystem::EntitySystem;
   protected:
-    void update(double deltaTime, Level *lvl) override
+    void update(double deltaTime, Room *room) override
     {
-        lvl->entities.view<PlatformerMovement, LocalPlayer>().each([&](PlatformerMovement &movement, LocalPlayer) {
+        room->entities.view<PlatformerMovement, PlayerControlled>().each([&](PlatformerMovement &movement, PlayerControlled) {
             movement.jump  = KeyInput::pressed(GLFW_KEY_SPACE);
             movement.left  = KeyInput::pressed(GLFW_KEY_A);
             movement.right = KeyInput::pressed(GLFW_KEY_D);
             movement.fall  = KeyInput::pressed(GLFW_KEY_S);
         });
-        lvl->entities.view<PlatformerMovement, Physics>().each([&](PlatformerMovement &movement, Physics &physics) {
+        room->entities.view<PlatformerMovement, Physics>().each([&](PlatformerMovement &movement, Physics &physics) {
 
             if (movement.jump && physics.touches.floor && physics.velocity.y <= 0) physics.velocity.y = movement.jumpVelocity;
 

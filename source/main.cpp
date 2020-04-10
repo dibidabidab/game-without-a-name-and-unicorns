@@ -1,6 +1,6 @@
 #include <gu/game_utils.h>
 
-#include "LevelScreen.h"
+#include "RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
 #include "multiplayer/io/web/WebSocketServer.h"
 #include "multiplayer/io/MultiplayerIO.h"
@@ -72,22 +72,9 @@ int main(int argc, char *argv[])
         );
         #endif
     };
-    ws->open();
-
-
 #endif
 
     {
-        Level level;
-
-        gu::beforeRender = [&](double deltaTime) {
-            mpSession.update(deltaTime);
-            level.update(KeyInput::pressed(GLFW_KEY_MINUS) ? deltaTime * .1 : deltaTime);
-
-            if (KeyInput::justPressed(GLFW_KEY_F11))
-                gu::fullscreen = !gu::fullscreen;
-        };
-
         gu::Config config;
         config.width = 1900;
         config.height = 900;
@@ -103,9 +90,36 @@ int main(int argc, char *argv[])
 
         std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
 
-        LevelScreen scr(&level);
+        Screen *roomScreen = NULL;
 
-        gu::setScreen(&scr);
+        mpSession.onNewLevel = [&](Level *lvl)
+        {
+            std::cout << "New level!\n";
+            delete roomScreen;
+            gu::setScreen(NULL);
+
+            lvl->onPlayerEnteredRoom = [&](Room *room, int playerId)
+            {
+                if (!mpSession.getLocalPlayer() || playerId != mpSession.getLocalPlayer()->id)
+                    return;
+                delete roomScreen;
+                std::cout << "Player entered room. Show RoomScreen\n";
+                roomScreen = new RoomScreen(room);
+                gu::setScreen(roomScreen);
+            };
+        };
+
+        gu::beforeRender = [&](double deltaTime) {
+            mpSession.update(deltaTime);
+            if (KeyInput::justPressed(GLFW_KEY_F11))
+                gu::fullscreen = !gu::fullscreen;
+        };
+
+        #ifndef EMSCRIPTEN
+        mpSession.setLevel(new Level());
+        #else
+        ws->open();
+        #endif
 
         gu::run();
     }

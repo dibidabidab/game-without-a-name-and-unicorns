@@ -5,7 +5,7 @@
 #include <input/mouse_input.h>
 #include <graphics/orthographic_camera.h>
 #include <input/key_input.h>
-#include "Room.h"
+#include "TileMap.h"
 #include "DebugTileRenderer.h"
 
 class RoomEditor
@@ -15,15 +15,16 @@ class RoomEditor
 
   public:
 
-    void update(OrthographicCamera &cam, Room *room, DebugLineRenderer &lineRenderer)
+    void update(OrthographicCamera &cam, TileMap *room, DebugLineRenderer &lineRenderer)
     {
-        ivec2 hoveredTile(cam.cursorTo2DWorldPos() / vec2(Level::PIXELS_PER_BLOCK));
+        ivec2 hoveredTile(cam.cursorTo2DWorldPos() / vec2(TileMap::PIXELS_PER_TILE));
         if (MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT))
             room->setTile(hoveredTile.x, hoveredTile.y, placing);
 
-        DebugTileRenderer::renderTile(lineRenderer, placing, hoveredTile.x, hoveredTile.y, room->inRoom(hoveredTile.x, hoveredTile.y) ? mu::Y : mu::X);
+        DebugTileRenderer::renderTile(lineRenderer, placing, hoveredTile.x, hoveredTile.y,
+                                      room->contains(hoveredTile.x, hoveredTile.y) ? mu::Y : mu::X);
 
-        for (auto t : Room::TILE_TYPES)
+        for (auto t : TileMap::TILE_TYPES)
             if (KeyInput::pressed(GLFW_KEY_0 + int(t)))
                 placing = t;
     }

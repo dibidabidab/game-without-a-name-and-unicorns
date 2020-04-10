@@ -68,7 +68,7 @@ COMPONENT(
         int(velocity.x) / 10, int(velocity.y) / 10
     ),
 
-    FIELD_DEF_VAL   (float, gravity, 9.8 * Level::PIXELS_PER_BLOCK),
+    FIELD_DEF_VAL   (float, gravity, 9.8 * TileMap::PIXELS_PER_TILE),
     FIELD           (vec2,  velocity),
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
 )

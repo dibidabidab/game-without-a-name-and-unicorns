@@ -21,9 +21,4 @@ COMPONENT(
 
 END_COMPONENT(PlatformerMovement)
 
-// todo: move this to other file?:
-COMPONENT(
-    LocalPlayer, HASH(0), FIELD(int, _)
-)END_COMPONENT(LocalPlayer)
-
 #endif

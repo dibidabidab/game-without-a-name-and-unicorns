@@ -75,6 +75,7 @@ void MultiplayerIO::printTypes()
 
 void MultiplayerIO::handlePackets()
 {
+    // todo, preserve order of received packets
     unhandledPacketsMutex.lock();
     for (auto &uP : unhandledPackets)
     {

@@ -1,33 +1,33 @@
 
-#include "RoomOutliner.h"
-#include "Room.h"
+#include "TileMapOutliner.h"
+#include "TileMap.h"
 
 /*
  *  SOME VERY HORRIBLE CODE COPY-PASTED FROM A 2 YEAR OLD JAVA PROJECT
  *  the code works though
  */
 
-void RoomOutliner::getOutlines(const Room *room, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getOutlines(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
 {
-    getWalls(room, out);
-    getFloorsAndCeilings(room, out);
-    getDownwardSlopes(room, out);
-    getUpwardSlopes(room, out);
+    getWalls(map, out);
+    getFloorsAndCeilings(map, out);
+    getDownwardSlopes(map, out);
+    getUpwardSlopes(map, out);
 }
 
-void RoomOutliner::getWalls(const Room *room, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getWalls(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
 {
-    for (int x = 0; x < room->width; x++)
+    for (int x = 0; x < map->width; x++)
     {
         for (int i = 0; i < 2; i++)  // for left (0) and right (1) walls
         {
             int yBegin = -1;
 
-            for (int y = 0; y < room->height; y++)
+            for (int y = 0; y < map->height; y++)
             {
-                Tile air = room->getTile(x + (i == 0 ? 1 : -1), y);
+                Tile air = map->getTile(x + (i == 0 ? 1 : -1), y);
 
-                bool wall = room->getTile(x, y) == Tile::full &&
+                bool wall = map->getTile(x, y) == Tile::full &&
                             (air == Tile::empty || air == Tile::platform
                              || air == (i == 0 ? Tile::slope_up : Tile::slope_down)
                              || air == (i == 0 ? Tile::sloped_ceil_down : Tile::sloped_ceil_up));
@@ -45,19 +45,19 @@ void RoomOutliner::getWalls(const Room *room, std::vector<std::pair<ivec2, ivec2
     }
 }
 
-void RoomOutliner::getFloorsAndCeilings(const Room *room, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getFloorsAndCeilings(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
 {
-    for (int y = 0; y < room->height; y++)
+    for (int y = 0; y < map->height; y++)
     {
         for (int i = 0; i < 2; i++)  // floor (0), ceiling (1)
         {
             int xBegin = -1;
 
-            for (int x = 0; x < room->width; x++)
+            for (int x = 0; x < map->width; x++)
             {
-                Tile air = room->getTile(x, y + (i == 0 ? 1 : -1));
+                Tile air = map->getTile(x, y + (i == 0 ? 1 : -1));
 
-                bool wall = room->getTile(x, y) == Tile::full &&
+                bool wall = map->getTile(x, y) == Tile::full &&
                             (air == Tile::empty || air == Tile::platform);
 
                 if (xBegin == -1 && wall) xBegin = x;
@@ -73,16 +73,16 @@ void RoomOutliner::getFloorsAndCeilings(const Room *room, std::vector<std::pair<
     }
 }
 
-void RoomOutliner::getUpwardSlopes(const Room *room, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getUpwardSlopes(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
 {
-    for (int startY = -room->width; startY < room->height + room->width; startY++)
+    for (int startY = -map->width; startY < map->height + map->width; startY++)
     {
         int start = -1;
-        for (int x = 0; x < room->width; x++)
+        for (int x = 0; x < map->width; x++)
         {
             int y = startY + x;
 
-            bool wall = room->getTile(x, y) == Tile::slope_up || room->getTile(x, y) == Tile::sloped_ceil_up;
+            bool wall = map->getTile(x, y) == Tile::slope_up || map->getTile(x, y) == Tile::sloped_ceil_up;
 
             if (start != -1 && !wall) // end
             {
@@ -94,16 +94,16 @@ void RoomOutliner::getUpwardSlopes(const Room *room, std::vector<std::pair<ivec2
     }
 }
 
-void RoomOutliner::getDownwardSlopes(const Room *room, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getDownwardSlopes(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
 {
-    for (int startY = 0; startY < room->height + room->width; startY++)
+    for (int startY = 0; startY < map->height + map->width; startY++)
     {
         int start = -1;
-        for (int x = 0; x < room->width; x++)
+        for (int x = 0; x < map->width; x++)
         {
             int y = startY - x;
 
-            bool wall = room->getTile(x, y) == Tile::slope_down || room->getTile(x, y) == Tile::sloped_ceil_down;
+            bool wall = map->getTile(x, y) == Tile::slope_down || map->getTile(x, y) == Tile::sloped_ceil_down;
 
             if (start != -1 && !wall) // end
             {

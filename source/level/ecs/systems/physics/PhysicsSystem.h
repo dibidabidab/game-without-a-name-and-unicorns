@@ -3,7 +3,7 @@
 #define GAME_PHYSICSSYSTEM_H
 
 
-#include "../LevelSystem.h"
+#include "../EntitySystem.h"
 #include "../../../Level.h"
 #include "../../components/Physics.h"
 
@@ -15,15 +15,15 @@ namespace
     };
 }
 
-class PhysicsSystem : public LevelSystem
+class PhysicsSystem : public EntitySystem
 {
-    using LevelSystem::LevelSystem;
+    using EntitySystem::EntitySystem;
   protected:
-    void update(double deltaTime, Level *lvl) override
+    void update(double deltaTime, Room *room) override
     {
-        collisionDetector = new TerrainCollisionDetector(lvl->getCurrentRoom());
+        collisionDetector = new TerrainCollisionDetector(room->getMap());
 
-        lvl->entities.view<Physics, AABB>().each([&](Physics &physics, AABB &body) {
+        room->entities.view<Physics, AABB>().each([&](Physics &physics, AABB &body) {
 
             updatePosition(physics, body, deltaTime);
             updateVelocity(physics, deltaTime);

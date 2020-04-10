@@ -2,39 +2,50 @@
 #ifndef GAME_LEVEL_H
 #define GAME_LEVEL_H
 
-#include "Room.h"
-#include "../../entt/src/entt/entity/registry.hpp"
-#include "ecs/systems/LevelSystem.h"
+#include "room/Room.h"
 
 class Level
 {
-    std::vector<LevelSystem *> systems;
-
-    Room *currentRoom = nullptr;
-
     double time = 0;
+    Room *rooms = NULL;
+    int nrOfRooms = 0;
+
+    bool updating = false;
+
+    friend void to_json(json& j, const Level& lvl);
+    friend void from_json(const json& j, Level& lvl);
 
   public:
 
-    static const int PIXELS_PER_BLOCK = 16;
+    Level() = default;
 
-    entt::registry entities;
+    std::function<void(Room *, int playerId)> onPlayerEnteredRoom;
 
-    Level();
-    ~Level();
+    int getNrOfRooms() const { return nrOfRooms; }
 
-    Room *getCurrentRoom() { return currentRoom; }
+    Room &getRoom(int i);
+
+    const Room &getRoom(int i) const;
 
     double getTime() const { return time; }
 
+    bool isUpdating() const { return updating; }
+
     /**
-     * Updates the level and all it's LevelSystems.
+     * Updates the level and it's Rooms.
      *
      * @param deltaTime Time passed since previous update
      */
     void update(double deltaTime);
 
+    static Level *testLevel();
+
+    ~Level();
+
 };
 
+void to_json(json& j, const Level& lvl);
+
+void from_json(const json& j, Level& lvl);
 
 #endif

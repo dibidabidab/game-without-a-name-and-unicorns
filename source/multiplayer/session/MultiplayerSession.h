@@ -6,20 +6,32 @@
 #include "Player.h"
 #include "../io/MultiplayerIO.h"
 #include "../packets.h"
+#include "../../level/Level.h"
 
 class MultiplayerSession
 {
   protected:
 
+    Level *level = NULL;
+
     std::vector<Player_ptr> players;
+
+    Player_ptr localPlayer;
 
     MultiplayerSession() = default;
 
   public:
 
+    std::function<void(Level *)> onNewLevel;
+
+    Level *getLevel() const { return level; }
+
     virtual bool isServer() const = 0;
 
     virtual void update(double deltaTime) = 0;
+
+    const Player_ptr getLocalPlayer() const { return localPlayer; }
+    const std::vector<Player_ptr> getPlayers() const { return players; }
 
   protected:
 
@@ -32,7 +44,7 @@ class MultiplayerSession
 
     Player_ptr deletePlayer(int id, std::vector<Player_ptr> &players);
 
-    Player_ptr getPlayer(int id);
+    Player_ptr getPlayer(int id) const;
 
 };
 

@@ -39,6 +39,8 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : serve
         io->addJsonPacketType<player_joined>();
         io->addJsonPacketType<player_left>();
 
+        io->addJsonPacketType<Level>();
+
         io->addJsonPacketHandler<join_request>([=](join_request *req){
 
             handleJoinRequest(player, req);
@@ -87,6 +89,8 @@ void MultiplayerServerSession::handleJoinRequest(Player *player, join_request *r
         for (auto &p : players) acceptMsg.players.push_back(*p.get());
         player->io->send(acceptMsg);
 
+        if (level)
+            player->io->send(*level);
         break;
     }
     delete req;
@@ -111,6 +115,8 @@ void MultiplayerServerSession::update(double deltaTime)
     }
 
     handleLeavingPlayers();
+
+    if (level) level->update(deltaTime);
 }
 
 void MultiplayerServerSession::handleLeavingPlayers()
@@ -134,4 +140,15 @@ void MultiplayerServerSession::handleLeavingPlayers()
     }
     playersLeaving.clear();
     playersJoiningAndLeaving.unlock();
+}
+
+void MultiplayerServerSession::setLevel(Level *newLevel)
+{
+    if (level && level->isUpdating())
+        throw gu_err("cant set a level while updating");
+    delete level;
+    level = newLevel;
+
+    sendPacketToAllPlayers(*newLevel);
+    onNewLevel(level);
 }

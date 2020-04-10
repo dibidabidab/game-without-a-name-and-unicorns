@@ -9,7 +9,6 @@ class MultiplayerClientSession : public MultiplayerSession
 {
 
     MultiplayerIO io;
-    Player_ptr localPlayer;
 
   public:
 

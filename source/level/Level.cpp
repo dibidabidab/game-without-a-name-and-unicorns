@@ -1,57 +1,59 @@
 
 #include <files/file.h>
-#include <fstream>
 #include <gu/game_utils.h>
+#include <utils/gu_error.h>
+#include <cstring>
 
 #include "Level.h"
-#include "ecs/systems/physics/PhysicsSystem.h"
-#include "ecs/systems/PlatformerMovementSystem.h"
-#include "ecs/systems/networking/NetworkingSystem.h"
-
-#define DEFAULT_ROOM_PATH "assets/default_room.room"
-
-Level::Level()
-{
-    if (File::exists(DEFAULT_ROOM_PATH))
-    {
-        auto data = File::readBinary(DEFAULT_ROOM_PATH);
-        currentRoom = new Room(&data[0]);
-    }
-    else currentRoom = new Room(20, 18);
-
-    systems.push_back(new PlatformerMovementSystem("pltf movmnt"));
-    systems.push_back(new PhysicsSystem("physics"));
-    systems.push_back(new NetworkingSystem("networking"));
-
-    for (auto sys : systems) sys->init(this);
-}
-
-Level::~Level()
-{
-    std::vector<uint8> data;
-    currentRoom->toBinary(data);
-    File::writeBinary(DEFAULT_ROOM_PATH, data);
-}
 
 void Level::update(double deltaTime)
 {
     gu::profiler::Zone levelUpdateZone("level update");
+    updating = true;
     time += deltaTime;
 
-    for (auto sys : systems)
-    {
-        if (sys->disabled) continue;
-        gu::profiler::Zone sysZone(sys->name);
+    for (int i = 0; i < nrOfRooms; i++)
+        rooms[i].update(deltaTime);
+    updating = false;
+}
 
-        if (sys->updateFrequency == .0) sys->update(deltaTime, this);
-        else
-        {
-            sys->updateAccumulator += deltaTime;
-            while (sys->updateAccumulator > sys->updateFrequency)
-            {
-                sys->update(sys->updateFrequency, this);
-                sys->updateAccumulator -= sys->updateFrequency;
-            }
-        }
-    }
+Level::~Level()
+{
+    delete[] rooms;
+}
+
+Room &Level::getRoom(int i)
+{
+    if (i >= nrOfRooms) throw gu_err("index out of bounds");
+    return rooms[i];
+}
+
+const Room &Level::getRoom(int i) const
+{
+    if (i >= nrOfRooms) throw gu_err("index out of bounds");
+    return rooms[i];
+}
+
+void to_json(json &j, const Level &lvl)
+{
+
+    j = json::array();
+    for (int i = 0; i < lvl.nrOfRooms; i++)
+        j.push_back(lvl.getRoom(i));
+}
+
+void from_json(const json &j, Level &lvl)
+{
+    lvl.nrOfRooms = j.size();
+    lvl.rooms = new Room[lvl.nrOfRooms];
+    for (int i = 0; i < lvl.nrOfRooms; i++)
+        from_json(j[i], lvl.rooms[i]);
+}
+
+Level *Level::testLevel()
+{
+    auto lvl = new Level();
+    lvl->nrOfRooms = 1;
+    lvl->rooms = new Room[1] { Room(ivec2(20, 18)) };
+    return lvl;
 }

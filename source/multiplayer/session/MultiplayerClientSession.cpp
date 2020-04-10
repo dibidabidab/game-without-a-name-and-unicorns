@@ -43,7 +43,11 @@ MultiplayerClientSession::MultiplayerClientSession(SharedSocket socket) : io(soc
         std::cout << deletePlayer(left->playerId)->name << " left the game\n";
         delete left;
     });
-
+    io.addJsonPacketHandler<Level>([&](auto *newLevel) {
+        delete level;
+        level = newLevel;
+        onNewLevel(level);
+    });
     socket->onClose = [&]
     {
         std::cout << "k bye\n";
@@ -57,6 +61,7 @@ void MultiplayerClientSession::update(double deltaTime)
         gu::profiler::Zone zone("packets in");
         io.handlePackets();
     }
+    if (level) level->update(deltaTime);
 }
 
 void MultiplayerClientSession::join(std::string username)

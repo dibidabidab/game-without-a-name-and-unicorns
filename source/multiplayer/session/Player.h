@@ -27,6 +27,5 @@ REFLECTABLE_STRUCT(
 END_REFLECTABLE_STRUCT(Player)
 
 typedef std::shared_ptr<Player> Player_ptr;
-typedef std::weak_ptr<Player> Player_weak_ptr;
 
 #endif

@@ -5,6 +5,7 @@
 #include "../macro_magic/json_reflectable.h"
 
 #include "session/Player.h"
+#include "../level/Level.h"
 
 namespace Packet::from_player
 {

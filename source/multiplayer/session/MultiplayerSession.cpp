@@ -31,7 +31,7 @@ Player_ptr MultiplayerSession::deletePlayer(int pId, std::vector<Player_ptr> &pl
     throw gu_err("Player not found");
 }
 
-Player_ptr MultiplayerSession::getPlayer(int id)
+Player_ptr MultiplayerSession::getPlayer(int id) const
 {
     for (auto &p : players) if (p->id == id) return p;
     return NULL;

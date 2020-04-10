@@ -1,11 +1,12 @@
 
-#ifndef GAME_ROOM_H
-#define GAME_ROOM_H
+#ifndef GAME_TILEMAP_H
+#define GAME_TILEMAP_H
 
 #include <vector>
 #include <functional>
 #include <utils/math_utils.h>
-#include "RoomOutliner.h"
+#include "TileMapOutliner.h"
+#include "../ecs/systems/EntitySystem.h"
 
 enum class Tile : unsigned char
 {
@@ -17,40 +18,36 @@ enum class Tile : unsigned char
     empty, full, slope_down, slope_up, sloped_ceil_down, sloped_ceil_up, platform
 };
 
-typedef std::vector<std::pair<ivec2, ivec2>> RoomOutlines;
+typedef std::vector<std::pair<ivec2, ivec2>> TileMapOutlines;
 
-class Room
+class TileMap
 {
 
     Tile *tiles;
-    RoomOutlines outlines;
+    TileMapOutlines outlines;
 
   public:
+
+    static const int PIXELS_PER_TILE = 16;
 
     constexpr const static auto TILE_TYPES = { Tile::empty, Tile::full, Tile::slope_down, Tile::slope_up, Tile::sloped_ceil_down, Tile::sloped_ceil_up, Tile::platform };
 
     const uint8 width, height;
 
     /**
-     * Creates an empty room
+     * Creates an empty map
      */
-    Room(uint8 width, uint8 height);
+    TileMap(ivec2 size);
 
-    /**
-     * Loads a room from binary data.
-     * Kinda really unsafe, if the data lies about it's width and height then wrong memory will be copied.
-     */
-    explicit Room(uint8 *data);
-
-    ~Room();
+    ~TileMap();
 
     Tile getTile(uint8 x, uint8 y) const;
 
     void setTile(uint8 x, uint8 y, Tile tile);
 
-    bool inRoom(uint8 x, uint8 y) const;
+    bool contains(uint8 x, uint8 y) const;
 
-    const RoomOutlines &getOutlines() const { return outlines; }
+    const TileMapOutlines &getOutlines() const { return outlines; }
 
     /**
      * Loops through the room's tiles in a 2 dimensional loop
@@ -65,9 +62,15 @@ class Room
     ) const;
 
     /**
-     * Exports this room to binary data, which will be APPENDED to `out`
+     * Exports this map to binary data, which will be APPENDED to `out`
      */
-    void toBinary(std::vector<unsigned char> &out);
+    void toBinary(std::vector<char> &out);
+
+    /**
+     * Loads a map from binary data.
+     */
+    void fromBinary(const char *data, int size);
+
 
   private:
     void refreshOutlines();
