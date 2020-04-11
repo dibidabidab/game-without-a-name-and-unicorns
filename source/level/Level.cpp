@@ -5,12 +5,16 @@
 #include <cstring>
 
 #include "Level.h"
+#include "ecs/entity_templates/PlayerEntity.h"
 
 void Level::initialize()
 {
     assert(rooms != NULL);
     for (int i = 0; i < nrOfRooms; i++)
+    {
+        rooms[i].registerEntityTemplate<PlayerEntity>();
         rooms[i].initialize(this, i);
+    }
 }
 
 void Level::update(double deltaTime)

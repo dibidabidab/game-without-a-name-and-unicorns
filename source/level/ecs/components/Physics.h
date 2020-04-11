@@ -6,6 +6,7 @@
 #include <graphics/3d/debug_line_renderer.h>
 #include "../systems/physics/TerrainCollisionDetector.h"
 #include "../../Level.h"
+#include "../../room/TileMap.h"
 #include "../../../macro_magic/component.h"
 
 namespace nlohmann {

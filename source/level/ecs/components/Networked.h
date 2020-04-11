@@ -89,7 +89,8 @@ struct NetworkedDataList
 COMPONENT(
     Networked, HASH(networkID),
 
-    FIELD_DEF_VAL(int, networkID, rand()) // used to identify an entity across clients
+    FIELD_DEF_VAL(int, networkID, rand()), // used to identify an entity across clients
+    FIELD_DEF_VAL(int, templateHash, -1) // used to determine what EntityTemplate to use to construct the entity at the client-side
 )
 
     std::shared_ptr<NetworkedDataList> toSend, toReceive;

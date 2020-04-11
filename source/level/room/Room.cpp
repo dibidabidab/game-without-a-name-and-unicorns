@@ -53,6 +53,8 @@ Room::~Room()
 {
     for (auto sys : systems)
         delete sys;
+    for (auto &entry : entityTemplates)
+        delete entry.second;
 }
 
 TileMap &Room::getMap() const
@@ -86,4 +88,17 @@ void Room::addSystem(EntitySystem *sys)
 {
     assert(!initialized);
     systems.push_back(sys);
+}
+
+EntityTemplate *Room::getTemplate(std::string name)
+{
+    return getTemplate(hashStringCrossPlatform(name));
+}
+
+EntityTemplate *Room::getTemplate(int templateHash)
+{
+    auto t = entityTemplates[templateHash];
+    if (!t)
+        throw gu_err("No EntityTemplate found for hash " + std::to_string(templateHash));
+    return t;
 }

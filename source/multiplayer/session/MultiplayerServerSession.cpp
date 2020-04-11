@@ -5,6 +5,7 @@
 #include "../../level/ecs/components/PlatformerMovement.h"
 #include "../../level/ecs/components/Networked.h"
 #include "../../level/ecs/components/PlayerControlled.h"
+#include "../../level/ecs/entity_templates/PlayerEntity.h"
 
 using namespace Packet;
 using namespace Packet::from_player;
@@ -186,22 +187,8 @@ void MultiplayerServerSession::setLevel(Level *newLevel)
 void MultiplayerServerSession::createPlayerEntity(Player_ptr &player)
 {
     Room &room = level->getRoom(0);
-
-    entt::entity playerEntity = room.entities.create();
-
-    room.entities.assign<Physics>(playerEntity);
-    room.entities.assign<AABB>(playerEntity, ivec2(5, 13), ivec2(32, 52));
-    room.entities.assign<PlayerControlled>(playerEntity, player->id);
-    room.entities.assign<PlatformerMovement>(playerEntity);
-
-    static std::shared_ptr<NetworkedDataList> toSend;
-    if (!toSend)
-    {
-        toSend = std::make_shared<NetworkedDataList>();
-        toSend->components<PlatformerMovement>();
-        toSend->componentGroup<Physics, AABB>(); // if any changes -> send all
-    }
-    room.entities.assign<Networked>(playerEntity, rand(), toSend);
+    auto e = room.getTemplate<PlayerEntity>()->createNetworked();
+    room.entities.assign<PlayerControlled>(e, player->id);
 }
 
 void MultiplayerServerSession::removePlayerEntities(int playerId)
