@@ -5,10 +5,9 @@
 entt::entity EntityTemplate::createNetworked(int networkID, bool serverSide)
 {
     auto e = create();
-    room->entities.assign<Networked>(e, networkID);
+    room->entities.assign<Networked>(e, networkID, templateHash);
 
     Networked &n = room->entities.get<Networked>(e);
-    n.templateHash = templateHash;
 
     if (serverSide)
         makeNetworkedServerSide(n);

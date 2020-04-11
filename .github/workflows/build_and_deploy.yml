@@ -9,6 +9,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+      with:
+        lfs: true
     - uses: actions/setup-python@v1
       with:
         python-version: '3.x'
@@ -34,6 +36,8 @@ jobs:
     runs-on: windows-latest    
     steps:
     - uses: actions/checkout@v1
+      with:
+        lfs: true
     - uses: actions/setup-python@v1
       with:
         python-version: '3.x'
@@ -62,6 +66,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+      with:
+        lfs: true
     - uses: lovasoa/setup-emscripten@master
       with:
         emscripten-version: '1.38.47'

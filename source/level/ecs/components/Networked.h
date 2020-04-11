@@ -73,11 +73,13 @@ struct NetworkedDataList
     friend NetworkingSystem;
 
     std::vector<AbstractNetworkedData *> list;
+    std::map<int, AbstractNetworkedData *> hashToType;
 
     void add(AbstractNetworkedData *d)
     {
         assert(!contains(d->getDataTypeName()));
         list.push_back(d);
+        hashToType[d->getDataTypeHash()] = d;
     }
 
     std::vector<std::function<void()>> destructors;
@@ -89,7 +91,7 @@ struct NetworkedDataList
 COMPONENT(
     Networked, HASH(networkID),
 
-    FIELD_DEF_VAL(int, networkID, rand()), // used to identify an entity across clients
+    FIELD_DEF_VAL(final<int>, networkID, rand()), // used to identify an entity across clients
     FIELD_DEF_VAL(int, templateHash, -1) // used to determine what EntityTemplate to use to construct the entity at the client-side
 )
 

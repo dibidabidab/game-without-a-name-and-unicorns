@@ -70,6 +70,9 @@ struct ComponentUtils
 
 };
 
+template <typename Type>
+using final = Type;
+
 #define HASH_FIELD(X) \
     hash ^= hashValue(X) + 0x9e3779b9 + (hash << 6u) + (hash >> 2u)
 

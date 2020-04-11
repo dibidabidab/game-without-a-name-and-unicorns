@@ -4,6 +4,7 @@
 
 #include <json.hpp>
 #include <gu/game_utils.h>
+#include "../../../../entt/src/entt/entity/registry.hpp"
 
 typedef size_t hash;
 
@@ -28,6 +29,8 @@ struct AbstractNetworkedData
      * Updates entity `e` with the data received in json format.
      */
     virtual void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) = 0;
+
+    virtual void removeData(entt::entity, entt::registry &) = 0;
 
     /**
      * Converts the data to JSON, only if the data has changed since last time.
@@ -71,14 +74,19 @@ struct NetworkedComponent : public AbstractNetworkedData
 
     static void updateFromNetwork(const json &in, const entt::entity &e, entt::registry &reg)
     {
-        Component *com = reg.try_get<Component>(e);
-
-        if (!com)
+        if (Component *com = reg.try_get<Component>(e))
+            com->fromJsonArray(in);
+        else
         {
-            reg.assign<Component>(e);
-            com = reg.try_get<Component>(e);
+            Component newComponent;
+            newComponent.fromJsonArray(in);
+            reg.assign<Component>(e, newComponent);
         }
-        com->fromJsonArray(in);
+    }
+
+    void removeData(entt::entity entity, entt::registry &registry) override
+    {
+        registry.remove<Component>(entity);
     }
 
     void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override
@@ -167,6 +175,11 @@ struct NetworkedComponentGroup : public AbstractNetworkedData
     {
         int i = 0;
         (NetworkedComponent<ComponentTypes>::updateFromNetwork(in.at(i++), e, reg), ...);
+    }
+
+    void removeData(entt::entity entity, entt::registry &registry) override
+    {
+        (registry.remove<ComponentTypes>(entity), ...);
     }
 
     template <class Component>

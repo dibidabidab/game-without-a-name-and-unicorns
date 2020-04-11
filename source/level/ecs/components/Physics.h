@@ -66,7 +66,7 @@ COMPONENT(
     Physics,
 
     HASH(
-        int(velocity.x) / 10, int(velocity.y) / 10
+        int(velocity.x) / 30, int(velocity.y) / 30, int(gravity)
     ),
 
     FIELD_DEF_VAL   (float, gravity, 9.8 * TileMap::PIXELS_PER_TILE),

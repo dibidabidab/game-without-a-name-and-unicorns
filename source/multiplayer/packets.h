@@ -45,6 +45,15 @@ inline void from_json(const json &j, entity_data_update &u)
     u.dataTypeHash = j.at(2);
     u.jsonData = j.at(3);
 }
+
+REFLECTABLE_STRUCT(
+    entity_data_removed,
+
+    FIELD(int, roomI),
+    FIELD(int, entityNetworkId),
+    FIELD(int, dataTypeHash)
+)END_REFLECTABLE_STRUCT(entity_data_removed)
+
 }
 
 namespace Packet::from_server
@@ -84,9 +93,19 @@ REFLECTABLE_STRUCT(
     entity_created,
 
     FIELD(int, roomI),
-    FIELD(int, networkId)
+    FIELD(int, networkId),
+    FIELD(int, entityTemplateHash)
 
 )END_REFLECTABLE_STRUCT(entity_created)
+
+
+REFLECTABLE_STRUCT(
+    entity_destroyed,
+
+    FIELD(int, roomI),
+    FIELD(int, networkId)
+
+)END_REFLECTABLE_STRUCT(entity_destroyed)
 
 }
 

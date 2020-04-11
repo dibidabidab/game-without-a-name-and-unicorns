@@ -32,26 +32,28 @@ void MultiplayerIO::handleInput(const char *data, int size)
             std::cerr << "Received packet of unregistered type " << packetType << "!\n";
         return;
     }
+    void *packet;
     try
     {
-        void *packet = receiver->function(receiver, data + typeHashSize, size - typeHashSize);
-
-        packetsReceived++;
-
-        if (handlingMode == PacketHandlingMode::IMMEDIATELY_ON_SOCKET_THREAD)
-        {
-           handlePacket(packetType, packet);
-        }
-        else
-        {
-            unhandledPacketsMutex.lock();
-            unhandledPackets[packetType].push_back(packet);
-            unhandledPacketsMutex.unlock();
-        }
+        packet = receiver->function(receiver, data + typeHashSize, size - typeHashSize);
 
     } catch(const std::exception& e) {
-        std::cerr << "Caught exception while handling " << packetTypeNames[packetType] << "-packet:\n" << e.what() << "\n";
+        std::cerr << "Caught exception while receiving " << packetTypeNames[packetType] << "-packet:\n" << e.what() << "\n";
+        return;
     }
+    packetsReceived++;
+
+    if (handlingMode == PacketHandlingMode::IMMEDIATELY_ON_SOCKET_THREAD)
+    {
+        handlePacket(packetType, packet);
+    }
+    else
+    {
+        unhandledPacketsMutex.lock();
+        unhandledPackets[packetType].push_back(packet);
+        unhandledPacketsMutex.unlock();
+    }
+
 }
 
 MultiplayerIO::~MultiplayerIO()
@@ -95,5 +97,11 @@ void MultiplayerIO::handlePacket(PacketTypeHash typeHash, void *packet)
         std::cerr << "No handler found for packet of type " << packetTypeNames[typeHash] << "!\n";
         return;
     }
-    handler->function(handler, packet);
+    try
+    {
+        handler->function(handler, packet);
+    } catch(const std::exception& e) {
+        std::cerr << "Caught exception while handling " << packetTypeNames[typeHash] << "-packet:\n" << e.what() << "\n";
+        return;
+    }
 }

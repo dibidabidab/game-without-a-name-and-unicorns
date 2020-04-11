@@ -7,6 +7,7 @@
 #include "../io/MultiplayerIO.h"
 #include "../packets.h"
 #include "../../level/Level.h"
+#include "../../level/ecs/systems/networking/NetworkingSystem.h"
 
 class MultiplayerSession
 {
@@ -77,6 +78,8 @@ class MultiplayerSession
     Player_ptr deletePlayer(int id, std::vector<Player_ptr> &players);
 
     Player_ptr getPlayer(int id) const;
+
+    std::vector<NetworkingSystem *> networkingSystems;
 
     void addNetworkingSystemsToRooms();
 

@@ -46,8 +46,15 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : serve
 
         io->addJsonPacketType<Level>();
         io->addJsonPacketType<entity_created>();
+        io->addJsonPacketType<entity_destroyed>();
         io->addJsonPacketHandler<entity_data_update>([&](entity_data_update *packet) {
 
+            networkingSystems.at(packet->roomI)->handleDataUpdate(packet, player);
+            delete packet;
+        });
+        io->addJsonPacketHandler<entity_data_removed>([&](entity_data_removed *packet) {
+
+            networkingSystems.at(packet->roomI)->handleDataRemoval(packet, player);
             delete packet;
         });
 

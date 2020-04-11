@@ -161,6 +161,7 @@ class MultiplayerIO
         addPacketSender<Type>([](Type *packet, std::vector<char> &out) {
 
             json j = *packet;
+            std::cout << j << '\n';
             json::to_cbor(j, out);
         });
     }

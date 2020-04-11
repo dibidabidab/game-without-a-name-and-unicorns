@@ -9,7 +9,7 @@ inline void setImGuiStyle()
     /**
      * Color scheme taken from https://github.com/ocornut/imgui/issues/707#issuecomment-512669512
      */
-    ImGui::GetIO().Fonts->AddFontFromFileTTF("./assets/fonts/ruda/Ruda-Bold.ttf", 15.0f);
+    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/ruda/Ruda-Bold.ttf", 15.0f);
     ImGui::GetStyle().FrameRounding = 4.0f;
     ImGui::GetStyle().GrabRounding = 4.0f;
 
