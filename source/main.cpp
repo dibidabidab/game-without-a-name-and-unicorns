@@ -6,6 +6,7 @@
 #include "multiplayer/io/MultiplayerIO.h"
 #include "multiplayer/session/MultiplayerClientSession.h"
 #include "multiplayer/session/MultiplayerServerSession.h"
+#include "ImGuiStyle.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {
@@ -79,8 +80,7 @@ int main(int argc, char *argv[])
         if (!gu::init(config))
             return -1;
 
-        ImGui::GetStyle().FrameRounding = 4;
-        ImGui::GetStyle().ItemSpacing.y = 6;
+        setImGuiStyle();
 
         std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
 
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 
         #ifndef EMSCRIPTEN
         mpSession.setLevel(Level::testLevel());
-        mpSession.join(prompt("Enter your name"));
+        mpSession.join("mikey maws");
         #else
         ws->open();
         #endif

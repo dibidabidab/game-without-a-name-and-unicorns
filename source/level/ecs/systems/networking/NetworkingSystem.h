@@ -91,7 +91,7 @@ class NetworkingSystem : public EntitySystem
         PlayerControlled &pC = reg.get<PlayerControlled>(entity);
         int sizeBefore = playersInRoom.size();
         playersInRoom.remove_if([&](auto &p) { return pC.playerId == p->id; });
-        assert(sizeBefore == playersInRoom.size() - 1);
+        assert(sizeBefore == playersInRoom.size() + 1);
     }
 
     void onNetworkedEntityDestroyed(entt::registry &reg, entt::entity entity)

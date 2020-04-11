@@ -2,6 +2,9 @@
 #ifndef GAME_ENTITYSYSTEM_H
 #define GAME_ENTITYSYSTEM_H
 
+#include <string>
+#include <iostream>
+
 class Room;
 
 class EntitySystem
