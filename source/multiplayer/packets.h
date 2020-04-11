@@ -22,29 +22,14 @@ REFLECTABLE_STRUCT(
 namespace Packet
 {
 
-struct entity_data_update
-{
-    int roomI;
-    int entityNetworkId;
-    int dataTypeHash;
-    json jsonData;
-};
+REFLECTABLE_STRUCT(
+    entity_data_update,
 
-inline void to_json(json &j, const entity_data_update &u)
-{
-    j = json::array({u.roomI,
-                     u.entityNetworkId,
-                     u.dataTypeHash,
-                     u.jsonData});
-}
-
-inline void from_json(const json &j, entity_data_update &u)
-{
-    u.roomI = j.at(0);
-    u.entityNetworkId = j.at(1);
-    u.dataTypeHash = j.at(2);
-    u.jsonData = j.at(3);
-}
+    FIELD(int, roomI),
+    FIELD(int, entityNetworkId),
+    FIELD(int, dataTypeHash),
+    FIELD(json, jsonData)
+)END_REFLECTABLE_STRUCT(entity_data_update)
 
 REFLECTABLE_STRUCT(
     entity_data_removed,

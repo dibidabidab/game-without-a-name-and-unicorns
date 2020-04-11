@@ -67,7 +67,7 @@ struct ReflectableStructInfo
     {ARGNAME_AS_STRING(X), ARGNAME(X)}
 
 #define PULL_OUT_JSON(X)  \
-    j.at(ARGNAME_AS_STRING(X)).get_to(ARGNAME(X))
+    getTo(ARGNAME(X), j.at(ARGNAME_AS_STRING(X)))
 
 #define IF_KEY_PULL_OUT_JSON(X)  \
     if (key == ARGNAME_AS_STRING(X))\
@@ -82,8 +82,19 @@ struct ReflectableStructInfo
 #define PULL_FIELD_OUT_JSON_ARRAY(field) \
     PULL_OUT_JSON_ARRAY(EAT field)
 
+template <typename T>
+inline void getTo(T &v, const json &json)
+{
+    v = json.get<T>();
+}
+template <>
+inline void getTo<json>(json &v, const json &json)
+{
+    v = json;
+}
+
 #define PULL_OUT_JSON_ARRAY(X)  \
-    ARGNAME(X) = j.at(pull_out_json_i++).get<ARGTYPE(X)>()\
+    getTo(ARGNAME(X), j.at(pull_out_json_i++))
 
 #define ARGPAIR_FROM_FIELD(field) ARGPAIR(EAT field) ARGTYPE(field)
 

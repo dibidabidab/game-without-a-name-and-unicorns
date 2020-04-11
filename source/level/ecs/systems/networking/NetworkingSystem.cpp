@@ -108,11 +108,13 @@ void NetworkingSystem::update(double deltaTime, Room *room)
 
             if (wasPresent && !isPresent)
             {
-                std::cout << c->getDataTypeName() << " was deleted from " << int(e) << ":" << networked.networkID <<"\n";
-                Packet::entity_data_removed packet;
-                packet.dataTypeHash = c->getDataTypeHash();
-                packet.entityNetworkId = networked.networkID;
-                packet.roomI = room->getIndexInLevel();
+                std::cout << c->getDataTypeName() << " was deleted from " << int(e) << ":" << networked.networkID
+                          << "\n";
+                Packet::entity_data_removed packet {
+                    room->getIndexInLevel(),
+                    networked.networkID,
+                    c->getDataTypeHash()
+                };
                 mpSession->sendPacketToAllPlayers(packet);
             }
 
@@ -134,11 +136,12 @@ void NetworkingSystem::update(double deltaTime, Room *room)
 bool NetworkingSystem::sendEntityDataUpdate(Networked &networked, json &data, AbstractNetworkedData *dataType,
                                             const Player_ptr &sendTo)
 {
-    Packet::entity_data_update packet;
-    packet.roomI = room->getIndexInLevel();
-    packet.dataTypeHash = dataType->getDataTypeHash();
-    packet.entityNetworkId = networked.networkID;
-    packet.jsonData = data;
+    Packet::entity_data_update packet {
+        room->getIndexInLevel(),
+        networked.networkID,
+        dataType->getDataTypeHash(),
+        data
+    };
     return mpSession->sendPacketToPlayer(packet, sendTo);
 }
 

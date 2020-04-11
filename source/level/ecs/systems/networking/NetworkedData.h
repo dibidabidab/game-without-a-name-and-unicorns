@@ -6,7 +6,7 @@
 #include <gu/game_utils.h>
 #include "../../../../entt/src/entt/entity/registry.hpp"
 
-typedef size_t hash;
+typedef int hash;
 
 struct AbstractNetworkedData
 {

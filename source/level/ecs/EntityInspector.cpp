@@ -221,9 +221,14 @@ bool drawStringInput(std::string &str, Inspecting &ins, bool expandable=true, co
     return false;
 }
 
-void drawJsonValue(json &value, Inspecting &ins, bool arrayPreview=true)
+void drawJsonValue(json &value, Inspecting &ins, bool arrayPreview=true, bool readOnly=false)
 {
-    if (value.is_number_float())
+    if (readOnly || (arrayPreview && value.is_array()))
+    {
+        std::string str = value.dump();
+        ImGui::TextColored(ImVec4(.3, .5, 1, 1), "%s", str.c_str());
+    }
+    else if (value.is_number_float())
     {
         float v = value;
         if (ImGui::DragFloat(" ", &v))
@@ -251,14 +256,9 @@ void drawJsonValue(json &value, Inspecting &ins, bool arrayPreview=true)
         drawStringInput(v, ins);
         value = v;
     }
-    else if (arrayPreview && value.is_array())
-    {
-        std::string str = value.dump();
-        ImGui::TextColored(ImVec4(.3, .5, 1, 1), "%s", str.c_str());
-    }
 }
 
-void drawJsonTree(json &obj, Inspecting &ins, bool editStructure=true)
+void drawJsonTree(json &obj, Inspecting &ins, bool editStructure=true, bool readOnlyValues=false)
 {
     int i = 0;
     int eraseI = -1;
@@ -305,13 +305,13 @@ void drawJsonTree(json &obj, Inspecting &ins, bool editStructure=true)
         ImGui::NextColumn();
         ImGui::AlignTextToFramePadding();
 
-        drawJsonValue(value, ins);
+        drawJsonValue(value, ins, true, readOnlyValues);
 
         ImGui::NextColumn();
 
         if (field_open)
         {
-            drawJsonTree(value, ins);
+            drawJsonTree(value, ins, true, readOnlyValues);
             ImGui::TreePop();
         }
         ImGui::PopID();
@@ -368,7 +368,7 @@ void drawJsonTree(json &obj, Inspecting &ins, bool editStructure=true)
         obj[addKey] = addJson;
 }
 
-void drawFieldsTree(json &valuesArray, const ReflectableStructInfo *info, Inspecting &ins)
+void drawFieldsTree(json &valuesArray, const ReflectableStructInfo *info, Inspecting &ins, bool readOnly=false)
 {
     for (int i = 0; i < info->nrOfFields; i++)
     {
@@ -397,17 +397,21 @@ void drawFieldsTree(json &valuesArray, const ReflectableStructInfo *info, Inspec
 
         auto subInfo = ReflectableStructInfo::getFor(fieldTypeName);
 
-        drawJsonValue(value, ins, !subInfo);
+        static std::string finalTypeBegin = "final<";
+        bool subReadOnly = std::string(fieldTypeName).compare(0, finalTypeBegin.length(), finalTypeBegin) == 0;
+
+        drawJsonValue(value, ins, !subInfo, subReadOnly);
 
         ImGui::NextColumn();
         if (field_open)
         {
             ins.currentPath.emplace_back(fieldName);
             if (subInfo)
-                drawFieldsTree(value, subInfo, ins);
+                drawFieldsTree(value, subInfo, ins, subReadOnly);
             else drawJsonTree(
                     value, ins,
-                    !info->structFieldIsFixedSize[i]
+                    !info->structFieldIsFixedSize[i],
+                    subReadOnly
             );
             ins.currentPath.pop_back();
             ImGui::TreePop();

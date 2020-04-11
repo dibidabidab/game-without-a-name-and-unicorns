@@ -90,14 +90,14 @@ using final = Type;
         \
         constexpr static const char *COMPONENT_NAME = #component_name;\
         \
-        inline static const size_t COMPONENT_TYPE_HASH = hashStringCrossPlatform(#component_name);\
+        inline static const int COMPONENT_TYPE_HASH = hashStringCrossPlatform(#component_name);\
         \
         inline static const ComponentUtils *UTILS = ComponentUtils::create<component_name>();\
         \
         hash_func\
 
 #define END_COMPONENT(component_name)\
-        size_t prevHash = 0;\
+        int prevHash = 0;\
         END_REFLECTABLE_STRUCT(component_name)
 
 COMPONENT(
