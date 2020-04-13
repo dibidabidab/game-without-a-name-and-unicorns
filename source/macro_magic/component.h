@@ -12,9 +12,10 @@ struct ComponentUtils
 
     std::function<bool(entt::entity, const entt::registry *)> entityHasComponent;
     std::function<void(json &, entt::entity, const entt::registry *)> getJsonComponent;
-    std::function<void(const json &, const entt::entity &, entt::registry *)> setJsonComponent;
-    std::function<void(entt::entity, entt::registry *)> addComponent;
+    std::function<void(const json &, entt::entity, entt::registry *)> setJsonComponent;
+    std::function<void(const json &, entt::entity, entt::registry *)> addComponent;
     std::function<void(entt::entity, entt::registry *)> removeComponent;
+    std::function<json()> construct;
 
     template <class Component>
     const static ComponentUtils *create()
@@ -43,14 +44,16 @@ struct ComponentUtils
         {
             reg->get<Component>(e).fromJsonArray(j);
         };
-        u->addComponent = [] (entt::entity e, entt::registry *reg)
+        u->addComponent = [] (const json &json, entt::entity e, entt::registry *reg)
         {
-            reg->assign<Component>(e);
+            Component c = json;
+            reg->assign<Component>(e, c);
         };
         u->removeComponent = [] (entt::entity e, entt::registry *reg)
         {
             reg->remove<Component>(e);
         };
+        u->construct = [] { return Component(); };
         return u;
     }
 

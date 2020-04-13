@@ -15,10 +15,14 @@ struct InspectPathState
 };
 
 COMPONENT(Inspecting, HASH(0),
-    FIELD_DEF_VAL(bool, show, true)
+    FIELD_DEF_VAL(bool, show, true),
+
+    FIELD(json, addingComponentJson)
 )
     std::map<const char *, bool> freezeComponent;
     std::map<const char *, json> frozenComponentContents;
+
+    const char *addingComponentTypeName = NULL;
 
     std::vector<std::string> currentPath;
     std::map<std::string, InspectPathState> state;
@@ -51,6 +55,8 @@ class EntityInspector
     void drawEntityInspectorGUI(entt::entity e, Inspecting &ins);
 
     void drawComponentFieldsTree(entt::entity e, Inspecting &ins, const char *componentName, const ComponentUtils *componentUtils);
+
+    void drawAddComponent(entt::entity e, Inspecting &ins, const char *popupName);
 };
 
 

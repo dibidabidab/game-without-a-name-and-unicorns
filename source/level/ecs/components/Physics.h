@@ -37,9 +37,10 @@ COMPONENT(
     ),
 
     FIELD(ivec2, halfSize),
-    FIELD(ivec2, center)
+    FIELD(ivec2, center),
+
+    FIELD_DEF_VAL(int, centerHashStep, 10)
 )
-    int centerHashStep = 10;
 
     inline ivec2 topRight() const    { return center + halfSize; }
     inline ivec2 bottomRight() const { return center + ivec2(halfSize.x, -halfSize.y); }
@@ -66,7 +67,7 @@ COMPONENT(
     Physics,
 
     HASH(
-        int(velocity.x) / 30, int(velocity.y) / 30, int(gravity)
+        int(velocity.x) / 50, int(velocity.y) / 50, int(gravity)
     ),
 
     FIELD_DEF_VAL   (float, gravity, 9.8 * TileMap::PIXELS_PER_TILE),

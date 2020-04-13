@@ -30,6 +30,9 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
 {
     gu::profiler::Zone z("entity inspector");
 
+    bool open = true;
+    ImGui::ShowDemoWindow(&open);
+
     static bool pickEntity = false;
     if (pickEntity)
     {
@@ -97,8 +100,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
     ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX, MouseInput::mouseY), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(500, 680), ImGuiCond_Once);
 
-    std::string title("Entity #");
-    title += std::to_string(int(e));
+    std::string title("Entity #" + std::to_string(int(e)));
     if (!ImGui::Begin(title.c_str(), &ins.show, 0))
     {
         // Early out if the window is collapsed, as an optimization.
@@ -120,7 +122,10 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
 
     ImGui::Text("Components:");
     ImGui::NextColumn();
-    ImGui::Button("Add");
+    std::string addComponentPopupName = "add_component_" + std::to_string(int(e));
+    if (ImGui::Button("Add"))
+        ImGui::OpenPopup(addComponentPopupName.c_str());
+    drawAddComponent(e, ins, addComponentPopupName.c_str());
 
     ImGui::SameLine();
     bool freezeAll = ImGui::Button("Freeze all");
@@ -368,7 +373,10 @@ void drawJsonTree(json &obj, Inspecting &ins, bool editStructure=true, bool read
         obj[addKey] = addJson;
 }
 
-void drawFieldsTree(json &valuesArray, const ReflectableStructInfo *info, Inspecting &ins, bool readOnly=false)
+void drawFieldsTree(
+        json &valuesArray, const ReflectableStructInfo *info, Inspecting &ins,
+        bool readOnly=false, bool forceEditReadOnly=false
+)
 {
     for (int i = 0; i < info->nrOfFields; i++)
     {
@@ -398,7 +406,10 @@ void drawFieldsTree(json &valuesArray, const ReflectableStructInfo *info, Inspec
         auto subInfo = ReflectableStructInfo::getFor(fieldTypeName);
 
         static std::string finalTypeBegin = "final<";
-        bool subReadOnly = std::string(fieldTypeName).compare(0, finalTypeBegin.length(), finalTypeBegin) == 0;
+        bool subReadOnly = !forceEditReadOnly
+                            && (readOnly
+                                || std::string(fieldTypeName).compare(0, finalTypeBegin.length(), finalTypeBegin) == 0
+                            );
 
         drawJsonValue(value, ins, !subInfo, subReadOnly);
 
@@ -436,4 +447,60 @@ void EntityInspector::drawComponentFieldsTree(entt::entity e, Inspecting &ins, c
     } catch (std::exception& e) {
         std::cerr << "Exception after editing component in inspector:\n" << e.what() << '\n';
     }
+}
+
+void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const char *popupName)
+{
+    if (ImGui::BeginPopup(popupName))
+    {
+        ImGui::Text("Component Type:");
+        ImGui::Separator();
+
+        for (auto typeName : ComponentUtils::getAllComponentTypeNames())
+        {
+            auto utils = ComponentUtils::getFor(typeName);
+            if (utils->entityHasComponent(e, reg))
+                continue;
+            if (ImGui::Selectable(typeName))
+            {
+                ins.addingComponentTypeName = typeName;
+                ins.addingComponentJson = utils->construct();
+            }
+        }
+        ImGui::EndPopup();
+    }
+
+    if (ins.addingComponentTypeName == NULL) return;
+
+    ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX - 200, MouseInput::mouseY - 15), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
+
+    std::string title = "Adding " + std::string(ins.addingComponentTypeName) + " to entity #" + std::to_string(int(e));
+    bool open = true;
+    ImGui::Begin(title.c_str(), &open);
+
+    ImGui::Text("[Warning]:\nadding components (with wrong values) could crash the game!");
+    ImGui::Columns(2);
+    ImGui::Separator();
+
+    drawFieldsTree(ins.addingComponentJson, ReflectableStructInfo::getFor(ins.addingComponentTypeName), ins, false);
+
+    ImGui::Columns(1);
+    ImGui::Separator();
+
+    if (ImGui::Button("Add"))
+    {
+        open = false;
+
+        auto utils = ComponentUtils::getFor(ins.addingComponentTypeName);
+        try
+        {
+            utils->addComponent(ins.addingComponentJson, e, reg);
+        } catch (std::exception& e) {
+            std::cerr << "Exception while trying to add component in inspector:\n" << e.what() << '\n';
+        }
+    }
+    ImGui::End();
+    if (!open)
+        ins.addingComponentTypeName = NULL;
 }
