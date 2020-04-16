@@ -74,7 +74,7 @@ struct ComponentInterpolator<AABB>
         prevCenter = aabb.center;
         aabb.copyFieldsFrom(other);
 
-        if (length2(vec2(other.center - prevCenter)) < 200) // dont interpolate if distance is too big
+        if (length(vec2(other.center - prevCenter)) < 32) // dont interpolate if distance is too big
             aabb.center = prevCenter;
 
         AABB diff;

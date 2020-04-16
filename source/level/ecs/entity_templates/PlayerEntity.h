@@ -30,6 +30,8 @@ class PlayerEntity : public EntityTemplate
                 .component<Physics>()
                 .interpolatedComponent<AABB>()
                 .endGroup();
+
+        networked.toReceive.components<WalkInput, JumpInput, FallInput>();
     }
 
     void makeNetworkedClientSide(Networked &networked) override
@@ -40,6 +42,8 @@ class PlayerEntity : public EntityTemplate
                 .component<Physics>()
                 .interpolatedComponent<AABB>()
                 .endGroup();
+
+        networked.toSend.components<WalkInput, JumpInput, FallInput>();
     }
 };
 

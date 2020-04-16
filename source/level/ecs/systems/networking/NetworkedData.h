@@ -140,16 +140,19 @@ struct InterpolatedNetworkedComponent : NetworkedComponent<Component>
             reg.assign<Component>(e, newC);
             return;
         }
+        if (!firstUpdateReceived)
+        {
+            current->copyFieldsFrom(newC);
+            firstUpdateReceived = true;
+            return;
+        }
         interpolator = ComponentInterpolator<Component>();
         diff = interpolator.diff(*current, newC);
-        firstUpdateReceived = true;
         progress = 0;
     }
 
     void update(double deltaTime, const entt::entity &e, entt::registry &reg) override
     {
-        if (!firstUpdateReceived)
-            return;
         Component *current = reg.try_get<Component>(e);
         if (!current || progress == 1)
             return;

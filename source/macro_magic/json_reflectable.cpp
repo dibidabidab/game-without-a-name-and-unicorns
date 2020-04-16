@@ -1,3 +1,3 @@
 #include "json_reflectable.h"
 
-std::map<std::string, ReflectableStructInfo *> *ReflectableStructInfo::infos = NULL;
+std::map<std::string, SerializableStructInfo *> *SerializableStructInfo::infos = NULL;

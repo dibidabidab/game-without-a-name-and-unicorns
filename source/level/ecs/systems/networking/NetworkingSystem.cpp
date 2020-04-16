@@ -34,6 +34,9 @@ void NetworkingSystem::onPlayerEnteredRoom(entt::registry &reg, entt::entity ent
     Player_ptr player = mpSession->getPlayerById(pC.playerId);
     playersInRoom.push_back(player);
 
+    if (mpSession->getLocalPlayer()->id == pC.playerId)
+        reg.assign<LocalPlayer>(entity);
+
     if (!player->io) return;
 
     std::cout << "Sending all entities in room " << room->getIndexInLevel() << " to " << player->name << "\n";

@@ -371,7 +371,7 @@ void drawJsonTree(json &obj, Inspecting &ins, bool editStructure=true, bool read
 }
 
 void drawFieldsTree(
-        json &valuesArray, const ReflectableStructInfo *info, Inspecting &ins,
+        json &valuesArray, const SerializableStructInfo *info, Inspecting &ins,
         bool readOnly=false, bool forceEditReadOnly=false
 )
 {
@@ -400,7 +400,7 @@ void drawFieldsTree(
         ImGui::NextColumn();
         ImGui::AlignTextToFramePadding();
 
-        auto subInfo = ReflectableStructInfo::getFor(fieldTypeName);
+        auto subInfo = SerializableStructInfo::getFor(fieldTypeName);
 
         static std::string finalTypeBegin = "final<";
         bool subReadOnly = !forceEditReadOnly
@@ -430,7 +430,7 @@ void drawFieldsTree(
 
 void EntityInspector::drawComponentFieldsTree(entt::entity e, Inspecting &ins, const char *componentName, const ComponentUtils *componentUtils)
 {
-    auto info = ReflectableStructInfo::getFor(componentName);
+    auto info = SerializableStructInfo::getFor(componentName);
     json valuesArray;
     componentUtils->getJsonComponent(valuesArray, e, reg);
 
@@ -480,7 +480,7 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
     ImGui::Columns(2);
     ImGui::Separator();
 
-    drawFieldsTree(ins.addingComponentJson, ReflectableStructInfo::getFor(ins.addingComponentTypeName), ins, false);
+    drawFieldsTree(ins.addingComponentJson, SerializableStructInfo::getFor(ins.addingComponentTypeName), ins, false);
 
     ImGui::Columns(1);
     ImGui::Separator();

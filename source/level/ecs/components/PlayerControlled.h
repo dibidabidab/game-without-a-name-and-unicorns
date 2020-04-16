@@ -10,4 +10,7 @@ COMPONENT(
     FIELD_DEF_VAL(final<int>, playerId, -1)
 )END_COMPONENT(PlayerControlled)
 
+struct LocalPlayer
+{};
+
 #endif //GAME_PLAYERCONTROLLED_H

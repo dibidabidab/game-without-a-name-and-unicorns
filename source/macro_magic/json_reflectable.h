@@ -6,7 +6,7 @@
 #include <json.hpp>
 #include <utils/gu_error.h>
 
-struct ReflectableStructInfo
+struct SerializableStructInfo
 {
     const char *name;
 
@@ -22,7 +22,7 @@ struct ReflectableStructInfo
 
     const int nrOfFields;
 
-    ReflectableStructInfo(
+    SerializableStructInfo(
             const char *name, const str_vec &fieldNames, const str_vec &fieldTypeNames,
             const bool_vec &fieldIsStructured,
             const bool_vec &structFieldIsFixedSize
@@ -34,18 +34,18 @@ struct ReflectableStructInfo
               nrOfFields(fieldNames.size())
     {
         if (infos == NULL)
-            infos = new std::map<std::string, ReflectableStructInfo *>();
+            infos = new std::map<std::string, SerializableStructInfo *>();
 
         infos->operator[](name) = this;
     }
 
-    static const ReflectableStructInfo *getFor(const char *typeName)
+    static const SerializableStructInfo *getFor(const char *typeName)
     {
         return infos->operator[](typeName);
     }
 
   private:
-    static std::map<std::string, ReflectableStructInfo *> *infos;
+    static std::map<std::string, SerializableStructInfo *> *infos;
 
 };
 
@@ -131,12 +131,12 @@ bool isStructFieldFixedSize()
 #define IS_FIELD_TYPE_FIXED_SIZE(field) \
     isStructFieldFixedSize<ARGTYPE(EAT field)>()
 
-#define REFLECTABLE_STRUCT(className, ...)\
+#define SERIALIZABLE(className, ...)\
     struct className {\
         /* Dump field types and names */                        \
         DOFOREACH_SEMICOLON(ARGPAIR_FROM_FIELD, __VA_ARGS__)               \
         \
-        inline static const ReflectableStructInfo STRUCT_INFO = ReflectableStructInfo(#className, {\
+        inline static const SerializableStructInfo STRUCT_INFO = SerializableStructInfo(#className, {\
             DOFOREACH(PUT_FIELD_NAME_IN_VEC, __VA_ARGS__)\
         }, {\
             DOFOREACH(PUT_FIELD_TYPE_NAME_IN_VEC, __VA_ARGS__)\
@@ -170,7 +170,7 @@ bool isStructFieldFixedSize()
             DOFOREACH_SEMICOLON(COPY_FROM_OTHER, __VA_ARGS__)\
         }
 
-#define END_REFLECTABLE_STRUCT(className)\
+#define END_SERIALIZABLE(className)\
     };\
     static void to_json(json& j, const className& v) {\
         v.toJsonArray(j);\

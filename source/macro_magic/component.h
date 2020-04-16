@@ -89,7 +89,7 @@ using final = Type;
 
 
 #define COMPONENT(component_name, hash_func, ...)\
-    REFLECTABLE_STRUCT(component_name, __VA_ARGS__)\
+    SERIALIZABLE(component_name, __VA_ARGS__)\
         \
         constexpr static const char *COMPONENT_NAME = #component_name;\
         \
@@ -100,8 +100,8 @@ using final = Type;
         hash_func\
 
 #define END_COMPONENT(component_name)\
-        int prevHash = 0;\
-        END_REFLECTABLE_STRUCT(component_name)
+        int prevHash = -123456;\
+        END_SERIALIZABLE(component_name)
 
 COMPONENT(
     // component name:

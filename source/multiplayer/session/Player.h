@@ -6,7 +6,7 @@
 #include "../io/SocketServer.h"
 #include "../io/MultiplayerIO.h"
 
-REFLECTABLE_STRUCT(
+SERIALIZABLE(
     Player,
 
     FIELD         (int,         id),
@@ -24,7 +24,7 @@ REFLECTABLE_STRUCT(
         delete io;
     }
 
-END_REFLECTABLE_STRUCT(Player)
+END_SERIALIZABLE(Player)
 
 typedef std::shared_ptr<Player> Player_ptr;
 
