@@ -32,7 +32,7 @@ struct AbstractNetworkedData
      * Converts the data to JSON, only if the data has changed since last time.
      *
      * @param hasChanged        Will be set to true if the data has changed since last time
-     * @param componentPresent  Will be set to false if the entity doesn't have the data
+     * @param dataPresent       Will be set to false if the entity doesn't have the data
      * @param out               Output JSON object
      * @param e                 The entity
      * @param reg               The registry the entity lives in
@@ -85,13 +85,12 @@ struct NetworkedComponent : public AbstractNetworkedData
     void dataToJsonIfChanged(bool &hasChanged, bool &componentPresent, json &out, const entt::entity &e,
                              entt::registry &reg) override
     {
-        gu::profiler::Zone z("toJson");
-
         Component *com = reg.try_get<Component>(e);
-        componentPresent = com != nullptr;
-        hasChanged = false;
-
-        if (!componentPresent) return;
+        if (com == NULL)
+        {
+            componentPresent = false;
+            return;
+        }
 
         hash newHash = com->getHash();
 
@@ -113,136 +112,55 @@ struct NetworkedComponent : public AbstractNetworkedData
 };
 
 template <class Component>
+struct ComponentInterpolator
+{
+    float speed = 1.;
+
+    Component diff(Component &c, const Component &other);
+
+    void add(Component &c, const Component &diff, float multiplier);
+};
+
+template <class Component>
 struct InterpolatedNetworkedComponent : NetworkedComponent<Component>
 {
-    Component goal;
+    bool firstUpdateReceived = false;
+    Component diff;
+    ComponentInterpolator<Component> interpolator;
     float progress = 0;
 
     void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override
     {
-        goal.fromJsonArray(in);
+        Component newC;
+        newC.fromJsonArray(in);
+        Component *current = reg.try_get<Component>(e);
 
-        if (!reg.try_get<Component>(e))
+        if (!current)
         {
-            reg.assign<Component>(e, goal);
+            reg.assign<Component>(e, newC);
             return;
         }
+        interpolator = ComponentInterpolator<Component>();
+        diff = interpolator.diff(*current, newC);
+        firstUpdateReceived = true;
         progress = 0;
     }
 
     void update(double deltaTime, const entt::entity &e, entt::registry &reg) override
     {
+        if (!firstUpdateReceived)
+            return;
         Component *current = reg.try_get<Component>(e);
         if (!current || progress == 1)
             return;
 
-        progress = std::min<float>(1, progress + deltaTime);
-        current->interpolate(goal, progress);
+        float newProgress = deltaTime * interpolator.speed;
+        if (progress + newProgress > 1)
+            newProgress = 1 - progress;
+        interpolator.add(*current, diff, newProgress);
+        progress += newProgress;
     }
 
 };
-
-
-/**
- * Useful for sending MULTIPLE Components whenever ANY of them has changed.
- *
- * @tparam ComponentTypes structs made with the COMPONENT() macro
- */
-//template<typename... ComponentTypes>
-//struct NetworkedComponentGroup : public AbstractNetworkedData
-//{
-//    static constexpr std::size_t nrOfTypes = sizeof...(ComponentTypes);
-//
-//    std::string combinedName;
-//    hash combinedHash = 0;
-//
-//    NetworkedComponentGroup()
-//    {
-//        assert(nrOfTypes > 1);
-//
-//        (interpolateComponent<ComponentTypes>(), ...);
-//
-//        std::vector<const char *> names = { ComponentTypes::COMPONENT_NAME... };
-//        std::vector<hash> hashes = { ComponentTypes::COMPONENT_TYPE_HASH... };
-//
-//        for (int i = 0; i < nrOfTypes; i++)
-//        {
-//            if (i != 0) combinedName += '&';
-//            combinedName += names[i];
-//
-//            combinedHash ^= hashes[i] + 0x9e3779b9 + (combinedHash << 6u) + (combinedHash >> 2u);
-//        }
-//    }
-//
-//    hash getDataTypeHash() const override
-//    {
-//        return combinedHash;
-//    }
-//
-//    const char *getDataTypeName() const override
-//    {
-//        return combinedName.c_str();
-//    }
-//
-//    void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override
-//    {
-//        int i = 0;
-//        (NetworkedComponent<ComponentTypes>::updateFromNetwork(in.at(i++), e, reg), ...);
-//    }
-//
-//    void removeData(entt::entity entity, entt::registry &registry) override
-//    {
-//        (registry.remove<ComponentTypes>(entity), ...);
-//    }
-//
-//    template <class Component>
-//    void interpolateComponent()
-//    {
-//        Component a, b, c;
-//        interpolate(a, b, c, .4);
-//    }
-//
-//    template <class Component>
-//    void check(bool &hasChanged, bool &componentsPresent,
-//            const entt::entity &e,
-//            entt::registry &reg)
-//    {
-//        Component *com = reg.try_get<Component>(e);
-//        if (com == NULL)
-//        {
-//            componentsPresent = false;
-//            return;
-//        }
-//
-//        hash newHash = com->getHash();
-//
-//        if (newHash != com->prevHash)
-//        {
-//            hasChanged = true;
-//            com->prevHash = newHash;
-//        }
-//    }
-//
-//    void dataToJsonIfChanged(bool &hasChanged, bool &componentsPresent, json &out,
-//                            const entt::entity &e,
-//                            entt::registry &reg) override
-//    {
-//        gu::profiler::Zone z("toJson");
-//
-//        // check if one or more components have changed, AND if components are all present
-//        (check<ComponentTypes>(hasChanged, componentsPresent, e, reg), ...);
-//
-//        if (componentsPresent && hasChanged)
-//        {
-//            // output to json
-//            out = json::array({ reg.get<ComponentTypes>(e)... });
-//        }
-//    }
-//
-//    void dataToJson(json &out, const entt::entity &e, entt::registry &reg) override
-//    {
-//        out = json::array({ reg.get<ComponentTypes>(e)... });
-//    }
-//};
 
 #endif

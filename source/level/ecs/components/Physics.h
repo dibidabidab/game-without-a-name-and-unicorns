@@ -8,6 +8,7 @@
 #include "../../Level.h"
 #include "../../room/TileMap.h"
 #include "../../../macro_magic/component.h"
+#include "../systems/networking/NetworkedData.h"
 
 namespace nlohmann {
     template <int len, typename type, qualifier something>
@@ -61,21 +62,57 @@ COMPONENT(
         return p.x >= center.x - halfSize.x && p.x <= center.x + halfSize.x && p.y >= center.y - halfSize.y && p.y <= center.y + halfSize.y;
     }
 
-    void interpolate(const AABB& other, float x)
+END_COMPONENT(AABB)
+
+template <>
+struct ComponentInterpolator<AABB>
+{
+    float speed = 5;
+
+    AABB diff(AABB& aabb, const AABB &other)
     {
-        ivec2 currentCenter = center;
-        copyFieldsFrom(other);
-        center = currentCenter;
-        center += vec2(other.center - currentCenter) * vec2(x);
+        prevCenter = aabb.center;
+        aabb.copyFieldsFrom(other);
+
+        if (length2(vec2(other.center - prevCenter)) < 200) // dont interpolate if distance is too big
+            aabb.center = prevCenter;
+
+        AABB diff;
+        diff.center = other.center - aabb.center;
+        return diff;
     }
 
-END_COMPONENT(AABB)
+    vec2 addAccumulator;
+    ivec2 prevCenter;
+
+    void add(AABB& aabb, const AABB &diff, float x)
+    {
+        addAccumulator += vec2(diff.center) * vec2(x);
+
+        ivec2 selfTravel = aabb.center - prevCenter;
+        while (selfTravel.x >= 1 && addAccumulator.x > 0)
+            addAccumulator.x -= 1;
+        while (selfTravel.x <= -1 && addAccumulator.x < 0)
+            addAccumulator.x += 1;
+        while (selfTravel.y >= 1 && addAccumulator.y > 0)
+            addAccumulator.y -= 1;
+        while (selfTravel.y <= -1 && addAccumulator.y < 0)
+            addAccumulator.y += 1;
+
+        aabb.center += addAccumulator;
+        vec2 one(1);
+        addAccumulator = modf(addAccumulator, one);
+
+
+        prevCenter = aabb.center;
+    }
+};
 
 COMPONENT(
     Physics,
 
     HASH(
-        int(velocity.x) / 50, int(velocity.y) / 50, int(gravity)
+        int(velocity.x) / 50, int(velocity.y) / 50, int(gravity), bool(velocity.x == 0), bool(velocity.y == 0)
     ),
 
     FIELD_DEF_VAL   (float, gravity, 9.8 * TileMap::PIXELS_PER_TILE),

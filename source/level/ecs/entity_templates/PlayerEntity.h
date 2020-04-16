@@ -24,20 +24,22 @@ class PlayerEntity : public EntityTemplate
 
     void makeNetworkedServerSide(Networked &networked) override
     {
-        networked.toSend.component<PlayerControlled>();
-        networked.toSend.component<PlatformerMovement>();
-        networked.toSend.component<AABB>();
-        networked.toSend.component<Physics>();
+        networked.toSend.components<PlayerControlled, PlatformerMovement>();
 
-//        toSend.componentGroup<Physics, AABB>(); // if any changes -> send all
+        networked.toSend.group()
+                .component<Physics>()
+                .interpolatedComponent<AABB>()
+                .endGroup();
     }
 
     void makeNetworkedClientSide(Networked &networked) override
     {
-        networked.toReceive.component<PlayerControlled>();
-        networked.toReceive.component<PlatformerMovement>();
-        networked.toReceive.interpolatedComponent<AABB>();
-        networked.toReceive.component<Physics>();
+        networked.toReceive.components<PlayerControlled, PlatformerMovement>();
+
+        networked.toReceive.group()
+                .component<Physics>()
+                .interpolatedComponent<AABB>()
+                .endGroup();
     }
 };
 
