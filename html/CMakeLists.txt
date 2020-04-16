@@ -20,7 +20,7 @@ target_link_libraries(game gameutils)
 include_directories(../asio/asio/include)
 target_include_directories(game PUBLIC ../asio/asio/include)
 
-
+# for debugging: set(CMAKE_CXX_FLAGS  "-O3 -g4 -lwebsocket.js -s ASSERTIONS=2 -s DEMANGLE_SUPPORT=1")
 set(CMAKE_CXX_FLAGS  "-O3 -lwebsocket.js")
 
 set_target_properties(game PROPERTIES SUFFIX ".html")

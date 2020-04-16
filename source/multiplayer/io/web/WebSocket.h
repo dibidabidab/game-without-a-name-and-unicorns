@@ -53,7 +53,7 @@ class WebSocket : public Socket
 
   private:
 
-    bool opened = false, closed = false;
+    bool opened = false, closed = false, closeWasCalled = false;
 
     #ifdef EMSCRIPTEN
 

@@ -60,20 +60,14 @@ struct ReflectableStructInfo
 #define PULL_FIELD_OUT_JSON(field) \
     PULL_OUT_JSON(EAT field)
 
-#define IF_KEY_PULL_FIELD_OUT_JSON(field) \
-    IF_KEY_PULL_OUT_JSON(EAT field)
+#define COPY_FROM_OTHER(field) \
+    ARGNAME(EAT field) = other.ARGNAME(EAT field)
 
 #define PUT_IN_JSON(X)  \
     {ARGNAME_AS_STRING(X), ARGNAME(X)}
 
 #define PULL_OUT_JSON(X)  \
     getTo(ARGNAME(X), j.at(ARGNAME_AS_STRING(X)))
-
-#define IF_KEY_PULL_OUT_JSON(X)  \
-    if (key == ARGNAME_AS_STRING(X))\
-        ARGNAME(X) = el.value();\
-    else
-
 
 // array:
 #define PUT_FIELD_IN_JSON_ARRAY(field) \
@@ -171,18 +165,10 @@ bool isStructFieldFixedSize()
             int pull_out_json_i = 0;\
             DOFOREACH_SEMICOLON(PULL_FIELD_OUT_JSON_ARRAY, __VA_ARGS__)\
         }\
-        \
-//        void updatePartiallyFromJson(const json &j)\
-//        {\
-//            for (auto &el : j.items())\
-//            {\
-//                auto &key = el.key();\
-//                DOFOREACH_NO_DELIMITER(IF_KEY_PULL_FIELD_OUT_JSON, __VA_ARGS__)\
-//                {\
-//                    throw gu_err(key + " is not a member of " + #className);\
-//                }\
-//            }\
-//        }
+        void copyFieldsFrom(const className &other)\
+        {\
+            DOFOREACH_SEMICOLON(COPY_FROM_OTHER, __VA_ARGS__)\
+        }
 
 #define END_REFLECTABLE_STRUCT(className)\
     };\

@@ -49,83 +49,103 @@ std::string prompt(std::string text)
 
 int main(int argc, char *argv[])
 {
-#ifndef EMSCRIPTEN
-    MultiplayerServerSession mpSession(new WebSocketServer(55555));
-
-#else
-    SharedSocket ws = SharedSocket(new WebSocket(argc > 1 ? std::string(argv[1]) : "ws://192.168.2.5:25565"));
-    MultiplayerClientSession mpSession(ws);
-
-    ws->onOpen = [&]() {
-        mpSession.join(prompt("Enter your name"));
-    };
-    ws->onConnectionFailed = []() {
-        std::cout << "connection failed :C\n";
-
-        #ifdef EMSCRIPTEN
-        EM_ASM(
-            alert("Websocket connection failed");
-        );
-        #endif
-    };
-#endif
-
+    bool server = false;
+    int serverPort = 0;
+    if (argc == 3 && strcmp(argv[1], "--server") == 0)
     {
-        gu::Config config;
-        config.width = 1900;
-        config.height = 900;
-        config.title = "dibidabidab";
-        config.vsync = false;
-        config.samples = 0;
-        config.printOpenGLMessages = false;
-        if (!gu::init(config))
-            return -1;
-
-        setImGuiStyle();
-
-        std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
-
-        Screen *roomScreen = NULL;
-
-        mpSession.onNewLevel = [&](Level *lvl)
-        {
-            std::cout << "New level!\n";
-            delete roomScreen;
-            gu::setScreen(NULL);
-
-            lvl->onPlayerEnteredRoom = [&](Room *room, int playerId)
-            {
-                if (!mpSession.getLocalPlayer() || playerId != mpSession.getLocalPlayer()->id)
-                    return;
-                delete roomScreen;
-                std::cout << "Player entered room. Show RoomScreen\n";
-                roomScreen = new RoomScreen(room);
-                gu::setScreen(roomScreen);
-            };
-        };
-
-        gu::beforeRender = [&](double deltaTime) {
-            mpSession.update(deltaTime);
-            if (KeyInput::justPressed(GLFW_KEY_F11))
-                gu::fullscreen = !gu::fullscreen;
-        };
-
-        mpSession.onJoinRequestDeclined = [&](auto reason) {
-            #ifdef EMSCRIPTEN
-            alertJS(reason.c_str());
-            #endif
-            mpSession.join(prompt("Try again. Enter your name"));
-        };
-
-        #ifndef EMSCRIPTEN
-        mpSession.setLevel(Level::testLevel());
-        mpSession.join("mikey maws");
-        #else
-        ws->open();
-        #endif
-
-        gu::run();
+        server = true;
+        serverPort = atoi(argv[2]);
     }
+    std::function<void()> afterInit;
+    MultiplayerSession *mpSession;
+
+    #ifndef EMSCRIPTEN
+    if (server)
+    {
+        auto ss = new MultiplayerServerSession(new WebSocketServer(serverPort));
+        mpSession = ss;
+
+        afterInit = [=] {
+            ss->setLevel(Level::testLevel());
+            ss->join("mikey maws");
+        };
+    }
+    #endif
+
+    if (!server)
+    {
+        SharedSocket ws = SharedSocket(new WebSocket(argc > 1 ? std::string(argv[1]) : "ws://192.168.2.5:55555"));
+        mpSession = new MultiplayerClientSession(ws);
+
+        ws->onOpen = [&]() {
+            #ifdef EMSCRIPTEN
+            mpSession->join(prompt("Enter your name"));
+            #else
+            mpSession->join("Dolan duk");
+            #endif
+        };
+        ws->onConnectionFailed = []() {
+            std::cout << "connection failed :C\n";
+
+            #ifdef EMSCRIPTEN
+            EM_ASM(
+                alert("Websocket connection failed");
+            );
+            #endif
+        };
+        afterInit = [=] () mutable {
+            ws->open();
+        };
+    }
+
+    gu::Config config;
+    config.width = 1900;
+    config.height = 900;
+    config.title = "dibidabidab";
+    config.vsync = false;
+    config.samples = 0;
+    config.printOpenGLMessages = false;
+    if (!gu::init(config))
+        return -1;
+
+    setImGuiStyle();
+
+    std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
+
+    Screen *roomScreen = NULL;
+
+    mpSession->onNewLevel = [&](Level *lvl)
+    {
+        std::cout << "New level!\n";
+        delete roomScreen;
+        gu::setScreen(NULL);
+
+        lvl->onPlayerEnteredRoom = [&](Room *room, int playerId)
+        {
+            if (!mpSession->getLocalPlayer() || playerId != mpSession->getLocalPlayer()->id)
+                return;
+            delete roomScreen;
+            std::cout << "Player entered room. Show RoomScreen\n";
+            roomScreen = new RoomScreen(room);
+            gu::setScreen(roomScreen);
+        };
+    };
+
+    gu::beforeRender = [&](double deltaTime) {
+        mpSession->update(deltaTime);
+        if (KeyInput::justPressed(GLFW_KEY_F11))
+            gu::fullscreen = !gu::fullscreen;
+    };
+
+    mpSession->onJoinRequestDeclined = [&](auto reason) {
+        #ifdef EMSCRIPTEN
+        alertJS(reason.c_str());
+        #endif
+        mpSession->join(prompt("Try again. Enter your name"));
+    };
+    afterInit();
+    gu::run();
+
 
     #ifdef EMSCRIPTEN
     return 0;

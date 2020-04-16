@@ -15,7 +15,7 @@ class MultiplayerSession
 
     Level *level = NULL;
 
-    std::vector<Player_ptr> players;
+    std::list<Player_ptr> players;
 
     Player_ptr localPlayer;
 
@@ -35,7 +35,7 @@ class MultiplayerSession
 
     const Player_ptr &getLocalPlayer() const { return localPlayer; }
 
-    const std::vector<Player_ptr> &getPlayers() const { return players; }
+    const std::list<Player_ptr> &getPlayers() const { return players; }
 
     const Player_ptr &getPlayerById(int id) const;
 
@@ -43,6 +43,12 @@ class MultiplayerSession
 
     template <class PacketType>
     void sendPacketToAllPlayers(PacketType &packet)
+    {
+        sendPacketToPlayers(packet, players);
+    }
+
+    template <class PacketType>
+    void sendPacketToPlayers(PacketType &packet, std::list<Player_ptr> &players)
     {
         bool sentOnce = false;
         for (auto &p : players)
@@ -66,6 +72,10 @@ class MultiplayerSession
 
     void resendPacketToAnotherPlayer(const Player_ptr &player);
 
+    virtual MultiplayerIO &getIOtoServer();
+
+    Player_ptr deletePlayer(int id, std::list<Player_ptr> &players);
+
   protected:
 
     /**
@@ -74,8 +84,6 @@ class MultiplayerSession
     void validateUsername(const std::string &name, std::string &declineReason) const;
 
     Player_ptr deletePlayer(int id) { return deletePlayer(id, players); }
-
-    Player_ptr deletePlayer(int id, std::vector<Player_ptr> &players);
 
     Player_ptr getPlayer(int id) const;
 

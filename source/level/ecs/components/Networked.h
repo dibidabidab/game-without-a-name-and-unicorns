@@ -8,6 +8,7 @@
 #include "Physics.h"
 
 class NetworkingSystem;
+typedef std::shared_ptr<AbstractNetworkedData> NetworkedData_ptr;
 
 /**
  * List of data types to send/receive
@@ -16,7 +17,7 @@ struct NetworkedDataList
 {
     bool contains(const char *dataType) const
     {
-        for (const AbstractNetworkedData *d : list)
+        for (const NetworkedData_ptr &d : list)
             if (strcmp(d->getDataTypeName(), dataType) == 0) return true;
         return false;
     }
@@ -28,21 +29,23 @@ struct NetworkedDataList
     template <class Component>
     void component()
     {
-        auto c = new NetworkedComponent<Component>();
-        add(c);
-        destructors.push_back([=] {
-            delete c;
-        });
+        add(new NetworkedComponent<Component>());
     }
 
     /**
      * Add Components to the list
      * @tparam ComponentTypes stucts made with the COMPONENT() macro
      */
-    template <typename... ComponentTypes>
+    template <class... ComponentTypes>
     void components()
     {
         (component<ComponentTypes>(), ...);
+    }
+
+    template <class Component>
+    void interpolatedComponent()
+    {
+        add(new InterpolatedNetworkedComponent<Component>());
     }
 
     /**
@@ -54,35 +57,26 @@ struct NetworkedDataList
      *
      * @tparam ComponentTypes stucts made with the COMPONENT() macro
      */
-    template <typename... ComponentTypes>
+    template <class... ComponentTypes>
     void componentGroup()
     {
-        auto group = new NetworkedComponentGroup<ComponentTypes...>();
-        add(group);
-        destructors.push_back([=] {
-            delete group;
-        });
-    }
-
-    ~NetworkedDataList()
-    {
-        for (auto &d : destructors) d();
+//        auto group = new NetworkedComponentGroup<ComponentTypes...>();
+//        add(group);
     }
 
   private:
     friend NetworkingSystem;
 
-    std::vector<AbstractNetworkedData *> list;
-    std::map<int, AbstractNetworkedData *> hashToType;
+    std::vector<NetworkedData_ptr> list;
+    std::map<int, NetworkedData_ptr> hashToType;
 
     void add(AbstractNetworkedData *d)
     {
         assert(!contains(d->getDataTypeName()));
-        list.push_back(d);
-        hashToType[d->getDataTypeHash()] = d;
+        list.push_back(NetworkedData_ptr(d));
+        hashToType[d->getDataTypeHash()] = list.back();
     }
 
-    std::vector<std::function<void()>> destructors;
 };
 
 /**
@@ -95,7 +89,7 @@ COMPONENT(
     FIELD_DEF_VAL(final<int>, templateHash, -1) // used to determine what EntityTemplate to use to construct the entity at the client-side
 )
 
-    std::shared_ptr<NetworkedDataList> toSend, toReceive;
+    NetworkedDataList toSend, toReceive;
 
     std::map<size_t, bool> dataPresence;
 

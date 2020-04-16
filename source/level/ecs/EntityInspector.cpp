@@ -30,9 +30,6 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
 {
     gu::profiler::Zone z("entity inspector");
 
-    bool open = true;
-    ImGui::ShowDemoWindow(&open);
-
     static bool pickEntity = false;
     if (pickEntity)
     {

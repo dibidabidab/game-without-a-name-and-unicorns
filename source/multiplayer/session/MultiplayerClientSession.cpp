@@ -94,3 +94,8 @@ void MultiplayerClientSession::join(std::string username)
     join_request req { std::move(username) };
     io.send(req);
 }
+
+MultiplayerIO &MultiplayerClientSession::getIOtoServer()
+{
+    return io;
+}

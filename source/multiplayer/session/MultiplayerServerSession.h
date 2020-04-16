@@ -9,7 +9,7 @@ class MultiplayerServerSession : public MultiplayerSession
 {
 
     std::atomic_int playerIdCounter = 0;
-    std::vector<Player_ptr> playersJoining;
+    std::list<Player_ptr> playersJoining;
     std::vector<int> playersLeaving;
     std::mutex playersJoiningAndLeaving;
 

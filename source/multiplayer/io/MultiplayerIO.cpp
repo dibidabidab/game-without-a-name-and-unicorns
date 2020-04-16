@@ -102,6 +102,8 @@ void MultiplayerIO::handlePacket(PacketTypeHash typeHash, void *packet)
         handler->function(handler, packet);
     } catch(const std::exception& e) {
         std::cerr << "Caught exception while handling " << packetTypeNames[typeHash] << "-packet:\n" << e.what() << "\n";
+        std::cerr << "CLOSING THE SOCKET...\n";
+        socket->close();
         return;
     }
 }

@@ -18,17 +18,19 @@ void MultiplayerSession::validateUsername(const std::string &name, std::string &
             declineReason = "Username already taken. :(";
 }
 
-Player_ptr MultiplayerSession::deletePlayer(int pId, std::vector<Player_ptr> &players)
+Player_ptr MultiplayerSession::deletePlayer(int pId, std::list<Player_ptr> &players)
 {
-    for (int i = 0; i < players.size(); i++)
-    {
-        Player_ptr p = players[i];
-        if (p->id != pId) continue;
-
-        players.erase(players.begin() + i);
-        return p;
-    }
-    throw gu_err("Player not found");
+    Player_ptr deletedPlayer;
+    players.remove_if([&](auto &p) {
+        if (pId == p->id)
+        {
+            deletedPlayer = p;
+            return true;
+        }
+        return false;
+    });
+    if (!deletedPlayer) throw gu_err("Player not found");
+    return deletedPlayer;
 }
 
 Player_ptr MultiplayerSession::getPlayer(int id) const
@@ -59,4 +61,9 @@ void MultiplayerSession::resendPacketToAnotherPlayer(const Player_ptr &player)
 {
     if (!player->io) return;
     player->io->socket->send(&recentlySentPacket[0], recentlySentPacket.size());
+}
+
+MultiplayerIO &MultiplayerSession::getIOtoServer()
+{
+    throw gu_err("This is not a client");
 }

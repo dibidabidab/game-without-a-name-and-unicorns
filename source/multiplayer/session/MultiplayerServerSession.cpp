@@ -15,12 +15,12 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : serve
 {
     server->onNewSocket = [&] (SharedSocket sock) mutable
     {
-        auto *player = new Player;
+        Player_ptr player(new Player);
         player->id = ++playerIdCounter;
         assert(getPlayer(player->id) == NULL);
 
         playersJoiningAndLeaving.lock();
-        playersJoining.push_back(Player_ptr(player));
+        playersJoining.push_back(player);
         playersJoiningAndLeaving.unlock();
 
         auto io = player->io = new MultiplayerIO(sock);
@@ -47,43 +47,35 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : serve
         io->addJsonPacketType<Level>();
         io->addJsonPacketType<entity_created>();
         io->addJsonPacketType<entity_destroyed>();
-        io->addJsonPacketHandler<entity_data_update>([&](entity_data_update *packet) {
+        io->addJsonPacketHandler<entity_data_update>([=](entity_data_update *packet) {
 
-            networkingSystems.at(packet->roomI)->handleDataUpdate(packet, player);
+            networkingSystems.at(packet->roomI)->handleDataUpdate(packet, player.get());
             delete packet;
         });
-        io->addJsonPacketHandler<entity_data_removed>([&](entity_data_removed *packet) {
+        io->addJsonPacketHandler<entity_data_removed>([=](entity_data_removed *packet) {
 
-            networkingSystems.at(packet->roomI)->handleDataRemoval(packet, player);
+            networkingSystems.at(packet->roomI)->handleDataRemoval(packet, player.get());
             delete packet;
         });
 
-        io->addJsonPacketHandler<join_request>([=](join_request *req){
+        io->addJsonPacketHandler<join_request>([=] (join_request *req) mutable {
 
             std::cout << req->name << " @" << player->io->socket->url << " attempting to join.\n";
 
-            for (int i = 0; i < playersJoining.size(); i++)
+            std::string declineReason;
+
+            if (handleJoinRequest(player, req, declineReason))
             {
-                if (playersJoining[i].get() != player)
-                    continue;
+                std::cout << player->name << " @" << player->io->socket->url << " joined!\n";
 
-                std::string declineReason;
-
-                if (handleJoinRequest(playersJoining[i], req, declineReason))
-                {
-                    std::cout << player->name << " @" << player->io->socket->url << " joined!\n";
-
-                    // playersJoiningAndLeaving.lock(); is already locked in MultiplayerServerSession::update
-                    playersJoining[i] = playersJoining.back();
-                    playersJoining.pop_back();
-                    // playersJoiningAndLeaving.unlock();
-                }
-                else
-                {
-                    join_request_declined p { declineReason };
-                    player->io->send(p);
-                }
-                break;
+                // playersJoiningAndLeaving.lock(); is already locked in MultiplayerServerSession::update
+                deletePlayer(player->id, playersJoining);
+                // playersJoiningAndLeaving.unlock();
+            }
+            else
+            {
+                join_request_declined p { declineReason };
+                player->io->send(p);
             }
             delete req;
         });
@@ -133,8 +125,8 @@ void MultiplayerServerSession::update(double deltaTime)
     gu::profiler::Zone zone("server");
 
     playersJoiningAndLeaving.lock();
-    for (int i = playersJoining.size() - 1; i >= 0; i--) // weird loop because handleJoinRequest() might delete item
-        playersJoining[i]->io->handlePackets();
+    for (auto it = playersJoining.rbegin(); it != playersJoining.rend(); ++it)
+        (*it)->io->handlePackets();
     playersJoiningAndLeaving.unlock();
 
     {

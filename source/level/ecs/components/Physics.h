@@ -61,6 +61,14 @@ COMPONENT(
         return p.x >= center.x - halfSize.x && p.x <= center.x + halfSize.x && p.y >= center.y - halfSize.y && p.y <= center.y + halfSize.y;
     }
 
+    void interpolate(const AABB& other, float x)
+    {
+        ivec2 currentCenter = center;
+        copyFieldsFrom(other);
+        center = currentCenter;
+        center += vec2(other.center - currentCenter) * vec2(x);
+    }
+
 END_COMPONENT(AABB)
 
 COMPONENT(

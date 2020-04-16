@@ -2,6 +2,7 @@
 #ifndef GAME_NETWORKEDDATA_H
 #define GAME_NETWORKEDDATA_H
 
+#include <list>
 #include <json.hpp>
 #include <gu/game_utils.h>
 #include "../../../../entt/src/entt/entity/registry.hpp"
@@ -19,11 +20,6 @@ struct AbstractNetworkedData
      * Returns the name of the data type
      */
     virtual const char *getDataTypeName() const = 0;
-
-    /**
-     * Returns a json description of the data type
-     */
-    virtual const json getJsonDescription() const = 0;
 
     /**
      * Updates entity `e` with the data received in json format.
@@ -46,6 +42,8 @@ struct AbstractNetworkedData
 
     virtual void dataToJson(json &out, const entt::entity &e, entt::registry &reg) = 0;
 
+    virtual void update(double deltaTime, const entt::entity &e, entt::registry &reg) {}
+
     virtual ~AbstractNetworkedData() = default;
 };
 
@@ -67,12 +65,12 @@ struct NetworkedComponent : public AbstractNetworkedData
         return Component::COMPONENT_NAME;
     }
 
-    const json getJsonDescription() const override
+    void removeData(entt::entity entity, entt::registry &registry) override
     {
-        return Component::COMPONENT_NAME;
+        registry.remove<Component>(entity);
     }
 
-    static void updateFromNetwork(const json &in, const entt::entity &e, entt::registry &reg)
+    void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override
     {
         if (Component *com = reg.try_get<Component>(e))
             com->fromJsonArray(in);
@@ -82,16 +80,6 @@ struct NetworkedComponent : public AbstractNetworkedData
             newComponent.fromJsonArray(in);
             reg.assign<Component>(e, newComponent);
         }
-    }
-
-    void removeData(entt::entity entity, entt::registry &registry) override
-    {
-        registry.remove<Component>(entity);
-    }
-
-    void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override
-    {
-        updateFromNetwork(in, e, reg);
     }
 
     void dataToJsonIfChanged(bool &hasChanged, bool &componentPresent, json &out, const entt::entity &e,
@@ -124,105 +112,137 @@ struct NetworkedComponent : public AbstractNetworkedData
 
 };
 
+template <class Component>
+struct InterpolatedNetworkedComponent : NetworkedComponent<Component>
+{
+    Component goal;
+    float progress = 0;
+
+    void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override
+    {
+        goal.fromJsonArray(in);
+
+        if (!reg.try_get<Component>(e))
+        {
+            reg.assign<Component>(e, goal);
+            return;
+        }
+        progress = 0;
+    }
+
+    void update(double deltaTime, const entt::entity &e, entt::registry &reg) override
+    {
+        Component *current = reg.try_get<Component>(e);
+        if (!current || progress == 1)
+            return;
+
+        progress = std::min<float>(1, progress + deltaTime);
+        current->interpolate(goal, progress);
+    }
+
+};
+
 
 /**
  * Useful for sending MULTIPLE Components whenever ANY of them has changed.
  *
  * @tparam ComponentTypes structs made with the COMPONENT() macro
  */
-template<typename... ComponentTypes>
-struct NetworkedComponentGroup : public AbstractNetworkedData
-{
-    static constexpr std::size_t nrOfTypes = sizeof...(ComponentTypes);
-
-    std::string combinedName;
-    hash combinedHash = 0;
-
-    NetworkedComponentGroup()
-    {
-        assert(nrOfTypes > 1);
-
-        std::vector<const char *> names = { ComponentTypes::COMPONENT_NAME... };
-        std::vector<hash> hashes = { ComponentTypes::COMPONENT_TYPE_HASH... };
-
-        for (int i = 0; i < nrOfTypes; i++)
-        {
-            if (i != 0) combinedName += '&';
-            combinedName += names[i];
-
-            combinedHash ^= hashes[i] + 0x9e3779b9 + (combinedHash << 6u) + (combinedHash >> 2u);
-        }
-    }
-
-    hash getDataTypeHash() const override
-    {
-        return combinedHash;
-    }
-
-    const char *getDataTypeName() const override
-    {
-        return combinedName.c_str();
-    }
-
-    const json getJsonDescription() const override
-    {
-        json j = json::array();
-        (j.push_back(ComponentTypes::COMPONENT_NAME), ...);
-        return j;
-    }
-
-    void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override
-    {
-        int i = 0;
-        (NetworkedComponent<ComponentTypes>::updateFromNetwork(in.at(i++), e, reg), ...);
-    }
-
-    void removeData(entt::entity entity, entt::registry &registry) override
-    {
-        (registry.remove<ComponentTypes>(entity), ...);
-    }
-
-    template <class Component>
-    void check(bool &hasChanged, bool &componentsPresent,
-            const entt::entity &e,
-            entt::registry &reg)
-    {
-        Component *com = reg.try_get<Component>(e);
-        if (com == NULL)
-        {
-            componentsPresent = false;
-            return;
-        }
-
-        hash newHash = com->getHash();
-
-        if (newHash != com->prevHash)
-        {
-            hasChanged = true;
-            com->prevHash = newHash;
-        }
-    }
-
-    void dataToJsonIfChanged(bool &hasChanged, bool &componentsPresent, json &out,
-                            const entt::entity &e,
-                            entt::registry &reg) override
-    {
-        gu::profiler::Zone z("toJson");
-
-        // check if one or more components have changed, AND if components are all present
-        (check<ComponentTypes>(hasChanged, componentsPresent, e, reg), ...);
-
-        if (componentsPresent && hasChanged)
-        {
-            // output to json
-            out = json::array({ reg.get<ComponentTypes>(e)... });
-        }
-    }
-
-    void dataToJson(json &out, const entt::entity &e, entt::registry &reg) override
-    {
-        out = json::array({ reg.get<ComponentTypes>(e)... });
-    }
-};
+//template<typename... ComponentTypes>
+//struct NetworkedComponentGroup : public AbstractNetworkedData
+//{
+//    static constexpr std::size_t nrOfTypes = sizeof...(ComponentTypes);
+//
+//    std::string combinedName;
+//    hash combinedHash = 0;
+//
+//    NetworkedComponentGroup()
+//    {
+//        assert(nrOfTypes > 1);
+//
+//        (interpolateComponent<ComponentTypes>(), ...);
+//
+//        std::vector<const char *> names = { ComponentTypes::COMPONENT_NAME... };
+//        std::vector<hash> hashes = { ComponentTypes::COMPONENT_TYPE_HASH... };
+//
+//        for (int i = 0; i < nrOfTypes; i++)
+//        {
+//            if (i != 0) combinedName += '&';
+//            combinedName += names[i];
+//
+//            combinedHash ^= hashes[i] + 0x9e3779b9 + (combinedHash << 6u) + (combinedHash >> 2u);
+//        }
+//    }
+//
+//    hash getDataTypeHash() const override
+//    {
+//        return combinedHash;
+//    }
+//
+//    const char *getDataTypeName() const override
+//    {
+//        return combinedName.c_str();
+//    }
+//
+//    void updateDataFromNetwork(const json &in, const entt::entity &e, entt::registry &reg) override
+//    {
+//        int i = 0;
+//        (NetworkedComponent<ComponentTypes>::updateFromNetwork(in.at(i++), e, reg), ...);
+//    }
+//
+//    void removeData(entt::entity entity, entt::registry &registry) override
+//    {
+//        (registry.remove<ComponentTypes>(entity), ...);
+//    }
+//
+//    template <class Component>
+//    void interpolateComponent()
+//    {
+//        Component a, b, c;
+//        interpolate(a, b, c, .4);
+//    }
+//
+//    template <class Component>
+//    void check(bool &hasChanged, bool &componentsPresent,
+//            const entt::entity &e,
+//            entt::registry &reg)
+//    {
+//        Component *com = reg.try_get<Component>(e);
+//        if (com == NULL)
+//        {
+//            componentsPresent = false;
+//            return;
+//        }
+//
+//        hash newHash = com->getHash();
+//
+//        if (newHash != com->prevHash)
+//        {
+//            hasChanged = true;
+//            com->prevHash = newHash;
+//        }
+//    }
+//
+//    void dataToJsonIfChanged(bool &hasChanged, bool &componentsPresent, json &out,
+//                            const entt::entity &e,
+//                            entt::registry &reg) override
+//    {
+//        gu::profiler::Zone z("toJson");
+//
+//        // check if one or more components have changed, AND if components are all present
+//        (check<ComponentTypes>(hasChanged, componentsPresent, e, reg), ...);
+//
+//        if (componentsPresent && hasChanged)
+//        {
+//            // output to json
+//            out = json::array({ reg.get<ComponentTypes>(e)... });
+//        }
+//    }
+//
+//    void dataToJson(json &out, const entt::entity &e, entt::registry &reg) override
+//    {
+//        out = json::array({ reg.get<ComponentTypes>(e)... });
+//    }
+//};
 
 #endif

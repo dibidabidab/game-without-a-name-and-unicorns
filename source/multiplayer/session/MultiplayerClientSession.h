@@ -22,6 +22,8 @@ class MultiplayerClientSession : public MultiplayerSession
     bool isServer() const override { return false; }
 
     void update(double deltaTime) override;
+
+    MultiplayerIO &getIOtoServer() override;
 };
 
 

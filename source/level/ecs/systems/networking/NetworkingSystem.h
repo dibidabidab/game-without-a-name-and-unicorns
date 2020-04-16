@@ -34,8 +34,6 @@ class NetworkingSystem : public EntitySystem
 
     void onNetworkedEntityCreated(entt::registry &, entt::entity);
 
-    bool sendCreatedEntity(Networked &, const Player_ptr &);
-
     void onPlayerEnteredRoom(entt::registry &, entt::entity);
 
     void onPlayerLeftRoom(entt::registry &, entt::entity);
@@ -44,7 +42,9 @@ class NetworkingSystem : public EntitySystem
 
     void update(double deltaTime, Room *) override;
 
-    bool sendEntityDataUpdate(Networked &, json &data, AbstractNetworkedData *dataType, const Player_ptr &sendTo);
+    Packet::from_server::entity_created entityCreatedPacket(Networked &);
+
+    Packet::entity_data_update dataUpdatePacket(Networked &, json &data, NetworkedData_ptr &dataType);
 
 };
 

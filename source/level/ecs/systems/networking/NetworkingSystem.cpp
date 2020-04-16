@@ -17,27 +17,14 @@ void NetworkingSystem::onNetworkedEntityCreated(entt::registry &reg, entt::entit
 {
     Networked &networked = reg.get<Networked>(entity);
     std::cout << "Entity " << int(entity) << ":" << networked.networkID << " created\n";
+    assert(networkIdToEntity.find(networked.networkID) == networkIdToEntity.end());
     networkIdToEntity[networked.networkID] = entity;
 
     if (!mpSession->isServer())
         return;
     // send to players.
-    bool sentOnce = false;
-    for (auto &p : playersInRoom)
-        if (!sentOnce)
-            sentOnce = sendCreatedEntity(networked, p);
-        else
-            mpSession->resendPacketToAnotherPlayer(p);
-}
-
-bool NetworkingSystem::sendCreatedEntity(Networked &networked, const Player_ptr &player)
-{
-    Packet::from_server::entity_created packet {
-            room->getIndexInLevel(),
-            networked.networkID,
-            networked.templateHash
-    };
-    return mpSession->sendPacketToPlayer(packet, player);
+    auto p = entityCreatedPacket(networked);
+    mpSession->sendPacketToPlayers(p, playersInRoom);
 }
 
 void NetworkingSystem::onPlayerEnteredRoom(entt::registry &reg, entt::entity entity)
@@ -53,18 +40,18 @@ void NetworkingSystem::onPlayerEnteredRoom(entt::registry &reg, entt::entity ent
 
     room->entities.view<Networked>().each([&](auto e, Networked &networked) {
 
-        sendCreatedEntity(networked, player);
+        auto p = entityCreatedPacket(networked);
+        player->io->send(p);
 
-        if (!networked.toSend) return;
-
-        for (auto *c : networked.toSend->list)
+        for (auto &c : networked.toSend.list)
         {
             if (networked.dataPresence[c->getDataTypeHash()] == false)
                 continue;
 
             json jsonToSend;
             c->dataToJson(jsonToSend, e, room->entities);
-            sendEntityDataUpdate(networked, jsonToSend, c, player);
+            auto du = dataUpdatePacket(networked, jsonToSend, c);
+            player->io->send(du);
         }
     });
 }
@@ -72,9 +59,8 @@ void NetworkingSystem::onPlayerEnteredRoom(entt::registry &reg, entt::entity ent
 void NetworkingSystem::onPlayerLeftRoom(entt::registry &reg, entt::entity entity)
 {
     PlayerControlled &pC = reg.get<PlayerControlled>(entity);
-    int sizeBefore = playersInRoom.size();
-    playersInRoom.remove_if([&](auto &p) { return pC.playerId == p->id; });
-    assert(sizeBefore == playersInRoom.size() + 1);
+
+    mpSession->deletePlayer(pC.playerId, playersInRoom);
 }
 
 void NetworkingSystem::onNetworkedEntityDestroyed(entt::registry &reg, entt::entity entity)
@@ -87,18 +73,24 @@ void NetworkingSystem::onNetworkedEntityDestroyed(entt::registry &reg, entt::ent
             room->getIndexInLevel(),
             networked.networkID
     };
-    return mpSession->sendPacketToAllPlayers(packet);
+    return mpSession->sendPacketToPlayers(packet, playersInRoom);
 }
 
 void NetworkingSystem::update(double deltaTime, Room *room)
 {
     room->entities.view<Networked>().each([&](auto e, Networked &networked) {
 
-        if (!networked.toSend) return;
-
-        for (auto *c : networked.toSend->list)
+        for (auto &c : networked.toReceive.list)
         {
             gu::profiler::Zone z(c->getDataTypeName());
+            c->update(deltaTime, e, room->entities);
+        }
+
+        for (auto &c : networked.toSend.list)
+        {
+            gu::profiler::Zone z(c->getDataTypeName());
+            c->update(deltaTime, e, room->entities);
+
             json jsonToSend;
             bool hasChanged = false, isPresent = true;
             c->dataToJsonIfChanged(hasChanged, isPresent, jsonToSend, e, room->entities);
@@ -115,59 +107,44 @@ void NetworkingSystem::update(double deltaTime, Room *room)
                     networked.networkID,
                     c->getDataTypeHash()
                 };
-                mpSession->sendPacketToAllPlayers(packet);
+                if (mpSession->isServer())
+                    mpSession->sendPacketToPlayers(packet, playersInRoom);
+                else
+                    mpSession->getIOtoServer().send(packet);
             }
 
             if (hasChanged && isPresent)
             {
                 std::cout << c->getDataTypeName() << " changed for " << int(e) << ":" << networked.networkID << ":\n";// << jsonToSend << "\n";
 
-                bool sentOnce = false;
-                for (auto &p : playersInRoom)
-                    if (!sentOnce)
-                        sentOnce = sendEntityDataUpdate(networked, jsonToSend, c, p);
-                    else
-                        mpSession->resendPacketToAnotherPlayer(p);
+                auto p = dataUpdatePacket(networked, jsonToSend, c);
+                if (mpSession->isServer())
+                    mpSession->sendPacketToPlayers(p, playersInRoom);
+                else
+                    mpSession->getIOtoServer().send(p);
             }
         }
     });
-}
-
-bool NetworkingSystem::sendEntityDataUpdate(Networked &networked, json &data, AbstractNetworkedData *dataType,
-                                            const Player_ptr &sendTo)
-{
-    Packet::entity_data_update packet {
-        room->getIndexInLevel(),
-        networked.networkID,
-        dataType->getDataTypeHash(),
-        data
-    };
-    return mpSession->sendPacketToPlayer(packet, sendTo);
 }
 
 void NetworkingSystem::handleDataUpdate(Packet::entity_data_update *update, const Player *receivedFrom)
 {
     auto it = networkIdToEntity.find(update->entityNetworkId);
     if (it == networkIdToEntity.end())
-        throw gu_err("Received entity_data_update for NON-EXISTING entity that has networkID "
-                    + std::to_string(update->entityNetworkId));
+        throw gu_err("Received entity_data_update for NON-EXISTING entity");
 
     entt::entity e = it->second;
     Networked &networked = room->entities.get<Networked>(e);
-    if (!networked.toReceive)
-        throw gu_err("Received entity_data_update for Entity that does not receive data");
 
-    AbstractNetworkedData *dataType = networked.toReceive->hashToType[update->dataTypeHash];
+    NetworkedData_ptr &dataType = networked.toReceive.hashToType[update->dataTypeHash];
     if (!dataType)
-        throw gu_err(// todo replace with normal exception that doesnt print automatically?
-                "Received entity_data_update for Entity that does not receive data of type "
-                + std::to_string(update->dataTypeHash));
+        throw gu_err("Received entity_data_update for Entity that does not receive data of that type");
 
     if (receivedFrom)
     {
         PlayerControlled *pC = room->entities.try_get<PlayerControlled>(e);
         if (!pC || pC->playerId != receivedFrom->id)
-            throw gu_err("Received entity_data_update for Entity that is NOT controlled by " + receivedFrom->name);
+            throw gu_err("Received entity_data_update for Entity that is NOT controlled by sender");
     }
     dataType->updateDataFromNetwork(update->jsonData, e, room->entities);
 }
@@ -182,25 +159,20 @@ void NetworkingSystem::handleDataRemoval(Packet::entity_data_removed *packet, co
 {
     auto it = networkIdToEntity.find(packet->entityNetworkId);
     if (it == networkIdToEntity.end())
-        throw gu_err("Received entity_data_removed for NON-EXISTING entity that has networkID "
-                     + std::to_string(packet->entityNetworkId));
+        throw gu_err("Received entity_data_removed for NON-EXISTING entity");
 
     entt::entity e = it->second;
     Networked &networked = room->entities.get<Networked>(e);
-    if (!networked.toReceive)
-        throw gu_err("Received entity_data_removed for Entity that does not receive data");
 
-    AbstractNetworkedData *dataType = networked.toReceive->hashToType[packet->dataTypeHash];
+    NetworkedData_ptr &dataType = networked.toReceive.hashToType[packet->dataTypeHash];
     if (!dataType)
-        throw gu_err(// todo replace with normal exception that doesnt print automatically?
-                "Received entity_data_removed for Entity that does not receive data of type "
-                + std::to_string(packet->dataTypeHash));
+        throw gu_err("Received entity_data_removed for Entity that does not receive data of that type");
 
     if (receivedFrom)
     {
         PlayerControlled *pC = room->entities.try_get<PlayerControlled>(e);
         if (!pC || pC->playerId != receivedFrom->id)
-            throw gu_err("Received entity_data_removed for Entity that is NOT controlled by " + receivedFrom->name);
+            throw gu_err("Received entity_data_removed for Entity that is NOT controlled by sender");
     }
     dataType->removeData(e, room->entities);
 }
@@ -210,4 +182,24 @@ void NetworkingSystem::handleEntityDestroyed(Packet::from_server::entity_destroy
     assert(!mpSession->isServer());
     room->entities.destroy(networkIdToEntity[packet->networkId]);
     networkIdToEntity.erase(packet->networkId);
+}
+
+Packet::from_server::entity_created NetworkingSystem::entityCreatedPacket(Networked &networked)
+{
+    return Packet::from_server::entity_created {
+            room->getIndexInLevel(),
+            networked.networkID,
+            networked.templateHash
+    };
+}
+
+Packet::entity_data_update
+NetworkingSystem::dataUpdatePacket(Networked &networked, json &data, NetworkedData_ptr &dataType)
+{
+    return Packet::entity_data_update {
+            room->getIndexInLevel(),
+            networked.networkID,
+            dataType->getDataTypeHash(),
+            data
+    };
 }

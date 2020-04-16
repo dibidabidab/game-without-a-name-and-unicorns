@@ -24,26 +24,20 @@ class PlayerEntity : public EntityTemplate
 
     void makeNetworkedServerSide(Networked &networked) override
     {
-        static std::shared_ptr<NetworkedDataList> toSend;
-        if (!toSend)
-        {
-            toSend = std::make_shared<NetworkedDataList>();
-            toSend->components<PlatformerMovement, PlayerControlled>();
-            toSend->componentGroup<Physics, AABB>(); // if any changes -> send all
-        }
-        networked.toSend = toSend;
+        networked.toSend.component<PlayerControlled>();
+        networked.toSend.component<PlatformerMovement>();
+        networked.toSend.component<AABB>();
+        networked.toSend.component<Physics>();
+
+//        toSend.componentGroup<Physics, AABB>(); // if any changes -> send all
     }
 
     void makeNetworkedClientSide(Networked &networked) override
     {
-        static std::shared_ptr<NetworkedDataList> toReceive;
-        if (!toReceive)
-        {
-            toReceive = std::make_shared<NetworkedDataList>();
-            toReceive->components<PlatformerMovement, PlayerControlled>();
-            toReceive->componentGroup<Physics, AABB>(); // if any changes -> send all
-        }
-        networked.toReceive = toReceive;
+        networked.toReceive.component<PlayerControlled>();
+        networked.toReceive.component<PlatformerMovement>();
+        networked.toReceive.interpolatedComponent<AABB>();
+        networked.toReceive.component<Physics>();
     }
 };
 

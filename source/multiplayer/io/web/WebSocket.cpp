@@ -182,6 +182,9 @@ void WebSocket::send(const char *data, unsigned int length)
 
 void WebSocket::close()
 {
+    if (closeWasCalled) return;
+    closeWasCalled = true;
+
     #ifdef EMSCRIPTEN
 
     emscripten_websocket_close(emSockId, 0, 0);
