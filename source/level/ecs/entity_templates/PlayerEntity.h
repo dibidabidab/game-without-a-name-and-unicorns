@@ -31,19 +31,20 @@ class PlayerEntity : public EntityTemplate
                 .interpolatedComponent<AABB>()
                 .endGroup();
 
-        networked.toReceive.components<WalkInput, JumpInput, FallInput>();
+        networked.toReceive.group()
+                .component<Physics>()
+                .interpolatedComponent<AABB>()
+                .endGroup();
     }
 
     void makeNetworkedClientSide(Networked &networked) override
     {
         networked.toReceive.components<PlayerControlled, PlatformerMovement>();
 
-        networked.toReceive.group()
+        networked.sendIfLocalPlayerReceiveOtherwise.group()
                 .component<Physics>()
                 .interpolatedComponent<AABB>()
                 .endGroup();
-
-        networked.toSend.components<WalkInput, JumpInput, FallInput>();
     }
 };
 

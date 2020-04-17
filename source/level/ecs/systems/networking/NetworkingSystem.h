@@ -42,9 +42,13 @@ class NetworkingSystem : public EntitySystem
 
     void update(double deltaTime, Room *) override;
 
+    void sendIfNeeded(NetworkedData_ptr &, entt::entity, Networked &);
+
     Packet::from_server::entity_created entityCreatedPacket(Networked &);
 
     Packet::entity_data_update dataUpdatePacket(Networked &, json &data, NetworkedData_ptr &dataType);
+
+    NetworkedData_ptr getDataType(bool receiving, entt::entity, Networked&, int dataTypeHash);
 
 };
 

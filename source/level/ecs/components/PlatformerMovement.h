@@ -4,17 +4,16 @@
 
 #include "../../../macro_magic/component.h"
 
-COMPONENT(JumpInput, HASH(0), FIELD(int, _))
-END_COMPONENT(JumpInput)
+COMPONENT(
+    PlatformerMovementInput,
+    HASH(jump, fall, left, right),
 
-COMPONENT(FallInput, HASH(0), FIELD(int, _))
-END_COMPONENT(FallInput)
-
-COMPONENT(WalkInput,
-    HASH(left, right),
+    FIELD_DEF_VAL(bool, jump, false),
+    FIELD_DEF_VAL(bool, fall, false),
     FIELD_DEF_VAL(bool, left, false),
     FIELD_DEF_VAL(bool, right, false)
-)END_COMPONENT(WalkInput)
+)
+END_COMPONENT(PlatformerMovementInput)
 
 COMPONENT(
     PlatformerMovement,

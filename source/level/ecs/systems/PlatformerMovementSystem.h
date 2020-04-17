@@ -18,49 +18,29 @@ class PlatformerMovementSystem : public EntitySystem
     {
         room->entities.view<PlatformerMovement, LocalPlayer>().each([&](entt::entity e, PlatformerMovement &movement, LocalPlayer) {
 
-            if (KeyInput::justPressed(GLFW_KEY_SPACE))
-                room->entities.assign_or_replace<JumpInput>(e);
-            if (KeyInput::justReleased(GLFW_KEY_SPACE))
-                room->entities.remove_if_exists<JumpInput>(e);
+            PlatformerMovementInput input;
+            input.jump = KeyInput::pressed(GLFW_KEY_SPACE);
+            input.fall = KeyInput::pressed(GLFW_KEY_S);
+            input.left = KeyInput::pressed(GLFW_KEY_A);
+            input.right = KeyInput::pressed(GLFW_KEY_D);
 
-            if (KeyInput::justPressed(GLFW_KEY_S))
-                room->entities.assign_or_replace<FallInput>(e);
-            if (KeyInput::justReleased(GLFW_KEY_S))
-                room->entities.remove_if_exists<FallInput>(e);
-
-            auto walkInput = room->entities.try_get<WalkInput>(e);
-
-            if (!walkInput)
-            {
-                room->entities.assign<WalkInput>(e);
-                return;
-            }
-            walkInput->left = KeyInput::pressed(GLFW_KEY_A);
-            walkInput->right = KeyInput::pressed(GLFW_KEY_D);
+            room->entities.assign_or_replace<PlatformerMovementInput>(e, input);
         });
-        room->entities.view<PlatformerMovement, Physics>().each([&](entt::entity e, PlatformerMovement &movement, Physics &physics) {
+        room->entities.view<PlatformerMovement, PlatformerMovementInput, Physics>()
+            .each([&](entt::entity e, PlatformerMovement &movement, PlatformerMovementInput &input, Physics &physics) {
 
-            auto walkInput = room->entities.try_get<WalkInput>(e);
-            if (!walkInput)
-                return;
+            if (input.jump && physics.touches.floor && physics.velocity.y <= 0) physics.velocity.y = movement.jumpVelocity;
 
-            bool left = walkInput->left;
-            bool right =  walkInput->right;
-            bool jump = !!room->entities.try_get<JumpInput>(e);
-            bool fall = !!room->entities.try_get<JumpInput>(e);
-
-            if (jump && physics.touches.floor && physics.velocity.y <= 0) physics.velocity.y = movement.jumpVelocity;
-
-            physics.velocity.x = ((left ? -1 : 0) + (right ? 1 : 0)) * movement.walkVelocity;
+            physics.velocity.x = ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
 
             // ignore platforms when down-arrow is pressed:
-            if (fall)
+            if (input.fall)
             {
                 physics.ignorePlatforms = true;
                 movement.fallPressedTimer = 0;
             }
             // ignore platforms for at least 0.2 sec since down-arrow was pressed:
-            if (physics.ignorePlatforms && (movement.fallPressedTimer += deltaTime) > .1 && !fall)
+            if (physics.ignorePlatforms && (movement.fallPressedTimer += deltaTime) > .1 && !input.fall)
                 physics.ignorePlatforms = false;
         });
     }
