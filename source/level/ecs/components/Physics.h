@@ -10,22 +10,6 @@
 #include "../../../macro_magic/component.h"
 #include "../systems/networking/NetworkedData.h"
 
-namespace nlohmann {
-    template <int len, typename type, qualifier something>
-    struct adl_serializer<glm::vec<len, type, something>> {
-        static void to_json(json& j, const glm::vec<len, type, something>& v) {
-            j = json::array();
-            for (int i = 0; i < len; i++)
-                j[i] = v[i];
-        }
-
-        static void from_json(const json& j, glm::vec<len, type, something>& v) {
-            for (int i = 0; i < len; i++)
-                v[i] = j.at(i);
-        }
-    };
-}
-
 /**
  * 2d pixel based Axis Aligned Bounding Box
  */
@@ -115,7 +99,7 @@ COMPONENT(
         int(velocity.x) / 50, int(velocity.y) / 50, int(gravity), bool(velocity.x == 0), bool(velocity.y == 0)
     ),
 
-    FIELD_DEF_VAL   (float, gravity, 9.8 * TileMap::PIXELS_PER_TILE),
+    FIELD_DEF_VAL   (float, gravity, 300),
     FIELD           (vec2,  velocity),
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
 )

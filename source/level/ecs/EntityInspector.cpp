@@ -62,7 +62,7 @@ void EntityInspector::pickEntityGUI(bool &pickEntity, const Camera *cam, DebugLi
     if (KeyInput::justPressed(GLFW_KEY_ESCAPE))
         pickEntity = false;
 
-    vec2 p = cam->getCursorRayDirection();
+    vec2 p = cam->getCursorRayDirection() + cam->position;
     bool breakk = false;
     lineRenderer.axes(p, 10, vec3(1));
 

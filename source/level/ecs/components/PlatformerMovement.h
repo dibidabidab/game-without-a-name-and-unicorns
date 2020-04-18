@@ -20,7 +20,7 @@ COMPONENT(
     HASH(jumpVelocity, walkVelocity),
 
     FIELD_DEF_VAL(float, walkVelocity, 50),
-    FIELD_DEF_VAL(float, jumpVelocity, 120)
+    FIELD_DEF_VAL(float, jumpVelocity, 160)
 )
     // used by system:
     float fallPressedTimer = 0;

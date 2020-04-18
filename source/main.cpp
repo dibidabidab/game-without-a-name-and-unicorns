@@ -1,7 +1,7 @@
 #include <gu/game_utils.h>
 #include <utils/math_utils.h>
 
-#include "RoomScreen.h"
+#include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
 #include "multiplayer/io/web/WebSocketServer.h"
 #include "multiplayer/io/MultiplayerIO.h"

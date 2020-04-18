@@ -39,11 +39,12 @@ void Room::update(double deltaTime)
         if (sys->updateFrequency == .0) sys->update(deltaTime, this);
         else
         {
+            float customDeltaTime = 1. / sys->updateFrequency;
             sys->updateAccumulator += deltaTime;
-            while (sys->updateAccumulator > sys->updateFrequency)
+            while (sys->updateAccumulator > customDeltaTime)
             {
-                sys->update(sys->updateFrequency, this);
-                sys->updateAccumulator -= sys->updateFrequency;
+                sys->update(customDeltaTime, this);
+                sys->updateAccumulator -= customDeltaTime;
             }
         }
     }

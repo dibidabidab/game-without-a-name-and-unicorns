@@ -6,7 +6,7 @@
 #include <graphics/orthographic_camera.h>
 #include <input/key_input.h>
 #include "TileMap.h"
-#include "DebugTileRenderer.h"
+#include "../../rendering/room/DebugTileRenderer.h"
 
 class RoomEditor
 {

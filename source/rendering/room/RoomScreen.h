@@ -10,14 +10,15 @@
 #include <utils/quad_renderer.h>
 #include <imgui.h>
 
-#include "level/room/Room.h"
-#include "level/room/RoomEditor.h"
-#include "level/room/DebugTileRenderer.h"
-#include "level/ecs/components/Physics.h"
-#include "level/ecs/components/PlatformerMovement.h"
-#include "level/ecs/components/Networked.h"
-#include "macro_magic/component.h"
-#include "level/ecs/EntityInspector.h"
+#include "../../level/room/Room.h"
+#include "../../level/room/RoomEditor.h"
+#include "DebugTileRenderer.h"
+#include "../../level/ecs/components/Physics.h"
+#include "../../level/ecs/components/PlatformerMovement.h"
+#include "../../level/ecs/components/Networked.h"
+#include "../../macro_magic/component.h"
+#include "../../level/ecs/EntityInspector.h"
+#include "CameraMovement.h"
 
 class RoomScreen : public Screen
 {
@@ -28,13 +29,16 @@ class RoomScreen : public Screen
     DebugLineRenderer lineRenderer;
 
     OrthographicCamera cam;
+    CameraMovement camMovement;
 
     FrameBuffer *fbo = nullptr;
 
   public:
 
     RoomScreen(Room *room, bool showRoomEditor=false)
-        : room(room), showRoomEditor(showRoomEditor), cam(.1, 100, 0, 0)
+        : room(room), showRoomEditor(showRoomEditor),
+        cam(.1, 100, 0, 0),
+        camMovement(room, &cam)
     {
         assert(room != NULL);
 
@@ -44,6 +48,7 @@ class RoomScreen : public Screen
 
     void render(double deltaTime) override
     {
+        camMovement.update(deltaTime);
         fbo->bind();
         glClearColor(.5, 0, .1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -84,8 +89,8 @@ class RoomScreen : public Screen
 
     void onResize() override
     {
-        cam.viewportWidth = int(gu::widthPixels / 2);
-        cam.viewportHeight = int(gu::heightPixels / 2);
+        cam.viewportWidth = gu::widthPixels / 3;
+        cam.viewportHeight = gu::heightPixels / 3;
         cam.update();
 
         // create a new framebuffer to render the pixelated scene to:

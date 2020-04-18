@@ -16,7 +16,7 @@ class EntitySystem
 
   protected:
 
-    float updateFrequency = 0; // update this system every n seconds. if n = 0 then update(deltaTime) is called, else update(n)
+    int updateFrequency = 0; // update this system every n seconds. if n = 0 then update(deltaTime) is called, else update(1/n)
     float updateAccumulator = 0;
 
     bool disabled = false;
