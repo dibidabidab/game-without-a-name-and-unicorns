@@ -47,6 +47,7 @@ void Room::update(double deltaTime)
             }
         }
     }
+    tileMap->tileUpdatesSinceLastUpdate.clear();
 }
 
 Room::~Room()

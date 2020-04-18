@@ -3,10 +3,22 @@
 #define GAME_TILEMAP_H
 
 #include <vector>
+#include <list>
 #include <functional>
 #include <utils/math_utils.h>
 #include "TileMapOutliner.h"
 #include "../ecs/systems/EntitySystem.h"
+#include "../../macro_magic/serializable.h"
+
+SERIALIZABLE(
+    tile_update,
+    FIELD(uint8, x),
+    FIELD(uint8, y),
+    FIELD(uint8, newTile)
+)
+END_SERIALIZABLE(tile_update)
+
+class Room;
 
 enum class Tile : unsigned char
 {
@@ -25,6 +37,9 @@ class TileMap
 
     Tile *tiles;
     TileMapOutlines outlines;
+
+    std::list<tile_update> tileUpdatesSinceLastUpdate;
+    friend Room;
 
   public:
 
@@ -48,6 +63,8 @@ class TileMap
     bool contains(uint8 x, uint8 y) const;
 
     const TileMapOutlines &getOutlines() const { return outlines; }
+
+    const std::list<tile_update> &updatesSinceLastUpdate() const { return tileUpdatesSinceLastUpdate; }
 
     /**
      * Loops through the room's tiles in a 2 dimensional loop

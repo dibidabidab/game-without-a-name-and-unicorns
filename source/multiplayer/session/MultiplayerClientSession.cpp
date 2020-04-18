@@ -72,6 +72,16 @@ MultiplayerClientSession::MultiplayerClientSession(SharedSocket socket) : io(soc
         networkingSystems.at(packet->roomI)->handleEntityDestroyed(packet);
         delete packet;
     });
+    io.addJsonPacketHandler<tilemap_update>([&](tilemap_update *update) {
+
+        if (level)
+        {
+            TileMap &map = level->getRoom(update->roomI).getMap();
+            for (auto &tileUpdate : update->tileUpdates)
+                map.setTile(tileUpdate.x, tileUpdate.y, Tile(tileUpdate.newTile));
+        }
+        delete update;
+    });
 
     socket->onClose = [&]
     {

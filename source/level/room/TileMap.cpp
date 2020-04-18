@@ -51,6 +51,10 @@ void TileMap::setTile(uint8 x, uint8 y, Tile tile)
     if (contains(x, y))
     {
         tiles[x * height + y] = tile;
+
+        tile_update update { x, y, uint8(tile) };
+        tileUpdatesSinceLastUpdate.push_back(update);
+
         refreshOutlines();
     }
 }

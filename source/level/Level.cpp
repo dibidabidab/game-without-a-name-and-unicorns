@@ -29,8 +29,16 @@ void Level::update(double deltaTime)
     updating = false;
 }
 
+#define DEFAULT_LEVEL_PATH "assets/default_level.lvl"
+
 Level::~Level()
 {
+    std::vector<unsigned char> data;
+    json j;
+    to_json(j, *this);
+    json::to_cbor(j, data);
+    File::writeBinary(DEFAULT_LEVEL_PATH, data);
+
     delete[] rooms;
 }
 
@@ -67,10 +75,20 @@ void from_json(const json &j, Level &lvl)
 Level *Level::testLevel()
 {
     auto lvl = new Level();
-    lvl->nrOfRooms = 1;
-    lvl->rooms = new Room[1] { Room(ivec2(20, 18)) };
-    TileMap &map = lvl->getRoom(0).getMap();
-    for (int x = 0; x < 20; x++)
-        map.setTile(x, 0, Tile::full);
+
+    if (File::exists(DEFAULT_LEVEL_PATH))
+    {
+        auto data = File::readBinary(DEFAULT_LEVEL_PATH);
+        json j = json::from_cbor(data);
+        from_json(j, *lvl);
+    }
+    else
+    {
+        lvl->nrOfRooms = 1;
+        lvl->rooms = new Room[1] { Room(ivec2(20, 18)) };
+        TileMap &map = lvl->getRoom(0).getMap();
+        for (int x = 0; x < 20; x++)
+            map.setTile(x, 0, Tile::full);
+    }
     return lvl;
 }

@@ -2,7 +2,7 @@
 #ifndef GAME_PACKETS_H
 #define GAME_PACKETS_H
 
-#include "../macro_magic/json_reflectable.h"
+#include "../macro_magic/serializable.h"
 
 #include "session/Player.h"
 #include "../level/Level.h"
@@ -91,6 +91,14 @@ SERIALIZABLE(
     FIELD(int, networkId)
 
 )END_SERIALIZABLE(entity_destroyed)
+
+SERIALIZABLE(
+    tilemap_update,
+
+    FIELD(int, roomI),
+    FIELD(std::list<tile_update>, tileUpdates)
+)
+END_SERIALIZABLE(tilemap_update)
 
 }
 

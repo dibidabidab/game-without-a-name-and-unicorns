@@ -1,6 +1,6 @@
 
-#ifndef GAME_JSON_REFLECTABLE_H
-#define GAME_JSON_REFLECTABLE_H
+#ifndef GAME_SERIALIZABLE_H
+#define GAME_SERIALIZABLE_H
 
 #include "macro_helpers.h"
 #include <json.hpp>
@@ -180,4 +180,4 @@ bool isStructFieldFixedSize()
         v.fromJsonArray(j);\
     }
 
-#endif //GAME_JSON_REFLECTABLE_H
+#endif //GAME_SERIALIZABLE_H

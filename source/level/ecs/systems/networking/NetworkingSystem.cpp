@@ -82,6 +82,15 @@ void NetworkingSystem::onNetworkedEntityDestroyed(entt::registry &reg, entt::ent
 
 void NetworkingSystem::update(double deltaTime, Room *room)
 {
+    if (mpSession->isServer() && !room->getMap().updatesSinceLastUpdate().empty())
+    {
+        Packet::from_server::tilemap_update update {
+            room->getIndexInLevel(),
+            room->getMap().updatesSinceLastUpdate()
+        };
+        mpSession->sendPacketToAllPlayers(update);
+    }
+
     room->entities.view<Networked>().each([&](auto e, Networked &networked) {
 
         for (auto &c : networked.toReceive.list)
@@ -221,8 +230,6 @@ void NetworkingSystem::sendIfNeeded(NetworkedData_ptr &d, entt::entity e, Networ
 
     if (wasPresent && !isPresent)
     {
-        std::cout << d->getDataTypeName() << " was deleted from " << int(e) << ":" << networked.networkID
-                  << "\n";
         Packet::entity_data_removed packet {
                 room->getIndexInLevel(),
                 networked.networkID,
@@ -236,8 +243,6 @@ void NetworkingSystem::sendIfNeeded(NetworkedData_ptr &d, entt::entity e, Networ
 
     if (hasChanged && isPresent)
     {
-        std::cout << d->getDataTypeName() << " changed for " << int(e) << ":" << networked.networkID << ":\n";// << jsonToSend << "\n";
-
         auto p = dataUpdatePacket(networked, jsonToSend, d);
         if (mpSession->isServer())
             mpSession->sendPacketToPlayers(p, playersInRoom);

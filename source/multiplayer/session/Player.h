@@ -2,7 +2,7 @@
 #ifndef GAME_PLAYER_H
 #define GAME_PLAYER_H
 
-#include "../../macro_magic/json_reflectable.h"
+#include "../../macro_magic/serializable.h"
 #include "../io/SocketServer.h"
 #include "../io/MultiplayerIO.h"
 

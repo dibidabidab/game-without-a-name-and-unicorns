@@ -3,7 +3,7 @@
 #define GAME_COMPONENT_H
 
 #include "../../entt/src/entt/entity/registry.hpp"
-#include "json_reflectable.h"
+#include "serializable.h"
 #include <utils/hashing.h>
 
 struct ComponentUtils

@@ -76,6 +76,8 @@ class MultiplayerSession
 
     Player_ptr deletePlayer(int id, std::list<Player_ptr> &players);
 
+    virtual ~MultiplayerSession() = default;
+
   protected:
 
     /**

@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
                 return;
             delete roomScreen;
             std::cout << "Player entered room. Show RoomScreen\n";
-            roomScreen = new RoomScreen(room);
+            roomScreen = new RoomScreen(room, mpSession->isServer());
             gu::setScreen(roomScreen);
         };
     };
@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
     };
     afterInit();
     gu::run();
+    delete mpSession;
 
 
     #ifdef EMSCRIPTEN

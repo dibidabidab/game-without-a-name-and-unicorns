@@ -21,6 +21,8 @@
 
 class RoomScreen : public Screen
 {
+    bool showRoomEditor = false;
+
     Room *room;
 
     DebugLineRenderer lineRenderer;
@@ -31,7 +33,8 @@ class RoomScreen : public Screen
 
   public:
 
-    RoomScreen(Room *room) : room(room), cam(.1, 100, 0, 0)
+    RoomScreen(Room *room, bool showRoomEditor=false)
+        : room(room), showRoomEditor(showRoomEditor), cam(.1, 100, 0, 0)
     {
         assert(room != NULL);
 
@@ -54,13 +57,16 @@ class RoomScreen : public Screen
 
         renderDebugTiles();
 
-        static RoomEditor roomEditor;
-        static bool editRoom = false;
-//        if (!editRoom) editRoom = ImGui::Button("edit tileMap");
-//        else {
-//            editRoom = !ImGui::Button("stop editing tileMap");
-//            roomEditor.update(cam, tileMap, lineRenderer);
-//        }
+        if (showRoomEditor)
+        {
+            static RoomEditor roomEditor;
+            static bool editRoom = false;
+            if (!editRoom) editRoom = ImGui::Button("edit tileMap");
+            else {
+                editRoom = !ImGui::Button("stop editing tileMap");
+                roomEditor.update(cam, &map, lineRenderer);
+            }
+        }
         lineRenderer.scale = 1;
 
         room->entities.view<Physics, AABB>().each([&](auto e, Physics &p, AABB &body) {

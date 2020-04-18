@@ -45,6 +45,7 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : serve
         io->addJsonPacketType<player_left>();
 
         io->addJsonPacketType<Level>();
+        io->addJsonPacketType<tilemap_update>();
         io->addJsonPacketType<entity_created>();
         io->addJsonPacketType<entity_destroyed>();
         io->addJsonPacketHandler<entity_data_update>([=](entity_data_update *packet) {
@@ -211,4 +212,9 @@ void MultiplayerServerSession::join(std::string username)
     std::string declineReason;
     if (!handleJoinRequest(p, new join_request { username }, declineReason))
         onJoinRequestDeclined(declineReason);
+}
+
+MultiplayerServerSession::~MultiplayerServerSession()
+{
+    delete level;
 }

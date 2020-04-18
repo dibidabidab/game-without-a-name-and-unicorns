@@ -2,7 +2,7 @@
 #ifndef GAME_TERRAINCOLLISIONDETECTOR_H
 #define GAME_TERRAINCOLLISIONDETECTOR_H
 
-#include "../../../../macro_magic/json_reflectable.h"
+#include "../../../../macro_magic/serializable.h"
 
 class TileMap;
 struct AABB;

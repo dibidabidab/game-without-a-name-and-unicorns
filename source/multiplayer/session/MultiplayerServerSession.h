@@ -27,6 +27,8 @@ class MultiplayerServerSession : public MultiplayerSession
 
     void join(std::string username) override;
 
+    ~MultiplayerServerSession() override;
+
   private:
 
     bool handleJoinRequest(Player_ptr &player, Packet::from_player::join_request *, std::string &declineReason);
