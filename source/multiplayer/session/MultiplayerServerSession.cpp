@@ -66,13 +66,7 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : serve
             std::string declineReason;
 
             if (handleJoinRequest(player, req, declineReason))
-            {
                 std::cout << player->name << " @" << player->io->socket->url << " joined!\n";
-
-                // playersJoiningAndLeaving.lock(); is already locked in MultiplayerServerSession::update
-                deletePlayer(player->id, playersJoining);
-                // playersJoiningAndLeaving.unlock();
-            }
             else
             {
                 join_request_declined p { declineReason };
@@ -126,8 +120,11 @@ void MultiplayerServerSession::update(double deltaTime)
     gu::profiler::Zone zone("server");
 
     playersJoiningAndLeaving.lock();
-    for (auto it = playersJoining.rbegin(); it != playersJoining.rend(); ++it)
-        (*it)->io->handlePackets();
+    playersJoining.remove_if([&](Player_ptr &p) {
+        int nrOfPlayers = players.size();
+        p->io->handlePackets();
+        return nrOfPlayers < players.size();
+    });
     playersJoiningAndLeaving.unlock();
 
     {
