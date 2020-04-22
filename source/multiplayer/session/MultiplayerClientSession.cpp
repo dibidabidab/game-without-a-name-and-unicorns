@@ -78,7 +78,7 @@ MultiplayerClientSession::MultiplayerClientSession(SharedSocket socket) : io(soc
         {
             TileMap &map = level->getRoom(update->roomI).getMap();
             for (auto &tileUpdate : update->tileUpdates)
-                map.setTile(tileUpdate.x, tileUpdate.y, Tile(tileUpdate.newTile));
+                map.setTile(tileUpdate.x, tileUpdate.y, Tile(tileUpdate.newTile), TileMaterial(tileUpdate.newTileMaterial));
         }
         delete update;
     });

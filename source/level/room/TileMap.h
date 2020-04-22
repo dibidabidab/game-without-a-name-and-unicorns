@@ -14,7 +14,8 @@ SERIALIZABLE(
     tile_update,
     FIELD(uint8, x),
     FIELD(uint8, y),
-    FIELD(uint8, newTile)
+    FIELD(uint8, newTile),
+    FIELD(uint8, newTileMaterial)
 )
 END_SERIALIZABLE(tile_update)
 
@@ -30,22 +31,34 @@ enum class Tile : unsigned char
     empty, full, slope_down, slope_up, sloped_ceil_down, sloped_ceil_up, platform
 };
 
+enum class TileMaterial : unsigned char
+{
+    brick
+};
+
 typedef std::vector<std::pair<ivec2, ivec2>> TileMapOutlines;
 
 class TileMap
 {
 
     Tile *tiles;
+    TileMaterial *tileMaterials;
+
     TileMapOutlines outlines;
 
-    std::list<tile_update> tileUpdatesSinceLastUpdate;
+    std::list<tile_update> tileUpdatesSinceLastUpdate, tileUpdatesPrevUpdate;
     friend Room;
 
   public:
 
     static const int PIXELS_PER_TILE = 16;
 
-    constexpr const static auto TILE_TYPES = { Tile::empty, Tile::full, Tile::slope_down, Tile::slope_up, Tile::sloped_ceil_down, Tile::sloped_ceil_up, Tile::platform };
+    constexpr const static auto TILE_TYPES = {
+            Tile::empty, Tile::full, Tile::slope_down, Tile::slope_up, Tile::sloped_ceil_down, Tile::sloped_ceil_up, Tile::platform
+    };
+    constexpr const static auto TILE_MATERIALS = {
+            TileMaterial::brick
+    };
 
     const uint8 width, height;
 
@@ -58,13 +71,19 @@ class TileMap
 
     Tile getTile(uint8 x, uint8 y) const;
 
+    TileMaterial getMaterial(uint8 x, uint8 y) const;
+
     void setTile(uint8 x, uint8 y, Tile tile);
+
+    void setTile(uint8 x, uint8 y, Tile tile, TileMaterial material);
 
     bool contains(uint8 x, uint8 y) const;
 
     const TileMapOutlines &getOutlines() const { return outlines; }
 
     const std::list<tile_update> &updatesSinceLastUpdate() const { return tileUpdatesSinceLastUpdate; }
+
+    const std::list<tile_update> &updatesPrevUpdate() const { return tileUpdatesPrevUpdate; }
 
     /**
      * Loops through the room's tiles in a 2 dimensional loop

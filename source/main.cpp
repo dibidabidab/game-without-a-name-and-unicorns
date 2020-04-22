@@ -1,5 +1,6 @@
 #include <gu/game_utils.h>
 #include <utils/math_utils.h>
+#include <utils/aseprite/AsepriteLoader.h>
 
 #include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"

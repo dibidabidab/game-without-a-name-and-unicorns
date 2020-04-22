@@ -10,18 +10,21 @@ TileMap::TileMap(ivec2 size)
     :
     width(size.x), height(size.y),
 
-    tiles(new Tile[size.x * size.y])
+    tiles(new Tile[size.x * size.y]),
+    tileMaterials(new TileMaterial[size.x * size.y])
 {
     std::fill_n(tiles, width * height, Tile::empty);
+    std::fill_n(tileMaterials, width * height, TileMaterial::brick);
     std::cout << "TileMap (" << int(width) << "x" << int(height) << ") created\n";
 }
 
 void TileMap::fromBinary(const char *data, int size)
 {
-    if (width * height != size)
+    if (width * height * 2 != size)
         throw gu_err("Trying to load a TileMap with invalid size");
 
     memcpy(tiles, &data[0], width * height);
+    memcpy(tileMaterials, &data[width * height], width * height);
     refreshOutlines();
     std::cout << "Loaded tileMap from binary.\n";
 }
@@ -30,9 +33,10 @@ void TileMap::toBinary(std::vector<char> &out)
 {
     int tilesOffset = out.size();
 
-    out.resize(tilesOffset + width * height);
+    out.resize(tilesOffset + width * height * 2);
 
     memcpy(&out[tilesOffset], tiles, width * height);
+    memcpy(&out[tilesOffset + (width * height)], tileMaterials, width * height);
 }
 
 TileMap::~TileMap()
@@ -42,17 +46,29 @@ TileMap::~TileMap()
 
 Tile TileMap::getTile(uint8 x, uint8 y) const
 {
-    if (!contains(x, y)) return Tile::empty;
+    if (!contains(x, y)) return Tile::full;
     return tiles[x * height + y];
+}
+
+TileMaterial TileMap::getMaterial(uint8 x, uint8 y) const
+{
+    if (!contains(x, y)) return TileMaterial::brick;
+    return tileMaterials[x * height + y];
 }
 
 void TileMap::setTile(uint8 x, uint8 y, Tile tile)
 {
+    setTile(x, y, tile, getMaterial(x, y));
+}
+
+void TileMap::setTile(uint8 x, uint8 y, Tile tile, TileMaterial material)
+{
     if (contains(x, y))
     {
         tiles[x * height + y] = tile;
+        tileMaterials[x * height + y] = material;
 
-        tile_update update { x, y, uint8(tile) };
+        tile_update update { x, y, uint8(tile), uint8(material) };
         tileUpdatesSinceLastUpdate.push_back(update);
 
         refreshOutlines();
@@ -79,4 +95,3 @@ void TileMap::loopThroughTiles(const ivec2 &pixelCoordsMin, const ivec2 &pixelCo
             callback(ivec2(x, y), getTile(x, y));
     }
 }
-

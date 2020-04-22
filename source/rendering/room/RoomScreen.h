@@ -10,6 +10,7 @@
 #include <utils/quad_renderer.h>
 #include <imgui.h>
 
+#include <utils/aseprite/AsepriteLoader.h>
 #include "../../level/room/Room.h"
 #include "../../level/room/RoomEditor.h"
 #include "DebugTileRenderer.h"
@@ -19,6 +20,7 @@
 #include "../../macro_magic/component.h"
 #include "../../level/ecs/EntityInspector.h"
 #include "CameraMovement.h"
+#include "tile_map/TileMapRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -31,60 +33,70 @@ class RoomScreen : public Screen
     OrthographicCamera cam;
     CameraMovement camMovement;
 
-    FrameBuffer *fbo = nullptr;
+    FrameBuffer *indexedFbo = nullptr;
+
+    TileMapRenderer tileMapRenderer;
+
+    ShaderProgram applyPaletteShader;
 
   public:
 
     RoomScreen(Room *room, bool showRoomEditor=false)
         : room(room), showRoomEditor(showRoomEditor),
         cam(.1, 100, 0, 0),
-        camMovement(room, &cam)
+        camMovement(room, &cam),
+        tileMapRenderer(&room->getMap()),
+        applyPaletteShader(ShaderProgram::fromFiles(
+            "applyPaletteShader", "assets/shaders/apply_palette.vert", "assets/shaders/apply_palette.frag"
+        ))
     {
         assert(room != NULL);
 
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
+
+        tileMapRenderer.tileSets.insert({TileMaterial::brick, TileSet("assets/sprites/tileset_bricks.ase")});
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
     }
 
     void render(double deltaTime) override
     {
+        #ifndef EMSCRIPTEN
+        ShaderProgram::reloadFromFile = int(room->getLevel()->getTime() * 2) % 2 == 0;
+        #endif
+
         camMovement.update(deltaTime);
-        fbo->bind();
+
+        tileMapRenderer.updateMapTextureIfNeeded();
+
         glClearColor(.5, 0, .1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        TileMap &map= room->getMap();
+        {   // render indexed stuff:
 
-        lineRenderer.projection = cam.combined;
+            indexedFbo->bind();
 
-        lineRenderer.scale = TileMap::PIXELS_PER_TILE;
-        renderDebugBackground();
+            uint zero = 0;
+            glClearBufferuiv(GL_COLOR, 0, &zero);
 
-        renderDebugTiles();
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
 
-        if (showRoomEditor)
-        {
-            static RoomEditor roomEditor;
-            static bool editRoom = false;
-            if (!editRoom) editRoom = ImGui::Button("edit tileMap");
-            else {
-                editRoom = !ImGui::Button("stop editing tileMap");
-                roomEditor.update(cam, &map, lineRenderer);
-            }
+            tileMapRenderer.render(cam);
+
+            glDisable(GL_DEPTH_TEST);
+            indexedFbo->unbind();
         }
-        lineRenderer.scale = 1;
+        {   // indexed image --> RGB image
 
-        room->entities.view<Physics, AABB>().each([&](auto e, Physics &p, AABB &body) {
-            p.draw(body, lineRenderer, mu::Z);
-        });
-
-        fbo->unbind();
-
-        QuadRenderer::render(fbo->colorTexture);
-
-        lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
-
-        EntityInspector(&room->entities).drawGUI(&cam, lineRenderer);
+            applyPaletteShader.use();
+            indexedFbo->colorTexture->bind(0, applyPaletteShader, "indexedImage");
+            Mesh::getQuad()->render();
+        }
+        renderDebugStuff();
     }
 
     void onResize() override
@@ -94,9 +106,38 @@ class RoomScreen : public Screen
         cam.update();
 
         // create a new framebuffer to render the pixelated scene to:
-        delete fbo;
-        fbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
-        fbo->addColorTexture(GL_RGB, GL_NEAREST, GL_NEAREST);
+        delete indexedFbo;
+        indexedFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
+        indexedFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+        indexedFbo->addDepthTexture(GL_NEAREST, GL_NEAREST);
+    }
+
+    void renderDebugStuff()
+    {
+        lineRenderer.projection = cam.combined;
+
+        lineRenderer.scale = TileMap::PIXELS_PER_TILE;
+        renderDebugBackground();
+        renderDebugTiles();
+
+        if (showRoomEditor)
+        {
+            static RoomEditor roomEditor;
+            static bool editRoom = false;
+            if (!editRoom) editRoom = ImGui::Button("edit tileMap");
+            else {
+                editRoom = !ImGui::Button("stop editing tileMap");
+                roomEditor.update(cam, &room->getMap(), lineRenderer);
+            }
+        }
+        lineRenderer.scale = 1;
+
+        room->entities.view<Physics, AABB>().each([&](auto e, Physics &p, AABB &body) {
+            p.draw(body, lineRenderer, mu::Z);
+        });
+        lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
+
+        EntityInspector(&room->entities).drawGUI(&cam, lineRenderer);
     }
 
     void renderDebugBackground()

@@ -1,2 +1,4 @@
 *.ttf filter=lfs diff=lfs merge=lfs -text
 *.lvl filter=lfs diff=lfs merge=lfs -text
+*.ase filter=lfs diff=lfs merge=lfs -text
+*.aseprite filter=lfs diff=lfs merge=lfs -text

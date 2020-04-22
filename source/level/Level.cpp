@@ -85,7 +85,7 @@ Level *Level::testLevel()
     else
     {
         lvl->nrOfRooms = 1;
-        lvl->rooms = new Room[1] { Room(ivec2(200, 180)) };
+        lvl->rooms = new Room[1] { Room(ivec2(48, 48)) };
         TileMap &map = lvl->getRoom(0).getMap();
         for (int x = 0; x < 20; x++)
             map.setTile(x, 0, Tile::full);

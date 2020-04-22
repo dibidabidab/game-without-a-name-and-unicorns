@@ -22,10 +22,9 @@ COMPONENT(
     ),
 
     FIELD(ivec2, halfSize),
-    FIELD(ivec2, center),
-
-    FIELD_DEF_VAL(int, centerHashStep, 10)
+    FIELD(ivec2, center)
 )
+    int centerHashStep = 10;
 
     inline ivec2 topRight() const    { return center + halfSize; }
     inline ivec2 bottomRight() const { return center + ivec2(halfSize.x, -halfSize.y); }
