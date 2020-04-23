@@ -4,6 +4,7 @@
 
 
 #include <utils/aseprite/Aseprite.h>
+#include <asset_manager/asset.h>
 #include <graphics/frame_buffer.h>
 #include <graphics/camera.h>
 #include "../../../level/room/TileMap.h"
@@ -20,7 +21,7 @@ class TileMapRenderer
 
   public:
 
-    std::map<TileMaterial, TileSet> tileSets;
+    std::map<TileMaterial, asset<TileSet>> tileSets;
 
     TileMapRenderer(TileMap *);
 

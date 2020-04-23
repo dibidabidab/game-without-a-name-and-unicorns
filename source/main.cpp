@@ -1,6 +1,7 @@
 #include <gu/game_utils.h>
 #include <utils/math_utils.h>
 #include <utils/aseprite/AsepriteLoader.h>
+#include <asset_manager/asset.h>
 
 #include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
@@ -50,6 +51,11 @@ std::string prompt(std::string text)
 
 int main(int argc, char *argv[])
 {
+    AssetManager::addAssetLoader<TileSet>(".tileset.ase", [](auto path) {
+
+        return new TileSet(path.c_str());
+    });
+
     bool server = false;
     int serverPort = 0;
     if (argc == 3 && strcmp(argv[1], "--server") == 0)
@@ -106,12 +112,15 @@ int main(int argc, char *argv[])
     config.vsync = false;
     config.samples = 0;
     config.printOpenGLMessages = false;
+    config.printOpenGLErrors = false;
     if (!gu::init(config))
         return -1;
 
     setImGuiStyle();
 
     std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
+
+    AssetManager::load("assets");
 
     Screen *roomScreen = NULL;
 
@@ -136,6 +145,9 @@ int main(int argc, char *argv[])
         mpSession->update(deltaTime);
         if (KeyInput::justPressed(GLFW_KEY_F11))
             gu::fullscreen = !gu::fullscreen;
+
+        if (KeyInput::justPressed(GLFW_KEY_R))
+            AssetManager::load("assets");
     };
 
     mpSession->onJoinRequestDeclined = [&](auto reason) {

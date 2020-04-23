@@ -55,7 +55,7 @@ class RoomScreen : public Screen
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
 
-        tileMapRenderer.tileSets.insert({TileMaterial::brick, TileSet("assets/sprites/tileset_bricks.ase")});
+        tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/bricks")});
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);

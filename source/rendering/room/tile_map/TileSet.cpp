@@ -6,7 +6,6 @@
 
 TileSet::TileSet(const char *filePath)
 {
-    std::cout << "Loading tileset " << filePath << '\n';
     aseprite::Loader(filePath, sprite);
 
     for (int i = 0; i < sprite.frameCount; i++)

@@ -52,9 +52,9 @@ void TileMapRenderer::renderTile(int x, int y)
     if (tileSets.count(material) == 0)
         return;
 
-    TileSet &tileSet = tileSets.at(material);
+    auto &tileSet = tileSets.at(material);
 
-    auto subTexture = tileSet.getSubTextureForTile(*map, x, y);
+    auto subTexture = tileSet->getSubTextureForTile(*map, x, y);
     if (!subTexture)
         return;
 
@@ -62,7 +62,7 @@ void TileMapRenderer::renderTile(int x, int y)
     int tileTextureOffsetLoc = tileShader.location("tileTextureOffset");
     glUniform2i(tilePosUniformLoc, x, y);
     glUniform2i(tileTextureOffsetLoc, subTexture->offset.x, subTexture->offset.y);
-    tileSet.variations.at(mu::randomInt(tileSet.variations.size()))->bind(0, tileShader, "tileSet");
+    tileSet->variations.at(mu::randomInt(tileSet->variations.size()))->bind(0, tileShader, "tileSet");
 
     Mesh::getQuad()->render();
 }
