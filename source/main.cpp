@@ -1,7 +1,6 @@
 #include <gu/game_utils.h>
-#include <utils/math_utils.h>
-#include <utils/aseprite/AsepriteLoader.h>
 #include <asset_manager/asset.h>
+#include <files/FileWatcher.h>
 
 #include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
@@ -51,6 +50,22 @@ std::string prompt(std::string text)
 
 int main(int argc, char *argv[])
 {
+    std::mutex assetToReloadMutex;
+    std::string assetToReload;
+
+    #ifdef linux
+    FileWatcher watcher;
+    watcher.addDirectoryToWatch("assets", true);
+
+    watcher.onChange = [&] (auto path)
+    {
+        assetToReloadMutex.lock();
+        assetToReload = path;
+        assetToReloadMutex.unlock();
+    };
+    watcher.startWatchingAsync();
+    #endif
+
     AssetManager::addAssetLoader<TileSet>(".tileset.ase", [](auto path) {
 
         return new TileSet(path.c_str());
@@ -148,6 +163,12 @@ int main(int argc, char *argv[])
 
         if (KeyInput::justPressed(GLFW_KEY_R))
             AssetManager::load("assets");
+
+        assetToReloadMutex.lock();
+        if (!assetToReload.empty())
+            AssetManager::loadFile(assetToReload, "assets/");
+        assetToReload.clear();
+        assetToReloadMutex.unlock();
     };
 
     mpSession->onJoinRequestDeclined = [&](auto reason) {

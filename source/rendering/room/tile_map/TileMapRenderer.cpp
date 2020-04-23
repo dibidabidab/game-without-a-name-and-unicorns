@@ -71,7 +71,12 @@ void TileMapRenderer::updateMapTextureIfNeeded()
 {
     gu::profiler::Zone z("tilemap render");
 
-    if (!map->updatesPrevUpdate().empty() || !textureCreated)
+    bool tileSetReloaded = false;
+    for (auto &ts : tileSets)
+        if (ts.second.hasReloaded())
+            tileSetReloaded = true;
+
+    if (!map->updatesPrevUpdate().empty() || !textureCreated || tileSetReloaded)
         createMapTexture();
 }
 
