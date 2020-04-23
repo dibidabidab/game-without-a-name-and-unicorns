@@ -6,20 +6,20 @@
 
 TileMapRenderer::TileMapRenderer(TileMap *map)
     : map(map),
-      tileShader(ShaderProgram::fromFiles(
+      tileShader(
           "tileShader",
-          "assets/shaders/tile_map/tile.vert",
-          "assets/shaders/tile_map/tile.frag"
-      )),
+          "shaders/tile_map/tile.vert",
+          "shaders/tile_map/tile.frag"
+      ),
       fbo(
           map->width * TileMap::PIXELS_PER_TILE,
           map->height * TileMap::PIXELS_PER_TILE
       ),
-      mapShader(ShaderProgram::fromFiles(
+      mapShader(
           "tileMapShader",
-          "assets/shaders/tile_map/tile_map.vert",
-          "assets/shaders/tile_map/tile_map.frag"
-      ))
+          "shaders/tile_map/tile_map.vert",
+          "shaders/tile_map/tile_map.frag"
+      )
 {
     fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
 }
@@ -62,7 +62,10 @@ void TileMapRenderer::renderTile(int x, int y)
     int tileTextureOffsetLoc = tileShader.location("tileTextureOffset");
     glUniform2i(tilePosUniformLoc, x, y);
     glUniform2i(tileTextureOffsetLoc, subTexture->offset.x, subTexture->offset.y);
-    tileSet->variations.at(mu::randomInt(tileSet->variations.size()))->bind(0, tileShader, "tileSet");
+
+    int variation = mu::randomIntFromX(x + x * y + map->width + map->height, tileSet->variations.size());
+
+    tileSet->variations.at(variation)->bind(0, tileShader, "tileSet");
 
     Mesh::getQuad()->render();
 }

@@ -7,6 +7,7 @@
 #include <asset_manager/asset.h>
 #include <graphics/frame_buffer.h>
 #include <graphics/camera.h>
+#include <graphics/shader_asset.h>
 #include "../../../level/room/TileMap.h"
 #include "TileSet.h"
 
@@ -15,7 +16,7 @@ class TileMapRenderer
 
     TileMap *map;
 
-    ShaderProgram tileShader, mapShader;
+    ShaderAsset tileShader, mapShader;
 
     bool textureCreated = false;
 

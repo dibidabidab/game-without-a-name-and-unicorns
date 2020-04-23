@@ -7,6 +7,7 @@
 #include <graphics/3d/debug_line_renderer.h>
 #include <graphics/orthographic_camera.h>
 #include <graphics/frame_buffer.h>
+#include <graphics/shader_asset.h>
 #include <utils/quad_renderer.h>
 #include <imgui.h>
 
@@ -21,6 +22,7 @@
 #include "../../level/ecs/EntityInspector.h"
 #include "CameraMovement.h"
 #include "tile_map/TileMapRenderer.h"
+#include "../PaletteEditor.h"
 
 class RoomScreen : public Screen
 {
@@ -37,7 +39,8 @@ class RoomScreen : public Screen
 
     TileMapRenderer tileMapRenderer;
 
-    ShaderProgram applyPaletteShader;
+    ShaderAsset applyPaletteShader;
+    PaletteEditor paletteEditor;
 
   public:
 
@@ -46,9 +49,9 @@ class RoomScreen : public Screen
         cam(.1, 100, 0, 0),
         camMovement(room, &cam),
         tileMapRenderer(&room->getMap()),
-        applyPaletteShader(ShaderProgram::fromFiles(
-            "applyPaletteShader", "assets/shaders/apply_palette.vert", "assets/shaders/apply_palette.frag"
-        ))
+        applyPaletteShader(
+            "applyPaletteShader", "shaders/apply_palette.vert", "shaders/apply_palette.frag"
+        )
     {
         assert(room != NULL);
 
@@ -63,15 +66,11 @@ class RoomScreen : public Screen
 
     void render(double deltaTime) override
     {
-        #ifndef EMSCRIPTEN
-        ShaderProgram::reloadFromFile = int(room->getLevel()->getTime() * 2) % 2 == 0;
-        #endif
-
         camMovement.update(deltaTime);
 
         tileMapRenderer.updateMapTextureIfNeeded();
 
-        glClearColor(.5, 0, .1, 1);
+        glClearColor(32 / 255., 53 / 255., 189 / 255., 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
         {   // render indexed stuff:
@@ -117,7 +116,7 @@ class RoomScreen : public Screen
         lineRenderer.projection = cam.combined;
 
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
-        renderDebugBackground();
+//        renderDebugBackground();
         renderDebugTiles();
 
         if (showRoomEditor)
@@ -133,11 +132,12 @@ class RoomScreen : public Screen
         lineRenderer.scale = 1;
 
         room->entities.view<Physics, AABB>().each([&](auto e, Physics &p, AABB &body) {
-            p.draw(body, lineRenderer, mu::Z);
+            p.draw(body, lineRenderer, mu::X);
         });
         lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
 
         EntityInspector(&room->entities).drawGUI(&cam, lineRenderer);
+        paletteEditor.drawGUI();
     }
 
     void renderDebugBackground()
@@ -165,9 +165,9 @@ class RoomScreen : public Screen
         TileMap &map = room->getMap();
         auto color = vec3(1);
         // all tiles:
-        for (int x = 0; x < map.width; x++)
-            for (int y = 0; y < map.height; y++)
-                DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
+//        for (int x = 0; x < map.width; x++)
+//            for (int y = 0; y < map.height; y++)
+//                DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
         // tile outlines:
         for (auto &outline : map.getOutlines())
             lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);

@@ -9,6 +9,7 @@
 #include "multiplayer/session/MultiplayerClientSession.h"
 #include "multiplayer/session/MultiplayerServerSession.h"
 #include "ImGuiStyle.h"
+#include "rendering/Palette.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {
@@ -69,6 +70,14 @@ int main(int argc, char *argv[])
     AssetManager::addAssetLoader<TileSet>(".tileset.ase", [](auto path) {
 
         return new TileSet(path.c_str());
+    });
+    AssetManager::addAssetLoader<std::string>(".frag|.vert", [](auto path) {
+
+        return new std::string(File::readString(path.c_str()));
+    });
+    AssetManager::addAssetLoader<Palette>(".gpl", [](auto path) {
+
+        return new Palette(path.c_str());
     });
 
     bool server = false;
