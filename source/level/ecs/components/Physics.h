@@ -103,7 +103,7 @@ COMPONENT(
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
 )
 
-    TerrainCollisions touches;
+    TerrainCollisions touches, prevTouched;
 
     // used by PhysicsSystem:
     vec2 velocityAccumulator;

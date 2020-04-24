@@ -11,7 +11,8 @@ TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignore
     collisions.halfSlopeUp = halfSlopeUpIntersection(aabb);
     collisions.slopeDown = collisions.halfSlopeDown || slopeDownIntersection(aabb);
     collisions.slopeUp = collisions.halfSlopeUp || slopeUpIntersection(aabb);
-    collisions.floor = collisions.slopeUp || collisions.slopeDown || floorIntersection(aabb, ignorePlatforms);
+    collisions.flatFloor = floorIntersection(aabb, ignorePlatforms);
+    collisions.floor = collisions.slopeUp || collisions.slopeDown || collisions.flatFloor;
     collisions.slopedCeilingDown = slopedCeilingDownIntersection(aabb);
     collisions.slopedCeilingUp = slopedCeilingUpIntersection(aabb);
     collisions.ceiling = collisions.slopedCeilingUp || collisions.slopedCeilingDown || ceilingIntersection(aabb);

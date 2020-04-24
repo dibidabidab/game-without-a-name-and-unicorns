@@ -69,7 +69,18 @@ class PhysicsSystem : public EntitySystem
             if (tryMove(physics, body, toDo)) // move succeeded -> decrease pixelsToMove:
             {
                 moved = true;
-                pixelsToMove -= body.center - prevPos;
+                switch (toDo)
+                {
+                    case up:    pixelsToMove.y -= 1;
+                        break;
+                    case down:  pixelsToMove.y += 1;
+                        break;
+                    case left:  pixelsToMove.x += 1;
+                        break;
+                    case right: pixelsToMove.x -= 1;
+                    case none:
+                        break;
+                }
             } // move is not possible:
             else if (toDo == Move::left || toDo == Move::right)  pixelsToMove.x = 0; // cant move horizontally anymore.
             else                                                 pixelsToMove.y = 0; // cant move vertically anymore.
@@ -85,11 +96,14 @@ class PhysicsSystem : public EntitySystem
     {
         std::vector<Move> movesToDo;
 
+        Move prevMove = Move::none;
         while (toDo != Move::none)
         {
             movesToDo.push_back(toDo);
 
-            if (!canDoMove(physics, body, toDo)) return false;
+            if (!canDoMove(physics, body, toDo, prevMove))
+                return false;
+            prevMove = movesToDo.back();
         }
         for (auto move : movesToDo)
             doMove(physics, body, move);
@@ -101,7 +115,7 @@ class PhysicsSystem : public EntitySystem
      * Sometimes a move is possible but requires another move to be done as well,
      * therefore `moveToDo` will be changed to that other move (or Move::none)
      */
-    bool canDoMove(Physics &p, AABB &aabb, Move &moveToDo)
+    bool canDoMove(Physics &p, AABB &aabb, Move &moveToDo, const Move &prevMove)
     {
         Move originalMove = moveToDo;
         moveToDo = Move::none;
@@ -109,15 +123,22 @@ class PhysicsSystem : public EntitySystem
         switch (originalMove)
         {
             case up:    return !p.touches.ceiling;
-            case down:  return !p.touches.floor;
+            case down:
+                return !p.touches.floor
+                    || (p.touches.slopeDown && prevMove == right)
+                    || (p.touches.slopeUp && prevMove == left);
             case left:
                 if (p.touches.slopeDown && (!p.touches.halfSlopeDown || aabb.center.x % 2 == 0))
-                    moveToDo = Move::up;
+                    moveToDo = up;
+                else if (p.touches.slopeUp && !p.touches.flatFloor && (!p.touches.halfSlopeUp || (aabb.center.x + 1) % 2 == 0))
+                    moveToDo = down;
                 return !p.touches.leftWall;
 
             case right:
                 if (p.touches.slopeUp && (!p.touches.halfSlopeUp || aabb.center.x % 2 == 0))
-                    moveToDo = Move::up;
+                    moveToDo = up;
+                else if (p.touches.slopeDown && !p.touches.flatFloor && (!p.touches.halfSlopeDown || (aabb.center.x + 1) % 2 == 0))
+                    moveToDo = down;
                 return !p.touches.rightWall;
 
             case none:  return true;
@@ -145,6 +166,7 @@ class PhysicsSystem : public EntitySystem
     {
         AABB outlineBox = body;
         outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
+        p.prevTouched = p.touches;
         p.touches = collisionDetector->detect(outlineBox, p.ignorePlatforms);
     }
 

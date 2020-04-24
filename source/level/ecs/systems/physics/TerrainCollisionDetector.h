@@ -11,6 +11,7 @@ struct TerrainCollisions
 {
     bool
         floor             = false,
+        flatFloor         = false,
         slopeDown         = false,
         slopeUp           = false,
         halfSlopeDown     = false,
