@@ -29,6 +29,11 @@ class PlatformerMovementSystem : public EntitySystem
         room->entities.view<PlatformerMovement, PlatformerMovementInput, Physics>()
             .each([&](entt::entity e, PlatformerMovement &movement, PlatformerMovementInput &input, Physics &physics) {
 
+            if (physics.touches.slopeUp && physics.velocity.x < 0)
+                physics.velocity.y = physics.velocity.x;
+            else if (physics.touches.slopeDown && physics.velocity.x > 0)
+                physics.velocity.y = -physics.velocity.x;
+
             if (input.jump && physics.touches.floor && physics.velocity.y <= 0) physics.velocity.y = movement.jumpVelocity;
 
             physics.velocity.x = ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
