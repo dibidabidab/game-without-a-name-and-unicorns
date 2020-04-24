@@ -12,11 +12,11 @@ class PaletteEditor
     std::string selectedEffect;
 
   public:
-    void drawGUI();
+    void drawGUI(Palettes3D &palettes);
 
   private:
 
-    void drawPalettes(std::vector<asset<Palette>> &);
+    bool drawPalettes(Palettes3D::Effect &);
 
     void revert(asset<Palette> &);
     void revert(asset<Palette> &, int colorIndex);

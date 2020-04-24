@@ -40,6 +40,7 @@ class RoomScreen : public Screen
     TileMapRenderer tileMapRenderer;
 
     ShaderAsset applyPaletteShader;
+    Palettes3D palettes;
     PaletteEditor paletteEditor;
 
   public:
@@ -68,12 +69,13 @@ class RoomScreen : public Screen
     {
         camMovement.update(deltaTime);
 
-        tileMapRenderer.updateMapTextureIfNeeded();
-
         glClearColor(32 / 255., 53 / 255., 189 / 255., 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
         {   // render indexed stuff:
+            gu::profiler::Zone z("indexed image");
+
+            tileMapRenderer.updateMapTextureIfNeeded();
 
             indexedFbo->bind();
 
@@ -91,8 +93,15 @@ class RoomScreen : public Screen
         }
         {   // indexed image --> RGB image
 
+            gu::profiler::Zone z("apply palette");
+
             applyPaletteShader.use();
-            indexedFbo->colorTexture->bind(0, applyPaletteShader, "indexedImage");
+
+            auto palettesTexture = palettes.get3DTexture();
+            palettesTexture->bind(0);
+            glUniform1i(applyPaletteShader.location("palettes"), 0);
+
+            indexedFbo->colorTexture->bind(1, applyPaletteShader, "indexedImage");
             Mesh::getQuad()->render();
         }
         renderDebugStuff();
@@ -113,6 +122,8 @@ class RoomScreen : public Screen
 
     void renderDebugStuff()
     {
+        gu::profiler::Zone z("debug");
+
         lineRenderer.projection = cam.combined;
 
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
@@ -137,7 +148,7 @@ class RoomScreen : public Screen
         lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
 
         EntityInspector(&room->entities).drawGUI(&cam, lineRenderer);
-        paletteEditor.drawGUI();
+        paletteEditor.drawGUI(palettes);
     }
 
     void renderDebugBackground()

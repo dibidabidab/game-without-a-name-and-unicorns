@@ -4,12 +4,13 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include <utils/math_utils.h>
+#include <asset_manager/asset.h>
+#include <graphics/texture_array.h>
 
-class Palette
+struct Palette
 {
-
-  public:
 
     std::vector<std::pair<std::string, vec3>> colors;
 
@@ -17,7 +18,36 @@ class Palette
 
     Palette(const char *path);
 
+    void save(const char *path);
+
 };
 
+class Palettes3D
+{
+    SharedTexArray texture3D;
+    bool changedByEditor = false;
+    friend class PaletteEditor;
+
+  public:
+    const static int LIGHT_LEVELS = 2;
+
+    struct Effect
+    {
+        std::string name;
+        asset<Palette> lightLevels[LIGHT_LEVELS];
+    };
+
+    std::vector<Effect> effects;
+
+    Palettes3D();
+
+    int effectIndex(const std::string &name) const;
+
+    SharedTexArray get3DTexture();
+
+  private:
+    void create3DTexture();
+
+};
 
 #endif

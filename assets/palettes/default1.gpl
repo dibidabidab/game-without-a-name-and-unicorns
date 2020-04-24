@@ -1,8 +1,7 @@
 GIMP Palette
 #
-  0   0   0	Untitled
- 16   8  32	Untitled1
-233  56  65	Untitled2
- 90 225  80	Untitled3
- 35 131 171	Untitled4
- 32  53 189	Untitled5
+  0   0   0	transparent
+ 36  14  81	background
+178 255   0	grass
+ 66 159 149	grassdark
+233  56  65	brick

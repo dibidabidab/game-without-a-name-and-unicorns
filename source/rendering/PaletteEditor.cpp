@@ -4,12 +4,12 @@
 #include <gu/profiler.h>
 #include <imgui.h>
 
-void PaletteEditor::drawGUI()
+void PaletteEditor::drawGUI(Palettes3D &palettes)
 {
     gu::profiler::Zone z("palette editor");
 
     ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
 
     bool show = true;
     if (!ImGui::Begin("Palette Editor", &show, 0))
@@ -19,49 +19,42 @@ void PaletteEditor::drawGUI()
         return;
     }
 
-    std::map<std::string, std::vector<asset<Palette>>> effects {
-            {"default", {
-                asset<Palette>("palettes/default0"),
-                asset<Palette>("palettes/default1")
-            }},
-            {"test", {
-                asset<Palette>("palettes/default1"),
-                asset<Palette>("palettes/default0")
-            }}
-    };
     if (selectedEffect.empty())
-        selectedEffect = effects.begin()->first;
+        selectedEffect = palettes.effects.at(0).name;
 
     if (ImGui::BeginCombo("effect", selectedEffect.c_str()))
     {
-        for (auto &effect : effects)
+        for (auto &effect : palettes.effects)
         {
-            bool is_selected = (selectedEffect == effect.first);
-            if (ImGui::Selectable(effect.first.c_str(), is_selected))
-                selectedEffect = effect.first;
+            bool is_selected = (selectedEffect == effect.name);
+            if (ImGui::Selectable(effect.name.c_str(), is_selected))
+                selectedEffect = effect.name;
             if (is_selected)
                 ImGui::SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
         }
         ImGui::EndCombo();
     }
 
-    drawPalettes(effects.at(selectedEffect));
+    if (drawPalettes(palettes.effects.at(palettes.effectIndex(selectedEffect))))
+        palettes.changedByEditor = true;
 
     ImGui::End();
-    ImGui::ShowDemoWindow(&show);
 }
 
-void PaletteEditor::drawPalettes(std::vector<asset<Palette>> &palettes)
+bool PaletteEditor::drawPalettes(Palettes3D::Effect &effect)
 {
+    bool changed = false;
     if (ImGui::Button("Save"))
     {
-
+        for (auto &p : effect.lightLevels)
+            p->save(p.getLoadedAsset().fullPath.c_str());
     }
     ImGui::SameLine();
     if (ImGui::Button("Revert"))
     {
-        for (auto &p : palettes)
+        for (auto &p : effect.lightLevels)
             revert(p);
+        changed = true;
     }
     ImGui::Separator();
 
@@ -69,10 +62,10 @@ void PaletteEditor::drawPalettes(std::vector<asset<Palette>> &palettes)
     ImGui::Separator();
 
     ImGui::Columns(2);
-    for (int i = 0; i < palettes.at(0)->colors.size(); i++)
+    for (int i = 0; i < effect.lightLevels[0]->colors.size(); i++)
     {
-        auto &firstName = palettes[0]->colors.at(i).first;
-        vec3 firstColor = palettes[0]->colors.at(i).second;
+        auto &firstName = effect.lightLevels[0]->colors.at(i).first;
+        vec3 firstColor = effect.lightLevels[0]->colors.at(i).second;
 
         std::string label = "##" + std::to_string(i);
 
@@ -80,9 +73,10 @@ void PaletteEditor::drawPalettes(std::vector<asset<Palette>> &palettes)
         memcpy(ptr, &firstName[0], firstName.size());
         if (ImGui::InputText(label.c_str(), ptr, 32))
             firstName = std::string(ptr);
+        delete[] ptr;
 
         ImGui::NextColumn();
-        for (auto &p : palettes)
+        for (auto &p : effect.lightLevels)
         {
             if (p->colors.size() == i)
                 p->colors.emplace_back(firstName, firstColor);
@@ -93,11 +87,16 @@ void PaletteEditor::drawPalettes(std::vector<asset<Palette>> &palettes)
             std::string name = firstName + " (" + p.getLoadedAsset().shortPath + ")##" + std::to_string(i);
             std::string cName = name + "contextmenu";
 
-            ImGui::ColorEdit3(name.c_str(), &p->colors.at(i).second[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+            if (ImGui::ColorEdit3(name.c_str(), &p->colors.at(i).second[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+                changed = true;
+
             if (ImGui::BeginPopupContextItem(cName.c_str()))
             {
                 if (ImGui::Selectable("Revert"))
+                {
                     revert(p, i);
+                    changed = true;
+                }
                 ImGui::EndPopup();
             }
             ImGui::SameLine();
@@ -107,11 +106,13 @@ void PaletteEditor::drawPalettes(std::vector<asset<Palette>> &palettes)
     ImGui::Columns(1);
     ImGui::Separator();
     if (ImGui::Button("Add"))
-        palettes.at(0)->colors.emplace_back("untitled", vec3(0));
+        effect.lightLevels[0]->colors.emplace_back("untitled", vec3(0));
 
     ImGui::SameLine();
     if (ImGui::Button("Remove"))
-        palettes.at(0)->colors.pop_back();
+        effect.lightLevels[0]->colors.pop_back();
+
+    return changed;
 }
 
 void PaletteEditor::revert(asset<Palette> &p)
