@@ -128,7 +128,7 @@ class RoomScreen : public Screen
 
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
 //        renderDebugBackground();
-        renderDebugTiles();
+//        renderDebugTiles();
 
         if (showRoomEditor)
         {

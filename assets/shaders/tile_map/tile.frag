@@ -16,8 +16,10 @@ void main()
     if (v_texCoords.x < 1./3. || v_texCoords.x > 2./3. || v_texCoords.y < 1./3. || v_texCoords.y > 2./3.)
         inner = false;
 
-    if (!inner)
-        discard;
+    gl_FragDepth = inner ? .2 : .1;
+
+//    if (!inner)
+//        discard;
 
     ivec2 pixelPos = ivec2(v_texCoords * vec2(48)) + tileTextureOffset;
 

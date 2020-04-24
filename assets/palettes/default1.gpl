@@ -1,7 +1,9 @@
 GIMP Palette
 #
   0   0   0	transparent
- 36  14  81	background
+ 16   8  32	background
+ 77   8 215	sky
 178 255   0	grass
- 66 159 149	grassdark
+ 66 159 149	grass_dark
 233  56  65	brick
+  0   0   0	spiderweb

@@ -48,9 +48,15 @@ int TileSet::SubTexture::match(const TileMap &map, int tx, int ty)
                 result += 1;
             else if (n == "a")
             {
-                if (tile == Tile::empty)
+                if (tile == Tile::empty || tile == Tile::platform)
                     return -1;
                 result += 10;
+            }
+            else if (n == "0" && pattern.at(4) != "6")
+            {
+                if (tile != Tile::empty && tile != Tile::platform)
+                    return -1;
+                result += 100;
             }
             else
             {

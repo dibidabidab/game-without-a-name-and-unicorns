@@ -22,14 +22,17 @@ TileMapRenderer::TileMapRenderer(TileMap *map)
       )
 {
     fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+    fbo.addDepthBuffer();
 }
 
 void TileMapRenderer::createMapTexture()
 {
     fbo.bind();
+    glEnable(GL_DEPTH_TEST);
 
     uint zero = 0;
     glClearBufferuiv(GL_COLOR, 0, &zero);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     tileShader.use();
     glUniform2i(tileShader.location("mapSize"), map->width, map->height);
@@ -38,15 +41,13 @@ void TileMapRenderer::createMapTexture()
         for (int y = 0; y < map->height; y++)
             renderTile(x, y);
 
+    glDisable(GL_DEPTH_TEST);
     fbo.unbind();
     textureCreated = true;
 }
 
 void TileMapRenderer::renderTile(int x, int y)
 {
-    if (map->getTile(x, y) == Tile::empty)
-        return;
-
     TileMaterial material = map->getMaterial(x, y);
 
     if (tileSets.count(material) == 0)
@@ -58,16 +59,17 @@ void TileMapRenderer::renderTile(int x, int y)
     if (!subTexture)
         return;
 
-    int tilePosUniformLoc = tileShader.location("tilePos");
-    int tileTextureOffsetLoc = tileShader.location("tileTextureOffset");
-    glUniform2i(tilePosUniformLoc, x, y);
-    glUniform2i(tileTextureOffsetLoc, subTexture->offset.x, subTexture->offset.y);
+    glUniform2i(tileShader.location("tilePos"), x, y);
+    glUniform2i(tileShader.location("tileTextureOffset"), subTexture->offset.x, subTexture->offset.y);
 
     int variation = mu::randomIntFromX(x + x * y + map->width + map->height, tileSet->variations.size());
 
     tileSet->variations.at(variation)->bind(0, tileShader, "tileSet");
 
+//    glUniform1i(tileShader.location("inner"), 1);
     Mesh::getQuad()->render();
+//    glUniform1i(tileShader.location("inner"), 0);
+//    Mesh::getQuad()->render();
 }
 
 void TileMapRenderer::updateMapTextureIfNeeded()

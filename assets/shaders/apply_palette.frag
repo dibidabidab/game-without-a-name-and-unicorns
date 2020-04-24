@@ -15,7 +15,7 @@ void main()
     uint indexedColor = texture(indexedImage, v_texCoords).r;
 
     if (indexedColor == 0u)
-        discard;
+        indexedColor = 2u; // 2 == sky
 
     uint lightLevel = 0u;
     uint paletteEffect = 0u;
