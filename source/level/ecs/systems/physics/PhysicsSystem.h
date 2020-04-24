@@ -89,7 +89,7 @@ class PhysicsSystem : public EntitySystem
         {
             movesToDo.push_back(toDo);
 
-            if (!canDoMove(physics, toDo)) return false;
+            if (!canDoMove(physics, body, toDo)) return false;
         }
         for (auto move : movesToDo)
             doMove(physics, body, move);
@@ -101,7 +101,7 @@ class PhysicsSystem : public EntitySystem
      * Sometimes a move is possible but requires another move to be done as well,
      * therefore `moveToDo` will be changed to that other move (or Move::none)
      */
-    bool canDoMove(Physics &p, Move &moveToDo)
+    bool canDoMove(Physics &p, AABB &aabb, Move &moveToDo)
     {
         Move originalMove = moveToDo;
         moveToDo = Move::none;
@@ -111,12 +111,12 @@ class PhysicsSystem : public EntitySystem
             case up:    return !p.touches.ceiling;
             case down:  return !p.touches.floor;
             case left:
-                if (p.touches.slopeDown)
+                if (p.touches.slopeDown && (!p.touches.halfSlopeDown || aabb.center.x % 2 == 0))
                     moveToDo = Move::up;
                 return !p.touches.leftWall;
 
             case right:
-                if (p.touches.slopeUp)
+                if (p.touches.slopeUp && (!p.touches.halfSlopeUp || aabb.center.x % 2 == 0))
                     moveToDo = Move::up;
                 return !p.touches.rightWall;
 

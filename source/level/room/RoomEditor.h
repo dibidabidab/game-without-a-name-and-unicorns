@@ -25,8 +25,17 @@ class RoomEditor
                                       room->contains(hoveredTile.x, hoveredTile.y) ? mu::Y : mu::X);
 
         for (auto t : TileMap::TILE_TYPES)
-            if (KeyInput::pressed(GLFW_KEY_0 + int(t)))
+            if (KeyInput::justPressed(GLFW_KEY_0 + int(t)))
                 placing = t;
+        if (KeyInput::justPressed(GLFW_KEY_LEFT))
+        {
+            if (placing == Tile(0))
+                placing = Tile(TileMap::TILE_TYPES.size() - 1);
+            else
+                placing = Tile((int(placing) - 1) % TileMap::TILE_TYPES.size());
+        }
+        if (KeyInput::justPressed(GLFW_KEY_RIGHT))
+            placing = Tile((int(placing) + 1) % TileMap::TILE_TYPES.size());
     }
 };
 

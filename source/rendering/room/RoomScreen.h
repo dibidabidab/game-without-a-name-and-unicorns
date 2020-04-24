@@ -176,9 +176,9 @@ class RoomScreen : public Screen
         TileMap &map = room->getMap();
         auto color = vec3(1);
         // all tiles:
-//        for (int x = 0; x < map.width; x++)
-//            for (int y = 0; y < map.height; y++)
-//                DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
+        for (int x = 0; x < map.width; x++)
+            for (int y = 0; y < map.height; y++)
+                DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
         // tile outlines:
         for (auto &outline : map.getOutlines())
             lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);

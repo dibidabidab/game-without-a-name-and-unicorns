@@ -19,8 +19,6 @@ SERIALIZABLE(
 )
 END_SERIALIZABLE(tile_update)
 
-class Room;
-
 enum class Tile : unsigned char
 {
     /*                                      ___               ___        _______
@@ -28,7 +26,13 @@ enum class Tile : unsigned char
      *    |   |     | \         / |          \ |             | /
      *    |___|     |__\       /__|           \|             |/
      */
-    empty, full, slope_down, slope_up, sloped_ceil_down, sloped_ceil_up, platform
+    empty, full, slope_down, slope_up, sloped_ceil_down, sloped_ceil_up, platform,
+
+    // same as slope_down, but spread over 2 tiles:
+    slope_down_half0, slope_down_half1,
+
+    // same as slope_up, but spread over 2 tiles:
+    slope_up_half0, slope_up_half1,
 };
 
 enum class TileMaterial : unsigned char
@@ -47,14 +51,18 @@ class TileMap
     TileMapOutlines outlines;
 
     std::list<tile_update> tileUpdatesSinceLastUpdate, tileUpdatesPrevUpdate;
-    friend Room;
+    friend class Room;
 
   public:
 
     static const int PIXELS_PER_TILE = 16;
 
     constexpr const static auto TILE_TYPES = {
-            Tile::empty, Tile::full, Tile::slope_down, Tile::slope_up, Tile::sloped_ceil_down, Tile::sloped_ceil_up, Tile::platform
+            Tile::empty, Tile::full,
+            Tile::slope_down, Tile::slope_up, Tile::sloped_ceil_down, Tile::sloped_ceil_up,
+            Tile::platform,
+            Tile::slope_down_half0, Tile::slope_down_half1,
+            Tile::slope_up_half0, Tile::slope_up_half1
     };
     constexpr const static auto TILE_MATERIALS = {
             TileMaterial::brick

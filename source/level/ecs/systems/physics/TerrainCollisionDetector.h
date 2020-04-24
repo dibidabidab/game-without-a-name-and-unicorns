@@ -13,6 +13,8 @@ struct TerrainCollisions
         floor             = false,
         slopeDown         = false,
         slopeUp           = false,
+        halfSlopeDown     = false,
+        halfSlopeUp       = false,
         ceiling           = false,
         slopedCeilingDown = false,
         slopedCeilingUp   = false,
@@ -40,6 +42,8 @@ class TerrainCollisionDetector
     bool slopedCeilingUpIntersection(const AABB &aabb);
     bool slopeDownIntersection(const AABB &aabb);
     bool slopeUpIntersection(const AABB &aabb);
+    bool halfSlopeDownIntersection(const AABB &aabb);
+    bool halfSlopeUpIntersection(const AABB &aabb);
     bool floorIntersection(const AABB &aabb, bool ignorePlatforms);
     bool leftWallIntersection(const AABB &aabb);
     bool rightWallIntersection(const AABB &aabb);
