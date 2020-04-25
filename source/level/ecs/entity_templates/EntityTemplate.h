@@ -10,10 +10,12 @@ class Networked;
 
 class EntityTemplate
 {
+  private:
+    friend class Room;
+    int templateHash = -1;
+
   protected:
     Room *room = NULL;
-    int templateHash = -1;
-    friend Room;
 
   public:
     virtual entt::entity create() = 0;

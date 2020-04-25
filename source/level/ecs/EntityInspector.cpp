@@ -43,7 +43,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     bool show = true;
 
     ImGui::SetNextWindowPos(ImVec2(320, 10), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(200, 130), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Entity inspector", &show, 0))
     {
@@ -53,6 +53,21 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     }
     ImGui::Text("%lu entities active", reg->size());
     pickEntity = ImGui::Button("Pick entity from screen");
+
+    if (ImGui::Button("Create entity"))
+        ImGui::OpenPopup("create_entity");
+
+    if (ImGui::BeginPopup("create_entity"))
+    {
+        ImGui::Text("Template:");
+        ImGui::Separator();
+
+        templateToCreate.clear();
+        for (auto &name : entityTemplates)
+            if (ImGui::Selectable(name.c_str()))
+                templateToCreate = name;
+        ImGui::EndPopup();
+    }
 
     ImGui::End();
 }

@@ -20,6 +20,7 @@ class Room
 {
     std::list<EntitySystem *> systems;
     std::map<int, EntityTemplate *> entityTemplates;
+    std::vector<std::string> entityTemplateNames;
 
     bool initialized = false;
 
@@ -57,10 +58,12 @@ class Room
     template <class EntityTemplate>
     void registerEntityTemplate()
     {
-        int hash = hashStringCrossPlatform(getTypeName<EntityTemplate>());
+        auto name = getTypeName<EntityTemplate>();
+        int hash = hashStringCrossPlatform(name);
         auto et = entityTemplates[hash] = new EntityTemplate();
         et->room = this;
         et->templateHash = hash;
+        entityTemplateNames.push_back(name);
     }
 
     template <class EntityTemplate_>
@@ -72,6 +75,8 @@ class Room
     EntityTemplate *getTemplate(std::string name);
 
     EntityTemplate *getTemplate(int templateHash);
+
+    const std::vector<std::string> &getTemplateNames() const;
 };
 
 void to_json(json& j, const Room& r);

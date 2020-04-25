@@ -8,6 +8,7 @@
 #include "../components/PlatformerMovement.h"
 #include "../components/Networked.h"
 #include "../components/PlayerControlled.h"
+#include "../components/Light.h"
 
 class PlayerEntity : public EntityTemplate
 {
@@ -19,6 +20,7 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<Physics>(e);
         room->entities.assign<AABB>(e, ivec2(5, 13), ivec2(32, 52));
         room->entities.assign<PlatformerMovement>(e);
+        room->entities.assign<LightPoint>(e);
         return e;
     }
 

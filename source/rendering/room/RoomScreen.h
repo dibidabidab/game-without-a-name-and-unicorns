@@ -23,6 +23,7 @@
 #include "CameraMovement.h"
 #include "tile_map/TileMapRenderer.h"
 #include "../PaletteEditor.h"
+#include "../../level/ecs/components/Light.h"
 
 class RoomScreen : public Screen
 {
@@ -86,7 +87,7 @@ class RoomScreen : public Screen
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
 
-            tileMapRenderer.render(cam);
+//            tileMapRenderer.render(cam);
 
             glDisable(GL_DEPTH_TEST);
             indexedFbo->unbind();
@@ -128,7 +129,7 @@ class RoomScreen : public Screen
 
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
 //        renderDebugBackground();
-//        renderDebugTiles();
+        renderDebugTiles();
 
         if (showRoomEditor)
         {
@@ -142,17 +143,80 @@ class RoomScreen : public Screen
         }
         lineRenderer.scale = 1;
 
-        room->entities.view<Physics, AABB>().each([&](auto e, Physics &p, AABB &body) {
-            p.draw(body, lineRenderer, mu::X);
+        room->entities.view<AABB>().each([&](auto e, AABB &body) {
+
+            auto p = room->entities.try_get<Physics>(e);
+            if (p)
+                p->draw(body, lineRenderer, mu::X);
+            else
+                body.draw(lineRenderer, mu::X);
+
+            auto l = room->entities.try_get<LightPoint>(e);
+            if (l)
+                lineRenderer.axes(body.center, l->radius, vec3(1, 1, 0));
         });
         lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
 
-        EntityInspector(&room->entities).drawGUI(&cam, lineRenderer);
+        EntityInspector inspector(&room->entities);
+        inspector.entityTemplates = room->getTemplateNames();
+        inspector.drawGUI(&cam, lineRenderer);
+        if (!inspector.templateToCreate.empty())
+            room->getTemplate(inspector.templateToCreate)->create();
+
         paletteEditor.drawGUI(palettes);
+
+        const TileMapOutlines &outlines = room->getMap().getOutlines();
+
+        room->entities.view<AABB, LightPoint>().each([&](AABB &aabb, LightPoint &light) {
+            if (!light.castShadow)
+                return;
+            gu::profiler::Zone z("shadow casting");
+
+            for (auto &outline : outlines)
+            {
+                const vec2 line[2] = {outline.first * vec2(16), outline.second * vec2(16)};
+                const vec2 &lightPos = aabb.center;
+
+                bool render = false;
+                float distance = length(line[0] - lightPos);
+                if (distance <= light.radius)
+                    render = true;
+                else
+                {
+                    distance = length(line[1] - lightPos);
+                    render = distance <= light.radius;
+                }
+
+                if (!render)
+                    continue;
+
+                lineRenderer.line(line[0], line[1], mu::X);
+
+                vec2 avgDir(0);
+                vec2 castEnd[2];
+                for (int i = 0; i < 2; i++)
+                {
+                    vec2 diff = line[i] - lightPos;
+                    vec2 dir = normalize(diff);
+                    avgDir += dir;
+                    castEnd[i] = line[i] + dir * vec2(light.radius);
+                    lineRenderer.line(line[i], castEnd[i], mu::X);
+                }
+                avgDir = normalize(avgDir);
+                lineRenderer.line(castEnd[0], castEnd[0] + avgDir * vec2(light.radius), mu::Y);
+                lineRenderer.line(castEnd[1], castEnd[1] + avgDir * vec2(light.radius), mu::Y);
+
+                lineRenderer.line(castEnd[1] + avgDir * vec2(light.radius), castEnd[0] + avgDir * vec2(light.radius), mu::Y);
+                lineRenderer.line(castEnd[1] + avgDir * vec2(light.radius), castEnd[0] + avgDir * vec2(light.radius), mu::Y);
+            }
+
+
+        });
     }
 
     void renderDebugBackground()
     {
+        gu::profiler::Zone z("background grid");
         TileMap &map = room->getMap();
 
         // grid
@@ -173,6 +237,7 @@ class RoomScreen : public Screen
 
     void renderDebugTiles()
     {
+        gu::profiler::Zone z("tiles grid+outlines");
         TileMap &map = room->getMap();
         auto color = vec3(1);
         // all tiles:
@@ -180,8 +245,8 @@ class RoomScreen : public Screen
             for (int y = 0; y < map.height; y++)
                 DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
         // tile outlines:
-        for (auto &outline : map.getOutlines())
-            lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);
+//        for (auto &outline : map.getOutlines())
+//            lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);
     }
 };
 
