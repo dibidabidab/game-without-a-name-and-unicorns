@@ -190,6 +190,19 @@ class RoomScreen : public Screen
                 if (!render)
                     continue;
 
+                vec2 lineNormal = line[1] - line[0];
+                lineNormal = normalize(vec2(-lineNormal.y, lineNormal.x));
+
+                vec2 diffToLine = ((line[0] + line[1]) * vec2(.5)) - lightPos;
+
+                float angle = acos(dot(normalize(diffToLine), lineNormal)) * mu::RAD_TO_DEGREES;
+                if (angle < 90)
+                    continue;
+
+                // line normal:
+                lineRenderer.line((line[0] + line[1]) * vec2(.5), (line[0] + line[1]) * vec2(.5) + lineNormal * vec2(16), vec3(1));
+
+                // actual line:
                 lineRenderer.line(line[0], line[1], mu::X);
 
                 vec2 avgDir(0);
@@ -203,11 +216,17 @@ class RoomScreen : public Screen
                     lineRenderer.line(line[i], castEnd[i], mu::X);
                 }
                 avgDir = normalize(avgDir);
-                lineRenderer.line(castEnd[0], castEnd[0] + avgDir * vec2(light.radius), mu::Y);
-                lineRenderer.line(castEnd[1], castEnd[1] + avgDir * vec2(light.radius), mu::Y);
 
-                lineRenderer.line(castEnd[1] + avgDir * vec2(light.radius), castEnd[0] + avgDir * vec2(light.radius), mu::Y);
-                lineRenderer.line(castEnd[1] + avgDir * vec2(light.radius), castEnd[0] + avgDir * vec2(light.radius), mu::Y);
+                vec2 diffToCastLine = ((castEnd[0] + castEnd[1]) * vec2(.5)) - lightPos;
+
+                float castDepth = length(diffToLine - diffToCastLine);
+                float additionalDepth = light.radius - castDepth;
+
+                lineRenderer.line(castEnd[0], castEnd[0] + avgDir * vec2(additionalDepth), mu::Y);
+                lineRenderer.line(castEnd[1], castEnd[1] + avgDir * vec2(additionalDepth), mu::Y);
+
+                lineRenderer.line(castEnd[1] + avgDir * vec2(additionalDepth), castEnd[0] + avgDir * vec2(additionalDepth), mu::Y);
+                lineRenderer.line(castEnd[1] + avgDir * vec2(additionalDepth), castEnd[0] + avgDir * vec2(additionalDepth), mu::Y);
             }
 
 
@@ -241,9 +260,9 @@ class RoomScreen : public Screen
         TileMap &map = room->getMap();
         auto color = vec3(1);
         // all tiles:
-        for (int x = 0; x < map.width; x++)
-            for (int y = 0; y < map.height; y++)
-                DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
+//        for (int x = 0; x < map.width; x++)
+//            for (int y = 0; y < map.height; y++)
+//                DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
         // tile outlines:
 //        for (auto &outline : map.getOutlines())
 //            lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);

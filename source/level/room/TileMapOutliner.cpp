@@ -39,7 +39,10 @@ void TileMapOutliner::getWalls(const TileMap *map, std::vector<std::pair<vec2, v
                 {
                     int lineX = i == 0 ? x + 1 : x;
 
-                    out.emplace_back(vec2(lineX, yBegin), vec2(lineX, y));
+                    if (i == 1)
+                        out.emplace_back(vec2(lineX, yBegin), vec2(lineX, y));
+                    else
+                        out.emplace_back(vec2(lineX, y), vec2(lineX, yBegin));
                     yBegin = -1;
                 }
             }
@@ -66,7 +69,10 @@ void TileMapOutliner::getFloorsAndCeilings(const TileMap *map, std::vector<std::
                 else if (xBegin != -1 && !wall)
                 {
                     int lineY = i == 0 ? y + 1 : y;
-                    out.emplace_back(vec2(xBegin, lineY), vec2(x, lineY));
+                    if (i == 1)
+                        out.emplace_back(vec2(x, lineY), vec2(xBegin, lineY));
+                    else
+                        out.emplace_back(vec2(xBegin, lineY), vec2(x, lineY));
 
                     xBegin = -1;
                 }
@@ -80,18 +86,27 @@ void TileMapOutliner::getUpwardSlopes(const TileMap *map, std::vector<std::pair<
     for (int startY = -map->width; startY < map->height + map->width; startY++)
     {
         int start = -1;
+        Tile startTile;
         for (int x = 0; x <= map->width; x++)
         {
             int y = startY + x;
 
-            bool wall = map->getTile(x, y) == Tile::slope_up || map->getTile(x, y) == Tile::sloped_ceil_up;
+            Tile t = map->getTile(x, y);
+            bool wall = t == Tile::slope_up || t == Tile::sloped_ceil_up;
 
             if (start != -1 && !wall) // end
             {
-                out.emplace_back(vec2(start, startY + start), vec2(x, y));
+                if (startTile == Tile::slope_up)
+                    out.emplace_back(vec2(start, startY + start), vec2(x, y));
+                else
+                    out.emplace_back(vec2(x, y), vec2(start, startY + start));
                 start = -1;
             }
-            if (start == -1 && wall) start = x;
+            if (start == -1 && wall)
+            {
+                start = x;
+                startTile = t;
+            }
         }
     }
 }
@@ -101,18 +116,27 @@ void TileMapOutliner::getDownwardSlopes(const TileMap *map, std::vector<std::pai
     for (int startY = 0; startY < map->height + map->width; startY++)
     {
         int start = -1;
+        Tile startTile;
         for (int x = 0; x <= map->width; x++)
         {
             int y = startY - x;
 
-            bool wall = map->getTile(x, y) == Tile::slope_down || map->getTile(x, y) == Tile::sloped_ceil_down;
+            Tile t = map->getTile(x, y);
+            bool wall = t == Tile::slope_down || t == Tile::sloped_ceil_down;
 
             if (start != -1 && !wall) // end
             {
-                out.emplace_back(vec2(start, startY - start + 1), vec2(x, y + 1));
+                if (startTile == Tile::slope_down)
+                    out.emplace_back(vec2(start, startY - start + 1), vec2(x, y + 1));
+                else
+                    out.emplace_back(vec2(x, y + 1), vec2(start, startY - start + 1));
                 start = -1;
             }
-            if (start == -1 && wall) start = x;
+            if (start == -1 && wall)
+            {
+                start = x;
+                startTile = t;
+            }
         }
     }
 }
