@@ -24,6 +24,7 @@
 #include "tile_map/TileMapRenderer.h"
 #include "../PaletteEditor.h"
 #include "../../level/ecs/components/Light.h"
+#include "light/ShadowCaster.h"
 
 class RoomScreen : public Screen
 {
@@ -44,6 +45,8 @@ class RoomScreen : public Screen
     Palettes3D palettes;
     PaletteEditor paletteEditor;
 
+    ShadowCaster shadowCaster;
+
   public:
 
     RoomScreen(Room *room, bool showRoomEditor=false)
@@ -53,7 +56,8 @@ class RoomScreen : public Screen
         tileMapRenderer(&room->getMap()),
         applyPaletteShader(
             "applyPaletteShader", "shaders/apply_palette.vert", "shaders/apply_palette.frag"
-        )
+        ),
+        shadowCaster(room)
     {
         assert(room != NULL);
 
@@ -61,9 +65,6 @@ class RoomScreen : public Screen
         cam.lookAt(mu::ZERO_3);
 
         tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/bricks")});
-
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
     }
 
     void render(double deltaTime) override
@@ -126,7 +127,6 @@ class RoomScreen : public Screen
         gu::profiler::Zone z("debug");
 
         lineRenderer.projection = cam.combined;
-
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
 //        renderDebugBackground();
         renderDebugTiles();
@@ -165,72 +165,7 @@ class RoomScreen : public Screen
 
         paletteEditor.drawGUI(palettes);
 
-        const TileMapOutlines &outlines = room->getMap().getOutlines();
-
-        room->entities.view<AABB, LightPoint>().each([&](AABB &aabb, LightPoint &light) {
-            if (!light.castShadow)
-                return;
-            gu::profiler::Zone z("shadow casting");
-
-            for (auto &outline : outlines)
-            {
-                const vec2 line[2] = {outline.first * vec2(16), outline.second * vec2(16)};
-                const vec2 &lightPos = aabb.center;
-
-                bool render = false;
-                float distance = length(line[0] - lightPos);
-                if (distance <= light.radius)
-                    render = true;
-                else
-                {
-                    distance = length(line[1] - lightPos);
-                    render = distance <= light.radius;
-                }
-
-                if (!render)
-                    continue;
-
-                vec2 lineNormal = line[1] - line[0];
-                lineNormal = normalize(vec2(-lineNormal.y, lineNormal.x));
-
-                vec2 diffToLine = ((line[0] + line[1]) * vec2(.5)) - lightPos;
-
-                float angle = acos(dot(normalize(diffToLine), lineNormal)) * mu::RAD_TO_DEGREES;
-                if (angle < 90)
-                    continue;
-
-                // line normal:
-                lineRenderer.line((line[0] + line[1]) * vec2(.5), (line[0] + line[1]) * vec2(.5) + lineNormal * vec2(16), vec3(1));
-
-                // actual line:
-                lineRenderer.line(line[0], line[1], mu::X);
-
-                vec2 avgDir(0);
-                vec2 castEnd[2];
-                for (int i = 0; i < 2; i++)
-                {
-                    vec2 diff = line[i] - lightPos;
-                    vec2 dir = normalize(diff);
-                    avgDir += dir;
-                    castEnd[i] = line[i] + dir * vec2(light.radius);
-                    lineRenderer.line(line[i], castEnd[i], mu::X);
-                }
-                avgDir = normalize(avgDir);
-
-                vec2 diffToCastLine = ((castEnd[0] + castEnd[1]) * vec2(.5)) - lightPos;
-
-                float castDepth = length(diffToLine - diffToCastLine);
-                float additionalDepth = light.radius - castDepth;
-
-                lineRenderer.line(castEnd[0], castEnd[0] + avgDir * vec2(additionalDepth), mu::Y);
-                lineRenderer.line(castEnd[1], castEnd[1] + avgDir * vec2(additionalDepth), mu::Y);
-
-                lineRenderer.line(castEnd[1] + avgDir * vec2(additionalDepth), castEnd[0] + avgDir * vec2(additionalDepth), mu::Y);
-                lineRenderer.line(castEnd[1] + avgDir * vec2(additionalDepth), castEnd[0] + avgDir * vec2(additionalDepth), mu::Y);
-            }
-
-
-        });
+        shadowCaster.drawDebugLines(cam);
     }
 
     void renderDebugBackground()
