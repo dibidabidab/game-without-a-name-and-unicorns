@@ -6,18 +6,20 @@
 
 void PaletteEditor::drawGUI(Palettes3D &palettes)
 {
+    if (!show) return;
     gu::profiler::Zone z("palette editor");
 
-    ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(730, 10), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
 
-    bool show = true;
-    if (!ImGui::Begin("Palette Editor", &show, 0))
+    bool open = true;
+    if (!ImGui::Begin("Palette Editor", &open, 0))
     {
         // Early out if the window is collapsed, as an optimization.
         ImGui::End();
         return;
     }
+    if (!open) show = false;
 
     if (selectedEffect.empty())
         selectedEffect = palettes.effects.at(0).name;

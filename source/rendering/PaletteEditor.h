@@ -12,6 +12,8 @@ class PaletteEditor
     std::string selectedEffect;
 
   public:
+    bool show = true;
+
     void drawGUI(Palettes3D &palettes);
 
   private:

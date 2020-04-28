@@ -42,8 +42,10 @@ class EntityInspector
 
   public:
 
+    bool show = true;
+
     std::vector<std::string> entityTemplates;
-    std::string templateToCreate;
+    std::string templateToCreate = "";
 
     EntityInspector(entt::registry *reg);
 

@@ -32,6 +32,8 @@ class RoomScreen : public Screen
 
     Room *room;
 
+    EntityInspector inspector;
+
     DebugLineRenderer lineRenderer;
 
     OrthographicCamera cam;
@@ -57,7 +59,8 @@ class RoomScreen : public Screen
         applyPaletteShader(
             "applyPaletteShader", "shaders/apply_palette.vert", "shaders/apply_palette.frag"
         ),
-        shadowCaster(room)
+        shadowCaster(room),
+        inspector(&room->entities)
     {
         assert(room != NULL);
 
@@ -132,19 +135,36 @@ class RoomScreen : public Screen
 
         lineRenderer.projection = cam.combined;
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
-//        renderDebugBackground();
-//        renderDebugTiles();
 
-        if (showRoomEditor)
+        ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(180, 200), ImGuiCond_FirstUseEver);
+
+        static bool renderTiles = false;
+
+        if (ImGui::Begin("debug tools"))
         {
-            static RoomEditor roomEditor;
-            static bool editRoom = false;
-            if (!editRoom) editRoom = ImGui::Button("edit tileMap");
-            else {
-                editRoom = !ImGui::Button("stop editing tileMap");
-                roomEditor.update(cam, &room->getMap(), lineRenderer);
+            ImGui::Checkbox("render debug-tiles", &renderTiles);
+            inspector.show |= ImGui::Button("entity inspector");
+            paletteEditor.show |= ImGui::Button("palette editor");
+
+            if (showRoomEditor)
+            {
+                static bool editRoom = false;
+                if (!editRoom) editRoom = ImGui::Button("edit tileMap");
+                else {
+                    static RoomEditor roomEditor;
+                    editRoom = !ImGui::Button("stop editing tileMap");
+                    roomEditor.update(cam, &room->getMap(), lineRenderer);
+                }
             }
+            ImGui::End();
         }
+        if (renderTiles)
+        {
+            renderDebugBackground();
+            renderDebugTiles();
+        }
+
         lineRenderer.scale = 1;
 
         room->entities.view<AABB>().each([&](auto e, AABB &body) {
@@ -161,7 +181,6 @@ class RoomScreen : public Screen
         });
         lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
 
-        EntityInspector inspector(&room->entities);
         inspector.entityTemplates = room->getTemplateNames();
         inspector.drawGUI(&cam, lineRenderer);
         if (!inspector.templateToCreate.empty())
