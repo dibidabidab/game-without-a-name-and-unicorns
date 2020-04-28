@@ -88,12 +88,16 @@ class RoomScreen : public Screen
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
 
-//            tileMapRenderer.render(cam);
+            tileMapRenderer.render(cam);
 
             glDisable(GL_DEPTH_TEST);
             indexedFbo->unbind();
         }
-        {   // indexed image --> RGB image
+        {
+            gu::profiler::Zone z("lights & shadows");
+            shadowCaster.updateShadowTexture(tileMapRenderer.fbo.colorTexture);
+        }
+        {   // indexed image + lights --> RGB image
 
             gu::profiler::Zone z("apply palette");
 
@@ -129,7 +133,7 @@ class RoomScreen : public Screen
         lineRenderer.projection = cam.combined;
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
 //        renderDebugBackground();
-        renderDebugTiles();
+//        renderDebugTiles();
 
         if (showRoomEditor)
         {
@@ -195,12 +199,12 @@ class RoomScreen : public Screen
         TileMap &map = room->getMap();
         auto color = vec3(1);
         // all tiles:
-//        for (int x = 0; x < map.width; x++)
-//            for (int y = 0; y < map.height; y++)
-//                DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
+        for (int x = 0; x < map.width; x++)
+            for (int y = 0; y < map.height; y++)
+                DebugTileRenderer::renderTile(lineRenderer, map.getTile(x, y), x, y, color);
         // tile outlines:
-//        for (auto &outline : map.getOutlines())
-//            lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);
+        for (auto &outline : map.getOutlines())
+            lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);
     }
 };
 
