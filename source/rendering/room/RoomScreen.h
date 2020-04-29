@@ -23,12 +23,17 @@
 #include "CameraMovement.h"
 #include "tile_map/TileMapRenderer.h"
 #include "../PaletteEditor.h"
+#include "../../level/ecs/components/Light.h"
+#include "light/ShadowCaster.h"
+#include "light/LightMapRenderer.h"
 
 class RoomScreen : public Screen
 {
     bool showRoomEditor = false;
 
     Room *room;
+
+    EntityInspector inspector;
 
     DebugLineRenderer lineRenderer;
 
@@ -43,6 +48,9 @@ class RoomScreen : public Screen
     Palettes3D palettes;
     PaletteEditor paletteEditor;
 
+    ShadowCaster shadowCaster;
+    LightMapRenderer lightMapRenderer;
+
   public:
 
     RoomScreen(Room *room, bool showRoomEditor=false)
@@ -52,7 +60,10 @@ class RoomScreen : public Screen
         tileMapRenderer(&room->getMap()),
         applyPaletteShader(
             "applyPaletteShader", "shaders/apply_palette.vert", "shaders/apply_palette.frag"
-        )
+        ),
+        shadowCaster(room),
+        lightMapRenderer(room),
+        inspector(&room->entities)
     {
         assert(room != NULL);
 
@@ -60,9 +71,6 @@ class RoomScreen : public Screen
         cam.lookAt(mu::ZERO_3);
 
         tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/bricks")});
-
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
     }
 
     void render(double deltaTime) override
@@ -91,7 +99,13 @@ class RoomScreen : public Screen
             glDisable(GL_DEPTH_TEST);
             indexedFbo->unbind();
         }
-        {   // indexed image --> RGB image
+        {
+            gu::profiler::Zone z("lights & shadows");
+            shadowCaster.updateShadowTexture(tileMapRenderer.fbo.colorTexture);
+
+            lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
+        }
+        {   // indexed image + lights --> RGB image
 
             gu::profiler::Zone z("apply palette");
 
@@ -102,6 +116,8 @@ class RoomScreen : public Screen
             glUniform1i(applyPaletteShader.location("palettes"), 0);
 
             indexedFbo->colorTexture->bind(1, applyPaletteShader, "indexedImage");
+            lightMapRenderer.fbo->colorTexture->bind(2, applyPaletteShader, "lightMap");
+
             Mesh::getQuad()->render();
         }
         renderDebugStuff();
@@ -125,34 +141,68 @@ class RoomScreen : public Screen
         gu::profiler::Zone z("debug");
 
         lineRenderer.projection = cam.combined;
-
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
-//        renderDebugBackground();
-//        renderDebugTiles();
 
-        if (showRoomEditor)
+        ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(180, 200), ImGuiCond_FirstUseEver);
+
+        static bool renderTiles = false, renderShadowDebugLines = true;
+
+        if (ImGui::Begin("debug tools"))
         {
-            static RoomEditor roomEditor;
-            static bool editRoom = false;
-            if (!editRoom) editRoom = ImGui::Button("edit tileMap");
-            else {
-                editRoom = !ImGui::Button("stop editing tileMap");
-                roomEditor.update(cam, &room->getMap(), lineRenderer);
+            ImGui::Checkbox("render debug-tiles", &renderTiles);
+            ImGui::Checkbox("render shadow-debug-lines", &renderShadowDebugLines);
+            inspector.show |= ImGui::Button("entity inspector");
+            paletteEditor.show |= ImGui::Button("palette editor");
+
+            if (showRoomEditor)
+            {
+                static bool editRoom = false;
+                if (!editRoom) editRoom = ImGui::Button("edit tileMap");
+                else {
+                    static RoomEditor roomEditor;
+                    editRoom = !ImGui::Button("stop editing tileMap");
+                    roomEditor.update(cam, &room->getMap(), lineRenderer);
+                }
             }
+            ImGui::End();
         }
+        if (renderTiles)
+        {
+            renderDebugBackground();
+            renderDebugTiles();
+        }
+
         lineRenderer.scale = 1;
 
-        room->entities.view<Physics, AABB>().each([&](auto e, Physics &p, AABB &body) {
-            p.draw(body, lineRenderer, mu::X);
+        room->entities.view<AABB>().each([&](auto e, AABB &body) {
+
+            auto p = room->entities.try_get<Physics>(e);
+            if (p)
+                p->draw(body, lineRenderer, mu::X);
+            else
+                body.draw(lineRenderer, mu::X);
+
+            auto l = room->entities.try_get<LightPoint>(e);
+            if (l)
+                lineRenderer.axes(body.center, l->radius, vec3(1, 1, 0));
         });
         lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
 
-        EntityInspector(&room->entities).drawGUI(&cam, lineRenderer);
+        inspector.entityTemplates = room->getTemplateNames();
+        inspector.drawGUI(&cam, lineRenderer);
+        if (!inspector.templateToCreate.empty())
+            room->getTemplate(inspector.templateToCreate)->create();
+
         paletteEditor.drawGUI(palettes);
+
+        if (renderShadowDebugLines)
+            shadowCaster.drawDebugLines(cam);
     }
 
     void renderDebugBackground()
     {
+        gu::profiler::Zone z("background grid");
         TileMap &map = room->getMap();
 
         // grid
@@ -173,6 +223,7 @@ class RoomScreen : public Screen
 
     void renderDebugTiles()
     {
+        gu::profiler::Zone z("tiles grid+outlines");
         TileMap &map = room->getMap();
         auto color = vec3(1);
         // all tiles:
@@ -182,6 +233,11 @@ class RoomScreen : public Screen
         // tile outlines:
         for (auto &outline : map.getOutlines())
             lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);
+    }
+
+    ~RoomScreen()
+    {
+        delete indexedFbo;
     }
 };
 

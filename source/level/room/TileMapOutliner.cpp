@@ -7,15 +7,17 @@
  *  the code works though
  */
 
-void TileMapOutliner::getOutlines(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getOutlines(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out)
 {
     getWalls(map, out);
     getFloorsAndCeilings(map, out);
     getDownwardSlopes(map, out);
     getUpwardSlopes(map, out);
+    getDownwardHalfSlopes(map, out);
+    getUpwardHalfSlopes(map, out);
 }
 
-void TileMapOutliner::getWalls(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getWalls(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out)
 {
     for (int x = 0; x < map->width; x++)
     {
@@ -23,7 +25,7 @@ void TileMapOutliner::getWalls(const TileMap *map, std::vector<std::pair<ivec2, 
         {
             int yBegin = -1;
 
-            for (int y = 0; y < map->height; y++)
+            for (int y = 0; y <= map->height; y++)
             {
                 Tile air = map->getTile(x + (i == 0 ? 1 : -1), y);
 
@@ -37,7 +39,10 @@ void TileMapOutliner::getWalls(const TileMap *map, std::vector<std::pair<ivec2, 
                 {
                     int lineX = i == 0 ? x + 1 : x;
 
-                    out.emplace_back(ivec2(lineX, yBegin), ivec2(lineX, y));
+                    if (i == 1)
+                        out.emplace_back(vec2(lineX, yBegin), vec2(lineX, y));
+                    else
+                        out.emplace_back(vec2(lineX, y), vec2(lineX, yBegin));
                     yBegin = -1;
                 }
             }
@@ -45,7 +50,7 @@ void TileMapOutliner::getWalls(const TileMap *map, std::vector<std::pair<ivec2, 
     }
 }
 
-void TileMapOutliner::getFloorsAndCeilings(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getFloorsAndCeilings(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out)
 {
     for (int y = 0; y < map->height; y++)
     {
@@ -53,7 +58,7 @@ void TileMapOutliner::getFloorsAndCeilings(const TileMap *map, std::vector<std::
         {
             int xBegin = -1;
 
-            for (int x = 0; x < map->width; x++)
+            for (int x = 0; x <= map->width; x++)
             {
                 Tile air = map->getTile(x, y + (i == 0 ? 1 : -1));
 
@@ -64,7 +69,10 @@ void TileMapOutliner::getFloorsAndCeilings(const TileMap *map, std::vector<std::
                 else if (xBegin != -1 && !wall)
                 {
                     int lineY = i == 0 ? y + 1 : y;
-                    out.emplace_back(ivec2(xBegin, lineY), ivec2(x, lineY));
+                    if (i == 1)
+                        out.emplace_back(vec2(x, lineY), vec2(xBegin, lineY));
+                    else
+                        out.emplace_back(vec2(xBegin, lineY), vec2(x, lineY));
 
                     xBegin = -1;
                 }
@@ -73,44 +81,104 @@ void TileMapOutliner::getFloorsAndCeilings(const TileMap *map, std::vector<std::
     }
 }
 
-void TileMapOutliner::getUpwardSlopes(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getUpwardSlopes(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out)
 {
     for (int startY = -map->width; startY < map->height + map->width; startY++)
     {
         int start = -1;
-        for (int x = 0; x < map->width; x++)
+        Tile startTile;
+        for (int x = 0; x <= map->width; x++)
         {
             int y = startY + x;
 
-            bool wall = map->getTile(x, y) == Tile::slope_up || map->getTile(x, y) == Tile::sloped_ceil_up;
+            Tile t = map->getTile(x, y);
+            bool wall = t == Tile::slope_up || t == Tile::sloped_ceil_up;
 
             if (start != -1 && !wall) // end
             {
-                out.emplace_back(ivec2(start, startY + start), ivec2(x, y));
+                if (startTile == Tile::slope_up)
+                    out.emplace_back(vec2(start, startY + start), vec2(x, y));
+                else
+                    out.emplace_back(vec2(x, y), vec2(start, startY + start));
                 start = -1;
             }
-            if (start == -1 && wall) start = x;
+            if (start == -1 && wall)
+            {
+                start = x;
+                startTile = t;
+            }
         }
     }
 }
 
-void TileMapOutliner::getDownwardSlopes(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out)
+void TileMapOutliner::getDownwardSlopes(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out)
 {
     for (int startY = 0; startY < map->height + map->width; startY++)
     {
         int start = -1;
-        for (int x = 0; x < map->width; x++)
+        Tile startTile;
+        for (int x = 0; x <= map->width; x++)
         {
             int y = startY - x;
 
-            bool wall = map->getTile(x, y) == Tile::slope_down || map->getTile(x, y) == Tile::sloped_ceil_down;
+            Tile t = map->getTile(x, y);
+            bool wall = t == Tile::slope_down || t == Tile::sloped_ceil_down;
 
             if (start != -1 && !wall) // end
             {
-                out.emplace_back(ivec2(start, startY - start + 1), ivec2(x, y + 1));
+                if (startTile == Tile::slope_down)
+                    out.emplace_back(vec2(start, startY - start + 1), vec2(x, y + 1));
+                else
+                    out.emplace_back(vec2(x, y + 1), vec2(start, startY - start + 1));
                 start = -1;
             }
-            if (start == -1 && wall) start = x;
+            if (start == -1 && wall)
+            {
+                start = x;
+                startTile = t;
+            }
+        }
+    }
+}
+
+void TileMapOutliner::getDownwardHalfSlopes(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out)
+{
+    for (int x = 0; x <= map->width; x++)
+    {
+        for (int y = 0; y <= map->height; y++)
+        {
+            if (map->getTile(x, y) == Tile::slope_down_half0)
+            {
+                if (map->getTile(x - 2, y + 1) == Tile::slope_down_half0)
+                    continue; // this one is already visited.
+
+                int length = 1;
+                while (map->getTile(x + length * 2, y - length) == Tile::slope_down_half0)
+                    length++;
+
+                out.emplace_back(vec2(x, y + 1), vec2(x + length * 2, y + 1 - length));
+            }
+        }
+    }
+}
+
+void TileMapOutliner::getUpwardHalfSlopes(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out)
+{
+    for (int x = 0; x <= map->width; x++)
+    {
+        for (int y = 0; y <= map->height; y++)
+        {
+            if (map->getTile(x, y) == Tile::slope_up_half0)
+            {
+                if (map->getTile(x - 2, y - 1) == Tile::slope_up_half0)
+                    continue; // this one is already visited.
+
+                int length = 1;
+                while (map->getTile(x + length * 2, y + length) == Tile::slope_up_half0)
+                    length++;
+
+                out.emplace_back(vec2(x, y), vec2(x + length * 2, y + length));
+            }
         }
     }
 }

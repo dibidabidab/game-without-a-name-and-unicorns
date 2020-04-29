@@ -40,7 +40,7 @@ enum class TileMaterial : unsigned char
     brick
 };
 
-typedef std::vector<std::pair<ivec2, ivec2>> TileMapOutlines;
+typedef std::vector<std::pair<vec2, vec2>> TileMapOutlines;
 
 class TileMap
 {

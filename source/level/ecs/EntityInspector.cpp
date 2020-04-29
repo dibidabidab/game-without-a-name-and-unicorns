@@ -28,6 +28,9 @@ entt::entity EntityInspector::getByIndex(int i)
 
 void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
 {
+    templateToCreate.clear();
+    if (!show) return;
+
     gu::profiler::Zone z("entity inspector");
 
     static bool pickEntity = false;
@@ -40,19 +43,35 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
         drawEntityInspectorGUI(e, ins);
     });
 
-    bool show = true;
-
     ImGui::SetNextWindowPos(ImVec2(320, 10), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(200, 130), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin("Entity inspector", &show, 0))
+    bool open = true;
+
+    if (!ImGui::Begin("Entity inspector", &open))
     {
         // Early out if the window is collapsed, as an optimization.
         ImGui::End();
         return;
     }
+    if (!open) show = false;
+
     ImGui::Text("%lu entities active", reg->size());
     pickEntity = ImGui::Button("Pick entity from screen");
+
+    if (ImGui::Button("Create entity"))
+        ImGui::OpenPopup("create_entity");
+
+    if (ImGui::BeginPopup("create_entity"))
+    {
+        ImGui::Text("Template:");
+        ImGui::Separator();
+
+        for (auto &name : entityTemplates)
+            if (ImGui::Selectable(name.c_str()))
+                templateToCreate = name;
+        ImGui::EndPopup();
+    }
 
     ImGui::End();
 }

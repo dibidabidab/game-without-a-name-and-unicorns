@@ -105,3 +105,8 @@ EntityTemplate *Room::getTemplate(int templateHash)
         throw gu_err("No EntityTemplate found for hash " + std::to_string(templateHash));
     return t;
 }
+
+const std::vector<std::string> &Room::getTemplateNames() const
+{
+    return entityTemplateNames;
+}

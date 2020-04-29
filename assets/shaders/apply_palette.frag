@@ -7,6 +7,7 @@ out vec4 color;
 in vec2 v_texCoords;
 
 uniform usampler2D indexedImage;
+uniform usampler2D lightMap;
 
 uniform sampler2DArray palettes;
 
@@ -17,7 +18,7 @@ void main()
     if (indexedColor == 0u)
         indexedColor = 2u; // 2 == sky
 
-    uint lightLevel = 0u;
+    uint lightLevel = texture(lightMap, v_texCoords).r;
     uint paletteEffect = 0u;
 
     vec3 colorFromPalette = texelFetch(palettes, ivec3(indexedColor, lightLevel, paletteEffect), 0).rgb;

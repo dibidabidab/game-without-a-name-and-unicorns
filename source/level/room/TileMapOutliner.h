@@ -15,15 +15,19 @@ namespace TileMapOutliner
      * @param map  The map
      * @param out   All found outlines are added to this vector
      */
-    void getOutlines(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out);
+    void getOutlines(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out);
 
-    void getWalls(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out);
+    void getWalls(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out);
 
-    void getFloorsAndCeilings(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out);
+    void getFloorsAndCeilings(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out);
 
-    void getUpwardSlopes(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out);
+    void getUpwardSlopes(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out);
 
-    void getDownwardSlopes(const TileMap *map, std::vector<std::pair<ivec2, ivec2>> &out);
+    void getDownwardSlopes(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out);
+
+    void getDownwardHalfSlopes(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out);
+
+    void getUpwardHalfSlopes(const TileMap *map, std::vector<std::pair<vec2, vec2>> &out);
 };
 
 

@@ -41,6 +41,12 @@ class EntityInspector
     entt::registry *reg;
 
   public:
+
+    bool show = true;
+
+    std::vector<std::string> entityTemplates;
+    std::string templateToCreate = "";
+
     EntityInspector(entt::registry *reg);
 
     void findEntitiesWithComponent(const char *component, std::vector<entt::entity> &out);
