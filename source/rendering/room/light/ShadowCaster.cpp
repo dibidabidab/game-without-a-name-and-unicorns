@@ -6,18 +6,20 @@
 ShadowCaster::ShadowCaster(Room *room)
     :
     room(room),
-    debugShader("Shadow debug shader", "shaders/shadow/shadow.vert", "shaders/shadow/shadow_debug.frag"),
-    shader("Shadow shader", "shaders/shadow/shadow.vert", "shaders/shadow/shadow.frag"),
+    debugShader("Shadow debug shader", "shaders/light/shadow.vert", "shaders/light/shadow_debug.frag"),
+    shader("Shadow shader", "shaders/light/shadow.vert", "shaders/light/shadow.frag"),
     fbo(TEXTURE_SIZE, TEXTURE_SIZE)
 {
     fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
     fbo.addDepthBuffer();
 
+    auto attrs = VertAttributes().add_({"POS_2D", 2}).add_({"DEPTH", 1});
+
     shadowMesh = std::make_shared<Mesh>(
         "ShadowMesh",
         MAX_SHADOWS_PER_LIGHT * VERTS_PER_SHADOW,
         MAX_SHADOWS_PER_LIGHT * INDICES_PER_SHADOW,
-        VertAttributes().add_({"POS_2D", 2}).add_({"DEPTH", 1})
+        attrs
     );
     for (int i = 0; i < MAX_SHADOWS_PER_LIGHT; i++)
     {
@@ -176,7 +178,10 @@ void ShadowCaster::updateShadowTexture(const SharedTexture &tileMapTexture)
 
     room->entities.view<AABB, LightPoint>().each([&](AABB &aabb, LightPoint &light) {
         if (!light.castShadow)
+        {
+            light.shadowTextureIndex = -1;
             return;
+        }
         i++;
 
         if (light.shadowTextureIndex == i && light.prevRadius >= light.radius && light.prevPosition == aabb.center)

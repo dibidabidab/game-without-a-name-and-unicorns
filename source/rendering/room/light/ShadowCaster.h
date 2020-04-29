@@ -14,16 +14,16 @@ class ShadowCaster
 {
     Room *room;
 
-    const static int
-        TEXTURE_SIZE = 2048, SIZE_PER_LIGHT = 256,
-
-        MAX_SHADOWS_PER_LIGHT = 128, VERTS_PER_SHADOW = 9, INDICES_PER_SHADOW = 24;
-
     SharedMesh shadowMesh;
 
     ShaderAsset debugShader, shader;
 
   public:
+
+    const static int
+            TEXTURE_SIZE = 2048, SIZE_PER_LIGHT = 256,
+
+            MAX_SHADOWS_PER_LIGHT = 128, VERTS_PER_SHADOW = 9, INDICES_PER_SHADOW = 24;
 
     FrameBuffer fbo;
 

@@ -11,16 +11,16 @@ in vec2 v_pos;
 
 void main()
 {
-    shadow = 1u;
+    shadow = 2u;
     gl_FragDepth = .1;
 
-    if (v_depth < 10.)
+    if (v_depth < 20.)
     {
         uint tileMapPixel = texelFetch(tileMapTexture, ivec2(v_pos.x, v_pos.y), 0).r;
 
         if (tileMapPixel != 0u)
         {
-            shadow = 0u;
+            shadow = v_depth < 10. ? 0u : 1u;
             gl_FragDepth = .2;
         }
     }

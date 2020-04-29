@@ -25,6 +25,7 @@
 #include "../PaletteEditor.h"
 #include "../../level/ecs/components/Light.h"
 #include "light/ShadowCaster.h"
+#include "light/LightMapRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -48,6 +49,7 @@ class RoomScreen : public Screen
     PaletteEditor paletteEditor;
 
     ShadowCaster shadowCaster;
+    LightMapRenderer lightMapRenderer;
 
   public:
 
@@ -60,6 +62,7 @@ class RoomScreen : public Screen
             "applyPaletteShader", "shaders/apply_palette.vert", "shaders/apply_palette.frag"
         ),
         shadowCaster(room),
+        lightMapRenderer(room),
         inspector(&room->entities)
     {
         assert(room != NULL);
@@ -99,6 +102,8 @@ class RoomScreen : public Screen
         {
             gu::profiler::Zone z("lights & shadows");
             shadowCaster.updateShadowTexture(tileMapRenderer.fbo.colorTexture);
+
+            lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
         }
         {   // indexed image + lights --> RGB image
 
@@ -111,6 +116,8 @@ class RoomScreen : public Screen
             glUniform1i(applyPaletteShader.location("palettes"), 0);
 
             indexedFbo->colorTexture->bind(1, applyPaletteShader, "indexedImage");
+            lightMapRenderer.fbo->colorTexture->bind(2, applyPaletteShader, "lightMap");
+
             Mesh::getQuad()->render();
         }
         renderDebugStuff();
@@ -139,11 +146,12 @@ class RoomScreen : public Screen
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(180, 200), ImGuiCond_FirstUseEver);
 
-        static bool renderTiles = false;
+        static bool renderTiles = false, renderShadowDebugLines = true;
 
         if (ImGui::Begin("debug tools"))
         {
             ImGui::Checkbox("render debug-tiles", &renderTiles);
+            ImGui::Checkbox("render shadow-debug-lines", &renderShadowDebugLines);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
 
@@ -188,7 +196,8 @@ class RoomScreen : public Screen
 
         paletteEditor.drawGUI(palettes);
 
-        shadowCaster.drawDebugLines(cam);
+        if (renderShadowDebugLines)
+            shadowCaster.drawDebugLines(cam);
     }
 
     void renderDebugBackground()
@@ -224,6 +233,11 @@ class RoomScreen : public Screen
         // tile outlines:
         for (auto &outline : map.getOutlines())
             lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);
+    }
+
+    ~RoomScreen()
+    {
+        delete indexedFbo;
     }
 };
 

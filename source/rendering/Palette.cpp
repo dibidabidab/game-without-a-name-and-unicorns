@@ -59,14 +59,8 @@ Palettes3D::Palettes3D()
         "default",
         {
             asset<Palette>("palettes/default0"),
-            asset<Palette>("palettes/default1")
-        }
-    });
-    effects.push_back({
-        "test",
-        {
             asset<Palette>("palettes/default1"),
-            asset<Palette>("palettes/default0")
+            asset<Palette>("palettes/default2")
         }
     });
 }

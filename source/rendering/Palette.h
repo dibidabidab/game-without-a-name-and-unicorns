@@ -29,7 +29,7 @@ class Palettes3D
     friend class PaletteEditor;
 
   public:
-    const static int LIGHT_LEVELS = 2;
+    const static int LIGHT_LEVELS = 3;
 
     struct Effect
     {
