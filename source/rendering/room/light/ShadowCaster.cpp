@@ -13,7 +13,9 @@ ShadowCaster::ShadowCaster(Room *room)
     fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
     fbo.addDepthBuffer();
 
-    auto attrs = VertAttributes().add_({"POS_2D", 2}).add_({"DEPTH", 1});
+    VertAttributes attrs;
+    attrs.add({"POS_2D", 2});
+    attrs.add({"DEPTH", 1});
 
     shadowMesh = std::make_shared<Mesh>(
         "ShadowMesh",
