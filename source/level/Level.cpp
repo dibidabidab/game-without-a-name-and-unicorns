@@ -7,6 +7,7 @@
 #include "Level.h"
 #include "ecs/entity_templates/PlayerEntity.h"
 #include "ecs/entity_templates/LampEntity.h"
+#include "ecs/entity_templates/RopeEntity.h"
 
 void Level::initialize()
 {
@@ -15,6 +16,7 @@ void Level::initialize()
     {
         rooms[i].registerEntityTemplate<PlayerEntity>();
         rooms[i].registerEntityTemplate<LampEntity>();
+        rooms[i].registerEntityTemplate<RopeEntity>();
         rooms[i].initialize(this, i);
     }
 }

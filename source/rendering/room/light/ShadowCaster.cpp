@@ -160,7 +160,7 @@ void ShadowCaster::updateMesh(const LightPoint &light, const vec2 &lightPos)
     shadowMesh->vertBuffer->reuploadVertices(shadowMesh);
 }
 
-void ShadowCaster::updateShadowTexture(const SharedTexture &tileMapTexture)
+void ShadowCaster::updateShadowTexture(const SharedTexture &tileMapTexture, bool tileMapChanged)
 {
     gu::profiler::Zone z("shadow casting");
     fbo.bind();
@@ -186,7 +186,7 @@ void ShadowCaster::updateShadowTexture(const SharedTexture &tileMapTexture)
         }
         i++;
 
-        if (light.shadowTextureIndex == i && light.prevRadius >= light.radius && light.prevPosition == aabb.center)
+        if (!tileMapChanged && light.shadowTextureIndex == i && light.prevRadius >= light.radius && light.prevPosition == aabb.center)
             return;
 
         light.prevRadius = light.radius;

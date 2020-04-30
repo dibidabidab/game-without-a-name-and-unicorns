@@ -54,8 +54,7 @@ void limit(float &x, float camWidth, float roomWidth)
 
 void CameraMovement::update(double deltaTime)
 {
-    vec2 camPos = vec2(cam->position.x, cam->position.y);
-    vec2 target = camPos;
+    vec2 target = vec2(cam->position.x, cam->position.y);
 
     room->entities.view<LocalPlayer, AABB>().each([&](auto, AABB &aabb) {
         target = aabb.center;
@@ -66,6 +65,10 @@ void CameraMovement::update(double deltaTime)
 
     limit(cam->position.x, cam->viewportWidth, room->getMap().width * TileMap::PIXELS_PER_TILE);
     limit(cam->position.y, cam->viewportHeight, room->getMap().height * TileMap::PIXELS_PER_TILE);
+
+    vec2 halfSize(cam->viewportWidth * .5, cam->viewportHeight * .5);
+    ivec2 bottomLeft = vec2(cam->position) - halfSize;
+    cam->position = vec3(vec2(bottomLeft) + halfSize, cam->position.z);
 
     cam->update();
 }

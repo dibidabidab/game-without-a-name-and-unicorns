@@ -26,6 +26,7 @@
 #include "../../level/ecs/components/Light.h"
 #include "light/ShadowCaster.h"
 #include "light/LightMapRenderer.h"
+#include "../../level/ecs/components/VerletRope.h"
 
 class RoomScreen : public Screen
 {
@@ -101,7 +102,7 @@ class RoomScreen : public Screen
         }
         {
             gu::profiler::Zone z("lights & shadows");
-            shadowCaster.updateShadowTexture(tileMapRenderer.fbo.colorTexture);
+            shadowCaster.updateShadowTexture(tileMapRenderer.fbo.colorTexture, !room->getMap().updatesPrevUpdate().empty());
 
             lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
         }
@@ -110,6 +111,8 @@ class RoomScreen : public Screen
             gu::profiler::Zone z("apply palette");
 
             applyPaletteShader.use();
+
+            glUniform2i(applyPaletteShader.location("realResolution"), gu::widthPixels, gu::heightPixels);
 
             auto palettesTexture = palettes.get3DTexture();
             palettesTexture->bind(0);
@@ -125,8 +128,8 @@ class RoomScreen : public Screen
 
     void onResize() override
     {
-        cam.viewportWidth = gu::widthPixels / 3;
-        cam.viewportHeight = gu::heightPixels / 3;
+        cam.viewportWidth = ceil(gu::widthPixels / 3.);
+        cam.viewportHeight = ceil(gu::heightPixels / 3.);
         cam.update();
 
         // create a new framebuffer to render the pixelated scene to:
@@ -165,8 +168,8 @@ class RoomScreen : public Screen
                     roomEditor.update(cam, &room->getMap(), lineRenderer);
                 }
             }
-            ImGui::End();
         }
+        ImGui::End();
         if (renderTiles)
         {
             renderDebugBackground();
@@ -186,6 +189,10 @@ class RoomScreen : public Screen
             auto l = room->entities.try_get<LightPoint>(e);
             if (l)
                 lineRenderer.axes(body.center, l->radius, vec3(1, 1, 0));
+        });
+        room->entities.view<VerletRope>().each([&](VerletRope &rope) {
+            for (int i = 1; i < rope.nrOfPoints; i++)
+                lineRenderer.line(rope.points[i - 1].currentPos, rope.points[i].currentPos, vec3(mu::X));
         });
         lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
 

@@ -33,7 +33,7 @@ class ShadowCaster
 
     void drawDebugLines(const Camera &cam);
 
-    void updateShadowTexture(const SharedTexture &tileMapTexture);
+    void updateShadowTexture(const SharedTexture &tileMapTexture, bool tileMapChanged);
 
 };
 
