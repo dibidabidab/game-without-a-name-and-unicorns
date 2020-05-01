@@ -42,7 +42,12 @@ class EntityInspector
 
   public:
 
-    bool show = true;
+    bool
+        show = true,
+        pickEntity = false,
+        moveEntity = false;
+
+    entt::entity movingEntity = entt::null;
 
     std::vector<std::string> entityTemplates;
     std::string templateToCreate = "";
@@ -56,7 +61,9 @@ class EntityInspector
     void drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
 
   private:
-    void pickEntityGUI(bool &pickEntity, const Camera *cam, DebugLineRenderer &lineRenderer);
+    void pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
+
+    void moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
 
     void drawEntityInspectorGUI(entt::entity e, Inspecting &ins);
 

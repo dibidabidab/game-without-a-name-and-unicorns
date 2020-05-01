@@ -33,10 +33,14 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
 
     gu::profiler::Zone z("entity inspector");
 
-    static bool pickEntity = false;
     if (pickEntity)
     {
-        pickEntityGUI(pickEntity, cam, lineRenderer);
+        pickEntityGUI(cam, lineRenderer);
+        return;
+    }
+    if (moveEntity)
+    {
+        moveEntityGUI(cam, lineRenderer);
         return;
     }
     reg->view<Inspecting>().each([&](auto e, Inspecting &ins) {
@@ -57,7 +61,8 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     if (!open) show = false;
 
     ImGui::Text("%lu entities active", reg->size());
-    pickEntity = ImGui::Button("Pick entity from screen");
+    pickEntity = ImGui::Button("Pick entity from screen (I)") || KeyInput::justPressed(GLFW_KEY_I);
+    moveEntity = ImGui::Button("Move entity (M)") || KeyInput::justPressed(GLFW_KEY_M);
 
     if (ImGui::Button("Create entity"))
         ImGui::OpenPopup("create_entity");
@@ -76,7 +81,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     ImGui::End();
 }
 
-void EntityInspector::pickEntityGUI(bool &pickEntity, const Camera *cam, DebugLineRenderer &lineRenderer)
+void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
 {
     if (KeyInput::justPressed(GLFW_KEY_ESCAPE))
         pickEntity = false;
@@ -104,6 +109,51 @@ void EntityInspector::pickEntityGUI(bool &pickEntity, const Camera *cam, DebugLi
         }
         else box.draw(lineRenderer, mu::X);
     });
+}
+
+void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
+{
+    if (KeyInput::justPressed(GLFW_KEY_ESCAPE))
+        moveEntity = false;
+
+    vec2 p = cam->getCursorRayDirection() + cam->position;
+    bool breakk = false;
+
+    if (movingEntity == entt::null)
+    {
+        lineRenderer.arrows(p, 10, vec3(1, 0, 1));
+
+        reg->view<AABB>().each([&] (entt::entity e, AABB &box) {
+
+            if (box.contains(p) && !breakk)
+            {
+                breakk = true;
+
+                box.draw(lineRenderer, mu::Y);
+
+                ImGui::SetTooltip("hold LMB to move #%d", int(e));
+
+                if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT))
+                    movingEntity = e;
+                return;
+            }
+            else box.draw(lineRenderer, mu::X);
+        });
+
+    }
+    else
+    {
+        lineRenderer.arrows(p, 5, vec3(0, 1, 0));
+        AABB *aabb = reg->try_get<AABB>(movingEntity);
+
+        if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_LEFT) || aabb == NULL)
+        {
+            movingEntity = entt::null;
+            moveEntity = false;
+            return;
+        }
+        aabb->center = p;
+    }
 }
 
 void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
