@@ -103,17 +103,4 @@ using final = Type;
         int prevHash = -123456;\
         END_SERIALIZABLE(component_name)
 
-COMPONENT(
-    // component name:
-    Test,
-
-    // values to calculate hash:
-    HASH(ham, kaas),
-
-    // fields:
-    FIELD_DEF_VAL (int, ham, 2),
-    FIELD         (float, kaas)
-)
-END_COMPONENT(Test)
-
 #endif //GAME_COMPONENT_H

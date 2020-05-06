@@ -9,6 +9,7 @@
 #include "../../room/TileMap.h"
 #include "../../../macro_magic/component.h"
 #include "../systems/networking/NetworkedData.h"
+#include "../EntityReference.h"
 
 /**
  * 2d pixel based Axis Aligned Bounding Box
@@ -43,6 +44,18 @@ COMPONENT(
     bool contains(const vec &p) const
     {
         return p.x >= center.x - halfSize.x && p.x <= center.x + halfSize.x && p.y >= center.y - halfSize.y && p.y <= center.y + halfSize.y;
+    }
+
+    bool overlaps(const AABB &other) const
+    {
+        return
+            other.center.x - other.halfSize.x < center.x + halfSize.x
+            &&
+            other.center.x + other.halfSize.x > center.x - halfSize.x
+            &&
+            other.center.y - other.halfSize.y < center.y + halfSize.y
+            &&
+            other.center.y + other.halfSize.y > center.y - halfSize.y;
     }
 
 END_COMPONENT(AABB)
@@ -126,5 +139,30 @@ COMPONENT(
 
 END_COMPONENT(Physics)
 
+
+COMPONENT(
+    StaticCollider,
+    HASH(0),
+    FIELD(char, _)
+)
+END_COMPONENT(StaticCollider)
+
+COMPONENT(
+    DynamicCollider,
+    HASH(repositionAfterCollision),
+
+    FIELD_DEF_VAL(bool, repositionAfterCollision, true)
+)
+END_COMPONENT(DynamicCollider)
+
+COMPONENT(
+    DistanceConstraint,
+    HASH(maxDistance),
+    FIELD_DEF_VAL(float, maxDistance, 32),
+    // todo add min distance
+
+    FIELD(EntityReference, target)
+)
+END_COMPONENT(DistanceConstraint)
 
 #endif

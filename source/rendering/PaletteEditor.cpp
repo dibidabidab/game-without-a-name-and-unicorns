@@ -71,8 +71,9 @@ bool PaletteEditor::drawPalettes(Palettes3D::Effect &effect)
 
         std::string label = "##" + std::to_string(i);
 
-        char *ptr = new char[32]();
-        memcpy(ptr, &firstName[0], firstName.size());
+        constexpr size_t maxNameLen = 32;
+        char *ptr = new char[maxNameLen]();
+        memcpy(ptr, &firstName[0], min(maxNameLen, firstName.size()));
         if (ImGui::InputText(label.c_str(), ptr, 32))
             firstName = std::string(ptr);
         delete[] ptr;

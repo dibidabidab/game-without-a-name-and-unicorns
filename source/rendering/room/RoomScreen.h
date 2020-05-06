@@ -149,7 +149,7 @@ class RoomScreen : public Screen
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(180, 200), ImGuiCond_FirstUseEver);
 
-        static bool renderTiles = false, renderShadowDebugLines = true;
+        static bool renderTiles = false, renderShadowDebugLines = false;
 
         if (ImGui::Begin("debug tools"))
         {
@@ -191,8 +191,8 @@ class RoomScreen : public Screen
                 lineRenderer.axes(body.center, l->radius, vec3(1, 1, 0));
         });
         room->entities.view<VerletRope>().each([&](VerletRope &rope) {
-            for (int i = 1; i < rope.nrOfPoints; i++)
-                lineRenderer.line(rope.points[i - 1].currentPos, rope.points[i].currentPos, vec3(mu::X));
+            for (int i = 1; i < rope.points.size(); i++)
+                lineRenderer.line(rope.points.at(i - 1).currentPos, rope.points.at(i).currentPos, vec3(mu::X));
         });
         lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
 

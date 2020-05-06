@@ -18,7 +18,7 @@ class VerletPhysicsSystem : public EntitySystem
 
     void init(Room *room) override
     {
-        updateFrequency = 1. / 60.;
+        updateFrequency = 60;
     }
 
     void update(double deltaTime, Room *room) override
@@ -43,9 +43,20 @@ class VerletPhysicsSystem : public EntitySystem
                     p.currentPos = p.prevPos = rope.points[size - 2].currentPos + vec2(0, -segmentLength);
             }
 
+            AABB *endPointAABB = NULL;
+            if (rope.endPointEntity.entity != entt::null)
+                endPointAABB = room->entities.try_get<AABB>(rope.endPointEntity.entity);
+
             for (int i = 0; i < rope.nrOfPoints; i++)
             {
                 auto &p = rope.points[i];
+
+                if (i == rope.nrOfPoints - 1 && endPointAABB)
+                {
+                    if (!rope.fixedEndPoint && ivec2(p.currentPos) != endPointAABB->center)
+                        p.currentPos = endPointAABB->center;
+                }
+
                 vec2 velocity = (p.currentPos - p.prevPos) * vec2(rope.friction);
                 p.prevPos = p.currentPos;
                 p.currentPos += velocity;
@@ -54,29 +65,35 @@ class VerletPhysicsSystem : public EntitySystem
 
             rope.points[0].currentPos = aabb.center;
 
-            for (int i = 0; i < rope.nrOfPoints - 1; i++)
+            for (int j = 0; j < 20; j++)
             {
-                auto &p0 = rope.points[i], &p1 = rope.points[i + 1];
-
-                float dist = length(p0.currentPos - p1.currentPos);
-                float error = abs(dist - segmentLength);
-
-                vec2 changeDir;
-                if (dist > segmentLength)
-                    changeDir = normalize(p0.currentPos - p1.currentPos);
-                else
-                    changeDir = normalize(p1.currentPos - p0.currentPos);
-
-                vec2 change = changeDir * vec2(error);
-
-                if (i == 0)
-                    p1.currentPos += change;
-                else
+                for (int i = 0; i < rope.nrOfPoints - 1; i++)
                 {
-                    p0.currentPos -= change * vec2(.5);
-                    p1.currentPos += change * vec2(.5);
+                    auto &p0 = rope.points[i], &p1 = rope.points[i + 1];
+
+                    float dist = length(p0.currentPos - p1.currentPos);
+                    float error = abs(dist - segmentLength);
+
+                    vec2 changeDir;
+                    if (dist > segmentLength)
+                        changeDir = normalize(p0.currentPos - p1.currentPos);
+                    else
+                        changeDir = normalize(p1.currentPos - p0.currentPos);
+
+                    vec2 change = changeDir * vec2(error);
+
+                    if (i == 0)
+                        p1.currentPos += change;
+                    else
+                    {
+                        p0.currentPos -= change * vec2(.5);
+                        p1.currentPos += change * vec2(.5);
+                    }
                 }
             }
+
+            if (endPointAABB)
+                endPointAABB->center = rope.points.back().currentPos;
         });
         room->entities.view<AttachToRope, AABB>().each([&](AttachToRope &attach, AABB &aabb) {
 

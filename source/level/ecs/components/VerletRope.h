@@ -20,7 +20,10 @@ COMPONENT(
     FIELD_DEF_VAL(float, length, 32),
     FIELD_DEF_VAL(uint8, nrOfPoints, 16),
     FIELD_DEF_VAL(vec2, gravity, ivec2(0, -1)),
-    FIELD_DEF_VAL(float, friction, .999) // magic number. Gives best results imo
+    FIELD_DEF_VAL(float, friction, .999), // magic number. Gives best results imo
+
+    FIELD(EntityReference, endPointEntity),
+    FIELD_DEF_VAL(bool, fixedEndPoint, false)
 )
 
     std::vector<RopePoint> points;

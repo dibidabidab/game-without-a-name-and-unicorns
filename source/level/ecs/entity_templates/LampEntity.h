@@ -12,12 +12,16 @@ class LampEntity : public EntityTemplate
   public:
     entt::entity create() override
     {
-        entt::entity rope = room->getTemplate<RopeEntity>()->create();
+        entt::entity ropeEntity = room->getTemplate<RopeEntity>()->create();
 
         entt::entity e = room->entities.create();
         room->entities.assign<AABB>(e, ivec2(3));
         room->entities.assign<LightPoint>(e);
-        room->entities.assign<AttachToRope>(e, EntityReference{room, rope});
+        room->entities.assign<DynamicCollider>(e);
+
+        VerletRope &rope = room->entities.get<VerletRope>(ropeEntity);
+
+        rope.endPointEntity = {room, e};
 
         return e;
     }
