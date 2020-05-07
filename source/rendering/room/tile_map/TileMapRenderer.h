@@ -28,7 +28,7 @@ class TileMapRenderer
 
     void updateMapTextureIfNeeded();
 
-    void render(Camera &cam);
+    void render(const Camera &cam);
 
     FrameBuffer fbo;
   private:

@@ -27,6 +27,8 @@
 #include "light/ShadowCaster.h"
 #include "light/LightMapRenderer.h"
 #include "../../level/ecs/components/VerletRope.h"
+#include "../MegaSpriteSheet.h"
+#include "../SpriteRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -52,10 +54,14 @@ class RoomScreen : public Screen
     ShadowCaster shadowCaster;
     LightMapRenderer lightMapRenderer;
 
+    const MegaSpriteSheet *spriteSheet;
+    SpriteRenderer spriteRenderer;
+
   public:
 
-    RoomScreen(Room *room, bool showRoomEditor=false)
-        : room(room), showRoomEditor(showRoomEditor),
+    RoomScreen(Room *room, const MegaSpriteSheet *spriteSheet, bool showRoomEditor=false)
+        :
+        room(room), showRoomEditor(showRoomEditor),
         cam(.1, 100, 0, 0),
         camMovement(room, &cam),
         tileMapRenderer(&room->getMap()),
@@ -64,9 +70,13 @@ class RoomScreen : public Screen
         ),
         shadowCaster(room),
         lightMapRenderer(room),
-        inspector(&room->entities)
+        inspector(&room->entities),
+        spriteSheet(spriteSheet),
+        spriteRenderer(spriteSheet)
     {
         assert(room != NULL);
+        assert(spriteSheet != NULL);
+        assert(spriteSheet->texture != NULL);
 
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
@@ -96,6 +106,7 @@ class RoomScreen : public Screen
             glDepthFunc(GL_LESS);
 
             tileMapRenderer.render(cam);
+            spriteRenderer.render(deltaTime, cam, room->entities);
 
             glDisable(GL_DEPTH_TEST);
             indexedFbo->unbind();
@@ -136,7 +147,7 @@ class RoomScreen : public Screen
         delete indexedFbo;
         indexedFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
         indexedFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
-        indexedFbo->addDepthTexture(GL_NEAREST, GL_NEAREST);
+        indexedFbo->addDepthBuffer();
     }
 
     void renderDebugStuff()

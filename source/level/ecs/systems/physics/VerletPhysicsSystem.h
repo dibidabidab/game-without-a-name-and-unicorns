@@ -44,8 +44,8 @@ class VerletPhysicsSystem : public EntitySystem
             }
 
             AABB *endPointAABB = NULL;
-            if (rope.endPointEntity.entity != entt::null)
-                endPointAABB = room->entities.try_get<AABB>(rope.endPointEntity.entity);
+            if (rope.endPointEntity != entt::null)
+                endPointAABB = room->entities.try_get<AABB>(rope.endPointEntity);
 
             for (int i = 0; i < rope.nrOfPoints; i++)
             {
@@ -53,7 +53,7 @@ class VerletPhysicsSystem : public EntitySystem
 
                 if (i == rope.nrOfPoints - 1 && endPointAABB)
                 {
-                    if (!rope.fixedEndPoint && ivec2(p.currentPos) != endPointAABB->center)
+                    if (ivec2(p.currentPos) != endPointAABB->center)
                         p.currentPos = endPointAABB->center;
                 }
 
@@ -92,15 +92,15 @@ class VerletPhysicsSystem : public EntitySystem
                 }
             }
 
-            if (endPointAABB)
+            if (endPointAABB && !rope.fixedEndPoint)
                 endPointAABB->center = rope.points.back().currentPos;
         });
         room->entities.view<AttachToRope, AABB>().each([&](AttachToRope &attach, AABB &aabb) {
 
-            if (attach.ropeEntity.entity == entt::null)
+            if (attach.ropeEntity == entt::null)
                 return;
 
-            VerletRope *rope = room->entities.try_get<VerletRope>(attach.ropeEntity.entity);
+            VerletRope *rope = room->entities.try_get<VerletRope>(attach.ropeEntity);
             if (!rope)
                 return;
 

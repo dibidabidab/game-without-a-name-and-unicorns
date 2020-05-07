@@ -51,7 +51,7 @@ void LightMapRenderer::render(const Camera &cam, const SharedTexture &shadowText
     lightsData.vertices.clear();
     room->entities.view<AABB, LightPoint>().each([&](AABB &aabb, LightPoint &light) {
 
-        lightsData.vertices.resize(lightsData.vertices.size() + lightsData.attributes.getVertSize());
+        lightsData.addVertices(1);
 
         lightsData.set<vec2>(aabb.center, i, 0);
         lightsData.set<float>(light.radius, i, sizeof(vec2));

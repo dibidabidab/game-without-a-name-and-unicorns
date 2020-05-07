@@ -9,7 +9,6 @@
 #include "../../room/TileMap.h"
 #include "../../../macro_magic/component.h"
 #include "../systems/networking/NetworkedData.h"
-#include "../EntityReference.h"
 
 /**
  * 2d pixel based Axis Aligned Bounding Box
@@ -161,7 +160,7 @@ COMPONENT(
     FIELD_DEF_VAL(float, maxDistance, 32),
     // todo add min distance
 
-    FIELD(EntityReference, target)
+    FIELD_DEF_VAL(entt::entity, target, entt::null)
 )
 END_COMPONENT(DistanceConstraint)
 

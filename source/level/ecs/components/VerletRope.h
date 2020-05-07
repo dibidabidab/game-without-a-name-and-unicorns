@@ -3,7 +3,6 @@
 #define GAME_VERLETROPE_H
 
 #include "../../../macro_magic/component.h"
-#include "../EntityReference.h"
 
 #include <vector>
 
@@ -22,7 +21,7 @@ COMPONENT(
     FIELD_DEF_VAL(vec2, gravity, ivec2(0, -1)),
     FIELD_DEF_VAL(float, friction, .999), // magic number. Gives best results imo
 
-    FIELD(EntityReference, endPointEntity),
+    FIELD_DEF_VAL(entt::entity, endPointEntity, entt::null),
     FIELD_DEF_VAL(bool, fixedEndPoint, false)
 )
 
@@ -32,9 +31,9 @@ END_COMPONENT(VerletRope)
 
 COMPONENT(
     AttachToRope,
-    HASH(ropeEntity.entity),
+    HASH(ropeEntity),
 
-    FIELD(EntityReference, ropeEntity),
+    FIELD_DEF_VAL(entt::entity, ropeEntity, entt::null),
     FIELD_DEF_VAL(float, x, 1) // where along the rope the entity should stick to. 0 = start, 1 = end
 )
 END_COMPONENT(AttachToRope)

@@ -85,7 +85,7 @@ void TileMapRenderer::updateMapTextureIfNeeded()
         createMapTexture();
 }
 
-void TileMapRenderer::render(Camera &cam)
+void TileMapRenderer::render(const Camera &cam)
 {
     gu::profiler::Zone z("tilemap render");
 

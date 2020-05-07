@@ -72,7 +72,7 @@ class PhysicsSystem : public EntitySystem
 
     void updateDistanceConstraint(AABB &aabb, const DistanceConstraint &constraint)
     {
-        const AABB *targetAABB = room->entities.try_get<AABB>(constraint.target.entity);
+        const AABB *targetAABB = room->entities.try_get<AABB>(constraint.target);
         if (!targetAABB)
             return;
 

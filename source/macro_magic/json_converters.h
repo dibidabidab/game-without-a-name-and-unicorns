@@ -3,6 +3,7 @@
 #define GAME_JSON_CONVERTERS_H
 
 #include <utils/math_utils.h>
+#include <asset_manager/asset.h>
 #include <json.hpp>
 
 namespace nlohmann {
@@ -17,6 +18,21 @@ namespace nlohmann {
         static void from_json(const json& j, glm::vec<len, type, something>& v) {
             for (int i = 0; i < len; i++)
                 v[i] = j.at(i);
+        }
+    };
+}
+
+namespace nlohmann {
+    template <typename type>
+    struct adl_serializer<asset<type>> {
+        static void to_json(json& j, const asset<type>& v) {
+            if (v.isSet())
+                j = v.getLoadedAsset().shortPath;
+        }
+
+        static void from_json(const json& j, asset<type>& v) {
+            if (!j.is_null())
+                v.set(j);
         }
     };
 }

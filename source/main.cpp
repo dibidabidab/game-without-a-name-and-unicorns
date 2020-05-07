@@ -10,6 +10,7 @@
 #include "multiplayer/session/MultiplayerServerSession.h"
 #include "ImGuiStyle.h"
 #include "rendering/Palette.h"
+#include "rendering/MegaSpriteSheet.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {
@@ -67,9 +68,18 @@ int main(int argc, char *argv[])
     watcher.startWatchingAsync();
     #endif
 
+    MegaSpriteSheet spriteSheet;
+
     AssetManager::addAssetLoader<TileSet>(".tileset.ase", [](auto path) {
 
         return new TileSet(path.c_str());
+    });
+    AssetManager::addAssetLoader<aseprite::Sprite>(".ase", [&](auto path) {
+
+        auto sprite = new aseprite::Sprite;
+        aseprite::Loader(path.c_str(), *sprite);
+        spriteSheet.add(*sprite);
+        return sprite;
     });
     AssetManager::addAssetLoader<std::string>(".frag|.vert", [](auto path) {
 
@@ -160,7 +170,7 @@ int main(int argc, char *argv[])
                 return;
             delete roomScreen;
             std::cout << "Player entered room. Show RoomScreen\n";
-            roomScreen = new RoomScreen(room, mpSession->isServer());
+            roomScreen = new RoomScreen(room, &spriteSheet, mpSession->isServer());
             gu::setScreen(roomScreen);
         };
     };
