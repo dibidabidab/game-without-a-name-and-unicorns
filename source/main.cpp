@@ -10,7 +10,7 @@
 #include "multiplayer/session/MultiplayerServerSession.h"
 #include "ImGuiStyle.h"
 #include "rendering/Palette.h"
-#include "rendering/MegaSpriteSheet.h"
+#include "rendering/sprites/MegaSpriteSheet.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {

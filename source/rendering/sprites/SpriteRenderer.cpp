@@ -1,6 +1,6 @@
 
 #include "SpriteRenderer.h"
-#include "../level/ecs/components/Physics.h"
+#include "../../level/ecs/components/Physics.h"
 #include <graphics/3d/vert_buffer.h>
 
 SpriteRenderer::SpriteRenderer(const MegaSpriteSheet *s)
@@ -22,6 +22,8 @@ SpriteRenderer::SpriteRenderer(const MegaSpriteSheet *s)
 
 void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry &reg)
 {
+    gu::profiler::Zone z("sprites render");
+
     instancedData.vertices.clear();
 
     int i = 0;
@@ -41,12 +43,18 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
 
         instancedData.addVertices(1);
 
-        instancedData.set<vec3>(vec3(aabb.center, view.zIndex), i, 0);
+        ivec2 position = aabb.bottomLeft();
+        position += view.originAlign * vec2(-view.sprite->width, -view.sprite->height);
+        position += view.aabbAlign * vec2(aabb.halfSize * 2);
+
+        instancedData.set<vec3>(vec3(position, view.zIndex), i, 0);
         instancedData.set<vec2>(vec2(view.sprite->width, view.sprite->height), i, sizeof(vec3));
         instancedData.set<vec2>(frameOffset, i, sizeof(vec3) + sizeof(vec2));
 
         i++;
     });
+    gu::profiler::Zone z2("draw calls");
+
     instancedDataID = quad->vertBuffer->uploadPerInstanceData(instancedData, 1, instancedDataID);
 
     shader.use();
@@ -60,8 +68,6 @@ void SpriteRenderer::updateAnimation(AsepriteView &view, double deltaTime)
 {
     if (!view.paused)
         view.frameTimer += deltaTime;
-
-    aseprite::Sprite &s = view.sprite.get();
 
     const auto *frame = &view.sprite->frames.at(view.frame);
 

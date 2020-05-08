@@ -28,10 +28,11 @@ namespace nlohmann {
         static void to_json(json& j, const asset<type>& v) {
             if (v.isSet())
                 j = v.getLoadedAsset().shortPath;
+            else j = "";
         }
 
         static void from_json(const json& j, asset<type>& v) {
-            if (!j.is_null())
+            if (!j.empty())
                 v.set(j);
         }
     };

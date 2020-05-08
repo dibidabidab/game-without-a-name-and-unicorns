@@ -7,8 +7,8 @@
 #include <graphics/camera.h>
 #include <graphics/shader_asset.h>
 #include "MegaSpriteSheet.h"
-#include "../../entt/src/entt/entity/registry.hpp"
-#include "../level/ecs/components/AsepriteView.h"
+#include "../../../entt/src/entt/entity/registry.hpp"
+#include "../../level/ecs/components/AsepriteView.h"
 
 class SpriteRenderer
 {

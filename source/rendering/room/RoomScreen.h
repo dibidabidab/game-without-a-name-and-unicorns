@@ -27,8 +27,9 @@
 #include "light/ShadowCaster.h"
 #include "light/LightMapRenderer.h"
 #include "../../level/ecs/components/VerletRope.h"
-#include "../MegaSpriteSheet.h"
-#include "../SpriteRenderer.h"
+#include "../sprites/MegaSpriteSheet.h"
+#include "../sprites/SpriteRenderer.h"
+#include "../PolylineRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -56,6 +57,8 @@ class RoomScreen : public Screen
 
     const MegaSpriteSheet *spriteSheet;
     SpriteRenderer spriteRenderer;
+
+    PolylineRenderer polylineRenderer;
 
   public:
 
@@ -107,6 +110,7 @@ class RoomScreen : public Screen
 
             tileMapRenderer.render(cam);
             spriteRenderer.render(deltaTime, cam, room->entities);
+            polylineRenderer.render(room->entities, cam);
 
             glDisable(GL_DEPTH_TEST);
             indexedFbo->unbind();
@@ -160,12 +164,13 @@ class RoomScreen : public Screen
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(180, 200), ImGuiCond_FirstUseEver);
 
-        static bool renderTiles = false, renderShadowDebugLines = false;
+        static bool renderTiles = false, renderShadowDebugLines = false, renderHitboxes = true;
 
         if (ImGui::Begin("debug tools"))
         {
             ImGui::Checkbox("render debug-tiles", &renderTiles);
             ImGui::Checkbox("render shadow-debug-lines", &renderShadowDebugLines);
+            ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
 
@@ -189,23 +194,22 @@ class RoomScreen : public Screen
 
         lineRenderer.scale = 1;
 
-        room->entities.view<AABB>().each([&](auto e, AABB &body) {
+        if (renderHitboxes)
+        {
+            room->entities.view<AABB>().each([&](auto e, AABB &body) {
 
-            auto p = room->entities.try_get<Physics>(e);
-            if (p)
-                p->draw(body, lineRenderer, mu::X);
-            else
-                body.draw(lineRenderer, mu::X);
-
-            auto l = room->entities.try_get<LightPoint>(e);
-            if (l)
-                lineRenderer.axes(body.center, l->radius, vec3(1, 1, 0));
-        });
-        room->entities.view<VerletRope>().each([&](VerletRope &rope) {
-            for (int i = 1; i < rope.points.size(); i++)
-                lineRenderer.line(rope.points.at(i - 1).currentPos, rope.points.at(i).currentPos, vec3(mu::X));
-        });
-        lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
+                auto p = room->entities.try_get<Physics>(e);
+                if (p)
+                    p->draw(body, lineRenderer, mu::X);
+                else
+                    body.draw(lineRenderer, mu::X);
+            });
+            room->entities.view<VerletRope>().each([&](VerletRope &rope) {
+                for (int i = 1; i < rope.points.size(); i++)
+                    lineRenderer.line(rope.points.at(i - 1).currentPos, rope.points.at(i).currentPos, vec3(mu::X));
+            });
+            lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
+        }
 
         inspector.entityTemplates = room->getTemplateNames();
         inspector.drawGUI(&cam, lineRenderer);

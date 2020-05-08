@@ -19,4 +19,6 @@ void main()
     }
 
     indexedColor = texture(mapTexture, v_texCoords).r;
+    if (indexedColor == 0u)
+        discard;
 }

@@ -7,6 +7,7 @@
 #include "../components/Light.h"
 #include "RopeEntity.h"
 #include "../components/AsepriteView.h"
+#include "../components/DrawPolyline.h"
 
 class LampEntity : public EntityTemplate
 {
@@ -23,6 +24,7 @@ class LampEntity : public EntityTemplate
         room->entities.assign<DynamicCollider>(e);
 
         room->entities.get<VerletRope>(ropeEntity).endPointEntity = e;
+        room->entities.assign<DrawPolyline>(ropeEntity, std::vector<uint8>{4u});
 
         return e;
     }
