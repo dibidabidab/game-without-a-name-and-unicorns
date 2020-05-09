@@ -66,6 +66,8 @@ class PhysicsSystem : public EntitySystem
         room->entities.view<AABB, DistanceConstraint>().each([&](AABB &aabb, const DistanceConstraint &constraint) {
             updateDistanceConstraint(aabb, constraint);
         });
+
+        delete collisionDetector;
     }
 
   private:

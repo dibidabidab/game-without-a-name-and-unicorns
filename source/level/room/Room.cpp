@@ -7,6 +7,7 @@
 #include "../ecs/systems/networking/NetworkingSystem.h"
 #include "../ecs/systems/PlayerControlSystem.h"
 #include "../ecs/systems/physics/VerletPhysicsSystem.h"
+#include "../ecs/systems/LegsSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -24,6 +25,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new PhysicsSystem("physics"));
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
     systems.push_front(new PlayerControlSystem("player control"));
+    systems.push_front(new LegsSystem("legs"));
 
     for (auto sys : systems) sys->init(this);
     initialized = true;

@@ -27,7 +27,7 @@ TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignore
  * @param p0    Should have smallest x and y
  * @param p1    Should have biggest x and y
  */
-bool lineIntersectsWithFullBlock(const ivec2 &p0, const ivec2 &p1, TileMap *map)
+bool lineIntersectsWithFullBlock(const ivec2 &p0, const ivec2 &p1, const TileMap *map)
 {
     bool col = false;
     map->loopThroughTiles(p0, p1, [&](ivec2 t, Tile tile) {
@@ -40,7 +40,7 @@ bool lineIntersectsWithFullBlock(const ivec2 &p0, const ivec2 &p1, TileMap *map)
  * Checks if point p overlaps a slope
  * @param slopeType     Type of slope to check for
  */
-bool pointOnSlope(const ivec2 &p, TileMap *map, Tile slopeType)
+bool pointOnSlope(const ivec2 &p, const TileMap *map, Tile slopeType)
 {
     int
         tileX = p.x / TileMap::PIXELS_PER_TILE,

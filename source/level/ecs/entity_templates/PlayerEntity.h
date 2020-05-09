@@ -9,6 +9,7 @@
 #include "../components/Networked.h"
 #include "../components/PlayerControlled.h"
 #include "../components/Light.h"
+#include "../components/Leg.h"
 
 class PlayerEntity : public EntityTemplate
 {
@@ -18,10 +19,22 @@ class PlayerEntity : public EntityTemplate
         entt::entity e = room->entities.create();
 
         room->entities.assign<Physics>(e);
-        room->entities.assign<AABB>(e, ivec2(5, 13), ivec2(32, 52));
+        room->entities.assign<AABB>(e, ivec2(3, 13), ivec2(32, 52));
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<PlatformerMovement>(e);
-        room->entities.assign<LightPoint>(e);
+
+        float legLength = 16;
+
+        entt::entity legEntities[2] = {room->entities.create(), room->entities.create()};
+
+        for (int i = 0; i < 2; i++)
+        {
+            auto opposite = legEntities[i == 0 ? 1 : 0];
+
+            room->entities.assign<Leg>(legEntities[i], legLength, e, e, 16.f, i == 0 ? -4 : 4, opposite);
+            room->entities.assign<AABB>(legEntities[i], ivec2(1), ivec2(32));
+        }
+
         return e;
     }
 

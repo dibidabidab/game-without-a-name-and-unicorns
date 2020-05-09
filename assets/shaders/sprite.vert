@@ -13,7 +13,7 @@ out vec2 v_texCoords;
 
 void main()
 {
-    v_texCoords = a_pos * spriteSize + textureOffset;
+    v_texCoords = vec2(a_pos.x, 1. - a_pos.y) * spriteSize + textureOffset;
 
     gl_Position = projection * vec4(vec3(a_pos * spriteSize, 0) + spritePos, 1);
 }

@@ -26,10 +26,10 @@ struct TerrainCollisions
 // TODO, bug: when Tile::slope_up and Tile::slope_down are placed next to each other -> player can fall through them
 class TerrainCollisionDetector
 {
-    TileMap *map;
+    const TileMap *map;
 
   public:
-    explicit TerrainCollisionDetector(TileMap &map) : map(&map) {};
+    explicit TerrainCollisionDetector(const TileMap &map) : map(&map) {};
 
     /**
      * Detects collisions with the terrain.

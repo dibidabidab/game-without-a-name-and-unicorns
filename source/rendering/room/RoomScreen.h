@@ -30,6 +30,7 @@
 #include "../sprites/MegaSpriteSheet.h"
 #include "../sprites/SpriteRenderer.h"
 #include "../PolylineRenderer.h"
+#include "../../level/ecs/components/Leg.h"
 
 class RoomScreen : public Screen
 {
@@ -209,6 +210,10 @@ class RoomScreen : public Screen
                     lineRenderer.line(rope.points.at(i - 1).currentPos, rope.points.at(i).currentPos, vec3(mu::X));
             });
             lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
+
+            room->entities.view<Leg>().each([&](Leg &leg) {
+                lineRenderer.axes(leg.target, 4, leg.moving ? mu::Y : mu::X);
+            });
         }
 
         inspector.entityTemplates = room->getTemplateNames();
