@@ -211,8 +211,13 @@ class RoomScreen : public Screen
             });
             lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
 
-            room->entities.view<Leg>().each([&](Leg &leg) {
+            room->entities.view<Leg, AABB>().each([&](Leg &leg, AABB &aabb) {
                 lineRenderer.axes(leg.target, 4, leg.moving ? mu::Y : mu::X);
+
+                auto body = room->entities.try_get<AABB>(leg.body);
+
+                if (body)
+                    lineRenderer.line(aabb.center, body->center + leg.anchor, mu::X + mu::Z);
             });
         }
 

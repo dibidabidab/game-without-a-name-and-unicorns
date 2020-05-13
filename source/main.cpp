@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
     };
 
     gu::beforeRender = [&](double deltaTime) {
-        mpSession->update(deltaTime);
+        mpSession->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .1 : deltaTime);
         if (KeyInput::justPressed(GLFW_KEY_F11))
             gu::fullscreen = !gu::fullscreen;
 

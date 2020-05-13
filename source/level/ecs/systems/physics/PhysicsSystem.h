@@ -30,6 +30,9 @@ class PhysicsSystem : public EntitySystem
 
             updatePosition(physics, body, deltaTime);
             updateVelocity(physics, deltaTime);
+
+            if (!physics.touches.floor && physics.prevTouched.floor)
+                std::cout << "woh\n";
         });
 
         auto staticColliders = room->entities.view<AABB, StaticCollider>();

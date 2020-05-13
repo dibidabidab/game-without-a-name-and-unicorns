@@ -21,11 +21,11 @@ void Room::initialize(Level *lvl, int roomI_)
 
     level = lvl;
     roomI = roomI_;
+    systems.push_front(new LegsSystem("legs"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
     systems.push_front(new PhysicsSystem("physics"));
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
     systems.push_front(new PlayerControlSystem("player control"));
-    systems.push_front(new LegsSystem("legs"));
 
     for (auto sys : systems) sys->init(this);
     initialized = true;

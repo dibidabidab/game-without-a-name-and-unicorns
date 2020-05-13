@@ -8,15 +8,15 @@ COMPONENT(
     Leg,
     HASH(0),
     FIELD_DEF_VAL(float, length, 24),
-    FIELD_DEF_VAL(entt::entity, anchor, entt::null),
     FIELD_DEF_VAL(entt::entity, body, entt::null),
-    FIELD_DEF_VAL(float, stepSize, 16),
-
+    FIELD_DEF_VAL(ivec2, anchor, ivec2(0)),
     FIELD_DEF_VAL(int, idleXPos, 0),
 
     FIELD_DEF_VAL(entt::entity, oppositeLeg, entt::null),
 
-    FIELD_DEF_VAL(float, idleStepSpeed, 50)
+    FIELD_DEF_VAL(float, stepSize, 16),
+    FIELD_DEF_VAL(float, stepArcAngle, 72),
+    FIELD_DEF_VAL(float, idleStepSpeed, 65)
 )
 
     vec2 target = vec2(0);
