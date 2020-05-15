@@ -31,6 +31,7 @@
 #include "../sprites/SpriteRenderer.h"
 #include "../PolylineRenderer.h"
 #include "../../level/ecs/components/Leg.h"
+#include "../../level/ecs/components/KneeJoint.h"
 
 class RoomScreen : public Screen
 {
@@ -213,14 +214,33 @@ class RoomScreen : public Screen
             lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
         }
 
-        if (debugLegs) room->entities.view<Leg, AABB>().each([&](Leg &leg, AABB &aabb) {
-            lineRenderer.axes(leg.target, 4, leg.moving ? mu::Y : (leg.shouldBeMoving ? mu::Y + mu::X : mu::X));
+        if (debugLegs)
+        {
+            room->entities.view<Leg, AABB>().each([&](Leg &leg, AABB &aabb) {
+                lineRenderer.axes(leg.target, 4, leg.moving ? mu::Y : (leg.shouldBeMoving ? mu::Y + mu::X : mu::X));
 
-            auto body = room->entities.try_get<AABB>(leg.body);
+                auto body = room->entities.try_get<AABB>(leg.body);
 
-            if (body)
-                lineRenderer.line(aabb.center, body->center + leg.anchor, mu::X + mu::Z);
-        });
+                if (body)
+                    lineRenderer.axes(body->center + leg.anchor, 2, mu::Z);
+            });
+
+            room->entities.view<KneeJoint, AABB>().each([&](const KneeJoint &knee, AABB &aabb) {
+
+                AABB
+                    *hip = room->entities.try_get<AABB>(knee.hipJointEntity),
+                    *foot = room->entities.try_get<AABB>(knee.footEntity);
+
+                Leg *leg = room->entities.try_get<Leg>(knee.footEntity);
+
+                if (!hip || !foot || !leg)
+                    return;
+
+                lineRenderer.line(hip->center, aabb.center, mu::X + mu::Z);
+                lineRenderer.line(foot->center, aabb.center, mu::X + mu::Z);
+            });
+        }
+
 
         inspector.entityTemplates = room->getTemplateNames();
         inspector.drawGUI(&cam, lineRenderer);

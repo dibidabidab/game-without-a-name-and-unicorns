@@ -10,6 +10,10 @@
 #include "../components/PlayerControlled.h"
 #include "../components/Light.h"
 #include "../components/Leg.h"
+#include "../components/SpriteBobbing.h"
+#include "../components/AsepriteView.h"
+#include "../components/SpriteAnchor.h"
+#include "../components/KneeJoint.h"
 
 class PlayerEntity : public EntityTemplate
 {
@@ -25,7 +29,10 @@ class PlayerEntity : public EntityTemplate
 
         float legLength = 16;
 
-        entt::entity legEntities[2] = {room->entities.create(), room->entities.create()};
+        std::vector<entt::entity> legEntities{room->entities.create(), room->entities.create()};
+
+        entt::entity legAnchors[2] = {room->entities.create(), room->entities.create()};
+        entt::entity knees[2] = {room->entities.create(), room->entities.create()};
 
         for (int i = 0; i < 2; i++)
         {
@@ -33,7 +40,17 @@ class PlayerEntity : public EntityTemplate
 
             room->entities.assign<Leg>(legEntities[i], legLength, e, ivec2(i == 0 ? -3 : 3, 0), i == 0 ? -2 : 2, opposite, 17.f);
             room->entities.assign<AABB>(legEntities[i], ivec2(1), ivec2(32));
+
+
+            room->entities.assign<AABB>(legAnchors[i], ivec2(1), ivec2(0));
+            room->entities.assign<SpriteAnchor>(legAnchors[i], e, i == 0 ? "leg_left" : "leg_right");
+
+            room->entities.assign<AABB>(knees[i], ivec2(1), ivec2(0));
+            room->entities.assign<KneeJoint>(knees[i], legAnchors[i], legEntities[i]);
         }
+
+        room->entities.assign<SpriteBobbing>(e, legEntities);
+        room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/player_body"));
 
         return e;
     }

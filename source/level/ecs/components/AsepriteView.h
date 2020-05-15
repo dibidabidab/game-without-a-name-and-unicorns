@@ -3,6 +3,7 @@
 #define GAME_ASEPRITEVIEW_H
 
 #include "../../../macro_magic/component.h"
+#include "Physics.h"
 #include <utils/aseprite/Aseprite.h>
 #include <asset_manager/asset.h>
 
@@ -40,6 +41,14 @@ COMPONENT(
             }
             i++;
         }
+    }
+
+    ivec2 getDrawPosition(const AABB &aabb) const
+    {
+        ivec2 position = aabb.bottomLeft();
+        position += originAlign * vec2(-sprite->width, -sprite->height);
+        position += aabbAlign * vec2(aabb.halfSize * 2);
+        return position;
     }
 
 END_COMPONENT(AsepriteView)

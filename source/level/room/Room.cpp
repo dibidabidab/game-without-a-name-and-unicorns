@@ -8,6 +8,9 @@
 #include "../ecs/systems/PlayerControlSystem.h"
 #include "../ecs/systems/physics/VerletPhysicsSystem.h"
 #include "../ecs/systems/LegsSystem.h"
+#include "../ecs/systems/SpriteBobbingSystem.h"
+#include "../ecs/systems/SpriteAnchorSystem.h"
+#include "../ecs/systems/KneeJointSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -21,6 +24,9 @@ void Room::initialize(Level *lvl, int roomI_)
 
     level = lvl;
     roomI = roomI_;
+    systems.push_front(new KneeJointSystem("knee joints"));
+    systems.push_front(new SpriteAnchorSystem("sprite anchors"));
+    systems.push_front(new SpriteBobbingSystem("sprite bobbing"));
     systems.push_front(new LegsSystem("legs"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
     systems.push_front(new PhysicsSystem("physics"));
@@ -35,6 +41,9 @@ void Room::update(double deltaTime)
 {
     if (!initialized)
         throw gu_err("Cannot update non-initialized Room!");
+
+    gu::profiler::Zone roomZone("room " + std::to_string(getIndexInLevel()));
+
     for (auto sys : systems)
     {
         if (sys->disabled) continue;

@@ -43,9 +43,7 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
 
         instancedData.addVertices(1);
 
-        ivec2 position = aabb.bottomLeft();
-        position += view.originAlign * vec2(-view.sprite->width, -view.sprite->height);
-        position += view.aabbAlign * vec2(aabb.halfSize * 2);
+        ivec2 position = view.getDrawPosition(aabb);
 
         instancedData.set<vec3>(vec3(position, view.zIndex), i, 0);
         instancedData.set<vec2>(vec2(view.sprite->width, view.sprite->height), i, sizeof(vec3));
