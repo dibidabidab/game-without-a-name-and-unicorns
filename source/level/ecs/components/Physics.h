@@ -117,6 +117,8 @@ COMPONENT(
 
     TerrainCollisions touches, prevTouched;
 
+    float airTime = 0;
+
     // used by PhysicsSystem:
     vec2 velocityAccumulator;
 

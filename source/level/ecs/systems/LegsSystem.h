@@ -12,6 +12,8 @@ class LegsSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;
 
+    constexpr static float MIN_JUMP_TIME = .1;
+
   protected:
     Room *room;
 
@@ -29,11 +31,22 @@ class LegsSystem : public EntitySystem
             }
             setTarget(leg, footAABB, *bodyAABB, *bodyPhysics);
 
+            if (bodyPhysics->touches.floor && !bodyPhysics->prevTouched.floor && bodyPhysics->airTime > MIN_JUMP_TIME)
+                leg.stopMoving();
+
             if (leg.moving)
                 moveLeg(leg, footAABB, *bodyAABB, *bodyPhysics, deltaTime);
             else
-                startMovingIfNeeded(leg, footAABB, *bodyPhysics);
+                startMovingIfNeeded(leg, footAABB, *bodyPhysics, deltaTime);
+
+            leg.prevBodyPos = bodyAABB->center;
+            leg.prevBodyVelocity = bodyPhysics->velocity;
         });
+    }
+
+    bool isJumping(const Physics &body)
+    {
+        return !body.touches.floor && (body.velocity.y > 0 || body.airTime > MIN_JUMP_TIME);
     }
 
     void setTarget(
@@ -48,11 +61,11 @@ class LegsSystem : public EntitySystem
 
         vec2 prevTarget = leg.target;
 
-        if (bodyPhysics.touches.floor)
+        if (!isJumping(bodyPhysics))
         {
             if (bodyPhysics.velocity.x == 0) // standing still
             {
-                for (int y = 0; y < 4; y++)
+                for (int y = 0; y < 8; y++)
                 {
                     leg.target = bodyAABB.center + leg.anchor;
                     leg.target.x += leg.idleXPos;
@@ -65,16 +78,17 @@ class LegsSystem : public EntitySystem
                         break;
                 }
 
-                leg.maxDistToTarget = 3;
+                leg.maxDistToTarget = 5;
             }
             else    // walking
             {
                 int dir = bodyPhysics.velocity.x < 0 ? -1 : 1;
 
-                for (float angle = 10; angle <= 90; angle += 2)
+                for (float angle = 0; angle <= 90; angle++)
                 {
-                    leg.target = bodyAABB.center + leg.anchor;
-                    leg.target += rotate(vec2(dir * leg.length, 0), dir * -angle * mu::DEGREES_TO_RAD);
+                    leg.target = rotate(vec2(dir * leg.length, 0), dir * -angle * mu::DEGREES_TO_RAD);
+                    leg.target.x *= .8;
+                    leg.target += bodyAABB.center + leg.anchor;
 
                     tempFoot.center = leg.target;
 
@@ -91,7 +105,7 @@ class LegsSystem : public EntitySystem
         else // in air:
         {
             leg.target = bodyAABB.center + leg.anchor;
-            leg.target.y -= leg.length;
+            leg.target.y = bodyAABB.bottomRight().y;
 
             int dir = bodyPhysics.velocity.x < 0 ? -1 : 1;
             bool retract = leg.anchor.x * dir < 0;
@@ -110,112 +124,153 @@ class LegsSystem : public EntitySystem
         }
     }
 
-    void startMovingIfNeeded(Leg &leg, const AABB &footAABB, const Physics &body)
+    void startMovingIfNeeded(Leg &leg, const AABB &footAABB, const Physics &body, float deltaTime)
     {
-        float distToTarget = length(leg.target - vec2(footAABB.center));
-        if (distToTarget > leg.maxDistToTarget) // foot is too far away from target.
-        {
-            Leg *opposite = room->entities.try_get<Leg>(leg.oppositeLeg);
+        leg.shouldBeMoving = false;
 
-            // check if opposite leg is currently moving. If so, this leg might have to wait.
-            if (body.touches.floor && opposite && opposite->moving
+        float dist = length(vec2(footAABB.center) - leg.target);
 
-                && (distToTarget < leg.maxDistToTarget * 1.5 || leg.maxDistToTarget == 0)
-            )
-            {
-                if (opposite->distToTargetBeforeMoving < distToTarget && leg.timeSinceStartedMoving == 0.)
-                {
-                    opposite->moving = false;
-                }
-                else return;
+        bool justStartedWalking = leg.prevBodyVelocity.x == 0 && body.velocity.x != 0;
+
+        bool justLanded = !body.prevTouched.floor && body.touches.floor && body.airTime > MIN_JUMP_TIME;
+
+        if (dist < leg.maxDistToTarget && !justStartedWalking && !justLanded)
+            return;
+
+        // foot is too far away from target and should start moving.
+        leg.shouldBeMoving = true;
+
+        Leg *oppositeLeg = room->entities.try_get<Leg>(leg.oppositeLeg);
+        if (oppositeLeg && oppositeLeg->moving && body.touches.floor)
+        {   /**
+             * the opposite leg is already 'walking'.
+             * 3 things can happen now:
+             * - let the opposite leg stop moving and let this leg start moving
+             * - just start moving because distance to target is just too large
+             * - let the opposite leg move faster, so this leg can start moving earlier
+             */
+
+            // option 1:
+            if ((oppositeLeg->timeSinceStartedMoving == 0 || justLanded) && oppositeLeg->distToTargetBeforeMoving < dist)
+                oppositeLeg->stopMoving();
+
+            // option 2:
+            else if (dist > leg.maxDistToTarget * 1.5)
+            {} // do nothing. Leg will start moving.
+
+            // option 3:
+            else {
+                oppositeLeg->oppositeLegWaiting += deltaTime;
+                return; // return to make this leg wait.
             }
-
-            leg.timeSinceStartedMoving = 0;
-            leg.moving = true;
-            leg.distToTargetBeforeMoving = distToTarget;
         }
+
+        // start moving leg:
+        leg.moving = true;
+        leg.distToTargetBeforeMoving = dist;
     }
 
     void moveLeg(Leg &leg, AABB &footAABB, const AABB &bodyAABB, const Physics &bodyPhysics, float deltaTime)
     {
-        vec2 move(0);
-        if (bodyPhysics.touches.floor)
-        {
-            if (!bodyPhysics.prevTouched.floor)
-            {
-                leg.moving = false;
-                return;
-            }
-
-            // step with arc
-            move = moveFootWithArc(leg, footAABB, bodyAABB, bodyPhysics, deltaTime);
-        }
-        else // in air.
-        {
-            // just move foot towards target
-            vec2 dir = leg.target - vec2(footAABB.center);
-            float dist = length(dir);
-            if (dist != 0)
-            {
-                dir /= dist;
-
-                float speed = 30;
-                move = dir * speed * deltaTime;
-                move += bodyPhysics.velocity * deltaTime;
-            }
-            move += leg.moveAccumulator;
-        }
-        ivec2 moveInt = move;
-        // store remains for next time:
-        leg.moveAccumulator = move - vec2(moveInt);
-
-        footAABB.center += moveInt;
-
-        // limit y pos of foot:
-        footAABB.center.y = min(footAABB.center.y, bodyAABB.center.y + leg.anchor.y);
-
         leg.timeSinceStartedMoving += deltaTime;
+
+        // first move foot the same amount as the body did:
+        {
+            ivec2 deltaPos = bodyAABB.center - leg.prevBodyPos;
+            footAABB.center += deltaPos;
+        }
+
+        vec2 pixelsToMove = leg.moveAccumulator;
+
+        if (!isJumping(bodyPhysics))
+            pixelsToMove += moveFootWithArc(leg, footAABB, bodyAABB, bodyPhysics, deltaTime);
+        else
+            pixelsToMove += moveFootWithoutArc(leg, footAABB, bodyAABB, bodyPhysics, deltaTime);
+
+        // store remains for next time:
+        leg.moveAccumulator = pixelsToMove - vec2(ivec2(pixelsToMove));
+
+        footAABB.center += pixelsToMove;
     }
 
     vec2 moveFootWithArc(Leg &leg, AABB &footAABB, const AABB &bodyAABB, const Physics &bodyPhysics, float deltaTime)
     {
         vec2 diff = leg.target - vec2(footAABB.center);
-        float dist = length(diff);
+        float dist = length(diff);  // distance between foot and target
 
         if (dist < max(1., leg.distToTargetBeforeMoving * .3)) // foot is near target.
         {
             if (dist < 1) // foot is ~ 1 pixel away from target. Snap to target and stop moving:
             {
-                leg.moving = false;
+                leg.stopMoving();
                 footAABB.center = leg.target;
                 return vec2(0);
             }
 
             TerrainCollisionDetector collisionDetector(room->getMap());
-            AABB largerFootAABB = footAABB;
-            largerFootAABB.halfSize.y++;
 
-            if (collisionDetector.detect(largerFootAABB, false).floor) // foot has reached the floor. stop moving
+            if (collisionDetector.detect(footAABB, false).floor) // foot has reached the floor. stop moving
             {
-                leg.moving = false;
+                leg.stopMoving();
                 return vec2(0);
             }
         }
 
+        vec2 dir = diff / dist; // direction to target
+
+        if (dist > 4) // rotate the direction 'dir' to make the foot move in an arc:
+        {
+            int walkDir = dir.x > 0 ? 1 : -1;
+
+            float angle = walkDir * leg.stepArcAngle;
+
+            // make the angle less big as the foot nears target:
+            angle *= min(1.f, abs(diff.x) / leg.distToTargetBeforeMoving);
+
+            dir = rotate(dir, angle * mu::DEGREES_TO_RAD);
+        }
+
+        float stepSpeed = leg.idleStepSpeed;
+        float bodyVelX = abs(bodyPhysics.velocity.x);
+        if (bodyVelX > 2) // body is not 'idle'
+        {
+            stepSpeed = bodyVelX * 1.8; // todo, dont hardcode
+
+            if (bodyPhysics.touches.halfSlopeDown || bodyPhysics.touches.halfSlopeUp)
+                stepSpeed *= 1.11803; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+0.5%29
+            else if (bodyPhysics.touches.slopeDown || bodyPhysics.touches.slopeUp)
+                stepSpeed *= 1.41421; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+1%29
+        }
+
+        if (leg.oppositeLegWaiting > 0)
+        {
+            // opposite leg is waiting.. increase stepSpeed:
+            stepSpeed *= 1 + (leg.oppositeLegWaiting * 50.);
+        }
+
+        float stepDist = min(dist, stepSpeed * deltaTime);
+
+        return dir * stepDist;
+    }
+
+    vec2 moveFootWithoutArc(Leg &leg, AABB &footAABB, const AABB &bodyAABB, const Physics &bodyPhysics, float deltaTime)
+    {
+        vec2 diff = leg.target - vec2(footAABB.center);
+        float dist = length(diff);
+
+        if (dist == 0)
+            return vec2(0);
+
+        if (dist < 2)
+        {
+            footAABB.center = leg.target;
+            return vec2(0);
+        }
+
+        float stepDist = min(dist, leg.inAirStepSpeed * deltaTime);
         vec2 dir = diff / dist;
 
-        float stepSpeed = bodyPhysics.velocity.x == 0 ? leg.idleStepSpeed : abs(bodyPhysics.velocity.x);
-        if (bodyPhysics.touches.slopeUp || bodyPhysics.touches.slopeDown)
-            stepSpeed *= 1.4;
-
-        float step = min<float>(dist, stepSpeed * deltaTime * 1.8);
-
-        if (dist > 4) // rotate direction so that foot moves in arc:
-            dir = rotate(dir, (dir.x > 0 ? 1 : -1) * leg.stepArcAngle * min<float>(1, abs(diff.x) / leg.distToTargetBeforeMoving) * mu::DEGREES_TO_RAD);
-
-        // amount to move:
-        vec2 move = dir * step + (bodyPhysics.velocity * deltaTime) + leg.moveAccumulator;
-        return move;
+        return dir * stepDist;
     }
 
 };

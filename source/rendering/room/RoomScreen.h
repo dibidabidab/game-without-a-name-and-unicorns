@@ -163,15 +163,16 @@ class RoomScreen : public Screen
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
 
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(180, 200), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(180, 250), ImGuiCond_FirstUseEver);
 
-        static bool renderTiles = false, renderShadowDebugLines = false, renderHitboxes = true;
+        static bool renderTiles = false, renderShadowDebugLines = false, renderHitboxes = true, debugLegs = renderHitboxes;
 
         if (ImGui::Begin("debug tools"))
         {
             ImGui::Checkbox("render debug-tiles", &renderTiles);
             ImGui::Checkbox("render shadow-debug-lines", &renderShadowDebugLines);
             ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
+            ImGui::Checkbox("debug legs", &debugLegs);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
 
@@ -210,16 +211,16 @@ class RoomScreen : public Screen
                     lineRenderer.line(rope.points.at(i - 1).currentPos, rope.points.at(i).currentPos, vec3(mu::X));
             });
             lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
-
-            room->entities.view<Leg, AABB>().each([&](Leg &leg, AABB &aabb) {
-                lineRenderer.axes(leg.target, 4, leg.moving ? mu::Y : mu::X);
-
-                auto body = room->entities.try_get<AABB>(leg.body);
-
-                if (body)
-                    lineRenderer.line(aabb.center, body->center + leg.anchor, mu::X + mu::Z);
-            });
         }
+
+        if (debugLegs) room->entities.view<Leg, AABB>().each([&](Leg &leg, AABB &aabb) {
+            lineRenderer.axes(leg.target, 4, leg.moving ? mu::Y : (leg.shouldBeMoving ? mu::Y + mu::X : mu::X));
+
+            auto body = room->entities.try_get<AABB>(leg.body);
+
+            if (body)
+                lineRenderer.line(aabb.center, body->center + leg.anchor, mu::X + mu::Z);
+        });
 
         inspector.entityTemplates = room->getTemplateNames();
         inspector.drawGUI(&cam, lineRenderer);

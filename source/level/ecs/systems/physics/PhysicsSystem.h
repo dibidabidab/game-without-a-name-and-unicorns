@@ -28,11 +28,16 @@ class PhysicsSystem : public EntitySystem
 
         room->entities.view<Physics, AABB>().each([&](Physics &physics, AABB &body) {
 
+            TerrainCollisions tmp = physics.touches;
+
             updatePosition(physics, body, deltaTime);
             updateVelocity(physics, deltaTime);
 
-            if (!physics.touches.floor && physics.prevTouched.floor)
-                std::cout << "woh\n";
+            physics.prevTouched = tmp;
+            if (!physics.touches.floor)
+                physics.airTime += deltaTime;
+            if (physics.prevTouched.floor && !physics.touches.floor)
+                physics.airTime = 0;
         });
 
         auto staticColliders = room->entities.view<AABB, StaticCollider>();
@@ -225,16 +230,16 @@ class PhysicsSystem : public EntitySystem
                     || (p.touches.slopeDown && prevMove == right)
                     || (p.touches.slopeUp && prevMove == left);
             case left:
-                if (p.touches.slopeDown && (!p.touches.halfSlopeDown || aabb.center.x % 2 == 0))
+                if (p.touches.slopeDown && (!p.touches.halfSlopeDown || (aabb.bottomLeft().x + 1) % 2 == 0))
                     moveToDo = up;
-                else if (p.touches.slopeUp && !p.touches.flatFloor && (!p.touches.halfSlopeUp || (aabb.center.x + 1) % 2 == 0))
+                else if (p.touches.slopeUp && !p.touches.flatFloor && (!p.touches.halfSlopeUp || aabb.bottomRight().x % 2 == 0))
                     moveToDo = down;
                 return !p.touches.leftWall;
 
             case right:
                 if (p.touches.slopeUp && (!p.touches.halfSlopeUp || aabb.center.x % 2 == 0))
                     moveToDo = up;
-                else if (p.touches.slopeDown && !p.touches.flatFloor && (!p.touches.halfSlopeDown || (aabb.center.x + 1) % 2 == 0))
+                else if (p.touches.slopeDown && !p.touches.flatFloor && (!p.touches.halfSlopeDown || aabb.bottomLeft().x % 2 == 0))
                     moveToDo = down;
                 return !p.touches.rightWall;
 
@@ -263,7 +268,6 @@ class PhysicsSystem : public EntitySystem
     {
         AABB outlineBox = body;
         outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
-        p.prevTouched = p.touches;
         p.touches = collisionDetector->detect(outlineBox, p.ignorePlatforms);
     }
 
