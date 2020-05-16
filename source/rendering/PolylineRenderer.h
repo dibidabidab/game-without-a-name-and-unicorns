@@ -7,6 +7,7 @@
 #include <graphics/shader_asset.h>
 #include <graphics/camera.h>
 #include "../../entt/src/entt/entity/registry.hpp"
+#include "../level/ecs/components/DrawPolyline.h"
 
 class PolylineRenderer
 {
@@ -23,6 +24,15 @@ class PolylineRenderer
 
     void render(const entt::registry &, const Camera &);
 
+  private:
+
+    int nrOfSegments = 0;
+
+    /**
+     * @param i                     index of the segment in the polyline
+     * @param polylineSegments      nr of segments in the polyline
+     */
+    void addSegment(const DrawPolyline &, int i, int polylineSegments, ivec2 p0, ivec2 p1);
 };
 
 

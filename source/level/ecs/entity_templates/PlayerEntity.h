@@ -14,6 +14,8 @@
 #include "../components/AsepriteView.h"
 #include "../components/SpriteAnchor.h"
 #include "../components/KneeJoint.h"
+#include "../components/BezierCurve.h"
+#include "../components/DrawPolyline.h"
 
 class PlayerEntity : public EntityTemplate
 {
@@ -47,6 +49,14 @@ class PlayerEntity : public EntityTemplate
 
             room->entities.assign<AABB>(knees[i], ivec2(1), ivec2(0));
             room->entities.assign<KneeJoint>(knees[i], legAnchors[i], legEntities[i]);
+
+            // bezier curve:
+            room->entities.assign<BezierCurve>(legEntities[i], std::vector<entt::entity>{
+
+                legEntities[i], knees[i], legAnchors[i]
+
+            });
+            room->entities.assign<DrawPolyline>(legEntities[i], std::vector<uint8>{5});
         }
 
         room->entities.assign<SpriteBobbing>(e, legEntities);
