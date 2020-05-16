@@ -87,7 +87,7 @@ class LegsSystem : public EntitySystem
                 for (float angle = 0; angle <= 90; angle++)
                 {
                     leg.target = rotate(vec2(dir * leg.length, 0), dir * -angle * mu::DEGREES_TO_RAD);
-                    leg.target.x *= .8;
+                    leg.target.x *= .9;
                     leg.target += bodyAABB.center + leg.anchor;
 
                     tempFoot.center = leg.target;
@@ -245,7 +245,7 @@ class LegsSystem : public EntitySystem
         if (leg.oppositeLegWaiting > 0)
         {
             // opposite leg is waiting.. increase stepSpeed:
-            stepSpeed *= 1 + (leg.oppositeLegWaiting * 50.);
+            stepSpeed *= 1 + (leg.oppositeLegWaiting * 20.);
         }
 
         float stepDist = min(dist, stepSpeed * deltaTime);

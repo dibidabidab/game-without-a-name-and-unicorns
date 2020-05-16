@@ -33,6 +33,11 @@ class PlatformerMovementSystem : public EntitySystem
 
             physics.velocity.x = ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
 
+            if (physics.touches.halfSlopeDown || physics.touches.halfSlopeUp)
+                physics.velocity.x /= 1.11803; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+0.5%29
+            else if (physics.touches.slopeDown || physics.touches.slopeUp)
+                physics.velocity.x /= 1.41421; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+1%29
+
             // ignore platforms when down-arrow is pressed:
             if (input.fall)
             {

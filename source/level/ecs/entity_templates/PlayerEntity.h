@@ -28,8 +28,9 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<AABB>(e, ivec2(3, 13), ivec2(32, 52));
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<PlatformerMovement>(e);
+        room->entities.assign<LightPoint>(e); // todo, remove
 
-        float legLength = 16;
+        float legLength = 15;
 
         std::vector<entt::entity> legEntities{room->entities.create(), room->entities.create()};
 

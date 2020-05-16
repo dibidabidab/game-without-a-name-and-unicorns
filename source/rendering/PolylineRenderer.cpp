@@ -11,12 +11,12 @@ PolylineRenderer::PolylineRenderer()
     shader("PolyLine shader", "shaders/polyline.vert", "shaders/polyline.frag"),
     lineSegments(
         VertAttributes()
-                .add_({"POINT_A_X", 1, 2, GL_UNSIGNED_SHORT})
-                .add_({"POINT_A_Y", 1, 2, GL_UNSIGNED_SHORT})
-                .add_({"POINT_B_X", 1, 2, GL_UNSIGNED_SHORT})
-                .add_({"POINT_B_Y", 1, 2, GL_UNSIGNED_SHORT})
-                .add_({"SEGMENT_COLOR_INDEX", 1, 1, GL_UNSIGNED_BYTE})
-                .add_({"Z_INDEX", 1}),
+                .add_({"POINT_A_X", 1, 2, GL_SHORT})
+                .add_({"POINT_A_Y", 1, 2, GL_SHORT})
+                .add_({"POINT_B_X", 1, 2, GL_SHORT})
+                .add_({"POINT_B_Y", 1, 2, GL_SHORT})
+                .add_({"Z_INDEX", 1})
+                .add_({"SEGMENT_COLOR_INDEX", 1, 4, GL_UNSIGNED_INT}),
         std::vector<u_char>()
     )
 {
@@ -112,12 +112,12 @@ void PolylineRenderer::addSegment(const DrawPolyline &draw, int i, int polylineS
     if (!draw.colors.empty())
         color = draw.colors.at(i % draw.colors.size());
 
-    lineSegments.set<uint8>(color, nrOfSegments, 8);
-
     float zIndex = polylineSegments == 1 ? 0 : i / float(polylineSegments - 1);
     zIndex = draw.zIndexBegin * zIndex + draw.zIndexEnd * (1. - zIndex);
 
-    lineSegments.set<float>(zIndex, nrOfSegments, 9);
+    lineSegments.set<float>(zIndex, nrOfSegments, 8);
+
+    lineSegments.set<uint32>(color, nrOfSegments, 12);
 
     nrOfSegments++;
 }

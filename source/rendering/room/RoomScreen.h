@@ -166,7 +166,7 @@ class RoomScreen : public Screen
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(180, 250), ImGuiCond_FirstUseEver);
 
-        static bool renderTiles = false, renderShadowDebugLines = false, renderHitboxes = true, debugLegs = renderHitboxes;
+        static bool renderTiles = false, renderShadowDebugLines = false, renderHitboxes = false, debugLegs = renderHitboxes;
 
         if (ImGui::Begin("debug tools"))
         {

@@ -31,7 +31,11 @@ class KneeJointSystem : public EntitySystem
 
             float hipFootDistance = length(vec2(hip->center - foot->center));
 
-            if (hipFootDistance < leg->length)
+            if (hipFootDistance == 0)
+            {
+                pos0 = pos1 = aabb.center; /// reuse previous position
+            }
+            else if (hipFootDistance < leg->length)
             {
                 float radius = float(leg->length) / 2;
                 mu::circleIntersections(pos0, pos1, hip->center, foot->center, radius, radius, hipFootDistance);
