@@ -116,6 +116,7 @@ COMPONENT(
 )
 
     TerrainCollisions touches, prevTouched;
+    vec2 prevVelocity;
 
     float airTime = 0;
 

@@ -29,6 +29,7 @@ class PhysicsSystem : public EntitySystem
         room->entities.view<Physics, AABB>().each([&](Physics &physics, AABB &body) {
 
             TerrainCollisions tmp = physics.touches;
+            auto tmpVel = physics.velocity;
 
             updatePosition(physics, body, deltaTime);
             updateVelocity(physics, deltaTime);
@@ -38,6 +39,8 @@ class PhysicsSystem : public EntitySystem
                 physics.airTime += deltaTime;
             if (physics.prevTouched.floor && !physics.touches.floor)
                 physics.airTime = 0;
+
+            physics.prevVelocity = tmpVel;
         });
 
         auto staticColliders = room->entities.view<AABB, StaticCollider>();
