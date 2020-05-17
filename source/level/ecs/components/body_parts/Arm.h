@@ -2,7 +2,7 @@
 #ifndef GAME_ARM_H
 #define GAME_ARM_H
 
-#include "../../../macro_magic/component.h"
+#include "../../../../macro_magic/component.h"
 
 /**
  * An arm that can be attached to a body and is procedurally animated.

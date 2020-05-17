@@ -7,7 +7,7 @@
 #include <graphics/shader_asset.h>
 #include <graphics/camera.h>
 #include "../../entt/src/entt/entity/registry.hpp"
-#include "../level/ecs/components/DrawPolyline.h"
+#include "../level/ecs/components/graphics/DrawPolyline.h"
 
 class PolylineRenderer
 {

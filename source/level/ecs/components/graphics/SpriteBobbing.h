@@ -2,7 +2,7 @@
 #ifndef GAME_SPRITEBOBBING_H
 #define GAME_SPRITEBOBBING_H
 
-#include "../../../macro_magic/component.h"
+#include "../../../../macro_magic/component.h"
 
 /**
  * Makes an entity's sprite move up and down based on the position of the entity's feet

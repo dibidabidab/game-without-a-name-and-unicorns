@@ -3,8 +3,8 @@
 #define GAME_ROPEENTITY_H
 
 #include "EntityTemplate.h"
-#include "../components/Physics.h"
-#include "../components/VerletRope.h"
+#include "../components/physics/Physics.h"
+#include "../components/physics/VerletRope.h"
 
 class RopeEntity : public EntityTemplate
 {

@@ -4,19 +4,21 @@
 
 
 #include "EntityTemplate.h"
-#include "../components/Physics.h"
+#include "../components/physics/Physics.h"
 #include "../components/PlatformerMovement.h"
 #include "../components/Networked.h"
 #include "../components/PlayerControlled.h"
-#include "../components/Light.h"
-#include "../components/Leg.h"
-#include "../components/SpriteBobbing.h"
-#include "../components/AsepriteView.h"
-#include "../components/SpriteAnchor.h"
-#include "../components/LimbJoint.h"
+#include "../components/graphics/Light.h"
+#include "../components/body_parts/Leg.h"
+#include "../components/graphics/SpriteBobbing.h"
+#include "../components/graphics/AsepriteView.h"
+#include "../components/graphics/SpriteAnchor.h"
+#include "../components/body_parts/LimbJoint.h"
 #include "../components/BezierCurve.h"
-#include "../components/DrawPolyline.h"
-#include "../components/Arm.h"
+#include "../components/graphics/DrawPolyline.h"
+#include "../components/body_parts/Arm.h"
+#include "../components/combat/Aiming.h"
+#include "BowEntity.h"
 
 class PlayerEntity : public EntityTemplate
 {
@@ -26,7 +28,7 @@ class PlayerEntity : public EntityTemplate
         entt::entity e = room->entities.create();
 
         room->entities.assign<Physics>(e);
-        room->entities.assign<AABB>(e, ivec2(3, 13), ivec2(32, 52));
+        room->entities.assign<AABB>(e, ivec2(3, 13), ivec2(64, 64));
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<PlatformerMovement>(e);
         room->entities.assign<LightPoint>(e); // todo, remove
@@ -45,13 +47,13 @@ class PlayerEntity : public EntityTemplate
             auto opposite = legEntities[i == 0 ? 1 : 0];
 
             room->entities.assign<Leg>(legEntities[i], legLength, e, ivec2(i == 0 ? -3 : 3, 0), i == 0 ? -2 : 2, opposite, 17.f);
-            room->entities.assign<AABB>(legEntities[i], ivec2(1), ivec2(32));
+            room->entities.assign<AABB>(legEntities[i], ivec2(1));
 
 
-            room->entities.assign<AABB>(legAnchors[i], ivec2(1), ivec2(0));
+            room->entities.assign<AABB>(legAnchors[i], ivec2(1));
             room->entities.assign<SpriteAnchor>(legAnchors[i], e, i == 0 ? "leg_left" : "leg_right");
 
-            room->entities.assign<AABB>(knees[i], ivec2(1), ivec2(0));
+            room->entities.assign<AABB>(knees[i], ivec2(1));
             room->entities.assign<LimbJoint>(knees[i], legAnchors[i], legEntities[i]);
 
             // bezier curve:
@@ -66,25 +68,35 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<SpriteBobbing>(e, legEntities);
         room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/player_body"));
 
+        // WEAPON: -------------------
+        room->entities.assign<Aiming>(e);
+
+        auto bowEntity = room->getTemplate<BowEntity>()->create();
+        Bow &bow = room->entities.get<Bow>(bowEntity);
+        bow.archer = e;
+
         // ARMS: ----------------------
 
         entt::entity arms[2] = {room->entities.create(), room->entities.create()};
         entt::entity elbows[2] = {room->entities.create(), room->entities.create()};
         entt::entity shoulders[2] = {room->entities.create(), room->entities.create()};
-        float armLength = 12;
+        float armLength = 16;
 
         for (int i = 0; i < 2; i++)
         {
             // arm/hand:
-            room->entities.assign<AABB>(arms[i], ivec2(1), ivec2(32));
-            room->entities.assign<Arm>(arms[i], e, ivec2(i == 0 ? -3 : 3, 4), armLength);
+            room->entities.assign<AABB>(arms[i], ivec2(1));
+            Arm &arm = room->entities.get_or_assign<Arm>(arms[i], e, ivec2(i == 0 ? -3 : 3, 4), armLength);
+
+            if (i == 1)
+                arm.grab = bow.handBowAnchor;
 
             // shoulders:
-            room->entities.assign<AABB>(shoulders[i], ivec2(1), ivec2(0));
+            room->entities.assign<AABB>(shoulders[i], ivec2(1));
             room->entities.assign<SpriteAnchor>(shoulders[i], e, i == 0 ? "arm_left" : "arm_right");
 
             // elbow:
-            room->entities.assign<AABB>(elbows[i], ivec2(1), ivec2(32));
+            room->entities.assign<AABB>(elbows[i], ivec2(1));
             room->entities.assign<LimbJoint>(elbows[i], shoulders[i], arms[i]);
 
             // bezier curve:

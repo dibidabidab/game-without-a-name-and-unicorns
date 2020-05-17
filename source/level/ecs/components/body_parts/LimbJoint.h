@@ -2,7 +2,7 @@
 #ifndef GAME_LIMBJOINT_H
 #define GAME_LIMBJOINT_H
 
-#include "../../../macro_magic/component.h"
+#include "../../../../macro_magic/component.h"
 
 /**
  * The position of an entity with AABB and LimbJoint will be based on

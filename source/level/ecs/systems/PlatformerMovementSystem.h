@@ -6,9 +6,10 @@
 #include <input/key_input.h>
 #include "EntitySystem.h"
 #include "../../Level.h"
-#include "../components/Physics.h"
+#include "../components/physics/Physics.h"
 #include "../components/PlatformerMovement.h"
 #include "../components/PlayerControlled.h"
+#include "../components/combat/Aiming.h"
 
 /**
  * Responsible for:
@@ -20,6 +21,9 @@ class PlatformerMovementSystem : public EntitySystem
   protected:
     void update(double deltaTime, Room *room) override
     {
+        room->entities.view<LocalPlayer, Aiming>().each([&](auto, Aiming &aiming) {
+            aiming.target = room->cursorPositionInRoom;
+        });
         room->entities.view<PlatformerMovement, LocalPlayer>().each([&](entt::entity e, PlatformerMovement &movement, LocalPlayer) {
 
             PlatformerMovementInput input;

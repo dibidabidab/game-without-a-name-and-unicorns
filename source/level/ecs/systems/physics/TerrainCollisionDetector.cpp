@@ -1,6 +1,6 @@
 
 #include "TerrainCollisionDetector.h"
-#include "../../components/Physics.h"
+#include "../../components/physics/Physics.h"
 #include "../../../Level.h"
 
 TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignorePlatforms)

@@ -5,7 +5,7 @@
 
 
 #include "MultiplayerClientSession.h"
-#include "../../level/ecs/components/Physics.h"
+#include "../../level/ecs/components/physics/Physics.h"
 
 using namespace Packet;
 using namespace Packet::from_player;

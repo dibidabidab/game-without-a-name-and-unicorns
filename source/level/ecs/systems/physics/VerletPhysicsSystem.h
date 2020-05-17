@@ -4,8 +4,8 @@
 
 #include "../EntitySystem.h"
 #include "../../../Level.h"
-#include "../../components/Physics.h"
-#include "../../components/VerletRope.h"
+#include "../../components/physics/Physics.h"
+#include "../../components/physics/VerletRope.h"
 
 /**
  * based on https://github.com/dci05049/Verlet-Rope-Unity/blob/master/Tutorial%20Verlet%20Rope/Assets/Rope.cs

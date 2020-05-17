@@ -2,7 +2,7 @@
 #ifndef GAME_SPRITEANCHOR_H
 #define GAME_SPRITEANCHOR_H
 
-#include "../../../macro_magic/component.h"
+#include "../../../../macro_magic/component.h"
 
 /**
  * Aseprite sprites have 'slices' (https://www.aseprite.org/docs/slices/)

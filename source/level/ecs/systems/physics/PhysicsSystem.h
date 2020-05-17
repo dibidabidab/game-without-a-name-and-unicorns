@@ -5,7 +5,7 @@
 
 #include "../EntitySystem.h"
 #include "../../../Level.h"
-#include "../../components/Physics.h"
+#include "../../components/physics/Physics.h"
 
 namespace
 {

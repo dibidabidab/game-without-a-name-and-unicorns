@@ -4,9 +4,9 @@
 
 #include "../../room/Room.h"
 #include "EntitySystem.h"
-#include "../components/SpriteBobbing.h"
-#include "../components/AsepriteView.h"
-#include "../components/Physics.h"
+#include "../components/graphics/SpriteBobbing.h"
+#include "../components/graphics/AsepriteView.h"
+#include "../components/physics/Physics.h"
 
 /**
  * see SpriteAnchor documentation

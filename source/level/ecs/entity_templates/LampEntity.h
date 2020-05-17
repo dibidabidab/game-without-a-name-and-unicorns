@@ -3,11 +3,11 @@
 #define GAME_LAMPENTITY_H
 
 #include "EntityTemplate.h"
-#include "../components/Physics.h"
-#include "../components/Light.h"
+#include "../components/physics/Physics.h"
+#include "../components/graphics/Light.h"
 #include "RopeEntity.h"
-#include "../components/AsepriteView.h"
-#include "../components/DrawPolyline.h"
+#include "../components/graphics/AsepriteView.h"
+#include "../components/graphics/DrawPolyline.h"
 
 class LampEntity : public EntityTemplate
 {

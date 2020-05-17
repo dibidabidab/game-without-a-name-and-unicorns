@@ -2,8 +2,8 @@
 #ifndef GAME_ASEPRITEVIEW_H
 #define GAME_ASEPRITEVIEW_H
 
-#include "../../../macro_magic/component.h"
-#include "Physics.h"
+#include "../../../../macro_magic/component.h"
+#include "../physics/Physics.h"
 #include <utils/aseprite/Aseprite.h>
 #include <asset_manager/asset.h>
 

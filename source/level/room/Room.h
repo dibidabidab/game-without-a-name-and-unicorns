@@ -45,6 +45,8 @@ class Room
 
   public:
 
+    ivec2 cursorPositionInRoom = ivec2(0);
+
     entt::registry entities;
 
     Room() = default;

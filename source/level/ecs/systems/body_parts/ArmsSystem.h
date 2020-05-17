@@ -2,10 +2,10 @@
 #ifndef GAME_ARMSSYSTEM_H
 #define GAME_ARMSSYSTEM_H
 
-#include "EntitySystem.h"
-#include "../../room/Room.h"
-#include "../components/Arm.h"
-#include "../components/Physics.h"
+#include "../EntitySystem.h"
+#include "../../../room/Room.h"
+#include "../../components/body_parts/Arm.h"
+#include "../../components/physics/Physics.h"
 
 class ArmsSystem : public EntitySystem
 {
@@ -26,6 +26,7 @@ class ArmsSystem : public EntitySystem
             if (grabTarget)
             {
                 // the hand is grabbig something -> set position of hand to the grabben entity:
+                handAABB.center = grabTarget->center;
             }
             else
             {

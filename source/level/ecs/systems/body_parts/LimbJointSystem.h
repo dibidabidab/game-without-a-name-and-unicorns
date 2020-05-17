@@ -2,12 +2,12 @@
 #ifndef GAME_LIMBJOINTSYSTEM_H
 #define GAME_LIMBJOINTSYSTEM_H
 
-#include "../../room/Room.h"
-#include "EntitySystem.h"
-#include "../components/LimbJoint.h"
-#include "../components/Physics.h"
-#include "../components/Leg.h"
-#include "../components/Arm.h"
+#include "../../../room/Room.h"
+#include "../EntitySystem.h"
+#include "../../components/body_parts/LimbJoint.h"
+#include "../../components/physics/Physics.h"
+#include "../../components/body_parts/Leg.h"
+#include "../../components/body_parts/Arm.h"
 
 /**
  * see LimbJoint documentation
@@ -51,7 +51,7 @@ class LimbJointSystem : public EntitySystem
             {
                 pos0 = pos1 = vec2(foot->center) * .5f + vec2(hip->center) * .5f;
             }
-            aabb.center = knee.invert ? pos0 : pos1;
+            aabb.center = (leg ? knee.invert : !knee.invert) ? pos0 : pos1;
         });
     }
 

@@ -7,11 +7,12 @@
 #include "../ecs/systems/networking/NetworkingSystem.h"
 #include "../ecs/systems/PlayerControlSystem.h"
 #include "../ecs/systems/physics/VerletPhysicsSystem.h"
-#include "../ecs/systems/LegsSystem.h"
+#include "../ecs/systems/body_parts/LegsSystem.h"
 #include "../ecs/systems/SpriteBobbingSystem.h"
 #include "../ecs/systems/SpriteAnchorSystem.h"
-#include "../ecs/systems/LimbJointSystem.h"
-#include "../ecs/systems/ArmsSystem.h"
+#include "../ecs/systems/body_parts/LimbJointSystem.h"
+#include "../ecs/systems/body_parts/ArmsSystem.h"
+#include "../ecs/systems/BowWeaponSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -32,6 +33,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new ArmsSystem("arms"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
     systems.push_front(new PhysicsSystem("physics"));
+    systems.push_front(new BowWeaponSystem("bow weapons"));
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
     systems.push_front(new PlayerControlSystem("player control"));
 
