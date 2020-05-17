@@ -4,7 +4,7 @@
 
 #include "../../room/Room.h"
 #include "EntitySystem.h"
-#include "../components/SpriteAnchor.h"
+#include "../components/SpriteBobbing.h"
 #include "../components/AsepriteView.h"
 #include "../components/Physics.h"
 

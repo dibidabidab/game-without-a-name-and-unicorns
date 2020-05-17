@@ -13,9 +13,10 @@
 #include "../components/SpriteBobbing.h"
 #include "../components/AsepriteView.h"
 #include "../components/SpriteAnchor.h"
-#include "../components/KneeJoint.h"
+#include "../components/LimbJoint.h"
 #include "../components/BezierCurve.h"
 #include "../components/DrawPolyline.h"
+#include "../components/Arm.h"
 
 class PlayerEntity : public EntityTemplate
 {
@@ -29,6 +30,8 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<PlatformerMovement>(e);
         room->entities.assign<LightPoint>(e); // todo, remove
+
+        // LEGS: -----------------------------------
 
         float legLength = 15;
 
@@ -49,7 +52,7 @@ class PlayerEntity : public EntityTemplate
             room->entities.assign<SpriteAnchor>(legAnchors[i], e, i == 0 ? "leg_left" : "leg_right");
 
             room->entities.assign<AABB>(knees[i], ivec2(1), ivec2(0));
-            room->entities.assign<KneeJoint>(knees[i], legAnchors[i], legEntities[i]);
+            room->entities.assign<LimbJoint>(knees[i], legAnchors[i], legEntities[i]);
 
             // bezier curve:
             room->entities.assign<BezierCurve>(legEntities[i], std::vector<entt::entity>{
@@ -62,6 +65,36 @@ class PlayerEntity : public EntityTemplate
 
         room->entities.assign<SpriteBobbing>(e, legEntities);
         room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/player_body"));
+
+        // ARMS: ----------------------
+
+        entt::entity arms[2] = {room->entities.create(), room->entities.create()};
+        entt::entity elbows[2] = {room->entities.create(), room->entities.create()};
+        entt::entity shoulders[2] = {room->entities.create(), room->entities.create()};
+        float armLength = 12;
+
+        for (int i = 0; i < 2; i++)
+        {
+            // arm/hand:
+            room->entities.assign<AABB>(arms[i], ivec2(1), ivec2(32));
+            room->entities.assign<Arm>(arms[i], e, ivec2(i == 0 ? -3 : 3, 4), armLength);
+
+            // shoulders:
+            room->entities.assign<AABB>(shoulders[i], ivec2(1), ivec2(0));
+            room->entities.assign<SpriteAnchor>(shoulders[i], e, i == 0 ? "arm_left" : "arm_right");
+
+            // elbow:
+            room->entities.assign<AABB>(elbows[i], ivec2(1), ivec2(32));
+            room->entities.assign<LimbJoint>(elbows[i], shoulders[i], arms[i]);
+
+            // bezier curve:
+            room->entities.assign<BezierCurve>(arms[i], std::vector<entt::entity>{
+
+                    arms[i], elbows[i], shoulders[i]
+
+            });
+            room->entities.assign<DrawPolyline>(arms[i], std::vector<uint8>{5});
+        }
 
         return e;
     }

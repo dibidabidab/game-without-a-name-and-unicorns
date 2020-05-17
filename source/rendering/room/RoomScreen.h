@@ -31,7 +31,7 @@
 #include "../sprites/SpriteRenderer.h"
 #include "../PolylineRenderer.h"
 #include "../../level/ecs/components/Leg.h"
-#include "../../level/ecs/components/KneeJoint.h"
+#include "../../level/ecs/components/LimbJoint.h"
 
 class RoomScreen : public Screen
 {
@@ -225,7 +225,7 @@ class RoomScreen : public Screen
                     lineRenderer.axes(body->center + leg.anchor, 2, mu::Z);
             });
 
-            room->entities.view<KneeJoint, AABB>().each([&](const KneeJoint &knee, AABB &aabb) {
+            room->entities.view<LimbJoint, AABB>().each([&](const LimbJoint &knee, AABB &aabb) {
 
                 AABB
                     *hip = room->entities.try_get<AABB>(knee.hipJointEntity),
