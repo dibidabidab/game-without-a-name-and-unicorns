@@ -10,6 +10,10 @@
 #include "../components/PlatformerMovement.h"
 #include "../components/PlayerControlled.h"
 
+/**
+ * Responsible for:
+ *  - setting the velocity of an entity (e.g. the player) based on (keyboard or AI) input.
+ */
 class PlatformerMovementSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;

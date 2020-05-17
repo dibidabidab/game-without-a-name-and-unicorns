@@ -5,6 +5,9 @@
 #include <json.hpp>
 #include "room/Room.h"
 
+/**
+ * A level contains one or more Rooms.
+ */
 class Level
 {
     double time = 0;

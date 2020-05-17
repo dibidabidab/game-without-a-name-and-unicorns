@@ -4,6 +4,12 @@
 
 #include "../../../macro_magic/component.h"
 
+/**
+ * A leg that moves using procedural animation.
+ *
+ * body = e.g. the player entity
+ * anchor = the position of the hip on the body.
+ */
 COMPONENT(
     Leg,
     HASH(0),
@@ -19,6 +25,8 @@ COMPONENT(
     FIELD_DEF_VAL(float, idleStepSpeed, 65),
     FIELD_DEF_VAL(float, inAirStepSpeed, 40)
 )
+
+    // variables used by the LegsSystem:
 
     vec2 target = vec2(0);
 

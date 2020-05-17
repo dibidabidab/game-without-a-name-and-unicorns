@@ -8,6 +8,9 @@
 #include "../components/AsepriteView.h"
 #include "../components/Physics.h"
 
+/**
+ * see SpriteAnchor documentation
+ */
 class SpriteAnchorSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;

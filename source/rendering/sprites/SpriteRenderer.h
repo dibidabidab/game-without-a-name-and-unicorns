@@ -10,6 +10,9 @@
 #include "../../../entt/src/entt/entity/registry.hpp"
 #include "../../level/ecs/components/AsepriteView.h"
 
+/**
+ * Used to render all entities with a AsepriteView component.
+ */
 class SpriteRenderer
 {
 

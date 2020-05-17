@@ -7,6 +7,10 @@
 #include <utils/aseprite/Aseprite.h>
 #include <asset_manager/asset.h>
 
+/**
+ * Used to draw an (animated) sprite.
+ * Entity must have the AABB component to determine where on the screen the sprite is drawn
+ */
 COMPONENT(
     AsepriteView,
 

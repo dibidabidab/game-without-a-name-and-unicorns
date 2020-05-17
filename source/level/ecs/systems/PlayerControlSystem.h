@@ -5,6 +5,9 @@
 
 #include "EntitySystem.h"
 
+/**
+ * responsible for noticing when a player enters or leaves a room.
+ */
 class PlayerControlSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;

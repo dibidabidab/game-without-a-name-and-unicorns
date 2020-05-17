@@ -4,6 +4,9 @@
 
 #include "../../../macro_magic/component.h"
 
+/**
+ * Any entity with LightPoint + AABB will create a light that (optionally) casts shadows.
+ */
 COMPONENT(
     LightPoint,
     HASH(radius, castShadow),

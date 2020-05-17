@@ -16,6 +16,14 @@
 
 class Level;
 
+/**
+ * A room is part of a level.
+ *
+ * A room has:
+ * - entities
+ * - entity systems
+ * - a (tiled) terrain map
+ */
 class Room
 {
     std::list<EntitySystem *> systems;

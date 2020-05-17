@@ -8,6 +8,15 @@
 class Room;
 class Networked;
 
+/**
+ * Abstract class.
+ *
+ * Entity templates are used to construct one (or more) entities with a collection of components.
+ *
+ * .create() is used to create the entity as if it only exists client-side.
+ *
+ * .createNetworked() is used to create the entity as if it exists on all clients.
+ */
 class EntityTemplate
 {
   private:
@@ -22,6 +31,7 @@ class EntityTemplate
 
     entt::entity createNetworked(int networkID=rand(), bool serverSide=true);
 
+  protected:
     virtual void makeNetworkedServerSide(Networked &) {}
 
     virtual void makeNetworkedClientSide(Networked &) {}

@@ -6,6 +6,9 @@
 #include <graphics/texture.h>
 #include <map>
 
+/**
+ * a huge texture containing all sprites of the game
+ */
 class MegaSpriteSheet
 {
   public:

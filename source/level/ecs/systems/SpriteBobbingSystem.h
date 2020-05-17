@@ -4,10 +4,13 @@
 
 #include "../../room/Room.h"
 #include "EntitySystem.h"
-#include "../components/SpriteBobbing.h"
+#include "../components/SpriteAnchor.h"
 #include "../components/AsepriteView.h"
 #include "../components/Physics.h"
 
+/**
+ * see SpriteAnchor documentation
+ */
 class SpriteBobbingSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;
@@ -38,11 +41,11 @@ class SpriteBobbingSystem : public EntitySystem
             if (physics)
             {
                 if (physics->touches.floor && !physics->prevTouched.floor)
-                    bobbing.floorHitVelocity = physics->prevVelocity.y * .25;
+                    bobbing.floorHitVelocity = physics->prevVelocity.y * .6;
                 if (!physics->touches.floor && bobbing.floorHitVelocity < 0)
                     bobbing.floorHitVelocity = 0;
 
-                bobbing.floorHitVelocity += 250 * deltaTime;
+                bobbing.floorHitVelocity += 1200 * deltaTime;
                 bobbing.floorHitYPos = min<float>(0, bobbing.floorHitYPos + bobbing.floorHitVelocity * deltaTime);
 
                 diff += bobbing.floorHitYPos;

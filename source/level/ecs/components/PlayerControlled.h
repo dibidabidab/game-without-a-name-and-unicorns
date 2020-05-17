@@ -4,6 +4,9 @@
 
 #include "../../../macro_magic/component.h"
 
+/**
+ * Used to tell the game that an entity belongs to a player.
+ */
 COMPONENT(
     PlayerControlled,
     HASH(playerId),

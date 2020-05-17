@@ -7,6 +7,11 @@
 
 class Room;
 
+/**
+ * Base class for all entity systems.
+ *
+ * An entity system should be used for updating components of entities.
+ */
 class EntitySystem
 {
   public:

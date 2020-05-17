@@ -8,6 +8,9 @@
 #include "../components/Physics.h"
 #include "../components/Leg.h"
 
+/**
+ * see KneeJoint documentation
+ */
 class KneeJointSystem : public EntitySystem
 {
 

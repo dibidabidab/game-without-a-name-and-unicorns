@@ -4,6 +4,12 @@
 
 #include "../../../macro_magic/component.h"
 
+/**
+ * Used to tell the renderer that a polyline should be drawn.
+ * Must be used in combination with BezierCurve or VerletRope.
+ *
+ * The depth value of the drawn line will be interpolated between zIndexBegin and zIndexEnd
+ */
 COMPONENT(
     DrawPolyline,
     HASH(0),

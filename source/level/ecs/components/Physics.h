@@ -103,6 +103,9 @@ struct ComponentInterpolator<AABB>
     }
 };
 
+/**
+ * Adds physics to an AABB-entity. (Terrain collisions & gravity)
+ */
 COMPONENT(
     Physics,
 
@@ -141,7 +144,9 @@ COMPONENT(
 
 END_COMPONENT(Physics)
 
-
+/**
+ * Entities that are a StaticCollider can push entities that are DynamicCollider.
+ */
 COMPONENT(
     StaticCollider,
     HASH(0),

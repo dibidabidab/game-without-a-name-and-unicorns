@@ -15,6 +15,14 @@ namespace
     };
 }
 
+/**
+ * Responsible for moving an entity based on:
+ *  - velocity
+ *  - gravity
+ *  - terrain collisions
+ *  - collisions with StaticColliders
+ *  - distance constraints
+ */
 class PhysicsSystem : public EntitySystem
 {
     Room *room = NULL;

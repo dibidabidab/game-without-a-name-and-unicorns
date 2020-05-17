@@ -4,6 +4,10 @@
 
 #include "../../../macro_magic/component.h"
 
+/**
+ * Aseprite sprites have 'slices' (https://www.aseprite.org/docs/slices/)
+ * Using this component you can attach an entity to a slice's position.
+ */
 COMPONENT(
     SpriteAnchor,
     HASH(0),

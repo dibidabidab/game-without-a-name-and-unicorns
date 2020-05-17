@@ -7,7 +7,10 @@
 #include "../components/Leg.h"
 #include "../components/Physics.h"
 
-
+/**
+ * Responsible for:
+ * setting the position of feet based on the movement of an entity.
+ */
 class LegsSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;

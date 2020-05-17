@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
             if (!mpSession->getLocalPlayer() || playerId != mpSession->getLocalPlayer()->id)
                 return;
             delete roomScreen;
-            std::cout << "Player entered room. Show RoomScreen\n";
+            std::cout << "Local player entered room. Show RoomScreen\n";
             roomScreen = new RoomScreen(room, &spriteSheet, mpSession->isServer());
             gu::setScreen(roomScreen);
         };

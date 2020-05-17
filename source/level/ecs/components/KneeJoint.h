@@ -4,6 +4,10 @@
 
 #include "../../../macro_magic/component.h"
 
+/**
+ * The position of an entity with AABB and KneeJoint will be based on
+ * the position of the hip and foot. (using simple Inverse Kinematics)
+ */
 COMPONENT(
     KneeJoint,
     HASH(0),
