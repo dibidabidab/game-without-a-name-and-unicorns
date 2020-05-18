@@ -2,7 +2,7 @@
 #ifndef GAME_LEG_H
 #define GAME_LEG_H
 
-#include "../../../macro_magic/component.h"
+#include "../../../../macro_magic/component.h"
 
 /**
  * A leg that moves using procedural animation.

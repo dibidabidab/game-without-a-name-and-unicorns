@@ -2,7 +2,7 @@
 #include "../../components/Networked.h"
 #include "../../components/PlayerControlled.h"
 #include "../../../../multiplayer/session/MultiplayerSession.h"
-#include "../../components/Physics.h"
+#include "../../components/physics/Physics.h"
 
 void NetworkingSystem::init(Room *room_)
 {

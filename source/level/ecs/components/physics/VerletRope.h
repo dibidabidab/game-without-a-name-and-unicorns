@@ -2,7 +2,7 @@
 #ifndef GAME_VERLETROPE_H
 #define GAME_VERLETROPE_H
 
-#include "../../../macro_magic/component.h"
+#include "../../../../macro_magic/component.h"
 
 #include <vector>
 

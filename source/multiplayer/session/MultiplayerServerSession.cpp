@@ -1,7 +1,7 @@
 
 #include <gu/profiler.h>
 #include "MultiplayerServerSession.h"
-#include "../../level/ecs/components/Physics.h"
+#include "../../level/ecs/components/physics/Physics.h"
 #include "../../level/ecs/components/PlatformerMovement.h"
 #include "../../level/ecs/components/Networked.h"
 #include "../../level/ecs/components/PlayerControlled.h"

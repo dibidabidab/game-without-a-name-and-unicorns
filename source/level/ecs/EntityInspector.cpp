@@ -4,7 +4,7 @@
 #include <input/mouse_input.h>
 #include <input/key_input.h>
 #include "EntityInspector.h"
-#include "components/Physics.h"
+#include "components/physics/Physics.h"
 
 
 EntityInspector::EntityInspector(entt::registry *reg) : reg(reg)
@@ -487,7 +487,7 @@ void drawFieldsTree(
                 drawFieldsTree(value, subInfo, ins, subReadOnly);
             else drawJsonTree(
                     value, ins,
-                    !info->structFieldIsFixedSize[i],
+                    !info->structFieldIsFixedSize[i] && !subReadOnly,
                     subReadOnly
             );
             ins.currentPath.pop_back();

@@ -45,6 +45,8 @@ class Room
 
   public:
 
+    ivec2 cursorPositionInRoom = ivec2(0);
+
     entt::registry entities;
 
     Room() = default;
@@ -85,6 +87,16 @@ class Room
     EntityTemplate *getTemplate(int templateHash);
 
     const std::vector<std::string> &getTemplateNames() const;
+
+    entt::entity getChildByName(entt::entity parent, const char *childName);
+
+    template<typename Component>
+    Component *getChildComponentByName(entt::entity parent, const char *childName)
+    {
+        entt::entity child = getChildByName(parent, childName);
+        return entities.try_get<Component>(child);
+    }
+
 };
 
 void to_json(json& j, const Room& r);

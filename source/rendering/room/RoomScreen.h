@@ -15,7 +15,7 @@
 #include "../../level/room/Room.h"
 #include "../../level/room/RoomEditor.h"
 #include "DebugTileRenderer.h"
-#include "../../level/ecs/components/Physics.h"
+#include "../../level/ecs/components/physics/Physics.h"
 #include "../../level/ecs/components/PlatformerMovement.h"
 #include "../../level/ecs/components/Networked.h"
 #include "../../macro_magic/component.h"
@@ -23,15 +23,16 @@
 #include "CameraMovement.h"
 #include "tile_map/TileMapRenderer.h"
 #include "../PaletteEditor.h"
-#include "../../level/ecs/components/Light.h"
+#include "../../level/ecs/components/graphics/Light.h"
 #include "light/ShadowCaster.h"
 #include "light/LightMapRenderer.h"
-#include "../../level/ecs/components/VerletRope.h"
+#include "../../level/ecs/components/physics/VerletRope.h"
 #include "../sprites/MegaSpriteSheet.h"
 #include "../sprites/SpriteRenderer.h"
 #include "../PolylineRenderer.h"
-#include "../../level/ecs/components/Leg.h"
-#include "../../level/ecs/components/KneeJoint.h"
+#include "../../level/ecs/components/body_parts/Leg.h"
+#include "../../level/ecs/components/body_parts/LimbJoint.h"
+#include "../../level/ecs/components/combat/Aiming.h"
 
 class RoomScreen : public Screen
 {
@@ -92,6 +93,7 @@ class RoomScreen : public Screen
     void render(double deltaTime) override
     {
         camMovement.update(deltaTime);
+        room->cursorPositionInRoom = cam.getCursorRayDirection() + cam.position;
 
         glClearColor(32 / 255., 53 / 255., 189 / 255., 1);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -166,7 +168,12 @@ class RoomScreen : public Screen
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(180, 250), ImGuiCond_FirstUseEver);
 
-        static bool renderTiles = false, renderShadowDebugLines = false, renderHitboxes = false, debugLegs = renderHitboxes;
+        static bool
+            renderTiles = false,
+            renderShadowDebugLines = false,
+            renderHitboxes = false,
+            debugLegs = renderHitboxes,
+            debugAimTargets = renderHitboxes;
 
         if (ImGui::Begin("debug tools"))
         {
@@ -174,6 +181,7 @@ class RoomScreen : public Screen
             ImGui::Checkbox("render shadow-debug-lines", &renderShadowDebugLines);
             ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
             ImGui::Checkbox("debug legs", &debugLegs);
+            ImGui::Checkbox("debug aim targets", &debugAimTargets);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
 
@@ -225,7 +233,7 @@ class RoomScreen : public Screen
                     lineRenderer.axes(body->center + leg.anchor, 2, mu::Z);
             });
 
-            room->entities.view<KneeJoint, AABB>().each([&](const KneeJoint &knee, AABB &aabb) {
+            room->entities.view<LimbJoint, AABB>().each([&](const LimbJoint &knee, AABB &aabb) {
 
                 AABB
                     *hip = room->entities.try_get<AABB>(knee.hipJointEntity),
@@ -240,7 +248,10 @@ class RoomScreen : public Screen
                 lineRenderer.line(foot->center, aabb.center, mu::X + mu::Z);
             });
         }
-
+        if (debugAimTargets) room->entities.view<Aiming, AABB>().each([&](const Aiming &aim, const AABB &aabb) {
+            lineRenderer.axes(aim.target, 4, mu::X);
+            lineRenderer.line(aim.target, aabb.center, mu::X);
+        });
 
         inspector.entityTemplates = room->getTemplateNames();
         inspector.drawGUI(&cam, lineRenderer);

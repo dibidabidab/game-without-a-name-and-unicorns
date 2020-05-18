@@ -2,10 +2,10 @@
 #ifndef GAME_LEGSSYSTEM_H
 #define GAME_LEGSSYSTEM_H
 
-#include "EntitySystem.h"
-#include "../../room/Room.h"
-#include "../components/Leg.h"
-#include "../components/Physics.h"
+#include "../EntitySystem.h"
+#include "../../../room/Room.h"
+#include "../../components/body_parts/Leg.h"
+#include "../../components/physics/Physics.h"
 
 /**
  * Responsible for:

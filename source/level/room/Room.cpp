@@ -7,10 +7,13 @@
 #include "../ecs/systems/networking/NetworkingSystem.h"
 #include "../ecs/systems/PlayerControlSystem.h"
 #include "../ecs/systems/physics/VerletPhysicsSystem.h"
-#include "../ecs/systems/LegsSystem.h"
+#include "../ecs/systems/body_parts/LegsSystem.h"
 #include "../ecs/systems/SpriteBobbingSystem.h"
 #include "../ecs/systems/SpriteAnchorSystem.h"
-#include "../ecs/systems/KneeJointSystem.h"
+#include "../ecs/systems/body_parts/LimbJointSystem.h"
+#include "../ecs/systems/body_parts/ArmsSystem.h"
+#include "../ecs/systems/BowWeaponSystem.h"
+#include "../ecs/systems/ChildrenSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -24,14 +27,17 @@ void Room::initialize(Level *lvl, int roomI_)
 
     level = lvl;
     roomI = roomI_;
-    systems.push_front(new KneeJointSystem("knee joints"));
+    systems.push_front(new LimbJointSystem("knee/elbow joints"));
     systems.push_front(new SpriteAnchorSystem("sprite anchors"));
     systems.push_front(new SpriteBobbingSystem("sprite bobbing"));
     systems.push_front(new LegsSystem("legs"));
+    systems.push_front(new ArmsSystem("arms"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
     systems.push_front(new PhysicsSystem("physics"));
+    systems.push_front(new BowWeaponSystem("bow weapons"));
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
     systems.push_front(new PlayerControlSystem("player control"));
+    systems.push_front(new ChildrenSystem("children"));
 
     for (auto sys : systems) sys->init(this);
     initialized = true;
@@ -122,4 +128,15 @@ EntityTemplate *Room::getTemplate(int templateHash)
 const std::vector<std::string> &Room::getTemplateNames() const
 {
     return entityTemplateNames;
+}
+
+entt::entity Room::getChildByName(entt::entity parent, const char *childName)
+{
+    const Parent *p = entities.try_get<Parent>(parent);
+    if (!p)
+        return entt::null;
+    auto it = p->childrenByName.find(childName);
+    if (it == p->childrenByName.end())
+        return entt::null;
+    return it->second;
 }

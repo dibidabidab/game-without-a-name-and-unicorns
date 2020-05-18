@@ -4,11 +4,11 @@
 
 #include <utils/math_utils.h>
 #include <graphics/3d/debug_line_renderer.h>
-#include "../systems/physics/TerrainCollisionDetector.h"
-#include "../../Level.h"
-#include "../../room/TileMap.h"
-#include "../../../macro_magic/component.h"
-#include "../systems/networking/NetworkedData.h"
+#include "../../systems/physics/TerrainCollisionDetector.h"
+#include "../../../Level.h"
+#include "../../../room/TileMap.h"
+#include "../../../../macro_magic/component.h"
+#include "../../systems/networking/NetworkedData.h"
 
 /**
  * 2d pixel based Axis Aligned Bounding Box
@@ -22,7 +22,7 @@ COMPONENT(
     ),
 
     FIELD(ivec2, halfSize),
-    FIELD(ivec2, center)
+    FIELD_DEF_VAL(ivec2, center, ivec2(0))
 )
     int centerHashStep = 10;
 

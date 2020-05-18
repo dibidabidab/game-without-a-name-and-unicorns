@@ -2,8 +2,8 @@
 #ifndef GAME_ASEPRITEVIEW_H
 #define GAME_ASEPRITEVIEW_H
 
-#include "../../../macro_magic/component.h"
-#include "Physics.h"
+#include "../../../../macro_magic/component.h"
+#include "../physics/Physics.h"
 #include <utils/aseprite/Aseprite.h>
 #include <asset_manager/asset.h>
 
@@ -20,6 +20,9 @@ COMPONENT(
     FIELD_DEF_VAL(int, frame, 0),
     FIELD_DEF_VAL(int, playingTag, -1),
     FIELD_DEF_VAL(bool, paused, false),
+    FIELD_DEF_VAL(bool, flipHorizontal, false),
+    FIELD_DEF_VAL(bool, flipVertical, false),
+    FIELD_DEF_VAL(bool, rotate90Deg, false),
     FIELD_DEF_VAL(float, zIndex, 0),
 
     FIELD_DEF_VAL(vec2, aabbAlign, vec2(.5)), // by default the sprite's origin is positioned at the center of the AABB of the entity

@@ -2,7 +2,7 @@
 #ifndef GAME_DRAWPOLYLINE_H
 #define GAME_DRAWPOLYLINE_H
 
-#include "../../../macro_magic/component.h"
+#include "../../../../macro_magic/component.h"
 
 /**
  * Used to tell the renderer that a polyline should be drawn.
