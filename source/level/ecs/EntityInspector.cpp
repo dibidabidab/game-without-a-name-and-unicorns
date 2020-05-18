@@ -487,7 +487,7 @@ void drawFieldsTree(
                 drawFieldsTree(value, subInfo, ins, subReadOnly);
             else drawJsonTree(
                     value, ins,
-                    !info->structFieldIsFixedSize[i],
+                    !info->structFieldIsFixedSize[i] && !subReadOnly,
                     subReadOnly
             );
             ins.currentPath.pop_back();

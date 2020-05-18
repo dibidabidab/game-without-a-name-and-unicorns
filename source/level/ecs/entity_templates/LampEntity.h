@@ -17,6 +17,9 @@ class LampEntity : public EntityTemplate
         entt::entity ropeEntity = room->getTemplate<RopeEntity>()->create();
 
         entt::entity e = room->entities.create();
+
+        setParent(ropeEntity, e, "rope");
+
         room->entities.assign<AABB>(e, ivec2(3));
         room->entities.assign<LightPoint>(e);
         room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/lamp"));

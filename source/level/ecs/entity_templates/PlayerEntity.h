@@ -38,10 +38,10 @@ class PlayerEntity : public EntityTemplate
 
         float legLength = 15;
 
-        std::vector<entt::entity> legEntities{room->entities.create(), room->entities.create()};
+        std::vector<entt::entity> legEntities{createChild(e), createChild(e)};
 
-        entt::entity legAnchors[2] = {room->entities.create(), room->entities.create()};
-        entt::entity knees[2] = {room->entities.create(), room->entities.create()};
+        entt::entity legAnchors[2] = {createChild(e), createChild(e)};
+        entt::entity knees[2] = {createChild(e), createChild(e)};
 
         for (int i = 0; i < 2; i++)
         {
@@ -71,9 +71,9 @@ class PlayerEntity : public EntityTemplate
 
         // ARMS: ----------------------
 
-        entt::entity arms[2] = {room->entities.create(), room->entities.create()};
-        entt::entity elbows[2] = {room->entities.create(), room->entities.create()};
-        entt::entity shoulders[2] = {room->entities.create(), room->entities.create()};
+        entt::entity arms[2] = {createChild(e), createChild(e)};
+        entt::entity elbows[2] = {createChild(e), createChild(e)};
+        entt::entity shoulders[2] = {createChild(e), createChild(e)};
         float armLength = 16;
 
         for (int i = 0; i < 2; i++)
@@ -103,6 +103,7 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<Aiming>(e);
 
         auto bowEntity = room->getTemplate<BowEntity>()->create();
+        setParent(bowEntity, e, "bow");
         Bow &bow = room->entities.get<Bow>(bowEntity);
         bow.archer = e;
         bow.archerLeftArm = arms[0];

@@ -37,6 +37,11 @@ class EntityTemplate
     virtual void makeNetworkedClientSide(Networked &) {}
 
     virtual ~EntityTemplate() = default;
+
+    entt::entity createChild(entt::entity parent, const char *childName="");
+
+    void setParent(entt::entity child, entt::entity parent, const char *childName="");
+
 };
 
 

@@ -18,11 +18,11 @@ class BowEntity : public EntityTemplate
         room->entities.assign<AABB>(e, ivec2(3));
         room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/bow"));
 
-        bow.handBowAnchor = room->entities.create();
+        bow.handBowAnchor = createChild(e);
         room->entities.assign<AABB>(bow.handBowAnchor, ivec2(1));
         room->entities.assign<SpriteAnchor>(bow.handBowAnchor, e, "hand_bow_anchor");
 
-        bow.handStringAnchor = room->entities.create();
+        bow.handStringAnchor = createChild(e);
         room->entities.assign<AABB>(bow.handStringAnchor, ivec2(1));
         room->entities.assign<SpriteAnchor>(bow.handStringAnchor, e, "hand_string_anchor");
 
