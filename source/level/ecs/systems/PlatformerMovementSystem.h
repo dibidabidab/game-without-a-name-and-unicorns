@@ -51,7 +51,15 @@ class PlatformerMovementSystem : public EntitySystem
         room->entities.view<PlatformerMovement, PlatformerMovementInput, Physics>()
             .each([&](entt::entity e, PlatformerMovement &movement, PlatformerMovementInput &input, Physics &physics) {
 
-            if (input.jump && physics.touches.floor && physics.velocity.y <= 0) physics.velocity.y = movement.jumpVelocity;
+            if (input.jump && (physics.touches.floor || physics.airTime < movement.coyoteTime) && physics.velocity.y <= 0)
+            {
+                physics.velocity.y = movement.jumpVelocity;
+                movement.jumpPressedSinceBegin = true;
+            }
+            if (!input.jump)
+                movement.jumpPressedSinceBegin = false;
+            if (movement.jumpPressedSinceBegin && physics.velocity.y >= 0)
+                physics.velocity.y += physics.gravity * movement.jumpAntiGravity * deltaTime;
 
             physics.velocity.x = ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
 

@@ -45,7 +45,7 @@ class SpriteBobbingSystem : public EntitySystem
                 if (!physics->touches.floor && bobbing.floorHitVelocity < 0)
                     bobbing.floorHitVelocity = 0;
 
-                bobbing.floorHitVelocity += 1200 * deltaTime;
+                bobbing.floorHitVelocity += 1700 * deltaTime;
                 bobbing.floorHitYPos = min<float>(0, bobbing.floorHitYPos + bobbing.floorHitVelocity * deltaTime);
 
                 diff += bobbing.floorHitYPos;

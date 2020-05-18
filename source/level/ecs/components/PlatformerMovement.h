@@ -17,13 +17,17 @@ END_COMPONENT(PlatformerMovementInput)
 
 COMPONENT(
     PlatformerMovement,
-    HASH(jumpVelocity, walkVelocity),
+    HASH(jumpVelocity, walkVelocity, coyoteTime),
 
-    FIELD_DEF_VAL(float, walkVelocity, 50),
-    FIELD_DEF_VAL(float, jumpVelocity, 160)
+    FIELD_DEF_VAL(float, walkVelocity, 85),
+    FIELD_DEF_VAL(float, jumpVelocity, 175),
+    FIELD_DEF_VAL(float, coyoteTime, .25),
+    FIELD_DEF_VAL(float, jumpAntiGravity, .5)
 )
     // used by system:
     float fallPressedTimer = 0;
+
+    bool jumpPressedSinceBegin = false;
 
 END_COMPONENT(PlatformerMovement)
 

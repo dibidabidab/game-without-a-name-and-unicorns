@@ -113,7 +113,7 @@ COMPONENT(
         int(velocity.x) / 50, int(velocity.y) / 50, int(gravity), bool(velocity.x == 0), bool(velocity.y == 0)
     ),
 
-    FIELD_DEF_VAL   (float, gravity, 300),
+    FIELD_DEF_VAL   (float, gravity, 400),
     FIELD           (vec2,  velocity),
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
 )

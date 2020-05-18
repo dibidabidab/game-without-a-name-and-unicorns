@@ -51,9 +51,16 @@ class ChildrenSystem : public EntitySystem
     void onParentDeletion(entt::registry &reg, entt::entity entity)
     {
         Parent &parent = reg.get_or_assign<Parent>(entity);
+
+        auto tmpChildren(parent.children);
+        parent.children.clear();
+
         if (parent.deleteChildrenOnDeletion)
-            for (auto child : parent.children)
+            for (auto child : tmpChildren)
                 reg.destroy(child);
+        else
+            for (auto child : tmpChildren)
+                reg.remove<Child>(child);
     }
 
     void update(double deltaTime, Room *room) override
