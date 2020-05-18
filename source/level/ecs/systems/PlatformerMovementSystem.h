@@ -10,10 +10,13 @@
 #include "../components/PlatformerMovement.h"
 #include "../components/PlayerControlled.h"
 #include "../components/combat/Aiming.h"
+#include "../components/graphics/AsepriteView.h"
 
 /**
  * Responsible for:
  *  - setting the velocity of an entity (e.g. the player) based on (keyboard or AI) input.
+ *  - setting the aim-target for the local player.
+ *  - flipping entities+sprites when the entity aims to the left
  */
 class PlatformerMovementSystem : public EntitySystem
 {
@@ -23,6 +26,17 @@ class PlatformerMovementSystem : public EntitySystem
     {
         room->entities.view<LocalPlayer, Aiming>().each([&](auto, Aiming &aiming) {
             aiming.target = room->cursorPositionInRoom;
+        });
+        room->entities.view<Flip, Aiming, AABB>().each([&](Flip &flip, const Aiming &aiming, const AABB &aabb) {
+
+            flip.horizontal = aiming.target.x < aabb.center.x;
+
+        });
+        room->entities.view<Flip, AsepriteView>().each([&](const Flip &flip, AsepriteView &view) {
+
+            view.flipHorizontal = flip.horizontal;
+            view.flipVertical = flip.vertical;
+
         });
         room->entities.view<PlatformerMovement, LocalPlayer>().each([&](entt::entity e, PlatformerMovement &movement, LocalPlayer) {
 

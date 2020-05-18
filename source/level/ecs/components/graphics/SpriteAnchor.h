@@ -12,7 +12,8 @@ COMPONENT(
     SpriteAnchor,
     HASH(0),
     FIELD_DEF_VAL(entt::entity, spriteEntity, entt::null),
-    FIELD(std::string, spriteSliceName)
+    FIELD(std::string, spriteSliceName),
+    FIELD_DEF_VAL(bool, ignoreSpriteFlipping, false)
 )
 END_COMPONENT(SpriteAnchor)
 

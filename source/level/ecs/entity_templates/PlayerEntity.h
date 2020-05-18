@@ -31,6 +31,7 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<AABB>(e, ivec2(3, 13), ivec2(64, 64));
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<PlatformerMovement>(e);
+        room->entities.assign<Flip>(e);
         room->entities.assign<LightPoint>(e); // todo, remove
 
         // LEGS: -----------------------------------
@@ -51,7 +52,7 @@ class PlayerEntity : public EntityTemplate
 
 
             room->entities.assign<AABB>(legAnchors[i], ivec2(1));
-            room->entities.assign<SpriteAnchor>(legAnchors[i], e, i == 0 ? "leg_left" : "leg_right");
+            room->entities.assign<SpriteAnchor>(legAnchors[i], e, i == 0 ? "leg_left" : "leg_right", true);
 
             room->entities.assign<AABB>(knees[i], ivec2(1));
             room->entities.assign<LimbJoint>(knees[i], legAnchors[i], legEntities[i]);
@@ -68,13 +69,6 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<SpriteBobbing>(e, legEntities);
         room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/player_body"));
 
-        // WEAPON: -------------------
-        room->entities.assign<Aiming>(e);
-
-        auto bowEntity = room->getTemplate<BowEntity>()->create();
-        Bow &bow = room->entities.get<Bow>(bowEntity);
-        bow.archer = e;
-
         // ARMS: ----------------------
 
         entt::entity arms[2] = {room->entities.create(), room->entities.create()};
@@ -88,12 +82,9 @@ class PlayerEntity : public EntityTemplate
             room->entities.assign<AABB>(arms[i], ivec2(1));
             Arm &arm = room->entities.get_or_assign<Arm>(arms[i], e, ivec2(i == 0 ? -3 : 3, 4), armLength);
 
-            if (i == 1)
-                arm.grab = bow.handBowAnchor;
-
             // shoulders:
             room->entities.assign<AABB>(shoulders[i], ivec2(1));
-            room->entities.assign<SpriteAnchor>(shoulders[i], e, i == 0 ? "arm_left" : "arm_right");
+            room->entities.assign<SpriteAnchor>(shoulders[i], e, i == 0 ? "arm_left" : "arm_right", true);
 
             // elbow:
             room->entities.assign<AABB>(elbows[i], ivec2(1));
@@ -107,6 +98,16 @@ class PlayerEntity : public EntityTemplate
             });
             room->entities.assign<DrawPolyline>(arms[i], std::vector<uint8>{5});
         }
+
+        // WEAPON: -------------------
+        room->entities.assign<Aiming>(e);
+
+        auto bowEntity = room->getTemplate<BowEntity>()->create();
+        Bow &bow = room->entities.get<Bow>(bowEntity);
+        bow.archer = e;
+        bow.archerLeftArm = arms[0];
+        bow.archerRightArm = arms[1];
+        bow.rotatePivot.y = 7;
 
         return e;
     }

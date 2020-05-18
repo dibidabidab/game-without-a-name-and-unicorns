@@ -38,6 +38,8 @@ class LimbJointSystem : public EntitySystem
 
             float hipFootDistance = length(vec2(hip->center - foot->center));
 
+            bool flipLimb = false;
+
             if (hipFootDistance == 0)
             {
                 pos0 = pos1 = aabb.center; /// reuse previous position
@@ -46,12 +48,19 @@ class LimbJointSystem : public EntitySystem
             {
                 float radius = limbLength / 2;
                 mu::circleIntersections(pos0, pos1, hip->center, foot->center, radius, radius, hipFootDistance);
+
+                Flip *flip = room->entities.try_get<Flip>(leg ? leg->body : arm->body);
+                if (flip && flip->horizontal)
+                    flipLimb = true;
             }
             else
             {
                 pos0 = pos1 = vec2(foot->center) * .5f + vec2(hip->center) * .5f;
             }
-            aabb.center = (leg ? knee.invert : !knee.invert) ? pos0 : pos1;
+            bool usePos0 = leg ? knee.invert : !knee.invert;
+            if (flipLimb)
+                usePos0 = !usePos0;
+            aabb.center = usePos0 ? pos0 : pos1;
         });
     }
 

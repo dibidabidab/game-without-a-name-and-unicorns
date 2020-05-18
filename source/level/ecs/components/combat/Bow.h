@@ -11,12 +11,15 @@ COMPONENT(
     Bow,
     HASH(0),
     FIELD_DEF_VAL(entt::entity, archer, entt::null),    // the entity holding the bow.
+    FIELD_DEF_VAL(entt::entity, archerLeftArm, entt::null),
+    FIELD_DEF_VAL(entt::entity, archerRightArm, entt::null),
+    FIELD_DEF_VAL(ivec2, rotatePivot, ivec2(0)),
     FIELD_DEF_VAL(float, fireRate, .1),
-    FIELD_DEF_VAL(float, distanceFromArcher, 12)
+    FIELD_DEF_VAL(float, distanceFromArcher, 9)
 )
     float cooldown = 0;
 
-    entt::entity handBowAnchor;
+    entt::entity handBowAnchor, handStringAnchor;
 
 END_COMPONENT(Bow)
 

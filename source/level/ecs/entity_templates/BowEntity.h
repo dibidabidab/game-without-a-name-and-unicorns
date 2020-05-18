@@ -22,6 +22,10 @@ class BowEntity : public EntityTemplate
         room->entities.assign<AABB>(bow.handBowAnchor, ivec2(1));
         room->entities.assign<SpriteAnchor>(bow.handBowAnchor, e, "hand_bow_anchor");
 
+        bow.handStringAnchor = room->entities.create();
+        room->entities.assign<AABB>(bow.handStringAnchor, ivec2(1));
+        room->entities.assign<SpriteAnchor>(bow.handStringAnchor, e, "hand_string_anchor");
+
         return e;
     }
 };

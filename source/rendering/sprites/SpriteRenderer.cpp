@@ -8,10 +8,11 @@ SpriteRenderer::SpriteRenderer(const MegaSpriteSheet *s)
     megaSpriteSheet(s),
     shader("sprite shader", "shaders/sprite.vert", "shaders/sprite.frag"),
     instancedData(
-        VertAttributes()
+        VertAttributes()    // todo reduce byte-size:
             .add_({"POS", 3})
             .add_({"SIZE", 2})
-            .add_({"TEXTURE_OFFSET", 2}),
+            .add_({"TEXTURE_OFFSET", 2})
+            .add_({"ROTATE_90_DEG", 1, 4, GL_INT}),
         std::vector<u_char>()
     )
 {
@@ -44,10 +45,22 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
         instancedData.addVertices(1);
 
         ivec2 position = view.getDrawPosition(aabb);
+        vec2 size(view.sprite->width, view.sprite->height);
+        if (view.flipHorizontal)
+        {
+            frameOffset.x += view.sprite->width;
+            size.x *= -1;
+        }
+        if (view.flipVertical)
+        {
+            frameOffset.y += view.sprite->height;
+            size.y *= -1;
+        }
 
         instancedData.set<vec3>(vec3(position, view.zIndex), i, 0);
-        instancedData.set<vec2>(vec2(view.sprite->width, view.sprite->height), i, sizeof(vec3));
+        instancedData.set<vec2>(size, i, sizeof(vec3));
         instancedData.set<vec2>(frameOffset, i, sizeof(vec3) + sizeof(vec2));
+        instancedData.set<int>(view.rotate90Deg ? 1 : 0, i, sizeof(vec3) + sizeof(vec2) + sizeof(vec2));
 
         i++;
     });

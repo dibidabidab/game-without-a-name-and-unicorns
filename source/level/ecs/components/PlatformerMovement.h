@@ -27,4 +27,13 @@ COMPONENT(
 
 END_COMPONENT(PlatformerMovement)
 
+COMPONENT(
+    Flip,
+    HASH(horizontal, vertical),
+
+    FIELD_DEF_VAL(bool, horizontal, false),
+    FIELD_DEF_VAL(bool, vertical, false)
+)
+END_COMPONENT(Flip)
+
 #endif

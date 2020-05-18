@@ -20,6 +20,9 @@ COMPONENT(
     FIELD_DEF_VAL(int, frame, 0),
     FIELD_DEF_VAL(int, playingTag, -1),
     FIELD_DEF_VAL(bool, paused, false),
+    FIELD_DEF_VAL(bool, flipHorizontal, false),
+    FIELD_DEF_VAL(bool, flipVertical, false),
+    FIELD_DEF_VAL(bool, rotate90Deg, false),
     FIELD_DEF_VAL(float, zIndex, 0),
 
     FIELD_DEF_VAL(vec2, aabbAlign, vec2(.5)), // by default the sprite's origin is positioned at the center of the AABB of the entity
