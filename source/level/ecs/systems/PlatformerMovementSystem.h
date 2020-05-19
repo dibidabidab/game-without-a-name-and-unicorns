@@ -11,6 +11,7 @@
 #include "../components/PlayerControlled.h"
 #include "../components/combat/Aiming.h"
 #include "../components/graphics/AsepriteView.h"
+#include "../components/DespawnAfter.h"
 
 /**
  * Responsible for:
@@ -22,8 +23,12 @@ class PlatformerMovementSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;
   protected:
+
+    Room *room = NULL;
+
     void update(double deltaTime, Room *room) override
     {
+        this->room = room;
         room->entities.view<LocalPlayer, Aiming>().each([&](auto, Aiming &aiming) {
             aiming.target = room->cursorPositionInRoom;
         });
@@ -48,13 +53,19 @@ class PlatformerMovementSystem : public EntitySystem
 
             room->entities.assign_or_replace<PlatformerMovementInput>(e, input);
         });
-        room->entities.view<PlatformerMovement, PlatformerMovementInput, Physics>()
-            .each([&](entt::entity e, PlatformerMovement &movement, PlatformerMovementInput &input, Physics &physics) {
+        room->entities.view<PlatformerMovement, PlatformerMovementInput, Physics, AABB>()
+            .each([&](entt::entity e, PlatformerMovement &movement, PlatformerMovementInput &input, Physics &physics, const AABB &aabb) {
 
-            if (input.jump && (physics.touches.floor || physics.airTime < movement.coyoteTime) && physics.velocity.y <= 0)
+            if (
+                    input.jump
+                    && (physics.touches.floor || physics.airTime < movement.coyoteTime)
+                    && physics.velocity.y <= 0
+            )
             {
                 physics.velocity.y = movement.jumpVelocity;
                 movement.jumpPressedSinceBegin = true;
+                if (physics.touches.floor)
+                    spawnDustTrail(aabb.bottomCenter(), "jump");
             }
             if (!input.jump)
                 movement.jumpPressedSinceBegin = false;
@@ -77,8 +88,25 @@ class PlatformerMovementSystem : public EntitySystem
             // ignore platforms for at least 0.2 sec since down-arrow was pressed:
             if (physics.ignorePlatforms && (movement.fallPressedTimer += deltaTime) > .1 && !input.fall)
                 physics.ignorePlatforms = false;
+
+            if (physics.touches.floor && !physics.prevTouched.floor && physics.prevVelocity.y < -160)
+                spawnDustTrail(aabb.bottomCenter(), "land");
         });
     }
+
+    void spawnDustTrail(const ivec2 &position, const char *animationName)
+    {
+        entt::entity e = room->entities.create();
+
+        room->entities.assign<AABB>(e, ivec2(3), position);
+        auto &view = room->entities.get_or_assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/dust_trails"));
+        view.originAlign.y = 0;
+
+        float duration = view.playTag(animationName);
+
+        room->entities.assign<DespawnAfter>(e, duration);
+    }
+
 };
 
 

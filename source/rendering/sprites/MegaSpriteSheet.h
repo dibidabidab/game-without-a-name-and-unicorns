@@ -20,7 +20,7 @@ class MegaSpriteSheet
 
     SharedTexture texture;
 
-    const static int SIZE = 512;
+    const static int SIZE = 1024;
 
     void add(const aseprite::Sprite &);
 

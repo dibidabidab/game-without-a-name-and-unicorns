@@ -26,10 +26,14 @@ COMPONENT(
 )
     int centerHashStep = 10;
 
-    inline ivec2 topRight() const    { return center + halfSize; }
-    inline ivec2 bottomRight() const { return center + ivec2(halfSize.x, -halfSize.y); }
-    inline ivec2 bottomLeft() const  { return center - halfSize; }
-    inline ivec2 topLeft() const     { return center + ivec2(-halfSize.x, halfSize.y); }
+    inline ivec2 topRight() const       { return center + halfSize; }
+    inline ivec2 bottomRight() const    { return center + ivec2(halfSize.x, -halfSize.y); }
+    inline ivec2 bottomLeft() const     { return center - halfSize; }
+    inline ivec2 topLeft() const        { return center + ivec2(-halfSize.x, halfSize.y); }
+    inline ivec2 topCenter() const      { return center + ivec2(0, halfSize.y); }
+    inline ivec2 bottomCenter() const   { return center + ivec2(0, -halfSize.y); }
+    inline ivec2 rightCenter() const    { return center + ivec2(halfSize.x, 0); }
+    inline ivec2 leftCenter() const     { return center + ivec2(-halfSize.x, 0); }
 
     void draw(DebugLineRenderer &lineRenderer, const vec3 &color) const
     {

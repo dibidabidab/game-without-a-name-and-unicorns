@@ -22,7 +22,8 @@ COMPONENT(
     FIELD_DEF_VAL(float, walkVelocity, 85),
     FIELD_DEF_VAL(float, jumpVelocity, 175),
     FIELD_DEF_VAL(float, coyoteTime, .25),
-    FIELD_DEF_VAL(float, jumpAntiGravity, .5)
+    FIELD_DEF_VAL(float, jumpAntiGravity, .5),
+    FIELD_DEF_VAL(bool, spawnDustTrails, true)
 )
     // used by system:
     float fallPressedTimer = 0;

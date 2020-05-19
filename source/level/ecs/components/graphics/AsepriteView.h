@@ -33,7 +33,11 @@ COMPONENT(
     float frameTimer = 0;
     bool pong = false;
 
-    void playTag(const char *tagName, bool unpause=false)
+    /**
+     * play a tag animation.
+     * returns the duration of the animation in seconds.
+     */
+    float playTag(const char *tagName, bool unpause=false)
     {
         int i =  0;
         for (auto &tag : sprite->tags)
@@ -45,10 +49,11 @@ COMPONENT(
                 pong = false;
                 playingTag = i;
                 paused = unpause ? false : paused;
-                break;
+                return tag.duration;
             }
             i++;
         }
+        return 0;
     }
 
     ivec2 getDrawPosition(const AABB &aabb) const
