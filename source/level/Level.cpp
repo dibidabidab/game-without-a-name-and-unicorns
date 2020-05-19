@@ -5,8 +5,9 @@
 #include <cstring>
 
 #include "Level.h"
-#include "ecs/entity_templates/PlayerEntity.h"
 #include "ecs/entity_templates/LampEntity.h"
+#include "ecs/entity_templates/PlantEntity.h"
+#include "ecs/entity_templates/PlayerEntity.h"
 #include "ecs/entity_templates/RopeEntity.h"
 #include "ecs/entity_templates/BowEntity.h"
 
@@ -15,9 +16,10 @@ void Level::initialize()
     assert(rooms != NULL);
     for (int i = 0; i < nrOfRooms; i++)
     {
-        rooms[i].registerEntityTemplate<PlayerEntity>();
         rooms[i].registerEntityTemplate<BowEntity>();
         rooms[i].registerEntityTemplate<LampEntity>();
+        rooms[i].registerEntityTemplate<PlantEntity>();
+        rooms[i].registerEntityTemplate<PlayerEntity>();
         rooms[i].registerEntityTemplate<RopeEntity>();
         rooms[i].initialize(this, i);
     }
