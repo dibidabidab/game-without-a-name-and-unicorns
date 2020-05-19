@@ -11,7 +11,8 @@ COMPONENT(
     FIELD_DEF_VAL(bool, jump, false),
     FIELD_DEF_VAL(bool, fall, false),
     FIELD_DEF_VAL(bool, left, false),
-    FIELD_DEF_VAL(bool, right, false)
+    FIELD_DEF_VAL(bool, right, false),
+    FIELD_DEF_VAL(bool, attack, false)
 )
 END_COMPONENT(PlatformerMovementInput)
 
