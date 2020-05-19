@@ -20,6 +20,7 @@ COMPONENT(
     float cooldown = 0;
 
     entt::entity handBowAnchor, handStringAnchor;
+    vec2 prevAimDir = vec2(1, 0);
 
 END_COMPONENT(Bow)
 

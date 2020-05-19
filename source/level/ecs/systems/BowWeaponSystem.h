@@ -24,7 +24,8 @@ class BowWeaponSystem : public EntitySystem
                 return; // bow is not being held by an valid entity.
 
             ivec2 pivot = archerAABB->center + bow.rotatePivot;
-            vec2 aimDirection = normalize(vec2(aim->target - pivot));
+            vec2 aimDirection = aim->target == pivot ? bow.prevAimDir : normalize(vec2(aim->target - pivot));
+            bow.prevAimDir = aimDirection;
 
             // rotate bow around archer:
             aabb.center = pivot + ivec2(aimDirection * bow.distanceFromArcher);

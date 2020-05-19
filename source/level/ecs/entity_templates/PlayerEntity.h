@@ -134,6 +134,9 @@ class PlayerEntity : public EntityTemplate
                 .component<Physics>()
                 .interpolatedComponent<AABB>()
                 .endGroup();
+
+        networked.toSend.component<Aiming>();
+        networked.toReceive.component<Aiming>();
     }
 
     void makeNetworkedClientSide(Networked &networked) override
@@ -144,6 +147,7 @@ class PlayerEntity : public EntityTemplate
                 .component<Physics>()
                 .interpolatedComponent<AABB>()
                 .endGroup();
+        networked.sendIfLocalPlayerReceiveOtherwise.component<Aiming>();
     }
 };
 
