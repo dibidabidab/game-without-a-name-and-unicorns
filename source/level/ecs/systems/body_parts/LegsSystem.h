@@ -34,6 +34,8 @@ class LegsSystem : public EntitySystem
             }
             setTarget(leg, footAABB, *bodyAABB, *bodyPhysics);
 
+            teleportFootIfNeeded(leg, footAABB);
+
             if (bodyPhysics->touches.floor && !bodyPhysics->prevTouched.floor && bodyPhysics->airTime > MIN_JUMP_TIME)
                 leg.stopMoving();
 
@@ -45,6 +47,16 @@ class LegsSystem : public EntitySystem
             leg.prevBodyPos = bodyAABB->center;
             leg.prevBodyVelocity = bodyPhysics->velocity;
         });
+    }
+
+    void teleportFootIfNeeded(Leg &leg, AABB &footAABB)
+    {
+        float dist = length(vec2(footAABB.center) - leg.target);
+        if (!leg.initialized || dist > max<float>(32, leg.maxDistToTarget * 2.5))
+        {
+            footAABB.center = leg.target;
+            leg.initialized = true;
+        }
     }
 
     bool isJumping(const Physics &body)
@@ -127,7 +139,7 @@ class LegsSystem : public EntitySystem
         }
     }
 
-    void startMovingIfNeeded(Leg &leg, const AABB &footAABB, const Physics &body, float deltaTime)
+    void startMovingIfNeeded(Leg &leg, AABB &footAABB, const Physics &body, float deltaTime)
     {
         leg.shouldBeMoving = false;
 
