@@ -37,8 +37,8 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new HeadsSystem("heads"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
     systems.push_front(new PhysicsSystem("physics"));
-    systems.push_front(new BowWeaponSystem("bow weapons"));
     systems.push_front(new ArrowSystem("bow arrows"));
+    systems.push_front(new BowWeaponSystem("bow weapons"));
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
     systems.push_front(new PlayerControlSystem("player control"));
     systems.push_front(new ChildrenSystem("children"));

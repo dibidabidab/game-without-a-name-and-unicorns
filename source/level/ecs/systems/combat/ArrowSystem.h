@@ -23,6 +23,7 @@ class ArrowSystem : public EntitySystem
             if (physics.touches.anything)
             {
                 room->entities.remove<Physics>(e);
+                room->entities.assign<DespawnAfter>(e, 100);
                 return;
             }
 
