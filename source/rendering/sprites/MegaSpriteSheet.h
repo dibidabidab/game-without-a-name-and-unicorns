@@ -20,11 +20,13 @@ class MegaSpriteSheet
 
     SharedTexture texture;
 
-    const static int SIZE = 1024;
+    const static int SIZE = 512;
 
     void add(const aseprite::Sprite &);
 
     const SubSheet &spriteInfo(const aseprite::Sprite &) const;
+
+    void printUsage() const;
 
   private:
 

@@ -19,6 +19,7 @@
 #include "../components/body_parts/Arm.h"
 #include "../components/combat/Aiming.h"
 #include "BowEntity.h"
+#include "../components/body_parts/Head.h"
 
 class PlayerEntity : public EntityTemplate
 {
@@ -109,6 +110,13 @@ class PlayerEntity : public EntityTemplate
         bow.archerLeftArm = arms[0];
         bow.archerRightArm = arms[1];
         bow.rotatePivot.y = 7;
+
+        // HEAD: -----------
+        auto headEntity = createChild(e, "head");
+        room->entities.assign<Head>(headEntity, e);
+        room->entities.assign<AABB>(headEntity, ivec2(2, 4));
+        room->entities.assign<SpriteAnchor>(headEntity, e, "head");
+        room->entities.assign<AsepriteView>(headEntity, asset<aseprite::Sprite>("sprites/player_head"));
 
         return e;
     }

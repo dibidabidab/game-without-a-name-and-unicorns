@@ -14,6 +14,7 @@
 #include "../ecs/systems/body_parts/ArmsSystem.h"
 #include "../ecs/systems/BowWeaponSystem.h"
 #include "../ecs/systems/ChildrenSystem.h"
+#include "../ecs/systems/body_parts/HeadsSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -32,6 +33,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new SpriteBobbingSystem("sprite bobbing"));
     systems.push_front(new LegsSystem("legs"));
     systems.push_front(new ArmsSystem("arms"));
+    systems.push_front(new HeadsSystem("heads"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
     systems.push_front(new PhysicsSystem("physics"));
     systems.push_front(new BowWeaponSystem("bow weapons"));

@@ -9,7 +9,7 @@
 #include "../components/physics/Physics.h"
 
 /**
- * see SpriteAnchor documentation
+ * see SpriteBobbing documentation
  */
 class SpriteBobbingSystem : public EntitySystem
 {
@@ -58,9 +58,7 @@ class SpriteBobbingSystem : public EntitySystem
             if (diff > bobbing.maxYPos)
                 diff = bobbing.maxYPos;
 
-            float diffFract = float(diff) / view.sprite->height;
-
-            view.originAlign.y = .5 - diffFract;
+            view.positionOffset.y = diff;
         });
     }
 };
