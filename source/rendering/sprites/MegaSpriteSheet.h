@@ -26,6 +26,8 @@ class MegaSpriteSheet
 
     const SubSheet &spriteInfo(const aseprite::Sprite &) const;
 
+    void printUsage() const;
+
   private:
 
     const static int CHUNK_SIZE = 16, CHUNKS_PER_ROW = SIZE / CHUNK_SIZE;

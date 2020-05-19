@@ -85,6 +85,7 @@ class RoomScreen : public Screen
         assert(room != NULL);
         assert(spriteSheet != NULL);
         assert(spriteSheet->texture != NULL);
+        spriteSheet->printUsage();
 
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);

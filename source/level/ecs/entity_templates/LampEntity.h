@@ -20,7 +20,7 @@ class LampEntity : public EntityTemplate
 
         setParent(ropeEntity, e, "rope");
 
-        room->entities.assign<AABB>(e, ivec2(3));
+        room->entities.assign<AABB>(e, ivec2(3, 8));
         room->entities.assign<LightPoint>(e);
         room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/lamp"));
 
