@@ -2,12 +2,15 @@
 #ifndef GAME_BOWWEAPONSYSTEM_H
 #define GAME_BOWWEAPONSYSTEM_H
 
-#include "EntitySystem.h"
-#include "../../room/Room.h"
-#include "../components/combat/Bow.h"
-#include "../components/physics/Physics.h"
-#include "../components/graphics/AsepriteView.h"
-#include "../components/combat/Aiming.h"
+#include "../EntitySystem.h"
+#include "../../../room/Room.h"
+#include "../../components/combat/Bow.h"
+#include "../../components/physics/Physics.h"
+#include "../../components/graphics/AsepriteView.h"
+#include "../../components/combat/Aiming.h"
+#include "../../components/PlatformerMovement.h"
+#include "../../entity_templates/ArrowEntity.h"
+#include "../../components/body_parts/Arm.h"
 
 class BowWeaponSystem : public EntitySystem
 {
@@ -24,7 +27,8 @@ class BowWeaponSystem : public EntitySystem
                 return; // bow is not being held by an valid entity.
 
             ivec2 pivot = archerAABB->center + bow.rotatePivot;
-            vec2 aimDirection = normalize(vec2(aim->target - pivot));
+            vec2 aimDirection = aim->target == pivot ? bow.prevAimDir : normalize(vec2(aim->target - pivot));
+            bow.prevAimDir = aimDirection;
 
             // rotate bow around archer:
             aabb.center = pivot + ivec2(aimDirection * bow.distanceFromArcher);
@@ -67,6 +71,19 @@ class BowWeaponSystem : public EntitySystem
                     sprite.rotate90Deg = true;
                     sprite.flipHorizontal = aimDirection.y < 0;
                 }
+            }
+
+            PlatformerMovementInput *input = room->entities.try_get<PlatformerMovementInput>(bow.archer);
+
+            bow.cooldown += deltaTime;
+
+            if (input && input->attack && bow.cooldown >= bow.fireRate)
+            {
+                bow.cooldown = 0;
+                auto arrowEntity = room->getTemplate<ArrowEntity>()->create();
+                room->entities.get<AABB>(arrowEntity).center = aabb.center;
+                room->entities.get<Physics>(arrowEntity).velocity = aimDirection * 800.f;
+                room->entities.get<Arrow>(arrowEntity).launchedBy = bow.archer;
             }
         });
     }

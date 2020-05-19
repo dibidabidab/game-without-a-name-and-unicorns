@@ -19,6 +19,8 @@ TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignore
     collisions.leftWall = collisions.slopedCeilingUp || leftWallIntersection(aabb);
     collisions.rightWall = collisions.slopedCeilingDown || rightWallIntersection(aabb);
 
+    collisions.anything = collisions.floor || collisions.leftWall || collisions.rightWall || collisions.ceiling;
+
     return collisions;
 }
 

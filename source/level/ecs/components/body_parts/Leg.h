@@ -28,6 +28,7 @@ COMPONENT(
 
     // variables used by the LegsSystem:
 
+    bool initialized = false;
     vec2 target = vec2(0);
 
     bool moving = false, shouldBeMoving = false;

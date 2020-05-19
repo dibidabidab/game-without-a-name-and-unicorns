@@ -20,7 +20,8 @@ struct TerrainCollisions
         slopedCeilingDown = false,
         slopedCeilingUp   = false,
         leftWall          = false,
-        rightWall         = false;
+        rightWall         = false,
+        anything          = false;
 };
 
 // TODO, bug: when Tile::slope_up and Tile::slope_down are placed next to each other -> player can fall through them

@@ -10,6 +10,7 @@
 #include "ecs/entity_templates/PlayerEntity.h"
 #include "ecs/entity_templates/RopeEntity.h"
 #include "ecs/entity_templates/BowEntity.h"
+#include "ecs/entity_templates/ArrowEntity.h"
 
 void Level::initialize()
 {
@@ -17,6 +18,7 @@ void Level::initialize()
     for (int i = 0; i < nrOfRooms; i++)
     {
         rooms[i].registerEntityTemplate<BowEntity>();
+        rooms[i].registerEntityTemplate<ArrowEntity>();
         rooms[i].registerEntityTemplate<LampEntity>();
         rooms[i].registerEntityTemplate<PlantEntity>();
         rooms[i].registerEntityTemplate<PlayerEntity>();

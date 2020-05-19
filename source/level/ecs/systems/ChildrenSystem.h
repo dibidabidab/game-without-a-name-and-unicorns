@@ -51,14 +51,26 @@ class ChildrenSystem : public EntitySystem
     void onParentDeletion(entt::registry &reg, entt::entity entity)
     {
         Parent &parent = reg.get_or_assign<Parent>(entity);
+
+        auto tmpChildren(parent.children);
+        parent.children.clear();
+
         if (parent.deleteChildrenOnDeletion)
-            for (auto child : parent.children)
+            for (auto child : tmpChildren)
                 reg.destroy(child);
+        else
+            for (auto child : tmpChildren)
+                reg.remove<Child>(child);
     }
 
     void update(double deltaTime, Room *room) override
     {
-
+        // todo: DespawnAfter actually has nothing to do with the ChildrenSystem. I was just too lazy to create a new system
+        room->entities.view<DespawnAfter>().each([&](auto e, DespawnAfter &despawnAfter) {
+            despawnAfter.timer += deltaTime;
+            if (despawnAfter.timer >= despawnAfter.time)
+                room->entities.destroy(e);
+        });
     }
 
 };

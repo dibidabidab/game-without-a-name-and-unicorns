@@ -76,3 +76,14 @@ const MegaSpriteSheet::SubSheet &MegaSpriteSheet::spriteInfo(const aseprite::Spr
 {
     return subSheets.at(&s);
 }
+
+void MegaSpriteSheet::printUsage() const
+{
+    float usedChunks = 0;
+    for (int x = 0; x < CHUNKS_PER_ROW; x++)
+        for (int y = 0; y < CHUNKS_PER_ROW; y++)
+            if (used[x][y])
+                usedChunks++;
+    int usage = round(100.f * usedChunks / float(CHUNKS_PER_ROW * CHUNKS_PER_ROW));
+    std::cout << usage << "% used of MegaSpriteSheet\n";
+}
