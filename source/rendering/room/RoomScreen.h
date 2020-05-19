@@ -33,6 +33,8 @@
 #include "../../level/ecs/components/body_parts/Leg.h"
 #include "../../level/ecs/components/body_parts/LimbJoint.h"
 #include "../../level/ecs/components/combat/Aiming.h"
+#include "../../level/ecs/entity_templates/LampEntity.h"
+#include "../../level/ecs/entity_templates/PlantEntity.h"
 
 class RoomScreen : public Screen
 {
@@ -88,6 +90,19 @@ class RoomScreen : public Screen
         cam.lookAt(mu::ZERO_3);
 
         tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/bricks")});
+
+        // Temporary creation of test entities
+        entt::entity lamp1 = room->getTemplate<LampEntity>()->create();
+        room->getChildComponentByName<AABB>(lamp1, "rope")->center = ivec2(130, 125);
+
+        entt::entity lamp2 = room->getTemplate<LampEntity>()->create();
+        room->getChildComponentByName<AABB>(lamp2, "rope")->center = ivec2(220, 125);
+
+        for (int x=85; x < 180; x+=10) {
+            entt::entity plant = room->getTemplate<PlantEntity>()->create();
+            room->getChildComponentByName<AABB>(plant, "rope")->center = ivec2(x, 16);
+        }
+
     }
 
     void render(double deltaTime) override
