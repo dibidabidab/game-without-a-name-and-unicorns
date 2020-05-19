@@ -98,7 +98,7 @@ class RoomScreen : public Screen
         entt::entity lamp2 = room->getTemplate<LampEntity>()->create();
         room->getChildComponentByName<AABB>(lamp2, "rope")->center = ivec2(220, 125);
 
-        for (int x=85; x < 180; x+=10) {
+        for (int x=85; x < 180; x+=mu::randomInt(4, 15)) {
             entt::entity plant = room->getTemplate<PlantEntity>()->create();
             room->getChildComponentByName<AABB>(plant, "rope")->center = ivec2(x, 16);
         }
