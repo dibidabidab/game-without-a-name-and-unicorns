@@ -68,18 +68,15 @@ class BowWeaponSystem : public EntitySystem
             PlatformerMovementInput *input = room->entities.try_get<PlatformerMovementInput>(bow.archer);
 
             bow.cooldown += deltaTime;
-            bool justShot = false;
 
             if (input && input->attack && bow.cooldown >= bow.fireRate)
             {
-                justShot = true;
                 bow.cooldown = 0;
                 auto arrowEntity = room->getTemplate<ArrowEntity>()->create();
 
-                AABB *arrowSpawnPoint = room->entities.try_get<AABB>(bow.handBowAnchor);
-
-                room->entities.get<AABB>(arrowEntity).center = arrowSpawnPoint ? arrowSpawnPoint->center : aabb.center;
-                room->entities.get<Physics>(arrowEntity).velocity = aimDirection * 800.f;
+                vec2 arrowSpawnPoint = aabb.center;
+                room->entities.get<AABB>(arrowEntity).center = arrowSpawnPoint;
+                room->entities.get<Physics>(arrowEntity).velocity = aimDirection * 1000.f;
                 room->entities.get<Arrow>(arrowEntity).launchedBy = bow.archer;
 
                 sprite.paused = false;

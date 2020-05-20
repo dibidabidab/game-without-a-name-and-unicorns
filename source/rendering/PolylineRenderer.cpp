@@ -2,7 +2,7 @@
 #include "PolylineRenderer.h"
 #include "../level/ecs/components/physics/VerletRope.h"
 #include "../level/ecs/components/graphics/DrawPolyline.h"
-#include "../level/ecs/components/BezierCurve.h"
+#include "../level/ecs/components/Polyline.h"
 #include "../level/ecs/components/physics/Physics.h"
 #include <graphics/3d/vert_buffer.h>
 
@@ -40,6 +40,23 @@ void PolylineRenderer::render(const entt::registry &reg, const Camera &cam)
 
     nrOfSegments = 0;
 
+    reg.view<const Polyline, const DrawPolyline>().each([&](const Polyline &line, const DrawPolyline &draw) {
+
+        if (line.points.size() < 2)
+            return;
+
+        int nrOfLineSegments = line.points.size() - 1;
+
+        lineSegments.addVertices(nrOfLineSegments);
+
+        auto it = line.points.begin();
+        for (int i = 0; i < nrOfLineSegments; i++)
+        {
+            auto &p0 = *it;
+            auto &p1 = *(++it);
+            addSegment(draw, i, nrOfLineSegments, p0, p1);
+        }
+    });
     reg.view<const VerletRope, const DrawPolyline>().each([&](const VerletRope &rope, const DrawPolyline &draw) {
 
         if (rope.points.size() < 2)

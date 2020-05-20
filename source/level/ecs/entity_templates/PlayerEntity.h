@@ -14,7 +14,7 @@
 #include "../components/graphics/AsepriteView.h"
 #include "../components/graphics/SpriteAnchor.h"
 #include "../components/body_parts/LimbJoint.h"
-#include "../components/BezierCurve.h"
+#include "../components/Polyline.h"
 #include "../components/graphics/DrawPolyline.h"
 #include "../components/body_parts/Arm.h"
 #include "../components/combat/Aiming.h"
