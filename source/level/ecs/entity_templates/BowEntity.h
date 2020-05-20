@@ -16,7 +16,7 @@ class BowEntity : public EntityTemplate
 
         Bow &bow = room->entities.get_or_assign<Bow>(e);
         room->entities.assign<AABB>(e, ivec2(3));
-        room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/bow"));
+        room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/bow"), 0, 0, true, false);
 
         bow.handBowAnchor = createChild(e);
         room->entities.assign<AABB>(bow.handBowAnchor, ivec2(1));

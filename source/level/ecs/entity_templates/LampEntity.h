@@ -27,7 +27,7 @@ class LampEntity : public EntityTemplate
         room->entities.assign<DynamicCollider>(e);
 
         room->entities.get<VerletRope>(ropeEntity).endPointEntity = e;
-        room->entities.assign<DrawPolyline>(ropeEntity, std::vector<uint8>{4u});
+        room->entities.assign<DrawPolyline>(ropeEntity, std::vector<uint8>{6u});
 
         return e;
     }

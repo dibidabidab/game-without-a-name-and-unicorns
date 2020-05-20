@@ -172,7 +172,8 @@ COMPONENT(
     FIELD_DEF_VAL(float, maxDistance, 32),
     // todo add min distance
 
-    FIELD_DEF_VAL(entt::entity, target, entt::null)
+    FIELD_DEF_VAL(entt::entity, target, entt::null),
+    FIELD_DEF_VAL(vec2, targetOffset, vec2(0))
 )
 END_COMPONENT(DistanceConstraint)
 

@@ -9,6 +9,7 @@
 #include "../../components/graphics/AsepriteView.h"
 #include "../../components/combat/Aiming.h"
 #include "../../components/DespawnAfter.h"
+#include "../../components/Polyline.h"
 
 class ArrowSystem : public EntitySystem
 {
@@ -23,7 +24,7 @@ class ArrowSystem : public EntitySystem
             if (physics.touches.anything)
             {
                 room->entities.remove<Physics>(e);
-                room->entities.assign<DespawnAfter>(e, 100);
+                room->entities.assign<DespawnAfter>(e, mu::random(60, 100));
                 return;
             }
 
@@ -37,7 +38,31 @@ class ArrowSystem : public EntitySystem
                 frame = 0;
             sprite.frame = frame;
         });
+
+        addTrailPointsTimer += deltaTime;
+        bool addTrailPoint = addTrailPointsTimer > .02;
+        if (addTrailPoint)
+            addTrailPointsTimer = 0;
+
+        room->entities.view<Arrow, AABB, Polyline, Physics>().each([&](
+            auto &, const AABB &aabb, Polyline &line, Physics &physics
+        ) {
+            if (addTrailPoint || line.points.empty())
+                line.points.emplace_back();
+            line.points.back() = vec2(aabb.center) - normalize(physics.velocity) * 12.f;
+            if (line.points.size() > 3)
+                line.points.pop_front();
+        });
+
+        if (addTrailPoint) room->entities.view<Arrow, Polyline>(entt::exclude<Physics>).each([&](
+            auto &, Polyline &line
+        ) {
+            if (!line.points.empty())
+                line.points.pop_front();
+        });
     }
+
+    float addTrailPointsTimer = 0;
 
 };
 

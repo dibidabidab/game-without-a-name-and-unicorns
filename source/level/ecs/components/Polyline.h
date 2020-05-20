@@ -1,6 +1,6 @@
 
-#ifndef GAME_BEZIERCURVE_H
-#define GAME_BEZIERCURVE_H
+#ifndef GAME_POLYLINE_H
+#define GAME_POLYLINE_H
 
 #include "../../../macro_magic/component.h"
 
@@ -16,4 +16,11 @@ COMPONENT(
 )
 END_COMPONENT(BezierCurve)
 
-#endif //GAME_BEZIERCURVE_H
+COMPONENT(
+    Polyline,
+    HASH(0),
+    FIELD(std::list<vec2>, points)
+)
+END_COMPONENT(Polyline)
+
+#endif //GAME_POLYLINE_H

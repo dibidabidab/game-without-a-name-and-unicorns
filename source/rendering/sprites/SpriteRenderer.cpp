@@ -93,6 +93,12 @@ void SpriteRenderer::updateAnimation(AsepriteView &view, double deltaTime)
             if (view.pong && view.frame-- <= tag.from)
             {
                 view.pong = false;
+                if (!view.loop)
+                {
+                    view.playingTag = -1;
+                    view.frame = tag.from;
+                    return;
+                }
                 view.frame = tag.from == tag.to ? tag.from : tag.from + 1;
             }
             else if (!view.pong && view.frame++ >= tag.to)
@@ -104,9 +110,25 @@ void SpriteRenderer::updateAnimation(AsepriteView &view, double deltaTime)
         else if (tag.loopDirection == aseprite::Tag::reverse)
         {
             if (view.frame-- <= tag.from)
+            {
+                if (!view.loop)
+                {
+                    view.playingTag = -1;
+                    view.frame = tag.from;
+                    return;
+                }
                 view.frame = tag.to;
+            }
         }
         else if (view.frame++ >= tag.to)
+        {
+            if (!view.loop)
+            {
+                view.playingTag = -1;
+                view.frame = tag.to;
+                return;
+            }
             view.frame = tag.from;
+        }
     }
 }

@@ -14,7 +14,7 @@ COMPONENT(
     FIELD_DEF_VAL(entt::entity, archerLeftArm, entt::null),
     FIELD_DEF_VAL(entt::entity, archerRightArm, entt::null),
     FIELD_DEF_VAL(ivec2, rotatePivot, ivec2(0)),
-    FIELD_DEF_VAL(float, fireRate, .2),
+    FIELD_DEF_VAL(float, fireRate, .4),
     FIELD_DEF_VAL(float, distanceFromArcher, 9)
 )
     float cooldown = 0;
