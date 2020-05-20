@@ -45,11 +45,11 @@ class ArrowSystem : public EntitySystem
             addTrailPointsTimer = 0;
 
         room->entities.view<Arrow, AABB, Polyline, Physics>().each([&](
-            auto &, const AABB &aabb, Polyline &line, auto &
+            auto &, const AABB &aabb, Polyline &line, Physics &physics
         ) {
             if (addTrailPoint || line.points.empty())
                 line.points.emplace_back();
-            line.points.back() = aabb.center;
+            line.points.back() = vec2(aabb.center) - normalize(physics.velocity) * 12.f;
             if (line.points.size() > 3)
                 line.points.pop_front();
         });
