@@ -15,7 +15,7 @@ class ArmsSystem : public EntitySystem
     void update(double deltaTime, Room *room) override
     {
 
-        room->entities.view<Arm, AABB>().each([&](Arm &arm, AABB &handAABB) {
+        room->entities.view<Arm, AABB>().each([&](auto e, Arm &arm, AABB &handAABB) {
 
             AABB *grabTarget = room->entities.try_get<AABB>(arm.grab);
             AABB *bodyAABB = room->entities.try_get<AABB>(arm.body);
@@ -30,10 +30,26 @@ class ArmsSystem : public EntitySystem
             }
             else
             {
-                // todo: default arm/hand movement
+                vec2 anchor = bodyAABB->center + arm.anchor;
 
-                handAABB.center = bodyAABB->center + arm.anchor;
-                handAABB.center.x += (arm.anchor.x > 0 ? 1 : -1) * arm.length * .6;
+                vec2 target = anchor;
+                target.x += (arm.anchor.x > 0 ? 1 : -1) * arm.length * .2;
+                target.y -= arm.length * .35;
+
+                vec2 diff = target - (vec2(handAABB.center) + arm.moveAccumulator);
+                float dist = length(diff);
+
+                if (dist > 0)
+                {
+                    vec2 dir = diff / dist;
+                    vec2 move = dir * min<float>(arm.moveSpeed * deltaTime, dist);
+                    arm.moveAccumulator += move;
+
+                    ivec2 movePixels = arm.moveAccumulator;
+                    arm.moveAccumulator -= movePixels;
+                    handAABB.center += movePixels;
+                }
+                room->entities.get_or_assign<DistanceConstraint>(e, arm.length, arm.body, arm.anchor);
             }
 
         });

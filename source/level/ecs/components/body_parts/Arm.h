@@ -16,10 +16,14 @@ COMPONENT(
     FIELD(entt::entity, body),
     FIELD(ivec2, anchor),
     FIELD_DEF_VAL(float, length, 16),
+    FIELD_DEF_VAL(float, moveSpeed, 190),
 
     // if grab is set, then the hand will be attached to the 'grab' entity
     FIELD_DEF_VAL(entt::entity, grab, entt::null)
 )
+
+    vec2 moveAccumulator = vec2(0);
+
 END_COMPONENT(Arm)
 
 #endif //GAME_ARM_H

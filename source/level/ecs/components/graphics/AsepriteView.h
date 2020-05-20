@@ -20,6 +20,7 @@ COMPONENT(
     FIELD_DEF_VAL(int, frame, 0),
     FIELD_DEF_VAL(int, playingTag, -1),
     FIELD_DEF_VAL(bool, paused, false),
+    FIELD_DEF_VAL(bool, loop, true),
     FIELD_DEF_VAL(bool, flipHorizontal, false),
     FIELD_DEF_VAL(bool, flipVertical, false),
     FIELD_DEF_VAL(bool, rotate90Deg, false),

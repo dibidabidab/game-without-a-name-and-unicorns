@@ -97,13 +97,15 @@ class PhysicsSystem : public EntitySystem
         if (!targetAABB)
             return;
 
-        vec2 diff = aabb.center - targetAABB->center;
+        vec2 target = vec2(targetAABB->center) + constraint.targetOffset;
+
+        vec2 diff = vec2(aabb.center) - target;
         float dist = length(diff);
         if (dist > constraint.maxDistance)
         {
             vec2 dir = diff / dist;
 
-            aabb.center = targetAABB->center + ivec2(dir * constraint.maxDistance);
+            aabb.center = target + dir * constraint.maxDistance;
         }
     }
 

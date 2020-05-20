@@ -33,37 +33,29 @@ class BowWeaponSystem : public EntitySystem
             // rotate bow around archer:
             aabb.center = pivot + ivec2(aimDirection * bow.distanceFromArcher);
 
-            // make the archer's hands grab the bow:
-            Arm *leftArm = room->entities.try_get<Arm>(bow.archerLeftArm);
-            Arm *rightArm = room->entities.try_get<Arm>(bow.archerRightArm);
-
-            if (leftArm && rightArm)
-            {
-                if (aabb.center.x < pivot.x)
-                {
-                    leftArm->grab = bow.handBowAnchor;
-                    rightArm->grab = entt::null;//bow.handStringAnchor;
-                }
-                else
-                {
-                    rightArm->grab = bow.handBowAnchor;
-                    leftArm->grab = entt::null;//bow.handStringAnchor;
-                }
-            }
-
             // choose frame based on angle: (frame 0 = not rotated, frame 1 = 45 deg rotated)
             float angle = atan2(aimDirection.y, aimDirection.x); // https://stackoverflow.com/questions/35271222/getting-the-angle-from-a-direction-vector
             float angleMod = mod(angle, mu::PI * .5f);
             sprite.rotate90Deg = false;
             if (angleMod > mu::PI * .25 * .5 && angleMod < mu::PI * .75 * .5)
             {
-                sprite.frame = 1;
+                if (sprite.playingTag != 1)
+                {
+                    sprite.playTag("angle1");
+                    sprite.paused = true;
+                    assert(sprite.playingTag == 1);
+                }
                 sprite.flipHorizontal = aabb.center.x < pivot.x;
                 sprite.flipVertical = aabb.center.y < pivot.y;
             }
             else
             {
-                sprite.frame = 0;
+                if (sprite.playingTag != 0)
+                {
+                    sprite.playTag("angle0");
+                    sprite.paused = true;
+                    assert(sprite.playingTag == 0);
+                }
                 sprite.flipHorizontal = aabb.center.x < pivot.x;
                 sprite.flipVertical = aabb.center.y < pivot.y;
                 if (abs(aimDirection.y) > abs(aimDirection.x))
@@ -76,14 +68,39 @@ class BowWeaponSystem : public EntitySystem
             PlatformerMovementInput *input = room->entities.try_get<PlatformerMovementInput>(bow.archer);
 
             bow.cooldown += deltaTime;
+            bool justShot = false;
 
             if (input && input->attack && bow.cooldown >= bow.fireRate)
             {
+                justShot = true;
                 bow.cooldown = 0;
                 auto arrowEntity = room->getTemplate<ArrowEntity>()->create();
-                room->entities.get<AABB>(arrowEntity).center = aabb.center;
+
+                AABB *arrowSpawnPoint = room->entities.try_get<AABB>(bow.handBowAnchor);
+
+                room->entities.get<AABB>(arrowEntity).center = arrowSpawnPoint ? arrowSpawnPoint->center : aabb.center;
                 room->entities.get<Physics>(arrowEntity).velocity = aimDirection * 800.f;
                 room->entities.get<Arrow>(arrowEntity).launchedBy = bow.archer;
+
+                sprite.paused = false;
+            }
+
+            // make the archer's hands grab the bow:
+            Arm *leftArm = room->entities.try_get<Arm>(bow.archerLeftArm);
+            Arm *rightArm = room->entities.try_get<Arm>(bow.archerRightArm);
+
+            if (leftArm && rightArm)
+            {
+                if (aabb.center.x < pivot.x)
+                {
+                    leftArm->grab = bow.handBowAnchor;
+                    rightArm->grab = !sprite.paused ? bow.handStringAnchor : entt::null;
+                }
+                else
+                {
+                    rightArm->grab = bow.handBowAnchor;
+                    leftArm->grab = !sprite.paused ? bow.handStringAnchor : entt::null;
+                }
             }
         });
     }
