@@ -119,6 +119,7 @@ COMPONENT(
 
     FIELD_DEF_VAL   (float, gravity, 750),
     FIELD_DEF_VAL   (vec2, velocity, vec2(0)),
+    FIELD_DEF_VAL   (float, coefficient, 0.8f),
     FIELD_DEF_VAL   (float, mass, 1),
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
 )

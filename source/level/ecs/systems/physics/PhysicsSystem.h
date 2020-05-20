@@ -144,6 +144,8 @@ class PhysicsSystem : public EntitySystem
     void updateVelocity(Physics &physics, double deltaTime)
     {
         physics.velocity.y -= physics.gravity * deltaTime;
+        physics.velocity.x *= physics.coefficient;
+        physics.velocity.y *= physics.coefficient;
 
         if (physics.touches.floor && physics.velocity.y < 0) physics.velocity.y = 0;
         if (physics.touches.ceiling && physics.velocity.y > 0) physics.velocity.y = 0;
