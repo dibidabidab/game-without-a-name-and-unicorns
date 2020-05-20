@@ -34,7 +34,7 @@ class PhysicsSystem : public EntitySystem
         this->room = room;
         collisionDetector = new TerrainCollisionDetector(room->getMap());
 
-        room->entities.view<Physics, AABB>().each([&](Physics &physics, AABB &body) {
+        room->entities.view<Physics, AABB>().each([&](Physics &physics, AABB &body) {                 /// PHYSICS UPDATE
 
             TerrainCollisions tmp = physics.touches;
             auto tmpVel = physics.velocity;
@@ -51,7 +51,8 @@ class PhysicsSystem : public EntitySystem
             physics.prevVelocity = tmpVel;
         });
 
-        auto staticColliders = room->entities.view<AABB, StaticCollider>();
+
+        auto staticColliders = room->entities.view<AABB, StaticCollider>();             /// DYNAMIC COLLIDES WITH STATIC
 
         room->entities.view<AABB, DynamicCollider>().each([&](auto e, AABB &dynamicAABB, DynamicCollider &dynCol) {
 
@@ -145,6 +146,8 @@ class PhysicsSystem : public EntitySystem
     void updateVelocity(Physics &physics, double deltaTime)
     {
         physics.velocity.y -= physics.gravity * deltaTime;
+        physics.velocity.x *= physics.coefficient;
+        physics.velocity.y *= physics.coefficient;
 
         if (physics.touches.floor && physics.velocity.y < 0) physics.velocity.y = 0;
         if (physics.touches.ceiling && physics.velocity.y > 0) physics.velocity.y = 0;

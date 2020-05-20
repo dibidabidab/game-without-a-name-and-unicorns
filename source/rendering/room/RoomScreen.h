@@ -35,6 +35,7 @@
 #include "../../level/ecs/components/combat/Aiming.h"
 #include "../../level/ecs/entity_templates/LampEntity.h"
 #include "../../level/ecs/entity_templates/PlantEntity.h"
+#include "../../level/ecs/entity_templates/EnemyEntity.h"
 
 class RoomScreen : public Screen
 {
@@ -103,6 +104,9 @@ class RoomScreen : public Screen
             entt::entity plant = room->getTemplate<PlantEntity>()->create();
             room->getChildComponentByName<AABB>(plant, "rope")->center = ivec2(x, 16);
         }
+
+        entt::entity enemy = room->getTemplate<EnemyEntity>()->create();
+        room->entities.get<AABB>(enemy).center = ivec2(400, 125);
 
     }
 

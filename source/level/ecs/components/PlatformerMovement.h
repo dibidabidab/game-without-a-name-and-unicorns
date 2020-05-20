@@ -20,7 +20,7 @@ COMPONENT(
     PlatformerMovement,
     HASH(jumpVelocity, walkVelocity, coyoteTime),
 
-    FIELD_DEF_VAL(float, walkVelocity, 85),
+    FIELD_DEF_VAL(float, walkVelocity, 15),
     FIELD_DEF_VAL(float, jumpVelocity, 230),
     FIELD_DEF_VAL(float, coyoteTime, .25),
     FIELD_DEF_VAL(float, jumpAntiGravity, .525),

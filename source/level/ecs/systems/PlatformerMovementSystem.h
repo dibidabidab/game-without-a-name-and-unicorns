@@ -73,7 +73,7 @@ class PlatformerMovementSystem : public EntitySystem
             if (movement.jumpPressedSinceBegin && physics.velocity.y >= 0)
                 physics.velocity.y += physics.gravity * movement.jumpAntiGravity * deltaTime;
 
-            physics.velocity.x = ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
+            physics.velocity.x += ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
 
             if (physics.touches.halfSlopeDown || physics.touches.halfSlopeUp)
                 physics.velocity.x /= 1.11803; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+0.5%29
