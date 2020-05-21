@@ -73,16 +73,27 @@ class PlatformerMovementSystem : public EntitySystem
             if (movement.jumpPressedSinceBegin && physics.velocity.y >= 0)
                 physics.velocity.y += physics.gravity * movement.jumpAntiGravity * deltaTime;
 
-            float addXVelocity = ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
+            float accelerateX = ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
 
             if (physics.touches.halfSlopeDown || physics.touches.halfSlopeUp)
-                addXVelocity /= 1.11803; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+0.5%29
+                accelerateX /= 1.11803; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+0.5%29
             else if (physics.touches.slopeDown || physics.touches.slopeUp)
-                addXVelocity /= 1.41421; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+1%29
+                accelerateX /= 1.41421; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+1%29
 
-            addXVelocity *= physics.touches.floor ? physics.floorFriction : physics.airFriction;
-            addXVelocity *= deltaTime;
-            physics.velocity.x += addXVelocity;
+            if (physics.touches.floor)
+                accelerateX *= physics.floorFriction;
+            else
+            {
+                accelerateX *= physics.airFriction;
+                accelerateX *= movement.airControl;    // faster acceleration in air depending on airControl.
+            }
+                accelerateX *= deltaTime;
+
+            float accelerationProgress = abs(accelerateX) / (movement.walkVelocity - abs(physics.velocity.x));
+            if (accelerationProgress > 1)
+                accelerateX /= accelerationProgress;
+
+            physics.velocity.x += accelerateX;
 
             // ignore platforms when down-arrow is pressed:
             if (input.fall)

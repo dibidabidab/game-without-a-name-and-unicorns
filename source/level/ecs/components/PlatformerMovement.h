@@ -21,9 +21,10 @@ COMPONENT(
     HASH(jumpVelocity, walkVelocity, coyoteTime),
 
     FIELD_DEF_VAL(float, walkVelocity, 90),
-    FIELD_DEF_VAL(float, jumpVelocity, 380),
+    FIELD_DEF_VAL(float, jumpVelocity, 409),
     FIELD_DEF_VAL(float, coyoteTime, .25),
-    FIELD_DEF_VAL(float, jumpAntiGravity, .525),
+    FIELD_DEF_VAL(float, jumpAntiGravity, .7),
+    FIELD_DEF_VAL(float, airControl, 6),
     FIELD_DEF_VAL(bool, spawnDustTrails, true)
 )
     // used by system:

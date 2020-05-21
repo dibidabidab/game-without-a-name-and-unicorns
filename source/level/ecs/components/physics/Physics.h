@@ -119,9 +119,9 @@ COMPONENT(
     ),
 
     FIELD_DEF_VAL   (float, gravity, 1200),
-    FIELD_DEF_VAL   (float, airFriction, 1.6),
-    FIELD_DEF_VAL   (float, floorFriction, 10),
-    FIELD_DEF_VAL   (float, wallFriction, 4),
+    FIELD_DEF_VAL   (float, airFriction, 2.8),
+    FIELD_DEF_VAL   (float, floorFriction, 18),
+    FIELD_DEF_VAL   (float, wallFriction, 6),
     FIELD_DEF_VAL   (vec2,  velocity, vec2(0)),
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
 )
