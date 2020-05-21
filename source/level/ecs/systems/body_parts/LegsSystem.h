@@ -78,7 +78,7 @@ class LegsSystem : public EntitySystem
 
         if (!isJumping(bodyPhysics))
         {
-            if (bodyPhysics.velocity.x == 0) // standing still
+            if (abs(bodyPhysics.velocity.x) < 5) // kinda standing still
             {
                 for (int y = 0; y < 8; y++)
                 {

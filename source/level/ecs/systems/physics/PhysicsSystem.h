@@ -146,8 +146,17 @@ class PhysicsSystem : public EntitySystem
     void updateVelocity(Physics &physics, double deltaTime)
     {
         physics.velocity.y -= physics.gravity * deltaTime;
-        physics.velocity.x *= physics.coefficient;
-        physics.velocity.y *= physics.coefficient;
+
+        float friction = physics.airFriction;
+
+        if (physics.touches.floor)
+            friction = physics.floorFriction;
+        else if (physics.velocity.y < 0 && physics.touches.rightWall || physics.touches.leftWall)
+            friction = physics.wallFriction;
+
+        friction *= deltaTime;
+
+        physics.velocity *= max(0.f, 1.f - friction);
 
         if (physics.touches.floor && physics.velocity.y < 0) physics.velocity.y = 0;
         if (physics.touches.ceiling && physics.velocity.y > 0) physics.velocity.y = 0;

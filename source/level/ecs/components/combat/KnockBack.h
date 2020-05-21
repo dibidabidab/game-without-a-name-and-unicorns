@@ -17,6 +17,12 @@ COMPONENT(
         FIELD_DEF_VAL(vec2, knockBackDirection, vec2(0))
 )
 
+    void add(float force, const vec2 &direction)
+    {
+        knockBackForce += force;
+        knockBackDirection = normalize(knockBackDirection + direction);
+    }
+
 END_COMPONENT(KnockBack)
 
 #endif //GAME_KNOCKBACK_H

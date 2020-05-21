@@ -30,8 +30,8 @@ class ArrowSystem : public EntitySystem
                 return;
             }
 
-            room->entities.view<AABB, Health, AsepriteView>().each([&](
-                auto eOther, AABB &aabbOther, Health &healthOther, AsepriteView &spriteOther
+            room->entities.view<AABB, Health>().each([&](
+                auto eOther, AABB &aabbOther, Health &healthOther
             ){
                 if (!aabb.overlaps(aabbOther))
                     return;
@@ -40,14 +40,11 @@ class ArrowSystem : public EntitySystem
                 room->entities.destroy(e);
 
                 KnockBack *knockBack = room->entities.try_get<KnockBack>(eOther);
-                if (knockBack != nullptr) {
-                    knockBack->knockBackForce = 10.0f;
-                    knockBack->knockBackDirection = normalize(vec2(min(aabbOther.center, aabb.center)));
-                }
+                if (knockBack)
+                    knockBack->add(100, normalize(physics.velocity));
 
-                if (healthOther.curHealth <= 0.0f) {
-                    room->entities.assign<DespawnAfter>(eOther, 0.0f);
-                }
+                if (healthOther.curHealth <= 0.0f)  // todo, this should not be responsibility of ArrowSystem
+                    room->entities.destroy(eOther);
             });
 
             // choose sprite frame based on velocity:

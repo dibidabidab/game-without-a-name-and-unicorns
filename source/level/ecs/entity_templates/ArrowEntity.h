@@ -17,7 +17,7 @@ class ArrowEntity : public EntityTemplate
         entt::entity e = room->entities.create();
 
         room->entities.assign<AABB>(e, ivec2(1));
-        room->entities.assign<Physics>(e, 0.f, vec2(0), true);
+        room->entities.assign<Physics>(e, 0.f, 0.f).ignorePlatforms = true;
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<Arrow>(e);
         room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/arrow"));

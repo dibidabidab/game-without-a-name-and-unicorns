@@ -19,17 +19,11 @@ class KnockBackSystem : public EntitySystem
 
 protected:
     void update(double deltaTime, Room *room) override {
-        room->entities.view<KnockBack, Physics, AABB>().each(
-            [&](auto e, KnockBack &knockBack, Physics &physics, AABB &aabb)
+        room->entities.view<KnockBack, Physics>().each(
+            [&](KnockBack &knockBack, Physics &physics)
         {
             physics.velocity += knockBack.knockBackDirection * knockBack.knockBackForce;
             knockBack.knockBackForce = 0.0f;
-
-//            knockBack.knockBackForce *= 0.8f;
-//            if (knockBack.knockBackForce < 0.01f)
-//            {
-//                knockBack.knockBackForce = 0.0f;
-//            }
         });
     }
 };

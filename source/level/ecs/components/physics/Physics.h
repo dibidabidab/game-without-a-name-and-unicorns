@@ -114,13 +114,15 @@ COMPONENT(
     Physics,
 
     HASH(
-        int(velocity.x) / 50, int(velocity.y) / 50, int(gravity), bool(velocity.x == 0), bool(velocity.y == 0)
+        int(velocity.x) / 50, int(velocity.y) / 50, int(gravity), bool(velocity.x == 0), bool(velocity.y == 0), // todo this is probably broken since the introduction of friction.
+        airFriction, floorFriction, wallFriction, ignorePlatforms
     ),
 
-    FIELD_DEF_VAL   (float, gravity, 750),
-    FIELD_DEF_VAL   (vec2, velocity, vec2(0)),
-    FIELD_DEF_VAL   (float, coefficient, 0.8f),
-    FIELD_DEF_VAL   (float, mass, 1),
+    FIELD_DEF_VAL   (float, gravity, 1200),
+    FIELD_DEF_VAL   (float, airFriction, 1.6),
+    FIELD_DEF_VAL   (float, floorFriction, 10),
+    FIELD_DEF_VAL   (float, wallFriction, 4),
+    FIELD_DEF_VAL   (vec2,  velocity, vec2(0)),
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
 )
 

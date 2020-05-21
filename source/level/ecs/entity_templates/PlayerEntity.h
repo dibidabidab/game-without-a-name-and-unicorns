@@ -20,6 +20,8 @@
 #include "../components/combat/Aiming.h"
 #include "BowEntity.h"
 #include "../components/body_parts/Head.h"
+#include "../components/combat/Health.h"
+#include "../components/combat/KnockBack.h"
 
 class PlayerEntity : public EntityTemplate
 {
@@ -34,6 +36,8 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<PlatformerMovement>(e);
         room->entities.assign<Flip>(e);
         room->entities.assign<LightPoint>(e); // todo, remove
+        room->entities.assign<Health>(e, 100, 100);
+        room->entities.assign<KnockBack>(e);
 
         // LEGS: -----------------------------------
 
@@ -75,7 +79,7 @@ class PlayerEntity : public EntityTemplate
         entt::entity arms[2] = {createChild(e), createChild(e)};
         entt::entity elbows[2] = {createChild(e), createChild(e)};
         entt::entity shoulders[2] = {createChild(e), createChild(e)};
-        float armLength = 16;
+        float armLength = 15;
 
         for (int i = 0; i < 2; i++)
         {
