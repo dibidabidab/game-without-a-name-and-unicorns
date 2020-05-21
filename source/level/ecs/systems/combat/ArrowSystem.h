@@ -30,23 +30,28 @@ class ArrowSystem : public EntitySystem
                 return;
             }
 
+            bool enemyHit = false;
             room->entities.view<AABB, Health>().each([&](
                 auto eOther, AABB &aabbOther, Health &healthOther
             ){
                 if (!aabb.overlaps(aabbOther))
                     return;
 
+                enemyHit = true;
                 healthOther.curHealth -= 5;
-                room->entities.destroy(e);
 
                 KnockBack *knockBack = room->entities.try_get<KnockBack>(eOther);
                 if (knockBack)
                     knockBack->add(100, normalize(physics.velocity));
 
-                if (healthOther.curHealth <= 0.0f)  // todo, this should not be responsibility of ArrowSystem
-                    room->entities.destroy(eOther);
+//                if (healthOther.curHealth <= 0.0f)  // todo, this should not be responsibility of ArrowSystem
+//                    room->entities.destroy(eOther);
             });
-
+            if (enemyHit)
+            {
+                room->entities.destroy(e);
+                return;
+            }
             // choose sprite frame based on velocity:
             vec2 dir = normalize(physics.velocity);
             float angle = atan2(dir.y, dir.x) + mu::PI;
