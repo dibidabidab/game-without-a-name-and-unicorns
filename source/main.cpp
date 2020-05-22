@@ -1,6 +1,8 @@
 #include <gu/game_utils.h>
+#include <audio/audio.h>
 #include <asset_manager/asset.h>
 #include <files/FileWatcher.h>
+#include <audio/WavLoader.h>
 
 #include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
@@ -52,6 +54,8 @@ std::string prompt(std::string text)
 
 int main(int argc, char *argv[])
 {
+    au::init();
+
     std::mutex assetToReloadMutex;
     std::string assetToReload;
 
@@ -88,6 +92,12 @@ int main(int argc, char *argv[])
     AssetManager::addAssetLoader<Palette>(".gpl", [](auto path) {
 
         return new Palette(path.c_str());
+    });
+    AssetManager::addAssetLoader<au::Sound>(".wav", [](auto path) {
+
+        auto sound = new au::Sound;
+        au::WavLoader(path.c_str(), *sound);
+        return sound;
     });
 
     bool server = false;
@@ -197,6 +207,20 @@ int main(int argc, char *argv[])
         mpSession->join(prompt("Try again. Enter your name"));
     };
     afterInit();
+
+    asset<au::Sound> sound("sounds/church_bell.wav");
+
+    auto &s = sound.get();
+
+    s.buffer = s.buffer;
+    std::cout << s.buffer << '\n';
+    std::cout << s.sampleRate << '\n';
+    std::cout << s.bitsPerSample << '\n';
+    std::cout << s.channels << '\n';
+
+    au::SoundSource source(sound.get());
+    source.play();
+
     gu::run();
     delete mpSession;
 
