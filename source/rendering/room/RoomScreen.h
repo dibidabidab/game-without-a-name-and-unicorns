@@ -106,8 +106,8 @@ class RoomScreen : public Screen
                 for (int i=0; i<4; i++)
                 {
                     menuEntities.assign<Child>(p[i], curve, "p"+std::to_string(i));
-                    if (n<2) menuEntities.assign<AABB>(p[i], ivec2(0), ivec2(x + i*30 + mu::randomInt(-2, 2), n*20 + y + mu::randomInt(-2, 2)));
-                    else menuEntities.assign<AABB>(p[i], ivec2(0), ivec2(x + (n-2)*90 + mu::randomInt(-2, 2), i*7 + y + mu::randomInt(-2, 2)));
+                    if (n<2) menuEntities.assign<AABB>(p[i], ivec2(1), ivec2(x + i*30 + mu::randomInt(-2, 2), n*20 + y + mu::randomInt(-2, 2)));
+                    else menuEntities.assign<AABB>(p[i], ivec2(1), ivec2(x + (n-2)*90 + mu::randomInt(-2, 2), i*7 + y + mu::randomInt(-2, 2)));
                 }
 
                 menuEntities.assign<DrawPolyline>(curve, std::vector<uint8>{6u});
@@ -223,7 +223,9 @@ class RoomScreen : public Screen
             renderShadowDebugLines = false,
             renderHitboxes = false,
             debugLegs = renderHitboxes,
-            debugAimTargets = renderHitboxes;
+            debugAimTargets = renderHitboxes,
+            debugMenuOld = false,
+            debugMenu = false;
 
         if (ImGui::Begin("debug tools"))
         {
@@ -232,6 +234,7 @@ class RoomScreen : public Screen
             ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
             ImGui::Checkbox("debug legs", &debugLegs);
             ImGui::Checkbox("debug aim targets", &debugAimTargets);
+            ImGui::Checkbox("debug menu", &debugMenu);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
 
@@ -312,6 +315,13 @@ class RoomScreen : public Screen
 
         if (renderShadowDebugLines)
             shadowCaster.drawDebugLines(cam);
+
+        if (debugMenu != debugMenuOld)
+        {
+            if (debugMenu) inspector.reg = &menuEntities;
+            else inspector.reg = &room->entities;
+            debugMenuOld = debugMenu;
+        }
     }
 
     void renderDebugBackground()

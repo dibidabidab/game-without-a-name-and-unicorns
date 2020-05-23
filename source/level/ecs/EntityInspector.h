@@ -38,9 +38,8 @@ END_COMPONENT(Inspecting)
 
 class EntityInspector
 {
-    entt::registry *reg;
-
   public:
+    entt::registry *reg;
 
     bool
         show = true,
