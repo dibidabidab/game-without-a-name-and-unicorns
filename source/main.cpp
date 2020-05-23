@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
             #endif
         };
         ws->onConnectionFailed = []() {
-            std::cout << "connection failed :C\n";
+            std::cout << "connection failed :C" << std::endl;
 
             #ifdef EMSCRIPTEN
             EM_ASM(

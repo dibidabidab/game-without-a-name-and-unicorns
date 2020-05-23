@@ -16,7 +16,7 @@ void MultiplayerIO::handleInput(const char *data, int size)
 
     if (size < typeHashSize)
     {
-        std::cerr << "Received packet of less than " << typeHashSize << "bytes. Could not determine type.\n";
+        std::cerr << "Received packet of less than " << typeHashSize << "bytes. Could not determine type." << std::endl;
         return;
     }
 
@@ -27,9 +27,9 @@ void MultiplayerIO::handleInput(const char *data, int size)
     if (!receiver)
     {
         if (packetTypeNames.count(packetType))
-            std::cerr << "Received packet of type " << packetTypeNames[packetType] << ", but no receiver was registered!\n";
+            std::cerr << "Received packet of type " << packetTypeNames[packetType] << ", but no receiver was registered!" << std::endl;
         else
-            std::cerr << "Received packet of unregistered type " << packetType << "!\n";
+            std::cerr << "Received packet of unregistered type " << packetType << std::endl;
         return;
     }
     void *packet;
@@ -38,7 +38,7 @@ void MultiplayerIO::handleInput(const char *data, int size)
         packet = receiver->function(receiver, data + typeHashSize, size - typeHashSize);
 
     } catch(const std::exception& e) {
-        std::cerr << "Caught exception while receiving " << packetTypeNames[packetType] << "-packet:\n" << e.what() << "\n";
+        std::cerr << "Caught exception while receiving " << packetTypeNames[packetType] << "-packet:\n" << e.what() << std::endl;
         return;
     }
     packetsReceived++;
@@ -64,7 +64,7 @@ MultiplayerIO::~MultiplayerIO()
 
     for (auto &p : unhandledPackets)
         if (!p.second.empty())
-            std::cerr << "MultiplayerIO deleted before handling remaining packets!\n";
+            std::cerr << "MultiplayerIO deleted before handling remaining packets!" << std::endl;
 
     std::cout << "io ended\n";
 }
@@ -72,7 +72,7 @@ MultiplayerIO::~MultiplayerIO()
 void MultiplayerIO::printTypes()
 {
     for (auto t : packetTypeNames)
-        std::cout << t.second << ": " << t.first << '\n';
+        std::cout << t.second << ": " << t.first << std::endl;
 }
 
 void MultiplayerIO::handlePackets()
@@ -94,14 +94,14 @@ void MultiplayerIO::handlePacket(PacketTypeHash typeHash, void *packet)
     auto handler = packetHandlers[typeHash];
     if (!handler)
     {
-        std::cerr << "No handler found for packet of type " << packetTypeNames[typeHash] << "!\n";
+        std::cerr << "No handler found for packet of type " << packetTypeNames[typeHash] << std::endl;
         return;
     }
     try
     {
         handler->function(handler, packet);
     } catch(const std::exception& e) {
-        std::cerr << "Caught exception while handling " << packetTypeNames[typeHash] << "-packet:\n" << e.what() << "\n";
+        std::cerr << "Caught exception while handling " << packetTypeNames[typeHash] << "-packet:\n" << e.what() << std::endl;
         std::cerr << "CLOSING THE SOCKET...\n";
         socket->close();
         return;

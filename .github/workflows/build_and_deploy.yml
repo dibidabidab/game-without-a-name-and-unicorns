@@ -49,8 +49,7 @@ jobs:
         cmake .
         mkdir out
         cmake --build . -j8 --config Release
-        cd out/Release/
-        rm game.exp game.lib
+        cd Release/
         mkdir assets
         cp -a ../../../assets/. assets/
       shell: bash
@@ -58,7 +57,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: windows_build
-        path: desktop/out/Release
+        path: desktop/Release
 
   html_build:
 

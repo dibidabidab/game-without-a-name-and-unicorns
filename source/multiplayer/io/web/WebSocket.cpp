@@ -93,7 +93,7 @@ void WebSocket::open()
     if (opened)
         throw gu_err("WebSocket to " + url + " is already open");
 
-    std::cout << "Opening websocket to " << url << '\n';
+    std::cout << "Opening websocket to " << url << std::endl;
     #ifdef EMSCRIPTEN
     // code to setup a WebSocket in the browser:
 

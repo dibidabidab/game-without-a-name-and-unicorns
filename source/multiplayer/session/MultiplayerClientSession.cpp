@@ -52,7 +52,7 @@ MultiplayerClientSession::MultiplayerClientSession(SharedSocket socket) : io(soc
         onNewLevel(level);
     });
     io.addJsonPacketHandler<entity_created>([&](entity_created *packet) {
-        std::cout << "received newly created entity " << packet->networkId << '\n';
+        std::cout << "received newly created entity " << packet->networkId << std::endl;
 
         networkingSystems.at(packet->roomI)->handleEntityCreation(packet);
         delete packet;
