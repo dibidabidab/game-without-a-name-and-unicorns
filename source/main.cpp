@@ -54,8 +54,6 @@ std::string prompt(std::string text)
 
 int main(int argc, char *argv[])
 {
-    au::init();
-
     std::mutex assetToReloadMutex;
     std::string assetToReload;
 
@@ -159,10 +157,20 @@ int main(int argc, char *argv[])
     config.printOpenGLErrors = false;
     if (!gu::init(config))
         return -1;
+    au::init();
 
     setImGuiStyle();
 
-    std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
+    std::cout << "Running game with\n - GL_VERSION: " << glGetString(GL_VERSION) << "\n";
+    std::cout << " - GL_RENDERER: " << glGetString(GL_RENDERER) << "\n";
+
+    std::vector<std::string> audioDevices;
+    if (!au::getAvailableDevices(audioDevices, NULL))
+        throw gu_err("could not get audio devices");
+
+    std::cout << "Available audio devices:\n";
+    for (auto &dev : audioDevices)
+        std::cout << " - " << dev << std::endl;
 
     AssetManager::load("assets");
 
@@ -207,19 +215,6 @@ int main(int argc, char *argv[])
         mpSession->join(prompt("Try again. Enter your name"));
     };
     afterInit();
-
-    asset<au::Sound> sound("sounds/church_bell.wav");
-
-    auto &s = sound.get();
-
-    s.buffer = s.buffer;
-    std::cout << s.buffer << '\n';
-    std::cout << s.sampleRate << '\n';
-    std::cout << s.bitsPerSample << '\n';
-    std::cout << s.channels << '\n';
-
-    au::SoundSource source(sound.get());
-    source.play();
 
     gu::run();
     delete mpSession;

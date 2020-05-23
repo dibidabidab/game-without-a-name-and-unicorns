@@ -151,7 +151,7 @@ class PhysicsSystem : public EntitySystem
 
         if (physics.touches.floor)
             friction = physics.floorFriction;
-        else if (physics.velocity.y < 0 && physics.touches.rightWall || physics.touches.leftWall)
+        else if (physics.velocity.y < 0 && (physics.touches.rightWall || physics.touches.leftWall))
             friction = physics.wallFriction;
 
         friction *= deltaTime;
