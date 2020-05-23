@@ -14,12 +14,13 @@ jobs:
     - uses: actions/setup-python@v1
       with:
         python-version: '3.x'
-    - name: Build linux
+    - name: Build linux # running 'cmake .' twice fixes tests being built
       run: |
         sudo apt-get install xorg-dev -y
         sudo apt-get install freeglut3-dev -y
         python initialize_project.py
         cd desktop
+        cmake .
         cmake .
         make -j8
         cd out
@@ -47,17 +48,19 @@ jobs:
         python initialize_project.py
         cd desktop
         cmake .
-        mkdir out
+        cmake .
         cmake --build . -j8 --config Release
-        cd Release/
+        cd out/Release/
+        rm game.exp game.lib
         mkdir assets
         cp -a ../../../assets/. assets/
+        cp ../../bin/gu/bin/openal/Release/OpenAL32.dll .
       shell: bash
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
       with:
         name: windows_build
-        path: desktop/Release
+        path: desktop/out/Release
 
   html_build:
 
@@ -78,6 +81,7 @@ jobs:
         python initialize_project.py
         ls gu/
         cd html
+        emconfigure cmake .
         emconfigure cmake .
         make -j8
     - name: Upload Artifacts # The project is then uploaded as an artifact named 'site'.
