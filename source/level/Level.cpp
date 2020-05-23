@@ -33,12 +33,19 @@ void Level::update(double deltaTime)
 {
     gu::profiler::Zone levelUpdateZone("level update");
     assert(rooms != NULL);
-    updating = true;
     time += deltaTime;
 
-    for (int i = 0; i < nrOfRooms; i++)
-        rooms[i].update(deltaTime);
-    updating = false;
+    if (KeyInput::justPressed(GLFW_KEY_ESCAPE))
+        paused = !paused;
+
+    if (!paused) {
+        updating = true;
+        gameTime += deltaTime;
+
+        for (int i = 0; i < nrOfRooms; i++)
+            rooms[i].update(deltaTime);
+        updating = false;
+    }
 }
 
 #define DEFAULT_LEVEL_PATH "assets/default_level.lvl"

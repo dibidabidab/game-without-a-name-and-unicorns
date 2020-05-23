@@ -36,6 +36,8 @@
 #include "../../level/ecs/entity_templates/LampEntity.h"
 #include "../../level/ecs/entity_templates/PlantEntity.h"
 #include "../../level/ecs/entity_templates/EnemyEntity.h"
+#include "../../level/ecs/components/Polyline.h"
+#include "../../level/ecs/components/Children.h"
 
 class RoomScreen : public Screen
 {
@@ -66,6 +68,8 @@ class RoomScreen : public Screen
 
     PolylineRenderer polylineRenderer;
 
+    entt::registry menuEntities;
+
   public:
 
     RoomScreen(Room *room, const MegaSpriteSheet *spriteSheet, bool showRoomEditor=false)
@@ -92,6 +96,26 @@ class RoomScreen : public Screen
         cam.lookAt(mu::ZERO_3);
 
         tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/bricks")});
+
+        {
+            int x = 150, y = 100;
+            for (int n=0; n<4; n++)
+            {
+                entt::entity curve = menuEntities.create();
+                entt::entity p[4] = {menuEntities.create(), menuEntities.create(), menuEntities.create(), menuEntities.create()};
+                for (int i=0; i<4; i++)
+                {
+                    menuEntities.assign<Child>(p[i], curve, "p"+std::to_string(i));
+                    if (n<2) menuEntities.assign<AABB>(p[i], ivec2(0), ivec2(x + i*30 + mu::randomInt(-2, 2), n*20 + y + mu::randomInt(-2, 2)));
+                    else menuEntities.assign<AABB>(p[i], ivec2(0), ivec2(x + (n-2)*90 + mu::randomInt(-2, 2), i*7 + y + mu::randomInt(-2, 2)));
+                }
+
+                menuEntities.assign<DrawPolyline>(curve, std::vector<uint8>{6u});
+                menuEntities.assign<BezierCurve>(curve, std::vector<entt::entity>{
+                        p[0], p[1], p[2], p[3]
+                });
+            }
+        }
 
         // Temporary creation of test entities
         entt::entity lamp1 = room->getTemplate<LampEntity>()->create();
@@ -135,6 +159,12 @@ class RoomScreen : public Screen
             tileMapRenderer.render(cam);
             spriteRenderer.render(deltaTime, cam, room->entities);
             polylineRenderer.render(room->entities, cam);
+
+            if (room->getLevel()->paused)
+            {
+                spriteRenderer.render(deltaTime, cam, room->entities);
+                polylineRenderer.render(menuEntities, cam);
+            }
 
             glDisable(GL_DEPTH_TEST);
             indexedFbo->unbind();

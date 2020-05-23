@@ -11,15 +11,18 @@
 class Level
 {
     double time = 0;
+    double gameTime = 0;     // time that can be paused
+
     Room *rooms = NULL;
     int nrOfRooms = 0;
 
-    bool updating = false;
+    bool updating = false;  // Is The level currently updating any of the rooms
 
     friend void to_json(json& j, const Level& lvl);
     friend void from_json(const json& j, Level& lvl);
 
   public:
+    bool paused = false;    // Is the game paused
 
     Level() = default;
 
@@ -32,6 +35,7 @@ class Level
     const Room &getRoom(int i) const;
 
     double getTime() const { return time; }
+    double getGameTime() const { return gameTime; }
 
     bool isUpdating() const { return updating; }
 

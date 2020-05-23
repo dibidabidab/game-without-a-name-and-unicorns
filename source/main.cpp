@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 
     AssetManager::load("assets");
 
-    Screen *roomScreen = NULL;
+    RoomScreen *roomScreen = NULL;
 
     mpSession->onNewLevel = [&](Level *lvl)
     {
