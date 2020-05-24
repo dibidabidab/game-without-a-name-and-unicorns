@@ -60,7 +60,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     }
     if (!open) show = false;
 
-    ImGui::Text("%lu entities active", reg->size());
+    ImGui::Text("%lu entities active", reg->alive());
     pickEntity = ImGui::Button("Pick entity from screen (I)") || KeyInput::justPressed(GLFW_KEY_I);
     moveEntity = ImGui::Button("Move entity (M)") || KeyInput::justPressed(GLFW_KEY_M);
 

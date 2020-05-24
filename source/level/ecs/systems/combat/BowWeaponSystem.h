@@ -80,6 +80,10 @@ class BowWeaponSystem : public EntitySystem
                 room->entities.get<Arrow>(arrowEntity).launchedBy = bow.archer;
 
                 sprite.paused = false;
+
+                auto soundEntity = room->entities.create();
+                room->entities.assign<SoundSpeaker>(soundEntity, asset<au::Sound>("sounds/arrow_shoot")).pitch = 2.5 + mu::random(.7);
+                room->entities.assign<DespawnAfter>(soundEntity, 1.f);
             }
 
             // make the archer's hands grab the bow:

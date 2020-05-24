@@ -12,6 +12,7 @@
 #include "../components/combat/Aiming.h"
 #include "../components/graphics/AsepriteView.h"
 #include "../components/DespawnAfter.h"
+#include "../components/SoundSpeaker.h"
 
 /**
  * Responsible for:
@@ -105,8 +106,13 @@ class PlatformerMovementSystem : public EntitySystem
             if (physics.ignorePlatforms && (movement.fallPressedTimer += deltaTime) > .1 && !input.fall)
                 physics.ignorePlatforms = false;
 
-            if (physics.touches.floor && !physics.prevTouched.floor && physics.prevVelocity.y < -160)
-                spawnDustTrail(aabb.bottomCenter(), "land");
+            if (physics.touches.floor && !physics.prevTouched.floor)
+            {
+                if (physics.prevVelocity.y < -160)
+                    spawnDustTrail(aabb.bottomCenter(), "land");
+                if (physics.prevVelocity.y < -50)
+                    spawnLandingSpeaker(physics.prevVelocity.y);
+            }
         });
     }
 
@@ -115,12 +121,24 @@ class PlatformerMovementSystem : public EntitySystem
         entt::entity e = room->entities.create();
 
         room->entities.assign<AABB>(e, ivec2(3), position);
-        auto &view = room->entities.get_or_assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/dust_trails"));
+        auto &view = room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/dust_trails"));
         view.originAlign.y = 0;
 
         float duration = view.playTag(animationName);
 
         room->entities.assign<DespawnAfter>(e, duration);
+    }
+
+    void spawnLandingSpeaker(float velocity)
+    {
+        entt::entity e = room->entities.create();
+
+        auto &s = room->entities.assign<SoundSpeaker>(e, asset<au::Sound>("sounds/landing"));
+        s.pitch = 2.f - std::min(1.f, std::max(0.f, velocity * -.0025f));
+
+        s.volume = std::min(1.f, std::max(0.f, velocity * -.0003f));
+
+        room->entities.assign<DespawnAfter>(e, 1.f);
     }
 
 };

@@ -3,6 +3,7 @@
 #include <asset_manager/asset.h>
 #include <files/FileWatcher.h>
 #include <audio/WavLoader.h>
+#include <audio/OggLoader.h>
 
 #include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
@@ -95,6 +96,12 @@ int main(int argc, char *argv[])
 
         auto sound = new au::Sound;
         au::WavLoader(path.c_str(), *sound);
+        return sound;
+    });
+    AssetManager::addAssetLoader<au::Sound>(".ogg", [](auto path) {
+
+        auto sound = new au::Sound;
+        au::OggLoader::load(path.c_str(), *sound);
         return sound;
     });
 
