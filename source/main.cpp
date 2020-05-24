@@ -1,6 +1,9 @@
 #include <gu/game_utils.h>
+#include <audio/audio.h>
 #include <asset_manager/asset.h>
 #include <files/FileWatcher.h>
+#include <audio/WavLoader.h>
+#include <audio/OggLoader.h>
 
 #include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
@@ -89,6 +92,18 @@ int main(int argc, char *argv[])
 
         return new Palette(path.c_str());
     });
+    AssetManager::addAssetLoader<au::Sound>(".wav", [](auto path) {
+
+        auto sound = new au::Sound;
+        au::WavLoader(path.c_str(), *sound);
+        return sound;
+    });
+    AssetManager::addAssetLoader<au::Sound>(".ogg", [](auto path) {
+
+        auto sound = new au::Sound;
+        au::OggLoader::load(path.c_str(), *sound);
+        return sound;
+    });
 
     bool server = false;
     int serverPort = 0;
@@ -126,7 +141,7 @@ int main(int argc, char *argv[])
             #endif
         };
         ws->onConnectionFailed = []() {
-            std::cout << "connection failed :C\n";
+            std::cout << "connection failed :C" << std::endl;
 
             #ifdef EMSCRIPTEN
             EM_ASM(
@@ -149,10 +164,20 @@ int main(int argc, char *argv[])
     config.printOpenGLErrors = false;
     if (!gu::init(config))
         return -1;
+    au::init();
 
     setImGuiStyle();
 
-    std::cout << "Running game with OpenGL version: " << glGetString(GL_VERSION) << "\n";
+    std::cout << "Running game with\n - GL_VERSION: " << glGetString(GL_VERSION) << "\n";
+    std::cout << " - GL_RENDERER: " << glGetString(GL_RENDERER) << "\n";
+
+    std::vector<std::string> audioDevices;
+    if (!au::getAvailableDevices(audioDevices, NULL))
+        throw gu_err("could not get audio devices");
+
+    std::cout << "Available audio devices:\n";
+    for (auto &dev : audioDevices)
+        std::cout << " - " << dev << std::endl;
 
     AssetManager::load("assets");
 
@@ -197,6 +222,7 @@ int main(int argc, char *argv[])
         mpSession->join(prompt("Try again. Enter your name"));
     };
     afterInit();
+
     gu::run();
     delete mpSession;
 

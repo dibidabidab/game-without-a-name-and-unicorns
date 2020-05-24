@@ -17,6 +17,7 @@
 #include "../ecs/systems/body_parts/HeadsSystem.h"
 #include "../ecs/systems/combat/ArrowSystem.h"
 #include "../ecs/systems/combat/KnockBackSystem.h"
+#include "../ecs/systems/AudioSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -30,6 +31,7 @@ void Room::initialize(Level *lvl, int roomI_)
 
     level = lvl;
     roomI = roomI_;
+    systems.push_front(new AudioSystem("audio"));
     systems.push_front(new LimbJointSystem("knee/elbow joints"));
     systems.push_front(new SpriteAnchorSystem("sprite anchors"));
     systems.push_front(new SpriteBobbingSystem("sprite bobbing"));

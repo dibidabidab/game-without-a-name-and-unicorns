@@ -60,7 +60,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     }
     if (!open) show = false;
 
-    ImGui::Text("%lu entities active", reg->size());
+    ImGui::Text("%lu entities active", reg->alive());
     pickEntity = ImGui::Button("Pick entity from screen (I)") || KeyInput::justPressed(GLFW_KEY_I);
     moveEntity = ImGui::Button("Move entity (M)") || KeyInput::justPressed(GLFW_KEY_M);
 
@@ -511,7 +511,7 @@ void EntityInspector::drawComponentFieldsTree(entt::entity e, Inspecting &ins, c
     try {
         componentUtils->setJsonComponent(valuesArray, e, reg);
     } catch (std::exception& e) {
-        std::cerr << "Exception after editing component in inspector:\n" << e.what() << '\n';
+        std::cerr << "Exception after editing component in inspector:\n" << e.what() << std::endl;
     }
 }
 
@@ -563,7 +563,7 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
         {
             utils->addComponent(ins.addingComponentJson, e, reg);
         } catch (std::exception& e) {
-            std::cerr << "Exception while trying to add component in inspector:\n" << e.what() << '\n';
+            std::cerr << "Exception while trying to add component in inspector:\n" << e.what() << std::endl;
         }
     }
     ImGui::End();

@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 
+if (MSVC)
+    # place game.exe and OpenAL32.dll in same folder:
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endif ()
+
 project(game)
 set(EXECUTABLE_OUTPUT_PATH "out")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
 file(GLOB_RECURSE source ../source/*)
 add_executable(game ${source})

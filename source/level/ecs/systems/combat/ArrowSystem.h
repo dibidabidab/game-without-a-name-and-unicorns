@@ -12,6 +12,7 @@
 #include "../../components/Polyline.h"
 #include "../../components/combat/Health.h"
 #include "../../components/combat/KnockBack.h"
+#include "../../components/SoundSpeaker.h"
 
 class ArrowSystem : public EntitySystem
 {
@@ -27,6 +28,9 @@ class ArrowSystem : public EntitySystem
             {
                 room->entities.remove<Physics>(e);
                 room->entities.assign<DespawnAfter>(e, mu::random(60, 100));
+                auto &s = room->entities.assign<SoundSpeaker>(e, asset<au::Sound>("sounds/arrow_hit"));
+                s.pitch = mu::random(.8, 1.2);
+                s.volume = .18;
                 return;
             }
 
