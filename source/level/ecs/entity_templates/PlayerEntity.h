@@ -30,7 +30,7 @@ class PlayerEntity : public EntityTemplate
     {
         entt::entity e = room->entities.create();
 
-        room->entities.assign<Physics>(e);
+        room->entities.assign<Physics>(e).ignorePolyPlatforms = false;
         room->entities.assign<AABB>(e, ivec2(3, 13), ivec2(64, 64));
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<PlatformerMovement>(e);

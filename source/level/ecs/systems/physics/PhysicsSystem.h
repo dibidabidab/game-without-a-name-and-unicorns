@@ -6,6 +6,8 @@
 #include "../EntitySystem.h"
 #include "../../../Level.h"
 #include "../../components/physics/Physics.h"
+#include "../../components/physics/PolyPlatform.h"
+#include "../../components/Polyline.h"
 
 namespace
 {
@@ -32,7 +34,7 @@ class PhysicsSystem : public EntitySystem
     void update(double deltaTime, Room *room) override
     {
         this->room = room;
-        collisionDetector = new TerrainCollisionDetector(room->getMap());
+        collisionDetector = new TerrainCollisionDetector(room->getMap(), &room->entities);
 
         room->entities.view<Physics, AABB>().each([&](Physics &physics, AABB &body) {                 /// PHYSICS UPDATE
 
@@ -85,6 +87,16 @@ class PhysicsSystem : public EntitySystem
 
         room->entities.view<AABB, DistanceConstraint>().each([&](AABB &aabb, const DistanceConstraint &constraint) {
             updateDistanceConstraint(aabb, constraint);
+        });
+
+        room->entities.view<AABB, PolyPlatform, Polyline>().each([&](AABB &aabb, PolyPlatform &platform, const Polyline &line) {
+
+            aabb.halfSize = ivec2(0);
+            for (auto &p : line.points)
+            {
+                aabb.halfSize.x = std::max<int>(aabb.halfSize.x, abs(p.x));
+                aabb.halfSize.y = std::max<int>(aabb.halfSize.y, abs(p.y));
+            }
         });
 
         delete collisionDetector;
@@ -188,11 +200,31 @@ class PhysicsSystem : public EntitySystem
         while (true)
         {
             Move toDo;
-            if (pixelsToMove.x >= 1)         toDo = Move::right;
-            else if (pixelsToMove.x <= -1)   toDo = Move::left;
-            else if (pixelsToMove.y >= 1)    toDo = Move::up;
-            else if (pixelsToMove.y <= -1)   toDo = Move::down;
+            if (pixelsToMove.x >= 1)         toDo = right;
+            else if (pixelsToMove.x <= -1)   toDo = left;
+            else if (pixelsToMove.y >= 1)    toDo = up;
+            else if (pixelsToMove.y <= -1)   toDo = down;
             else break;
+
+            // if entity is on a polyPlatform that has a different height at the next x position:
+            if (toDo == right && physics.touches.polyPlatformDeltaRight != 0)
+            {
+
+                if (pixelsToMove.y > 0)
+                    pixelsToMove.y = max<float>(pixelsToMove.y, physics.touches.polyPlatformDeltaRight);
+                else
+                    pixelsToMove.y = physics.touches.polyPlatformDeltaRight;
+
+
+            }
+            if (toDo == left && physics.touches.polyPlatformDeltaLeft != 0)
+            {
+
+                if (pixelsToMove.y > 0)
+                    pixelsToMove.y = max<float>(pixelsToMove.y, physics.touches.polyPlatformDeltaLeft);
+                else
+                    pixelsToMove.y = physics.touches.polyPlatformDeltaLeft;
+            }
 
             ivec2 prevPos = body.center;
 
@@ -200,13 +232,13 @@ class PhysicsSystem : public EntitySystem
             {
                 switch (toDo)
                 {
-                    case up:    pixelsToMove.y -= 1;
+                    case up:    pixelsToMove.y--;
                         break;
-                    case down:  pixelsToMove.y += 1;
+                    case down:  pixelsToMove.y++;
                         break;
-                    case left:  pixelsToMove.x += 1;
+                    case left:  pixelsToMove.x++;
                         break;
-                    case right: pixelsToMove.x -= 1;
+                    case right: pixelsToMove.x--;
                     case none:
                         break;
                 }
@@ -221,7 +253,7 @@ class PhysicsSystem : public EntitySystem
      */
     bool tryMove(Physics &physics, AABB &body, Move toDo)
     {
-        std::vector<Move> movesToDo;
+        std::list<Move> movesToDo;
 
         Move prevMove = Move::none;
         while (toDo != Move::none)
@@ -234,6 +266,7 @@ class PhysicsSystem : public EntitySystem
         }
         for (auto move : movesToDo)
             doMove(physics, body, move);
+        updateTerrainCollisions(physics, body);
         return true;
     }
 
@@ -286,14 +319,13 @@ class PhysicsSystem : public EntitySystem
             case right: body.center.x++; break;
             case none:                   break;
         }
-        updateTerrainCollisions(p, body);
     }
 
     void updateTerrainCollisions(Physics &p, AABB &body)
     {
         AABB outlineBox = body;
         outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
-        p.touches = collisionDetector->detect(outlineBox, p.ignorePlatforms);
+        p.touches = collisionDetector->detect(outlineBox, p.ignorePlatforms, p.ignorePolyPlatforms);
     }
 
 };

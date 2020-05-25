@@ -1,18 +1,26 @@
 
 #include "TerrainCollisionDetector.h"
 #include "../../components/physics/Physics.h"
-#include "../../../Level.h"
+#include "../../components/physics/PolyPlatform.h"
+#include "../../components/Polyline.h"
 
-TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignorePlatforms)
+TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms)
 {
     TerrainCollisions collisions;
+
+    collisions.polyPlatform = ignorePolyPlatforms ? false : onPolyPlatform(
+
+            aabb, collisions.polyPlatformEntity,
+            collisions.polyPlatformDeltaLeft, collisions.polyPlatformDeltaRight,
+            ignorePlatforms
+    );
 
     collisions.halfSlopeDown = halfSlopeDownIntersection(aabb);
     collisions.halfSlopeUp = halfSlopeUpIntersection(aabb);
     collisions.slopeDown = collisions.halfSlopeDown || slopeDownIntersection(aabb);
     collisions.slopeUp = collisions.halfSlopeUp || slopeUpIntersection(aabb);
     collisions.flatFloor = floorIntersection(aabb, ignorePlatforms);
-    collisions.floor = collisions.slopeUp || collisions.slopeDown || collisions.flatFloor;
+    collisions.floor = collisions.polyPlatform || collisions.slopeUp || collisions.slopeDown || collisions.flatFloor;
     collisions.slopedCeilingDown = slopedCeilingDownIntersection(aabb);
     collisions.slopedCeilingUp = slopedCeilingUpIntersection(aabb);
     collisions.ceiling = collisions.slopedCeilingUp || collisions.slopedCeilingDown || ceilingIntersection(aabb);
@@ -187,4 +195,91 @@ bool TerrainCollisionDetector::halfSlopeUpIntersection(const AABB &aabb)
             pointOnSlope(aabb.bottomRight() - ivec2(1, 0), map, Tile::slope_up_half1)
             ||
             pointOnSlope(aabb.bottomRight() + ivec2(0, 1), map, Tile::slope_up_half1);
+}
+
+float polyPlatformHeightAtX(int x, const vec2 &p0, const vec2 &p1)
+{
+    vec2 delta = p1 - p0;
+    return p0.y + delta.y * ((x - p0.x) / delta.x);
+}
+
+bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, entt::entity &platformEntity, int8 &deltaLeft,
+                                              int8 &deltaRight, bool fallThrough)
+{
+    if (!reg) return false;
+
+    ivec2 point = aabb.bottomCenter();
+    int xLeft = point.x - 1, xRight = point.x + 1;
+
+    auto test = [&](
+            AABB &platformAABB, PolyPlatform &platform, Polyline &line
+    ) -> bool {
+
+        if ((fallThrough && platform.allowFallThrough) || !platformAABB.contains(point))
+            return false;
+
+        auto it = line.points.begin();
+
+        int heightLeft = -99, height = 0, heightRight = 0;
+
+        for (int i = 0; i < line.points.size() - 1; i++)
+        {
+            const vec2 p0 = *it + vec2(platformAABB.center);
+            const vec2 p1 = *(++it) + vec2(platformAABB.center);
+
+            int xMin = p0.x, xMax = p1.x - 1;
+            if (xMax >= xLeft && xMin <= xLeft)
+                heightLeft = polyPlatformHeightAtX(xLeft, p0, p1);
+            if (xMax >= point.x && xMin <= point.x)
+                height = polyPlatformHeightAtX(point.x, p0, p1);
+            if (xMax >= xRight && xMin <= xRight)
+            {
+                if (height == point.y)
+                {
+                    if (heightLeft == -99)
+                        heightLeft = height;
+
+                    heightRight = polyPlatformHeightAtX(xRight, p0, p1);
+
+                    deltaLeft = heightLeft - height;
+                    deltaRight = heightRight - height;
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    // first check if still on previous platform:
+    if (platformEntity != entt::null)
+    {
+        AABB *platformAABB = reg->try_get<AABB>(platformEntity);
+        PolyPlatform *platform = reg->try_get<PolyPlatform>(platformEntity);
+        Polyline *line = reg->try_get<Polyline>(platformEntity);
+
+        if (platformAABB && platform && line && test(*platformAABB, *platform, *line))
+            return true;
+    }
+
+    bool foundPlatform = false;
+
+    // check all other platforms:
+    reg->view<AABB, PolyPlatform, Polyline>()
+    .each([&](auto e, AABB &platformAABB, PolyPlatform &platform, Polyline &line){
+
+        if (foundPlatform || e == platformEntity)
+            return;
+
+        if (test(platformAABB, platform, line))
+        {
+            foundPlatform = true;
+            platformEntity = e;
+        }
+    });
+    if (foundPlatform)
+        return true;
+
+    platformEntity = entt::null;
+    deltaRight = deltaLeft = 0;
+    return false;
 }

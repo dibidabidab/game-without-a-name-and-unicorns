@@ -123,7 +123,8 @@ COMPONENT(
     FIELD_DEF_VAL   (float, floorFriction, 18),
     FIELD_DEF_VAL   (float, wallFriction, 6),
     FIELD_DEF_VAL   (vec2,  velocity, vec2(0)),
-    FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
+    FIELD_DEF_VAL   (bool,  ignorePlatforms, false),
+    FIELD_DEF_VAL   (bool,  ignorePolyPlatforms, true)
 )
 
     TerrainCollisions touches, prevTouched;

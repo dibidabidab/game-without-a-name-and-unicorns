@@ -36,6 +36,9 @@
 #include "../../level/ecs/entity_templates/LampEntity.h"
 #include "../../level/ecs/entity_templates/PlantEntity.h"
 #include "../../level/ecs/entity_templates/EnemyEntity.h"
+#include "../../level/ecs/components/Polyline.h"
+#include "../../level/ecs/components/physics/PolyPlatform.h"
+#include "../../level/ecs/entity_templates/RainbowEntity.h"
 
 class RoomScreen : public Screen
 {
@@ -108,6 +111,7 @@ class RoomScreen : public Screen
         entt::entity enemy = room->getTemplate<EnemyEntity>()->create();
         room->entities.get<AABB>(enemy).center = ivec2(400, 125);
 
+        room->getTemplate<RainbowEntity>()->create();
     }
 
     void render(double deltaTime) override
@@ -193,7 +197,8 @@ class RoomScreen : public Screen
             renderShadowDebugLines = false,
             renderHitboxes = false,
             debugLegs = renderHitboxes,
-            debugAimTargets = renderHitboxes;
+            debugAimTargets = renderHitboxes,
+            debugPolyPlatforms = renderHitboxes;
 
         if (ImGui::Begin("debug tools"))
         {
@@ -202,6 +207,7 @@ class RoomScreen : public Screen
             ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
             ImGui::Checkbox("debug legs", &debugLegs);
             ImGui::Checkbox("debug aim targets", &debugAimTargets);
+            ImGui::Checkbox("debug poly-platforms", &debugPolyPlatforms);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
 
@@ -271,6 +277,17 @@ class RoomScreen : public Screen
         if (debugAimTargets) room->entities.view<Aiming, AABB>().each([&](const Aiming &aim, const AABB &aabb) {
             lineRenderer.axes(aim.target, 4, mu::X);
             lineRenderer.line(aim.target, aabb.center, mu::X);
+        });
+        if (debugPolyPlatforms) room->entities.view<AABB, Polyline, PolyPlatform>().each([&](const AABB &aabb, const Polyline &line, auto &) {
+
+            auto it = line.points.begin();
+            for (int i = 0; i < line.points.size() - 1; i++)
+            {
+                vec2 p0 = *it + vec2(aabb.center);
+                vec2 p1 = *(++it) + vec2(aabb.center);
+                lineRenderer.line(p0, p1, mu::X + mu::Z);
+                lineRenderer.circle(p0, 2, 8, vec3(1));
+            }
         });
 
         inspector.entityTemplates = room->getTemplateNames();

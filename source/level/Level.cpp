@@ -12,6 +12,7 @@
 #include "ecs/entity_templates/BowEntity.h"
 #include "ecs/entity_templates/ArrowEntity.h"
 #include "ecs/entity_templates/EnemyEntity.h"
+#include "ecs/entity_templates/RainbowEntity.h"
 
 void Level::initialize()
 {
@@ -25,6 +26,7 @@ void Level::initialize()
         rooms[i].registerEntityTemplate<PlantEntity>();
         rooms[i].registerEntityTemplate<PlayerEntity>();
         rooms[i].registerEntityTemplate<RopeEntity>();
+        rooms[i].registerEntityTemplate<RainbowEntity>();
         rooms[i].initialize(this, i);
     }
 }
