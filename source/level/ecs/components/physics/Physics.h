@@ -149,6 +149,8 @@ COMPONENT(
             lineRenderer.axes(body.topRight(), 2, mu::Y);
         if (touches.slopedCeilingUp)
             lineRenderer.axes(body.topLeft(), 2, mu::Y);
+        if (touches.polyPlatform)
+            lineRenderer.circle(body.bottomCenter(), 2, 8, mu::Y);
     }
 
 END_COMPONENT(Physics)

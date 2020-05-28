@@ -71,7 +71,7 @@ class LegsSystem : public EntitySystem
             const Physics &bodyPhysics
     )
     {
-        TerrainCollisionDetector collisionDetector(room->getMap());
+        TerrainCollisionDetector collisionDetector(room->getMap(), &room->entities);
         AABB tempFoot = footAABB;
 
         vec2 prevTarget = leg.target;
@@ -108,8 +108,6 @@ class LegsSystem : public EntitySystem
                     tempFoot.center = leg.target;
 
                     auto footTouches = collisionDetector.detect(tempFoot, false, bodyPhysics.touches.polyPlatform);
-
-                    leg.target.y -= footAABB.halfSize.y * 2;
 
                     if (footTouches.floor && !footTouches.ceiling)
                         break;
@@ -210,7 +208,7 @@ class LegsSystem : public EntitySystem
 
     vec2 moveFootWithArc(Leg &leg, AABB &footAABB, const AABB &bodyAABB, const Physics &bodyPhysics, float deltaTime)
     {
-        vec2 diff = leg.target - vec2(footAABB.center);
+        vec2 diff = leg.target - vec2(footAABB.center) - leg.moveAccumulator;
         float dist = length(diff);  // distance between foot and target
 
         if (dist < max(1., leg.distToTargetBeforeMoving * .3)) // foot is near target.

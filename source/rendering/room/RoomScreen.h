@@ -193,6 +193,7 @@ class RoomScreen : public Screen
         ImGui::SetNextWindowSize(ImVec2(180, 250), ImGuiCond_FirstUseEver);
 
         static bool
+            vsync = false,
             renderTiles = false,
             renderShadowDebugLines = false,
             renderHitboxes = false,
@@ -202,6 +203,7 @@ class RoomScreen : public Screen
 
         if (ImGui::Begin("debug tools"))
         {
+            ImGui::Checkbox("vsync", &vsync);
             ImGui::Checkbox("render debug-tiles", &renderTiles);
             ImGui::Checkbox("render shadow-debug-lines", &renderShadowDebugLines);
             ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
@@ -210,6 +212,8 @@ class RoomScreen : public Screen
             ImGui::Checkbox("debug poly-platforms", &debugPolyPlatforms);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
+
+            gu::setVSync(vsync);
 
             if (showRoomEditor)
             {

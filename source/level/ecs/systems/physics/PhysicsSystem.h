@@ -200,26 +200,22 @@ class PhysicsSystem : public EntitySystem
         while (true)
         {
             Move toDo;
-            if (pixelsToMove.x >= 1)         toDo = right;
-            else if (pixelsToMove.x <= -1)   toDo = left;
-            else if (pixelsToMove.y >= 1)    toDo = up;
+            if (pixelsToMove.y >= 1)         toDo = up;     // prioritize vertical movement to prevent entity from walking through a sloped polyPlatform.
             else if (pixelsToMove.y <= -1)   toDo = down;
+            else if (pixelsToMove.x >= 1)    toDo = right;
+            else if (pixelsToMove.x <= -1)   toDo = left;
             else break;
 
             // if entity is on a polyPlatform that has a different height at the next x position:
             if (toDo == right && physics.touches.polyPlatformDeltaRight != 0)
             {
-
                 if (pixelsToMove.y > 0)
                     pixelsToMove.y = max<float>(pixelsToMove.y, physics.touches.polyPlatformDeltaRight);
                 else
                     pixelsToMove.y = physics.touches.polyPlatformDeltaRight;
-
-
             }
             if (toDo == left && physics.touches.polyPlatformDeltaLeft != 0)
             {
-
                 if (pixelsToMove.y > 0)
                     pixelsToMove.y = max<float>(pixelsToMove.y, physics.touches.polyPlatformDeltaLeft);
                 else

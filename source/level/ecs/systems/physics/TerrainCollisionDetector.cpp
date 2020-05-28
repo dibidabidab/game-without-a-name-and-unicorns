@@ -6,7 +6,7 @@
 
 TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms)
 {
-    TerrainCollisions collisions;
+    TerrainCollisions collisions; // todo, remember prev polyPlatformEntity
 
     collisions.polyPlatform = ignorePolyPlatforms ? false : onPolyPlatform(
 
@@ -26,6 +26,15 @@ TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignore
     collisions.ceiling = collisions.slopedCeilingUp || collisions.slopedCeilingDown || ceilingIntersection(aabb);
     collisions.leftWall = collisions.slopedCeilingUp || leftWallIntersection(aabb);
     collisions.rightWall = collisions.slopedCeilingDown || rightWallIntersection(aabb);
+
+    if (collisions.polyPlatform && collisions.ceiling)
+    {
+        // if space between platform and ceiling becomes too small -> prevent entity from walking even further.
+        if (collisions.polyPlatformDeltaLeft > 0)
+            collisions.leftWall = true;
+        if (collisions.polyPlatformDeltaRight > 0)
+            collisions.rightWall = true;
+    }
 
     collisions.anything = collisions.floor || collisions.leftWall || collisions.rightWall || collisions.ceiling;
 

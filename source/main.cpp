@@ -226,6 +226,7 @@ int main(int argc, char *argv[])
     gu::run();
     delete mpSession;
 
+    au::terminate();
 
     #ifdef EMSCRIPTEN
     return 0;

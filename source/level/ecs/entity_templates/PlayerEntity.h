@@ -52,7 +52,7 @@ class PlayerEntity : public EntityTemplate
         {
             auto opposite = legEntities[i == 0 ? 1 : 0];
 
-            room->entities.assign<Leg>(legEntities[i], legLength, e, ivec2(i == 0 ? -3 : 3, 0), i == 0 ? -2 : 2, opposite, 17.f);
+            room->entities.assign<Leg>(legEntities[i], legLength, e, ivec2(i == 0 ? -3 : 3, 0), i == 0 ? -2 : 2, opposite, 15.f);
             room->entities.assign<AABB>(legEntities[i], ivec2(1));
 
 
