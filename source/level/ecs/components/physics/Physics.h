@@ -151,6 +151,8 @@ COMPONENT(
             lineRenderer.axes(body.topLeft(), 2, mu::Y);
         if (touches.polyPlatform)
             lineRenderer.circle(body.bottomCenter(), 2, 8, mu::Y);
+        if (touches.pixelsAbovePolyPlatform != 0)
+            lineRenderer.line(body.bottomCenter(), body.bottomCenter() - ivec2(0, touches.pixelsAbovePolyPlatform), vec3(1, 1, 0));
     }
 
 END_COMPONENT(Physics)

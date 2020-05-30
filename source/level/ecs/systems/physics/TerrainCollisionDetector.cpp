@@ -8,12 +8,7 @@ TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignore
 {
     TerrainCollisions collisions; // todo, remember prev polyPlatformEntity
 
-    collisions.polyPlatform = ignorePolyPlatforms ? false : onPolyPlatform(
-
-            aabb, collisions.polyPlatformEntity,
-            collisions.polyPlatformDeltaLeft, collisions.polyPlatformDeltaRight,
-            ignorePlatforms
-    );
+    collisions.polyPlatform = ignorePolyPlatforms ? false : onPolyPlatform(aabb, collisions, ignorePlatforms);
 
     collisions.halfSlopeDown = halfSlopeDownIntersection(aabb);
     collisions.halfSlopeUp = halfSlopeUpIntersection(aabb);
@@ -212,8 +207,7 @@ float polyPlatformHeightAtX(int x, const vec2 &p0, const vec2 &p1)
     return p0.y + delta.y * ((x - p0.x) / delta.x);
 }
 
-bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, entt::entity &platformEntity, int8 &deltaLeft,
-                                              int8 &deltaRight, bool fallThrough)
+bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollisions &col, bool fallThrough)
 {
     if (!reg) return false;
 
@@ -221,7 +215,7 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, entt::entity &pl
     int xLeft = point.x - 1, xRight = point.x + 1;
 
     auto test = [&](
-            AABB &platformAABB, PolyPlatform &platform, Polyline &line
+            entt::entity e, AABB &platformAABB, PolyPlatform &platform, Polyline &line
     ) -> bool {
 
         if ((fallThrough && platform.allowFallThrough) || !platformAABB.contains(point))
@@ -243,16 +237,25 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, entt::entity &pl
                 height = polyPlatformHeightAtX(point.x, p0, p1);
             if (xMax >= xRight && xMin <= xRight)
             {
-                if (height == point.y)
+                if (height == point.y) // entity is ON the platform:
                 {
                     if (heightLeft == -99)
                         heightLeft = height;
 
                     heightRight = polyPlatformHeightAtX(xRight, p0, p1);
 
-                    deltaLeft = heightLeft - height;
-                    deltaRight = heightRight - height;
+                    col.polyPlatformDeltaLeft = heightLeft - height;
+                    col.polyPlatformDeltaRight = heightRight - height;
                     return true;
+                }
+                else if (height < point.y) // entity is above platform:
+                {
+                    uint8 diff = point.y - height;
+                    if (diff <= DETECT_POLY_PLATFORM_MARGIN && (col.abovePolyPlatformEntity != entt::null || col.pixelsAbovePolyPlatform < diff))
+                    {
+                        col.abovePolyPlatformEntity = e;
+                        col.pixelsAbovePolyPlatform = diff;
+                    }
                 }
             }
         }
@@ -260,13 +263,13 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, entt::entity &pl
     };
 
     // first check if still on previous platform:
-    if (platformEntity != entt::null)
+    if (col.polyPlatformEntity != entt::null)
     {
-        AABB *platformAABB = reg->try_get<AABB>(platformEntity);
-        PolyPlatform *platform = reg->try_get<PolyPlatform>(platformEntity);
-        Polyline *line = reg->try_get<Polyline>(platformEntity);
+        AABB *platformAABB = reg->try_get<AABB>(col.polyPlatformEntity);
+        PolyPlatform *platform = reg->try_get<PolyPlatform>(col.polyPlatformEntity);
+        Polyline *line = reg->try_get<Polyline>(col.polyPlatformEntity);
 
-        if (platformAABB && platform && line && test(*platformAABB, *platform, *line))
+        if (platformAABB && platform && line && test(col.polyPlatformEntity, *platformAABB, *platform, *line))
             return true;
     }
 
@@ -276,19 +279,19 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, entt::entity &pl
     reg->view<AABB, PolyPlatform, Polyline>()
     .each([&](auto e, AABB &platformAABB, PolyPlatform &platform, Polyline &line){
 
-        if (foundPlatform || e == platformEntity)
+        if (foundPlatform || e == col.polyPlatformEntity)
             return;
 
-        if (test(platformAABB, platform, line))
+        if (test(e, platformAABB, platform, line))
         {
             foundPlatform = true;
-            platformEntity = e;
+            col.polyPlatformEntity = e;
         }
     });
     if (foundPlatform)
         return true;
 
-    platformEntity = entt::null;
-    deltaRight = deltaLeft = 0;
+    col.polyPlatformEntity = entt::null;
+    col.polyPlatformDeltaLeft = col.polyPlatformDeltaRight = 0;
     return false;
 }

@@ -95,7 +95,13 @@ class PhysicsSystem : public EntitySystem
             for (auto &p : line.points)
             {
                 aabb.halfSize.x = std::max<int>(aabb.halfSize.x, abs(p.x));
-                aabb.halfSize.y = std::max<int>(aabb.halfSize.y, abs(p.y));
+                aabb.halfSize.y = std::max<int>(
+                        aabb.halfSize.y,
+                        p.y > 0 ?
+                        p.y + TerrainCollisionDetector::DETECT_POLY_PLATFORM_MARGIN  // add some extra space so the CollisionDetector can detect PolyPlatforms below the entity
+                        :
+                        -p.y
+                );
             }
         });
 
