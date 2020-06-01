@@ -36,6 +36,10 @@ class PhysicsSystem : public EntitySystem
 
   private:
 
+    void moveEntitiesOnPolyPlatform(const PolyPlatform &, const ivec2 &);
+
+    void preventFallingThroughPolyPlatform(Physics &, AABB &);
+
     void updateDistanceConstraint(AABB &aabb, const DistanceConstraint &constraint);
 
     void repositionAfterCollision(const AABB &staticAABB, AABB &dynAABB, entt::entity dynEntity);

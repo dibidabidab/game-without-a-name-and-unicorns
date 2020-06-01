@@ -201,12 +201,6 @@ bool TerrainCollisionDetector::halfSlopeUpIntersection(const AABB &aabb)
             pointOnSlope(aabb.bottomRight() + ivec2(0, 1), map, Tile::slope_up_half1);
 }
 
-float polyPlatformHeightAtX(int x, const vec2 &p0, const vec2 &p1)
-{
-    vec2 delta = p1 - p0;
-    return p0.y + delta.y * ((x - p0.x) / delta.x);
-}
-
 bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollisions &col, bool fallThrough)
 {
     if (!reg) return false;
@@ -232,9 +226,9 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
 
             int xMin = p0.x, xMax = p1.x - 1;
             if (xMax >= xLeft && xMin <= xLeft)
-                heightLeft = polyPlatformHeightAtX(xLeft, p0, p1);
+                heightLeft = platform.heightAtX(xLeft, p0, p1);
             if (xMax >= point.x && xMin <= point.x)
-                height = polyPlatformHeightAtX(point.x, p0, p1);
+                height = platform.heightAtX(point.x, p0, p1);
             if (xMax >= xRight && xMin <= xRight)
             {
                 if (height == point.y) // entity is ON the platform:
@@ -242,7 +236,7 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
                     if (heightLeft == -99)
                         heightLeft = height;
 
-                    heightRight = polyPlatformHeightAtX(xRight, p0, p1);
+                    heightRight = platform.heightAtX(xRight, p0, p1);
 
                     col.polyPlatformDeltaLeft = heightLeft - height;
                     col.polyPlatformDeltaRight = heightRight - height;

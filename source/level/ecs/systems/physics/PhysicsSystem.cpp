@@ -24,17 +24,8 @@ void PhysicsSystem::update(double deltaTime, Room *room)
         if (platform.prevAABBPos != aabb.center)
         {
             ivec2 diff = aabb.center - platform.prevAABBPos;
-            for (auto e : platform.entitiesOnPlatform)
-            {
-                AABB *aabbOnPlatform = room->entities.try_get<AABB>(e);
-                Physics *physicsOnPlatform = room->entities.try_get<Physics>(e);
-                if (!aabbOnPlatform || !physicsOnPlatform)
-                    continue;
 
-                aabbOnPlatform->center += diff;
-                physicsOnPlatform->pixelsMovedByPolyPlatform = diff;
-                physicsOnPlatform->justMovedByPolyPlatform = true;
-            }
+            moveEntitiesOnPolyPlatform(platform, diff);
 
             platform.prevAABBPos = aabb.center;
         }
@@ -46,13 +37,16 @@ void PhysicsSystem::update(double deltaTime, Room *room)
 
     room->entities.view<Physics, AABB>().each([&](auto e, Physics &physics, AABB &body) {                 /// PHYSICS UPDATE
 
-        TerrainCollisions tmp = physics.touches;
+        TerrainCollisions prevTouched = physics.touches;
         auto tmpVel = physics.velocity;
 
         updatePosition(physics, body, deltaTime);
         updateVelocity(physics, deltaTime);
 
-        physics.prevTouched = tmp;
+        physics.prevTouched = prevTouched;
+
+        preventFallingThroughPolyPlatform(physics, body);
+
         if (!physics.touches.floor)
             physics.airTime += deltaTime;
         if (physics.prevTouched.floor && !physics.touches.floor)
@@ -113,6 +107,21 @@ void PhysicsSystem::update(double deltaTime, Room *room)
     });
 
     delete collisionDetector;
+}
+
+void PhysicsSystem::moveEntitiesOnPolyPlatform(const PolyPlatform &platform, const ivec2 &diff)
+{
+    for (auto e : platform.entitiesOnPlatform)
+    {
+        AABB *aabbOnPlatform = room->entities.try_get<AABB>(e);
+        Physics *physicsOnPlatform = room->entities.try_get<Physics>(e);
+        if (!aabbOnPlatform || !physicsOnPlatform)
+            continue;
+
+        aabbOnPlatform->center += diff;
+        physicsOnPlatform->pixelsMovedByPolyPlatform = diff;
+        physicsOnPlatform->justMovedByPolyPlatform = true;
+    }
 }
 
 void PhysicsSystem::updateDistanceConstraint(AABB &aabb, const DistanceConstraint &constraint)
@@ -314,4 +323,47 @@ void PhysicsSystem::moveBody(Physics &physics, AABB &body, vec &pixelsToMove)
         else if (toDo == Move::left || toDo == Move::right)  pixelsToMove.x = 0; // cant move horizontally anymore.
         else                                                 pixelsToMove.y = 0; // cant move vertically anymore.
     }
+}
+
+void PhysicsSystem::preventFallingThroughPolyPlatform(Physics &p, AABB &aabb)
+{
+    bool wasAbovePlatform =
+            p.prevTouched.abovePolyPlatformEntity != entt::null
+            && !p.touches.polyPlatform
+            && p.prevTouched.abovePolyPlatformEntity != p.touches.abovePolyPlatformEntity;
+
+    bool wasOnPlatform = p.prevTouched.polyPlatform && !p.touches.polyPlatform;
+
+    if (!wasAbovePlatform && !wasOnPlatform)
+        return;
+
+    // entity MIGHT have fallen through polyPlatform
+
+    auto platformEntity = wasAbovePlatform ? p.prevTouched.abovePolyPlatformEntity : p.prevTouched.polyPlatformEntity;
+
+    PolyPlatform *platform = room->entities.try_get<PolyPlatform>(platformEntity);
+    Polyline *line = room->entities.try_get<Polyline>(platformEntity);
+    AABB *platformAABB = room->entities.try_get<AABB>(platformEntity);
+
+    if (!platform || !line || !platformAABB)
+        return; // platform doesn't exist anymore
+
+    if (platform->allowFallThrough && p.ignorePolyPlatforms)
+        return; // fall through was intended
+
+    if (aabb.center.x <= platformAABB->bottomLeft().x || aabb.center.x > platformAABB->bottomRight().x)
+        return; // entity walked off platform.
+
+    int platformHeight = platform->heightAtX(aabb.center.x, *line, *platformAABB);
+
+    int newY = platformHeight + aabb.halfSize.y + 1;
+
+    if (newY < aabb.center.y && (!wasOnPlatform || p.velocity.y > 0))
+        return;
+
+    p.pixelsMovedByPolyPlatform.y += newY - aabb.center.y;
+
+    aabb.center.y = newY;
+
+    updateTerrainCollisions(p, aabb);
 }
