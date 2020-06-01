@@ -130,10 +130,13 @@ COMPONENT(
     TerrainCollisions touches, prevTouched;
     vec2 prevVelocity;
 
+    ivec2 pixelsMovedByPolyPlatform = ivec2(0);
+
     float airTime = 0;
 
     // used by PhysicsSystem:
     vec2 velocityAccumulator;
+    bool justMovedByPolyPlatform = false;
 
     void draw(const AABB &body, DebugLineRenderer &lineRenderer, const vec3 &color) const
     {

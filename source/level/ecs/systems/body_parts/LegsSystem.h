@@ -42,7 +42,10 @@ class LegsSystem : public EntitySystem
             if (leg.moving)
                 moveLeg(leg, footAABB, *bodyAABB, *bodyPhysics, deltaTime);
             else
+            {
                 startMovingIfNeeded(leg, footAABB, *bodyPhysics, deltaTime);
+                footAABB.center += bodyPhysics->pixelsMovedByPolyPlatform;
+            }
 
             leg.prevBodyPos = bodyAABB->center;
             leg.prevBodyVelocity = bodyPhysics->velocity;
