@@ -6,7 +6,7 @@
 
 /**
  * Used to tell the renderer that a polyline should be drawn.
- * Must be used in combination with BezierCurve or VerletRope.
+ * Must be used in combination with BezierCurve, VerletRope or Polyline.
  *
  * The depth value of the drawn line will be interpolated between zIndexBegin and zIndexEnd
  */
@@ -15,7 +15,13 @@ COMPONENT(
     HASH(0),
     FIELD(std::vector<uint8>, colors),
     FIELD_DEF_VAL(float, zIndexBegin, 0),
-    FIELD_DEF_VAL(float, zIndexEnd, 0)
+    FIELD_DEF_VAL(float, zIndexEnd, 0),
+
+    FIELD_DEF_VAL(uint8, repeatX, 0),
+    FIELD_DEF_VAL(uint8, repeatY, 0),
+    FIELD(std::vector<uint8>, repeatColors),
+
+    FIELD_DEF_VAL(bool, addAABBOffset, false)
 )
 END_COMPONENT(DrawPolyline)
 

@@ -28,6 +28,9 @@ class PolylineRenderer
 
     int nrOfSegments = 0;
 
+    ivec2 segmentOffset = ivec2(0);
+    void setSegmentOffset(const entt::registry &, entt::entity, const DrawPolyline &);
+
     /**
      * @param i                     index of the segment in the polyline
      * @param polylineSegments      nr of segments in the polyline

@@ -28,6 +28,11 @@ class RainbowEntity : public EntityTemplate
             vel.y -= .8;
         }
 
+        auto &draw = room->entities.assign<DrawPolyline>(e);
+        draw.repeatColors = {5u, 5u, 4u, 4u, 3u, 3u};
+        draw.repeatY = 5;
+        draw.addAABBOffset = true;
+
         return e;
     }
 
