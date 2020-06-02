@@ -16,6 +16,7 @@ class RainbowEntity : public EntityTemplate
         entt::entity e = room->entities.create();
 
         room->entities.assign<PolyPlatform>(e);
+        room->entities.assign<PolyPlatformWaves>(e);
         room->entities.assign<AABB>(e, vec2(20), vec2(128));
         Polyline &line = room->entities.assign<Polyline>(e);
 

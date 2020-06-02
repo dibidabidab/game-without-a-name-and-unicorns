@@ -18,6 +18,7 @@
 #include "../ecs/systems/combat/ArrowSystem.h"
 #include "../ecs/systems/combat/KnockBackSystem.h"
 #include "../ecs/systems/AudioSystem.h"
+#include "../ecs/systems/physics/WavesSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -38,6 +39,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new LegsSystem("legs"));
     systems.push_front(new ArmsSystem("arms"));
     systems.push_front(new HeadsSystem("heads"));
+    systems.push_front(new WavesSystem("platform waves"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
     systems.push_front(new KnockBackSystem("knockback physics"));
     systems.push_front(new PhysicsSystem("physics"));

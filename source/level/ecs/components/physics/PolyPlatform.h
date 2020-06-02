@@ -41,4 +41,23 @@ COMPONENT(
 
 END_COMPONENT(PolyPlatform)
 
+
+COMPONENT(
+    PolyPlatformWaves,
+    HASH(stiffness, dampening, spread),
+    FIELD_DEF_VAL(float, stiffness, 200),
+    FIELD_DEF_VAL(float, dampening, 5),
+    FIELD_DEF_VAL(float, spread, 50)
+)
+
+    struct Spring
+    {
+        float
+            yOffset = 0, velocity = 0;
+    };
+
+    std::vector<Spring> springs;
+
+END_COMPONENT(PolyPlatformWaves)
+
 #endif //GAME_POLYPLATFORM_H
