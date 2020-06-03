@@ -10,3 +10,10 @@ GIMP Palette
  34  32  38	string
 102  60  58	skin
  34  32  38	hat
+233  55  93	rainbow_red
+255 179  83	rainbow_orange
+255 247 104	rainbow_yellow
+ 81 255 112	rainbow_green
+ 77 179 255	rainbow_blue
+253 132 255	rainbow_pink
+255  40 171	rainbow_pink

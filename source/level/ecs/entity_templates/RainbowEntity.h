@@ -22,7 +22,7 @@ class RainbowEntity : public EntityTemplate
 
         vec2 vel(8, 10);
         vec2 p(-75, -100);
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 25; i++)
         {
             line.points.push_back(p);
             p += vel;
@@ -30,9 +30,10 @@ class RainbowEntity : public EntityTemplate
         }
 
         auto &draw = room->entities.assign<DrawPolyline>(e);
-        draw.repeatColors = {5u, 5u, 4u, 4u, 3u, 3u};
-        draw.repeatY = 5;
+        draw.repeatColors = {10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15};
+        draw.repeatY = 11;
         draw.addAABBOffset = true;
+        draw.zIndexEnd = draw.zIndexBegin = -64;
 
         return e;
     }

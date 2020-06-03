@@ -45,9 +45,9 @@ END_COMPONENT(PolyPlatform)
 COMPONENT(
     PolyPlatformWaves,
     HASH(stiffness, dampening, spread),
-    FIELD_DEF_VAL(float, stiffness, 200),
-    FIELD_DEF_VAL(float, dampening, 5),
-    FIELD_DEF_VAL(float, spread, 50)
+    FIELD_DEF_VAL(float, stiffness, 240),
+    FIELD_DEF_VAL(float, dampening, 4),
+    FIELD_DEF_VAL(float, spread, 45)
 )
 
     struct Spring

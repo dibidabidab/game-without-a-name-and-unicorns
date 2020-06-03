@@ -49,8 +49,8 @@ class WavesSystem : public EntitySystem
 
             // propagate waves:
 
-            float leftDeltas[wave.springs.size()];
-            float rightDeltas[wave.springs.size()];
+            std::vector<float> leftDeltas(wave.springs.size());
+            std::vector<float> rightDeltas(wave.springs.size());
 
             for (int j = 0; j < 8; j++)
             {
