@@ -100,7 +100,7 @@ using final = Type;
         hash_func\
 
 #define END_COMPONENT(component_name)\
-        int prevHash = -123456;\
+        size_t prevNetworkedHash = -123456;\
         END_SERIALIZABLE(component_name)
 
 #endif //GAME_COMPONENT_H

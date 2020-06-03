@@ -13,6 +13,7 @@
 #include "../components/graphics/DrawPolyline.h"
 #include "../components/combat/Health.h"
 #include "../components/combat/KnockBack.h"
+#include "../components/generators/TextGenerator.h"
 
 class EnemyEntity : public EntityTemplate
 {
@@ -27,6 +28,7 @@ public:
         room->entities.assign<Health>(e);
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<Physics>(e);
+        room->entities.assign<TextGenerator>(e, "Hello");
 
         return e;
     }

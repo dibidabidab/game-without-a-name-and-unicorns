@@ -17,6 +17,7 @@
 #include "../ecs/systems/body_parts/HeadsSystem.h"
 #include "../ecs/systems/combat/ArrowSystem.h"
 #include "../ecs/systems/combat/KnockBackSystem.h"
+#include "../ecs/systems/generators/TextGeneratorSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -44,6 +45,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
     systems.push_front(new PlayerControlSystem("player control"));
     systems.push_front(new ChildrenSystem("children"));
+    systems.push_front(new TextGeneratorSystem("text generator"));
 
     for (auto sys : systems) sys->init(this);
     initialized = true;

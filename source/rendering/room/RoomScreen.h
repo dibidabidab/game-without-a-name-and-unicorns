@@ -98,7 +98,11 @@ class RoomScreen : public Screen
         tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/bricks")});
 
         {
-            int x = 150, y = 100;
+            int x = 150, y = 100, w = 90, h = 20;
+            entt::entity background = menuEntities.create();
+            menuEntities.assign<AABB>(background, ivec2(0.5*w, 0.5*h), ivec2(x+0.5*w, y+0.5*h));
+            menuEntities.assign<AsepriteView>(background, asset<aseprite::Sprite>("sprites/menu/menu"));
+
             for (int n=0; n<4; n++)
             {
                 entt::entity curve = menuEntities.create();
@@ -162,7 +166,7 @@ class RoomScreen : public Screen
 
             if (room->getLevel()->paused)
             {
-                spriteRenderer.render(deltaTime, cam, room->entities);
+                spriteRenderer.render(deltaTime, cam, menuEntities);
                 polylineRenderer.render(menuEntities, cam);
             }
 

@@ -41,9 +41,7 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
             updateAnimation(view, deltaTime);
 
         ivec2 frameOffset = megaSpriteSheet->spriteInfo(view.sprite.get()).frameOffsets.at(view.frame);
-
-        instancedData.addVertices(1);
-
+        
         ivec2 position = view.getDrawPosition(aabb);
         vec2 size(view.sprite->width, view.sprite->height);
         if (view.flipHorizontal)
@@ -57,12 +55,30 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
             size.y *= -1;
         }
 
-        instancedData.set<vec3>(vec3(position, view.zIndex), i, 0);
-        instancedData.set<vec2>(size, i, sizeof(vec3));
-        instancedData.set<vec2>(frameOffset, i, sizeof(vec3) + sizeof(vec2));
-        instancedData.set<int>(view.rotate90Deg ? 1 : 0, i, sizeof(vec3) + sizeof(vec2) + sizeof(vec2));
+        if (view.sprite->type == aseprite::SpriteType::nineSlice)
+        {
+            for (int n = 0; n < 9; ++n)
+            {
+                instancedData.addVertices(1);
+                instancedData.set<vec3>(vec3(position, view.zIndex), i, 0);
+                instancedData.set<vec2>(size, i, sizeof(vec3));
+                instancedData.set<vec2>(frameOffset, i, sizeof(vec3) + sizeof(vec2));
+                instancedData.set<int>(view.rotate90Deg ? 1 : 0, i, sizeof(vec3) + sizeof(vec2) + sizeof(vec2));
 
-        i++;
+                i++;
+            }
+        } 
+        else // normal Sprite
+        {
+            instancedData.addVertices(1);
+            instancedData.set<vec3>(vec3(position, view.zIndex), i, 0);
+            instancedData.set<vec2>(size, i, sizeof(vec3));
+            instancedData.set<vec2>(frameOffset, i, sizeof(vec3) + sizeof(vec2));
+            instancedData.set<int>(view.rotate90Deg ? 1 : 0, i, sizeof(vec3) + sizeof(vec2) + sizeof(vec2));
+
+            i++;
+        }
+
     });
     gu::profiler::Zone z2("draw calls");
 

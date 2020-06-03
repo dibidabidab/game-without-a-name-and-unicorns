@@ -94,11 +94,11 @@ struct NetworkedComponent : public AbstractNetworkedData
 
         hash newHash = com->getHash();
 
-        if (newHash != com->prevHash)
+        if (newHash != com->prevNetworkedHash) // FIXME: The previous hash is only set correctly when it is a networked entity
         {
             hasChanged = true;
             com->toJsonArray(out);
-            com->prevHash = newHash;
+            com->prevNetworkedHash = newHash;
         }
     }
 
