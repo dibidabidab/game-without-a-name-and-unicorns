@@ -97,12 +97,12 @@ class PlatformerMovementSystem : public EntitySystem
             physics.velocity.x += accelerateX;
 
             // ignore platforms when down-arrow is pressed:
-            if (input.fall)
+            if (input.fall && !physics.ignorePlatforms)
             {
                 physics.ignorePlatforms = true;
                 movement.fallPressedTimer = 0;
             }
-            // ignore platforms for at least 0.2 sec since down-arrow was pressed:
+            // ignore platforms for at least 0.1 sec since down-arrow was pressed:
             if (physics.ignorePlatforms && (movement.fallPressedTimer += deltaTime) > .1 && !input.fall)
                 physics.ignorePlatforms = false;
 

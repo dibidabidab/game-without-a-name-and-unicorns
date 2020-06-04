@@ -42,7 +42,10 @@ class LegsSystem : public EntitySystem
             if (leg.moving)
                 moveLeg(leg, footAABB, *bodyAABB, *bodyPhysics, deltaTime);
             else
+            {
                 startMovingIfNeeded(leg, footAABB, *bodyPhysics, deltaTime);
+                footAABB.center += bodyPhysics->pixelsMovedByPolyPlatform;
+            }
 
             leg.prevBodyPos = bodyAABB->center;
             leg.prevBodyVelocity = bodyPhysics->velocity;
@@ -71,7 +74,7 @@ class LegsSystem : public EntitySystem
             const Physics &bodyPhysics
     )
     {
-        TerrainCollisionDetector collisionDetector(room->getMap());
+        TerrainCollisionDetector collisionDetector(room->getMap(), &room->entities);
         AABB tempFoot = footAABB;
 
         vec2 prevTarget = leg.target;
@@ -80,7 +83,7 @@ class LegsSystem : public EntitySystem
         {
             if (abs(bodyPhysics.velocity.x) < 10) // kinda standing still
             {
-                for (int y = 0; y < 8; y++)
+                for (int y = bodyPhysics.touches.polyPlatform ? -bodyAABB.halfSize.y : 0; y < 8; y++)
                 {
                     leg.target = bodyAABB.center + leg.anchor;
                     leg.target.x += leg.idleXPos;
@@ -88,7 +91,13 @@ class LegsSystem : public EntitySystem
 
                     tempFoot.center = leg.target;
 
-                    auto footTouches = collisionDetector.detect(tempFoot, false);
+                    auto footTouches = collisionDetector.detect(tempFoot, false, !bodyPhysics.touches.polyPlatform);
+
+                    if (footTouches.pixelsAbovePolyPlatform != 0)
+                    {
+                        leg.target.y -= footTouches.pixelsAbovePolyPlatform;
+                        break;
+                    }
                     if (footTouches.floor)
                         break;
                 }
@@ -99,7 +108,7 @@ class LegsSystem : public EntitySystem
             {
                 int dir = bodyPhysics.velocity.x < 0 ? -1 : 1;
 
-                for (float angle = 0; angle <= 90; angle++)
+                for (float angle = bodyPhysics.touches.polyPlatform ? -20 : 0; angle <= 90; angle++)
                 {
                     leg.target = rotate(vec2(dir * leg.length, 0), dir * -angle * mu::DEGREES_TO_RAD);
                     leg.target.x *= .9;
@@ -107,10 +116,13 @@ class LegsSystem : public EntitySystem
 
                     tempFoot.center = leg.target;
 
-                    auto footTouches = collisionDetector.detect(tempFoot, false);
+                    auto footTouches = collisionDetector.detect(tempFoot, false, bodyPhysics.ignorePolyPlatforms);
 
-                    leg.target.y -= footAABB.halfSize.y * 2;
-
+                    if (footTouches.pixelsAbovePolyPlatform != 0 && footTouches.pixelsAbovePolyPlatform < 4)
+                    {
+                        leg.target.y -= footTouches.pixelsAbovePolyPlatform;
+                        break;
+                    }
                     if (footTouches.floor && !footTouches.ceiling)
                         break;
                 }
@@ -210,7 +222,7 @@ class LegsSystem : public EntitySystem
 
     vec2 moveFootWithArc(Leg &leg, AABB &footAABB, const AABB &bodyAABB, const Physics &bodyPhysics, float deltaTime)
     {
-        vec2 diff = leg.target - vec2(footAABB.center);
+        vec2 diff = leg.target - vec2(footAABB.center) - leg.moveAccumulator;
         float dist = length(diff);  // distance between foot and target
 
         if (dist < max(1., leg.distToTargetBeforeMoving * .3)) // foot is near target.
@@ -224,7 +236,7 @@ class LegsSystem : public EntitySystem
 
             TerrainCollisionDetector collisionDetector(room->getMap());
 
-            if (collisionDetector.detect(footAABB, false).floor) // foot has reached the floor. stop moving
+            if (collisionDetector.detect(footAABB, false, bodyPhysics.touches.polyPlatform).floor) // foot has reached the floor. stop moving
             {
                 leg.stopMoving();
                 return vec2(0);

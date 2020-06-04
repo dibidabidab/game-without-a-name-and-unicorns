@@ -17,7 +17,7 @@ COMPONENT(
     HASH(length, nrOfPoints, gravity.x, gravity.y, friction),
 
     FIELD_DEF_VAL(float, length, 32),
-    FIELD_DEF_VAL(uint8, nrOfPoints, 16),
+    FIELD_DEF_VAL(uint8, nrOfPoints, 10),
     FIELD_DEF_VAL(vec2, gravity, ivec2(0, -1.5)),
     FIELD_DEF_VAL(float, friction, 1),
 

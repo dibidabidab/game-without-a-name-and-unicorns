@@ -18,6 +18,7 @@ public:
     entt::entity create() override
     {
         entt::entity ropeEntity = room->getTemplate<RopeEntity>()->create();
+        room->entities.get<VerletRope>(ropeEntity).nrOfPoints = 4;  // too high nr of points is costly and not needed for plants
 
         entt::entity e = room->entities.create();
 

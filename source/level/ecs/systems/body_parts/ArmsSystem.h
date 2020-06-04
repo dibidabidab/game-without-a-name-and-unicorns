@@ -19,8 +19,9 @@ class ArmsSystem : public EntitySystem
 
             AABB *grabTarget = room->entities.try_get<AABB>(arm.grab);
             AABB *bodyAABB = room->entities.try_get<AABB>(arm.body);
+            Physics *bodyPhysics = room->entities.try_get<Physics>(arm.body);
 
-            if (!bodyAABB)
+            if (!bodyAABB || !bodyPhysics)
                 return; // arm is not attached to body
 
             if (grabTarget)
@@ -30,6 +31,8 @@ class ArmsSystem : public EntitySystem
             }
             else
             {
+                handAABB.center += bodyPhysics->pixelsMovedByPolyPlatform;
+
                 vec2 anchor = bodyAABB->center + arm.anchor;
 
                 vec2 target = anchor;

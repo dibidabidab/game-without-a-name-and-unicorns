@@ -69,6 +69,9 @@ bool PaletteEditor::drawPalettes(Palettes3D::Effect &effect)
         auto &firstName = effect.lightLevels[0]->colors.at(i).first;
         vec3 firstColor = effect.lightLevels[0]->colors.at(i).second;
 
+        ImGui::Text("%d", i);
+        ImGui::SameLine();
+
         std::string label = "##" + std::to_string(i);
 
         constexpr size_t maxNameLen = 32;

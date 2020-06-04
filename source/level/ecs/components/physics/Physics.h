@@ -123,16 +123,20 @@ COMPONENT(
     FIELD_DEF_VAL   (float, floorFriction, 18),
     FIELD_DEF_VAL   (float, wallFriction, 6),
     FIELD_DEF_VAL   (vec2,  velocity, vec2(0)),
-    FIELD_DEF_VAL   (bool,  ignorePlatforms, false)
+    FIELD_DEF_VAL   (bool,  ignorePlatforms, false),
+    FIELD_DEF_VAL   (bool,  ignorePolyPlatforms, true)
 )
 
     TerrainCollisions touches, prevTouched;
     vec2 prevVelocity;
 
+    ivec2 pixelsMovedByPolyPlatform = ivec2(0);
+
     float airTime = 0;
 
     // used by PhysicsSystem:
     vec2 velocityAccumulator;
+    bool justMovedByPolyPlatform = false;
 
     void draw(const AABB &body, DebugLineRenderer &lineRenderer, const vec3 &color) const
     {
@@ -148,6 +152,10 @@ COMPONENT(
             lineRenderer.axes(body.topRight(), 2, mu::Y);
         if (touches.slopedCeilingUp)
             lineRenderer.axes(body.topLeft(), 2, mu::Y);
+        if (touches.polyPlatform)
+            lineRenderer.circle(body.bottomCenter(), 2, 8, mu::Y);
+        if (touches.pixelsAbovePolyPlatform != 0)
+            lineRenderer.line(body.bottomCenter(), body.bottomCenter() - ivec2(0, touches.pixelsAbovePolyPlatform), vec3(1, 1, 0));
     }
 
 END_COMPONENT(Physics)

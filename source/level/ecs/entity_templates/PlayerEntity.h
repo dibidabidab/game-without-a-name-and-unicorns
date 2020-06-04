@@ -30,7 +30,7 @@ class PlayerEntity : public EntityTemplate
     {
         entt::entity e = room->entities.create();
 
-        room->entities.assign<Physics>(e);
+        room->entities.assign<Physics>(e).ignorePolyPlatforms = false;
         room->entities.assign<AABB>(e, ivec2(3, 13), ivec2(64, 64));
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<PlatformerMovement>(e);
@@ -52,7 +52,7 @@ class PlayerEntity : public EntityTemplate
         {
             auto opposite = legEntities[i == 0 ? 1 : 0];
 
-            room->entities.assign<Leg>(legEntities[i], legLength, e, ivec2(i == 0 ? -3 : 3, 0), i == 0 ? -2 : 2, opposite, 17.f);
+            room->entities.assign<Leg>(legEntities[i], legLength, e, ivec2(i == 0 ? -3 : 3, 0), i == 0 ? -2 : 2, opposite, 15.f);
             room->entities.assign<AABB>(legEntities[i], ivec2(1));
 
 

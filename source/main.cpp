@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     };
 
     gu::beforeRender = [&](double deltaTime) {
-        mpSession->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .1 : deltaTime);
+        mpSession->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .03 : deltaTime);
         if (KeyInput::justPressed(GLFW_KEY_F11))
             gu::fullscreen = !gu::fullscreen;
 
@@ -226,6 +226,7 @@ int main(int argc, char *argv[])
     gu::run();
     delete mpSession;
 
+    au::terminate();
 
     #ifdef EMSCRIPTEN
     return 0;
