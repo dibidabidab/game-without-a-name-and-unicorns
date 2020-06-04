@@ -69,14 +69,14 @@ class PhysicsSystem : public EntitySystem
      * Sometimes a move is possible but requires another move to be done as well,
      * therefore `moveToDo` will be changed to that other move (or Move::none)
      */
-    bool canDoMove(Physics &p, AABB &aabb, Move &moveToDo, Move prevMove);
+    bool canDoMove(Physics &physics, AABB &aabb, Move &moveToDo, Move prevMove);
 
     /**
      * Executes the move (without checking if the move is possible to do)
      */
-    void doMove(Physics &p, AABB &body, Move move);
+    void doMove(Physics &physics, AABB &body, Move move);
 
-    void updateTerrainCollisions(Physics &p, AABB &body);
+    void updateTerrainCollisions(Physics &physics, AABB &body);
 
 };
 

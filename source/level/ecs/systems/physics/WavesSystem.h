@@ -20,9 +20,7 @@ class WavesSystem : public EntitySystem
     void update(double deltaTime, Room *room) override
     {
         room->entities.view<PolyPlatform, Polyline, PolyPlatformWaves, AABB>().each([&](
-
             PolyPlatform &platform, Polyline &line, PolyPlatformWaves &wave, AABB &aabb
-
         ){
             int i = 0;
             for (vec2 &p : line.points)
@@ -59,14 +57,12 @@ class WavesSystem : public EntitySystem
                 {
                     if (i > 0)
                     {
-                        leftDeltas[i] =
-                                wave.spread * deltaTime * (wave.springs[i].yOffset - wave.springs[i - 1].yOffset);
+                        leftDeltas[i] = wave.spread * deltaTime * (wave.springs[i].yOffset - wave.springs[i - 1].yOffset);
                         wave.springs[i - 1].velocity += leftDeltas[i];
                     }
                     if (i < wave.springs.size() - 1)
                     {
-                        rightDeltas[i] =
-                                wave.spread * deltaTime * (wave.springs[i].yOffset - wave.springs[i + 1].yOffset);
+                        rightDeltas[i] = wave.spread * deltaTime * (wave.springs[i].yOffset - wave.springs[i + 1].yOffset);
                         wave.springs[i + 1].velocity += rightDeltas[i];
                     }
                     i++;
