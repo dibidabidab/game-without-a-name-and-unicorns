@@ -3,7 +3,7 @@
 #define GAME_PLANTENTITY_H
 
 #include "EntityTemplate.h"
-#include "RopeEntity.h"
+#include "../components/graphics/DrawPolyline.h"
 
 class PlantEntity : public EntityTemplate
 {
@@ -17,7 +17,7 @@ class PlantEntity : public EntityTemplate
 public:
     entt::entity create() override
     {
-        entt::entity ropeEntity = room->getTemplate<RopeEntity>()->create();
+        entt::entity ropeEntity = room->getTemplate("Rope")->create();
         room->entities.get<VerletRope>(ropeEntity).nrOfPoints = 4;  // too high nr of points is costly and not needed for plants
 
         entt::entity e = room->entities.create();

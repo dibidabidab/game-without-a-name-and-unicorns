@@ -3,5 +3,5 @@
 //
 #include "component.h"
 
-std::map<const char *, ComponentUtils *> *ComponentUtils::utils = NULL;
-std::vector<const char *> *ComponentUtils::names = NULL;
+std::map<std::string, ComponentUtils *> *ComponentUtils::utils = NULL;
+std::vector<std::string> *ComponentUtils::names = NULL;

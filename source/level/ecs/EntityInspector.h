@@ -22,7 +22,7 @@ COMPONENT(Inspecting, HASH(0),
     std::map<const char *, bool> freezeComponent;
     std::map<const char *, json> frozenComponentContents;
 
-    const char *addingComponentTypeName = NULL;
+    std::string addingComponentTypeName;
 
     std::vector<std::string> currentPath;
     std::map<std::string, InspectPathState> state;

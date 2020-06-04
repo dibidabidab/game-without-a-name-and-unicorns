@@ -1,0 +1,17 @@
+{
+  "components": {
+    "Arrow": {},
+    "AABB": {
+      "halfsize": [1, 1]
+    },
+    "Physics": {
+      "gravity": 0, "airFriction": 0, "ignorePlatforms": true
+    },
+    "StaticCollider": {},
+    "AsepriteView": {
+      "sprite": "sprites/arrow"
+    },
+    "Polyline": {},
+    "DrawPolyline": {"colors": [7]}
+  }
+}

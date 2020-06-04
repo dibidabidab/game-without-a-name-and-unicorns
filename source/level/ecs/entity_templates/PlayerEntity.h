@@ -18,7 +18,7 @@
 #include "../components/graphics/DrawPolyline.h"
 #include "../components/body_parts/Arm.h"
 #include "../components/combat/Aiming.h"
-#include "BowEntity.h"
+#include "../components/combat/Bow.h"
 #include "../components/body_parts/Head.h"
 #include "../components/combat/Health.h"
 #include "../components/combat/KnockBack.h"
@@ -107,7 +107,7 @@ class PlayerEntity : public EntityTemplate
         // WEAPON: -------------------
         room->entities.assign<Aiming>(e);
 
-        auto bowEntity = room->getTemplate<BowEntity>()->create();
+        auto bowEntity = room->getTemplate("Bow")->create();
         setParent(bowEntity, e, "bow");
         Bow &bow = room->entities.get<Bow>(bowEntity);
         bow.archer = e;

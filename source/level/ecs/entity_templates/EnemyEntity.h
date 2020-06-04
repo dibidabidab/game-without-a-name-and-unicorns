@@ -8,7 +8,6 @@
 #include "EntityTemplate.h"
 #include "../components/physics/Physics.h"
 #include "../components/graphics/Light.h"
-#include "RopeEntity.h"
 #include "../components/graphics/AsepriteView.h"
 #include "../components/graphics/DrawPolyline.h"
 #include "../components/combat/Health.h"

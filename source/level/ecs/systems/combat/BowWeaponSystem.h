@@ -9,8 +9,8 @@
 #include "../../components/graphics/AsepriteView.h"
 #include "../../components/combat/Aiming.h"
 #include "../../components/PlatformerMovement.h"
-#include "../../entity_templates/ArrowEntity.h"
 #include "../../components/body_parts/Arm.h"
+#include "../../components/combat/Arrow.h"
 
 class BowWeaponSystem : public EntitySystem
 {
@@ -72,7 +72,7 @@ class BowWeaponSystem : public EntitySystem
             if (input && input->attack && bow.cooldown >= bow.fireRate)
             {
                 bow.cooldown = 0;
-                auto arrowEntity = room->getTemplate<ArrowEntity>()->create();
+                auto arrowEntity = room->getTemplate(bow.arrowTemplate)->create();
 
                 vec2 arrowSpawnPoint = aabb.center;
                 room->entities.get<AABB>(arrowEntity).center = arrowSpawnPoint;

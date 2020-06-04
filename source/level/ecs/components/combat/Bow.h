@@ -14,12 +14,17 @@ COMPONENT(
     FIELD_DEF_VAL(entt::entity, archerLeftArm, entt::null),
     FIELD_DEF_VAL(entt::entity, archerRightArm, entt::null),
     FIELD_DEF_VAL(ivec2, rotatePivot, ivec2(0)),
+
+    FIELD_DEF_VAL(entt::entity, handBowAnchor, entt::null),
+    FIELD_DEF_VAL(entt::entity, handStringAnchor, entt::null),
+
     FIELD_DEF_VAL(float, fireRate, .4),
-    FIELD_DEF_VAL(float, distanceFromArcher, 9)
+    FIELD_DEF_VAL(float, distanceFromArcher, 9),
+
+    FIELD_DEF_VAL(std::string, arrowTemplate, "Arrow")
 )
     float cooldown = 0;
 
-    entt::entity handBowAnchor, handStringAnchor;
     vec2 prevAimDir = vec2(1, 0);
 
 END_COMPONENT(Bow)

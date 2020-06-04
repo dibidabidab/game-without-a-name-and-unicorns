@@ -1,0 +1,29 @@
+{
+  "children": {
+
+    "rope": {
+      "extends": "Rope",
+      "components": {
+        "DrawPolyline": {
+          "colors": [6]
+        },
+        "VerletRope": {
+          "endPointEntity": "@parent"
+        }
+      }
+    }
+
+  },
+  "components": {
+    "AABB": {
+      "halfSize": [3, 8]
+    },
+    "LightPoint": {
+      "radius": 128
+    },
+    "AsepriteView": {
+      "sprite": "sprites/lamp"
+    },
+    "DynamicCollider": {}
+  }
+}

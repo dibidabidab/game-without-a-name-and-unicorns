@@ -205,11 +205,11 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
         auto componentUtils = ComponentUtils::getFor(componentName);
         if (!componentUtils->entityHasComponent(e, reg)) continue;
 
-        ImGui::PushID(componentName);
+        ImGui::PushID(componentName.c_str());
         ImGui::AlignTextToFramePadding();
 
         bool dontRemove = true;
-        bool component_open = ImGui::CollapsingHeader(componentName, &dontRemove);
+        bool component_open = ImGui::CollapsingHeader(componentName.c_str(), &dontRemove);
         if (!dontRemove)
         {
             componentUtils->removeComponent(e, reg);
@@ -217,11 +217,11 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
         }
         ImGui::NextColumn();
 
-        bool &freeze = ins.freezeComponent[componentName];
+        bool &freeze = ins.freezeComponent[componentName.c_str()];
 
         if (freeze)
             componentUtils->setJsonComponent(
-                    ins.frozenComponentContents[componentName], e, reg
+                    ins.frozenComponentContents[componentName.c_str()], e, reg
             );
 
         if (freezeAll) freeze = true;
@@ -233,11 +233,11 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
 
         ImGui::NextColumn();
         if (component_open)
-            drawComponentFieldsTree(e, ins, componentName, componentUtils);
+            drawComponentFieldsTree(e, ins, componentName.c_str(), componentUtils);
 
         if (freeze)
             componentUtils->getJsonComponent(
-                 ins.frozenComponentContents[componentName], e, reg
+                 ins.frozenComponentContents[componentName.c_str()], e, reg
             );
 
         ImGui::PopID();
@@ -527,7 +527,7 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
             auto utils = ComponentUtils::getFor(typeName);
             if (utils->entityHasComponent(e, reg))
                 continue;
-            if (ImGui::Selectable(typeName))
+            if (ImGui::Selectable(typeName.c_str()))
             {
                 ins.addingComponentTypeName = typeName;
                 ins.addingComponentJson = utils->construct();
@@ -536,12 +536,12 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
         ImGui::EndPopup();
     }
 
-    if (ins.addingComponentTypeName == NULL) return;
+    if (ins.addingComponentTypeName.empty()) return;
 
     ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX - 200, MouseInput::mouseY - 15), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
 
-    std::string title = "Adding " + std::string(ins.addingComponentTypeName) + " to entity #" + std::to_string(int(e));
+    std::string title = "Adding " + ins.addingComponentTypeName + " to entity #" + std::to_string(int(e));
     bool open = true;
     ImGui::Begin(title.c_str(), &open);
 
@@ -549,7 +549,7 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
     ImGui::Columns(2);
     ImGui::Separator();
 
-    drawFieldsTree(ins.addingComponentJson, SerializableStructInfo::getFor(ins.addingComponentTypeName), ins, false);
+    drawFieldsTree(ins.addingComponentJson, SerializableStructInfo::getFor(ins.addingComponentTypeName.c_str()), ins, false);
 
     ImGui::Columns(1);
     ImGui::Separator();
@@ -561,12 +561,12 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
         auto utils = ComponentUtils::getFor(ins.addingComponentTypeName);
         try
         {
-            utils->addComponent(ins.addingComponentJson, e, reg);
+            utils->setJsonComponent(ins.addingComponentJson, e, reg);
         } catch (std::exception& e) {
             std::cerr << "Exception while trying to add component in inspector:\n" << e.what() << std::endl;
         }
     }
     ImGui::End();
     if (!open)
-        ins.addingComponentTypeName = NULL;
+        ins.addingComponentTypeName.clear();
 }

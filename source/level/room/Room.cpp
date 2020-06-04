@@ -20,6 +20,12 @@
 #include "../ecs/systems/AudioSystem.h"
 #include "../ecs/systems/physics/WavesSystem.h"
 
+#include "../ecs/entity_templates/PlantEntity.h"
+#include "../ecs/entity_templates/PlayerEntity.h"
+#include "../ecs/entity_templates/EnemyEntity.h"
+#include "../ecs/entity_templates/RainbowEntity.h"
+#include "../ecs/entity_templates/JsonEntityTemplate.h"
+
 Room::Room(ivec2 size)
 {
     tileMap = new TileMap(size);
@@ -32,6 +38,15 @@ void Room::initialize(Level *lvl, int roomI_)
 
     level = lvl;
     roomI = roomI_;
+
+    registerEntityTemplate<EnemyEntity>();
+    registerEntityTemplate<PlantEntity>();
+    registerEntityTemplate<PlayerEntity>();
+    registerEntityTemplate<RainbowEntity>();
+
+    for (auto &el : AssetManager::getLoadedAssetsForType<JsonEntityTemplateJson>())
+        registerJsonEntityTemplate(el.second->shortPath.c_str());
+
     systems.push_front(new AudioSystem("audio"));
     systems.push_front(new LimbJointSystem("knee/elbow joints"));
     systems.push_front(new SpriteAnchorSystem("sprite anchors"));
@@ -149,4 +164,26 @@ entt::entity Room::getChildByName(entt::entity parent, const char *childName)
     if (it == p->childrenByName.end())
         return entt::null;
     return it->second;
+}
+
+void Room::registerJsonEntityTemplate(const char *assetPath)
+{
+    auto name = splitString(assetPath, "/").back();
+
+    addEntityTemplate(name, new JsonEntityTemplate(assetPath));
+}
+
+void Room::addEntityTemplate(const std::string &name, EntityTemplate *t)
+{
+    int hash = hashStringCrossPlatform(name);
+
+    bool replace = entityTemplates[hash] != NULL;
+
+    delete entityTemplates[hash];
+    auto et = entityTemplates[hash] = t;
+    et->room = this;
+    et->templateHash = hash;
+
+    if (!replace)
+        entityTemplateNames.push_back(name);
 }
