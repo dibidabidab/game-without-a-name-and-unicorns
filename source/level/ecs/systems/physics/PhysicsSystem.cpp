@@ -335,12 +335,14 @@ void PhysicsSystem::preventFallingThroughPolyPlatform(Physics &physics, AABB &aa
     Polyline *line          = room->entities.try_get<Polyline>(platformEntity);
     AABB *platformAABB      = room->entities.try_get<AABB>(platformEntity);
 
+    if (!platform || !line || !platformAABB)
+        return; // platform doesn't exist anymore
+
     bool
-        platformDoesNotExist        = !platform || !line || !platformAABB,
         fallTroughIntended          = platform->allowFallThrough && physics.ignorePolyPlatforms,
         entityWalkedOfThePlatform   = aabb.center.x <= platformAABB->bottomLeft().x || aabb.center.x > platformAABB->bottomRight().x;
 
-    if (platformDoesNotExist || fallTroughIntended || entityWalkedOfThePlatform)
+    if (fallTroughIntended || entityWalkedOfThePlatform)
         return;
 
 
