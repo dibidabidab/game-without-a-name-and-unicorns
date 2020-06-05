@@ -3,7 +3,7 @@
 #define GAME_TERRAINCOLLISIONDETECTOR_H
 
 #include "../../../../macro_magic/serializable.h"
-#include "../../../../../entt/src/entt/entity/registry.hpp"
+#include "../../../../../external/entt/src/entt/entity/registry.hpp"
 
 class TileMap;
 struct AABB;

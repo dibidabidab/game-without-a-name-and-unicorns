@@ -2,7 +2,7 @@
 #ifndef GAME_COMPONENT_H
 #define GAME_COMPONENT_H
 
-#include "../../entt/src/entt/entity/registry.hpp"
+#include "../../external/entt/src/entt/entity/registry.hpp"
 #include "serializable.h"
 #include <utils/hashing.h>
 

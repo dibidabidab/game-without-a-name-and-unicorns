@@ -5,7 +5,7 @@
 
 #include <graphics/camera.h>
 #include <graphics/3d/debug_line_renderer.h>
-#include "../../../entt/src/entt/entity/registry.hpp"
+#include "../../../external/entt/src/entt/entity/registry.hpp"
 #include "../../macro_magic/component.h"
 
 struct InspectPathState

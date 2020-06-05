@@ -3,7 +3,7 @@
 #define GAME_ENTITYTEMPLATE_H
 
 
-#include "../../../../entt/src/entt/entity/registry.hpp"
+#include "../../../../external/entt/src/entt/entity/registry.hpp"
 
 class Room;
 class Networked;

@@ -5,7 +5,7 @@
 #include <list>
 #include "../ecs/entity_templates/EntityTemplate.h"
 #include "../ecs/systems/EntitySystem.h"
-#include "../../../entt/src/entt/entity/registry.hpp"
+#include "../../../external/entt/src/entt/entity/registry.hpp"
 #include "TileMap.h"
 #include "../Level.h"
 #include <json.hpp>
