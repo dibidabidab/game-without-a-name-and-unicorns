@@ -10,3 +10,9 @@
 [submodule "external/websocketpp"]
 	path = external/websocketpp
 	url = https://github.com/zaphoyd/websocketpp
+[submodule "external/lua/lua"]
+	path = external/lua/lua
+	url = https://github.com/lua/lua.git
+[submodule "external/lua/LuaBridge"]
+	path = external/lua/LuaBridge
+	url = https://github.com/vinniefalco/LuaBridge.git

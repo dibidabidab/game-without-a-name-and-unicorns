@@ -34,6 +34,11 @@ add_definitions (-D_WEBSOCKETPP_CPP11_STL_)
 include_directories(../external/asio/asio/include)
 target_include_directories(game PUBLIC ../external/asio/asio/include)
 
+
+# ---LUA---
+add_subdirectory(../external/lua ./bin/lua)
+target_link_libraries(game lua)
+
 if (MSVC)
     set(CMAKE_CXX_FLAGS  "/Ox /EHsc")
 
