@@ -1,2 +1,10 @@
-testString = "LuaBridge works!"
-number = 42
+
+
+args = {
+    henri = 12345678
+}
+
+extend("Test2", args)
+
+print("Test:", args.henri)
+

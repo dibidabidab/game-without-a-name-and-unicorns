@@ -67,8 +67,5 @@ set(LUA_RUNTIME_SOURCES
   
 add_library(lua ${LUA_RUNTIME_SOURCES})
 
-add_subdirectory(LuaBridge)
-target_link_libraries(lua PUBLIC LuaBridge)
-
 target_include_directories(lua PUBLIC "${PROJECT_SOURCE_DIR}/lua")
 

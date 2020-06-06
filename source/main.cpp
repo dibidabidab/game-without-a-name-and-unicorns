@@ -15,6 +15,7 @@
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
 #include "level/ecs/entity_templates/JsonEntityTemplate.h"
+#include "level/ecs/entity_templates/LuaEntityTemplate.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {
@@ -54,33 +55,8 @@ std::string prompt(std::string text)
 #endif
 }
 
-extern "C" {
-    #include "lua.h"
-    #include "lauxlib.h"
-    #include "lualib.h"
-}
-#include <LuaBridge/LuaBridge.h>
-
 int main(int argc, char *argv[])
 {
-    {
-        using namespace luabridge;
-
-        std::string script = File::readString("assets/entity_templates/Test.entity.lua");
-
-        lua_State* L = luaL_newstate();
-        luaL_dostring(L, script.c_str());
-        luaL_openlibs(L);
-        lua_pcall(L, 0, 0, 0);
-        LuaRef s = getGlobal(L, "testString");
-        LuaRef n = getGlobal(L, "number");
-        std::string luaString = s.cast<std::string>();
-        int answer = n.cast<int>();
-        std::cout << luaString << std::endl;
-        std::cout << "And here's our number:" << answer << std::endl;
-    }
-
-
     std::mutex assetToReloadMutex;
     std::string assetToReload;
 
@@ -134,6 +110,11 @@ int main(int argc, char *argv[])
 
         return new JsonEntityTemplateJson{ json::parse(File::readString(path.c_str())) };
     });
+    AssetManager::addAssetLoader<LuaEntityScript>(".entity.lua", [](auto path) {
+
+        return new LuaEntityScript{ File::readString(path.c_str()) };
+    });
+
 
     bool server = false;
     int serverPort = 0;

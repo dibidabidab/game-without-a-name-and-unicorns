@@ -104,6 +104,8 @@ class Room
 
     void registerJsonEntityTemplate(const char *assetPath);
 
+    void registerLuaEntityTemplate(const char *assetPath);
+
     void addEntityTemplate(const std::string &name, EntityTemplate *);
 
 };

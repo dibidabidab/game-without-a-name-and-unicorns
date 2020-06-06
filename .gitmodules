@@ -1,6 +1,6 @@
 [submodule "external/gu"]
 	path = external/gu
-	url = git@github.com:hilkojj/cpp-game-utils.git
+	url = https://github.com/hilkojj/cpp-game-utils.git
 [submodule "external/asio"]
 	path = external/asio
 	url = https://github.com/chriskohlhoff/asio
@@ -13,6 +13,6 @@
 [submodule "external/lua/lua"]
 	path = external/lua/lua
 	url = https://github.com/lua/lua.git
-[submodule "external/lua/LuaBridge"]
-	path = external/lua/LuaBridge
-	url = https://github.com/vinniefalco/LuaBridge.git
+[submodule "external/lua/sol2"]
+	path = external/lua/sol2
+	url = https://github.com/ThePhD/sol2.git
