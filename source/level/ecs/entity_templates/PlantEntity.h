@@ -15,12 +15,10 @@ class PlantEntity : public EntityTemplate
     const float LENGTH = 23.0f;
 
 public:
-    entt::entity create() override
+    void createComponents(entt::entity e) override
     {
         entt::entity ropeEntity = room->getTemplate("Rope")->create();
         room->entities.get<VerletRope>(ropeEntity).nrOfPoints = 4;  // too high nr of points is costly and not needed for plants
-
-        entt::entity e = room->entities.create();
 
         setParent(ropeEntity, e, "rope");
 
@@ -49,8 +47,6 @@ public:
 
 
         room->entities.assign<DrawPolyline>(ropeEntity, std::vector<uint8>{4u});
-
-        return e;
     }
 };
 

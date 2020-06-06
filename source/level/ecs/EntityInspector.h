@@ -38,7 +38,7 @@ END_COMPONENT(Inspecting)
 
 class EntityInspector
 {
-    entt::registry *reg;
+    entt::registry &reg;
 
   public:
 
@@ -52,11 +52,7 @@ class EntityInspector
     std::vector<std::string> entityTemplates;
     std::string templateToCreate = "";
 
-    EntityInspector(entt::registry *reg);
-
-    void findEntitiesWithComponent(const char *component, std::vector<entt::entity> &out);
-
-    entt::entity getByIndex(int i);
+    EntityInspector(entt::registry &reg);
 
     void drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
 

@@ -14,7 +14,6 @@
 #include "ImGuiStyle.h"
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
-#include "level/ecs/entity_templates/JsonEntityTemplate.h"
 #include "level/ecs/entity_templates/LuaEntityTemplate.h"
 
 #ifdef EMSCRIPTEN
@@ -105,10 +104,6 @@ int main(int argc, char *argv[])
         auto sound = new au::Sound;
         au::OggLoader::load(path.c_str(), *sound);
         return sound;
-    });
-    AssetManager::addAssetLoader<JsonEntityTemplateJson>(".entity.json", [](auto path) {
-
-        return new JsonEntityTemplateJson{ json::parse(File::readString(path.c_str())) };
     });
     AssetManager::addAssetLoader<LuaEntityScript>(".entity.lua", [](auto path) {
 

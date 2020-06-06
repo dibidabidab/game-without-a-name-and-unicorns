@@ -11,9 +11,8 @@ class RainbowEntity : public EntityTemplate
 {
 
   public:
-    entt::entity create() override
+    void createComponents(entt::entity e) override
     {
-        entt::entity e = room->entities.create();
 
         room->entities.assign<PolyPlatform>(e);
         room->entities.assign<PolyPlatformWaves>(e);
@@ -34,8 +33,6 @@ class RainbowEntity : public EntityTemplate
         draw.repeatY = 11;
         draw.addAABBOffset = true;
         draw.zIndexEnd = draw.zIndexBegin = -64;
-
-        return e;
     }
 
 };

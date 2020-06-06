@@ -24,7 +24,6 @@
 #include "../ecs/entity_templates/PlayerEntity.h"
 #include "../ecs/entity_templates/EnemyEntity.h"
 #include "../ecs/entity_templates/RainbowEntity.h"
-#include "../ecs/entity_templates/JsonEntityTemplate.h"
 #include "../ecs/entity_templates/LuaEntityTemplate.h"
 
 Room::Room(ivec2 size)
@@ -44,9 +43,6 @@ void Room::initialize(Level *lvl, int roomI_)
     registerEntityTemplate<PlantEntity>();
     registerEntityTemplate<PlayerEntity>();
     registerEntityTemplate<RainbowEntity>();
-
-    for (auto &el : AssetManager::getLoadedAssetsForType<JsonEntityTemplateJson>())
-        registerJsonEntityTemplate(el.second->shortPath.c_str());
 
     for (auto &el : AssetManager::getLoadedAssetsForType<LuaEntityScript>())
         registerLuaEntityTemplate(el.second->shortPath.c_str());
@@ -174,13 +170,6 @@ entt::entity Room::getChildByName(entt::entity parent, const char *childName)
     if (it == p->childrenByName.end())
         return entt::null;
     return it->second;
-}
-
-void Room::registerJsonEntityTemplate(const char *assetPath)
-{
-    auto name = splitString(assetPath, "/").back();
-
-    addEntityTemplate(name, new JsonEntityTemplate(assetPath));
 }
 
 void Room::registerLuaEntityTemplate(const char *assetPath)

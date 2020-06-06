@@ -10,11 +10,13 @@ struct ComponentUtils
 {
   public:
 
-    std::function<bool(entt::entity, const entt::registry *)> entityHasComponent;
-    std::function<void(json &, entt::entity, const entt::registry *)> getJsonComponent, getJsonObjectComponent;
-    std::function<void(const json &, entt::entity, entt::registry *)> setJsonComponent, setJsonObjectComponent;
-    std::function<void(entt::entity, entt::registry *)> removeComponent;
-    std::function<json()> construct, constructObject;
+    std::function<bool(entt::entity, const entt::registry &)> entityHasComponent;
+    std::function<void(json &, entt::entity, const entt::registry &)> getJsonComponent;
+    std::function<void(const json &, entt::entity, entt::registry &)> setJsonComponent;
+    std::function<void(entt::entity, entt::registry &)> removeComponent;
+    std::function<json()> getDefaultJsonComponent;
+
+    std::function<void(const sol::table &, entt::entity, entt::registry &)> setFromLuaTable;
 
     template <class Component>
     const static ComponentUtils *create()
@@ -31,36 +33,28 @@ struct ComponentUtils
         utils->operator[](Component::COMPONENT_NAME) = u;
         names->push_back(Component::COMPONENT_NAME);
 
-        u->entityHasComponent = [] (entt::entity e, const entt::registry *reg)
+        u->entityHasComponent = [] (entt::entity e, const entt::registry &reg)
         {
-            return reg->has<Component>(e);
+            return reg.valid(e) ? reg.has<Component>(e) : false;
         };
-        u->getJsonComponent = [] (json &j, entt::entity e, const entt::registry *reg)
+        u->getJsonComponent = [] (json &j, entt::entity e, const entt::registry &reg)
         {
-            reg->get<Component>(e).toJsonArray(j);
+            reg.get<Component>(e).toJsonArray(j);
         };
-        u->getJsonObjectComponent = [] (json &j, entt::entity e, const entt::registry *reg)
+        u->setJsonComponent = [] (const json &j, entt::entity e, entt::registry &reg)
         {
-            reg->get<Component>(e).toJson(j);
+            reg.get_or_assign<Component>(e).fromJsonArray(j);
         };
-        u->setJsonComponent = [] (const json &j, entt::entity e, entt::registry *reg)
+        u->removeComponent = [] (entt::entity e, entt::registry &reg)
         {
-            reg->get_or_assign<Component>(e).fromJsonArray(j);
+            reg.remove<Component>(e);
         };
-        u->setJsonObjectComponent = [] (const json &j, entt::entity e, entt::registry *reg)
-        {
-            reg->get_or_assign<Component>(e).fromJson(j);
+        u->getDefaultJsonComponent = [] { return Component(); };
+
+        u->setFromLuaTable = [] (const sol::table &table, entt::entity e, entt::registry &reg) {
+            reg.get_or_assign<Component>(e).fromLuaTable(table);
         };
-        u->removeComponent = [] (entt::entity e, entt::registry *reg)
-        {
-            reg->remove<Component>(e);
-        };
-        u->construct = [] { return Component(); };
-        u->constructObject = [] {
-            json j;
-            Component().toJson(j);
-            return j;
-        };
+
         return u;
     }
 

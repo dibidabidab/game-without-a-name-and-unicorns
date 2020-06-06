@@ -26,10 +26,8 @@
 class PlayerEntity : public EntityTemplate
 {
   public:
-    entt::entity create() override
+    void createComponents(entt::entity e) override
     {
-        entt::entity e = room->entities.create();
-
         room->entities.assign<Physics>(e).ignorePolyPlatforms = false;
         room->entities.assign<AABB>(e, ivec2(3, 13), ivec2(64, 64));
         room->entities.assign<StaticCollider>(e);
@@ -107,13 +105,13 @@ class PlayerEntity : public EntityTemplate
         // WEAPON: -------------------
         room->entities.assign<Aiming>(e);
 
-        auto bowEntity = room->getTemplate("Bow")->create();
-        setParent(bowEntity, e, "bow");
-        Bow &bow = room->entities.get<Bow>(bowEntity);
-        bow.archer = e;
-        bow.archerLeftArm = arms[0];
-        bow.archerRightArm = arms[1];
-        bow.rotatePivot.y = 7;
+//        auto bowEntity = room->getTemplate("Bow")->create();
+//        setParent(bowEntity, e, "bow");
+//        Bow &bow = room->entities.get<Bow>(bowEntity);
+//        bow.archer = e;
+//        bow.archerLeftArm = arms[0];
+//        bow.archerRightArm = arms[1];
+//        bow.rotatePivot.y = 7;
 
         // HEAD: -----------
         auto headEntity = createChild(e, "head");
@@ -122,7 +120,6 @@ class PlayerEntity : public EntityTemplate
         room->entities.assign<SpriteAnchor>(headEntity, e, "head");
         room->entities.assign<AsepriteView>(headEntity, asset<aseprite::Sprite>("sprites/player_head"));
 
-        return e;
     }
 
     void makeNetworkedServerSide(Networked &networked) override

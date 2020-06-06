@@ -7,58 +7,89 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName) : script(assetName)
 
 }
 
-entt::entity LuaEntityTemplate::create()
+void LuaEntityTemplate::createComponents(entt::entity e)
 {
     sol::state lua;
 
     lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math);
 
-    return create(lua, sol::optional<sol::table>());
+    createComponentsFromScript(e, lua, sol::optional<sol::table>());
 }
 
-entt::entity LuaEntityTemplate::create(sol::state &lua, sol::optional<sol::table> arguments)
+void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::state &lua, sol::optional<sol::table> arguments)
 {
     sol::environment env(lua, sol::create, lua.globals());
 
-    entt::entity e = entt::null;
     try
     {
-        env["args"] = arguments;
-        env["create"] = [&]() -> int { return int(e = room->entities.create()); };
-        env["extend"] = [&](const char *templateName, sol::optional<sol::table> extendArgs) -> int {
+        env["entity"] = e;
 
-            auto entityTemplate = room->getTemplate(templateName);
+        if (arguments.has_value())
+            env["args"] = arguments;
+        else
+            env["args"].get_or_create<sol::table>();
+
+        env["arg"] = [&](const char *argName, sol::optional<sol::reference> defaultVal) {
+            if (!env["args"][argName].valid())
+                env["args"][argName] = defaultVal;
+        };
+        env["createChild"] = [&](const char *childName) {
+
+            if (env[childName].valid())
+                throw gu_err("Could not create child.\nIt seems that the lua script already has a variable named '" + std::string(childName) + "'");
+
+            env[childName] = int(createChild(e, childName));
+
+            env["childComponents"].get_or_create<sol::table>()[childName].get_or_create<sol::table>();
+        };
+        env["applyTemplate"] = [&](int extendE, const char *templateName, sol::optional<sol::table> extendArgs) {
+
+            auto entityTemplate = room->getTemplate(templateName); // could throw error :)
 
             if (dynamic_cast<LuaEntityTemplate *>(entityTemplate))
             {
-                return int(((LuaEntityTemplate *) entityTemplate)->create(lua, extendArgs));
+                ((LuaEntityTemplate *) entityTemplate)->
+                    createComponentsFromScript(entt::entity(extendE), lua, extendArgs);
             }
-            return int(entityTemplate->create());
+            else
+                entityTemplate->createComponents(entt::entity(extendE));
         };
 
         lua.script(script->source, env);
 
-        if (e == entt::null) // create() was not called
-            e = room->entities.create();
+        luaTableToComponents(e, env["components"]);
 
-        sol::table componentsTable = env["components"];
+        auto childComponentsTable = env["childComponents"].get_or_create<sol::table>();
 
-        for (const auto &[componentName, val] : componentsTable)
+        for (const auto &[childName, compsTable] : childComponentsTable)
         {
-            sol::table comp = val;
-
-            std::cout << componentName.as<std::string>() << '\n';
-
-            for (const auto &[key, val] : comp)
-                std::cout << key.as<std::string>() << " = " << val.as<std::string>() << "\n";
-
+            auto child = room->getChildByName(e, childName.as<std::string>().c_str());
+            luaTableToComponents(child, compsTable);
         }
-
     }
     catch (std::exception &e)
     {
         std::cerr << "Error while creating entity using " << script.getLoadedAsset().fullPath << ":" << std::endl;
         std::cerr << e.what() << std::endl;
     }
-    return e;
+}
+
+void LuaEntityTemplate::luaTableToComponents(entt::entity e, const sol::table &table)
+{
+    for (const auto &[componentName, comp] : table)
+    {
+        if (!componentName.is<std::string>())
+            throw gu_err("All keys in the components table must be a string!");
+
+        auto nameStr = componentName.as<std::string>();
+
+        if (!comp.is<sol::table>())
+            throw gu_err("Expected a table for " + nameStr);
+
+        auto utils = ComponentUtils::getFor(nameStr);
+        if (!utils)
+            throw gu_err("Component named '" + nameStr + "' does not exist!");
+
+        utils->setFromLuaTable(comp.as<sol::table>(), e, room->entities);
+    }
 }

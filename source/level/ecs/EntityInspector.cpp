@@ -7,23 +7,9 @@
 #include "components/physics/Physics.h"
 
 
-EntityInspector::EntityInspector(entt::registry *reg) : reg(reg)
+EntityInspector::EntityInspector(entt::registry &reg) : reg(reg)
 {
 
-}
-
-void EntityInspector::findEntitiesWithComponent(const char *component, std::vector<entt::entity> &out)
-{
-    auto utils = ComponentUtils::getFor(component);
-    if (!utils) return;
-    for (int i = 0; i < reg->size(); i++)
-        if (utils->entityHasComponent(getByIndex(i), reg))
-            out.push_back(getByIndex(i));
-}
-
-entt::entity EntityInspector::getByIndex(int i)
-{
-    return reg->data()[i];
 }
 
 void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
@@ -43,7 +29,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
         moveEntityGUI(cam, lineRenderer);
         return;
     }
-    reg->view<Inspecting>().each([&](auto e, Inspecting &ins) {
+    reg.view<Inspecting>().each([&](auto e, Inspecting &ins) {
         drawEntityInspectorGUI(e, ins);
     });
 
@@ -60,7 +46,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     }
     if (!open) show = false;
 
-    ImGui::Text("%lu entities active", reg->alive());
+    ImGui::Text("%lu entities active", reg.alive());
     pickEntity = ImGui::Button("Pick entity from screen (I)") || KeyInput::justPressed(GLFW_KEY_I);
     moveEntity = ImGui::Button("Move entity (M)") || KeyInput::justPressed(GLFW_KEY_M);
 
@@ -90,7 +76,7 @@ void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     bool breakk = false;
     lineRenderer.axes(p, 10, vec3(1));
 
-    reg->view<AABB>().each([&] (entt::entity e, AABB &box) {
+    reg.view<AABB>().each([&] (entt::entity e, AABB &box) {
 
         if (box.contains(p) && !breakk)
         {
@@ -102,7 +88,7 @@ void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
 
             if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT))
             {
-                reg->assign_or_replace<Inspecting>(e);
+                reg.assign_or_replace<Inspecting>(e);
                 pickEntity = false;
             }
             return;
@@ -123,7 +109,7 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     {
         lineRenderer.arrows(p, 10, vec3(1, 0, 1));
 
-        reg->view<AABB>().each([&] (entt::entity e, AABB &box) {
+        reg.view<AABB>().each([&] (entt::entity e, AABB &box) {
 
             if (box.contains(p) && !breakk)
             {
@@ -144,7 +130,7 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     else
     {
         lineRenderer.arrows(p, 5, vec3(0, 1, 0));
-        AABB *aabb = reg->try_get<AABB>(movingEntity);
+        AABB *aabb = reg.try_get<AABB>(movingEntity);
 
         if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_LEFT) || aabb == NULL)
         {
@@ -160,7 +146,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
 {
     if (!ins.show)
     {
-        reg->remove<Inspecting>(e);
+        reg.remove<Inspecting>(e);
         return;
     }
     ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX, MouseInput::mouseY), ImGuiCond_Once);
@@ -175,7 +161,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
     }
     if (ImGui::Button("Destroy entity"))
     {
-        reg->destroy(e);
+        reg.destroy(e);
         ImGui::End();
         return;
     }
@@ -530,7 +516,7 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
             if (ImGui::Selectable(typeName.c_str()))
             {
                 ins.addingComponentTypeName = typeName;
-                ins.addingComponentJson = utils->construct();
+                ins.addingComponentJson = utils->getDefaultJsonComponent();
             }
         }
         ImGui::EndPopup();

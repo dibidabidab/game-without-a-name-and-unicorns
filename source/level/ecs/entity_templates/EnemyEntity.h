@@ -16,18 +16,14 @@
 class EnemyEntity : public EntityTemplate
 {
 public:
-    entt::entity create() override
+    void createComponents(entt::entity e) override
     {
-        entt::entity e = room->entities.create();
-
         room->entities.assign<AABB>(e, ivec2(5, 8));
         room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/enemy"));
         room->entities.assign<KnockBack>(e);
         room->entities.assign<Health>(e);
         room->entities.assign<StaticCollider>(e);
         room->entities.assign<Physics>(e);
-
-        return e;
     }
 };
 

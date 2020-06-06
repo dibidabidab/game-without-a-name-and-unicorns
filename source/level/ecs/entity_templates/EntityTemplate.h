@@ -27,11 +27,15 @@ class EntityTemplate
     Room *room = NULL;
 
   public:
-    virtual entt::entity create() = 0;
+
+    entt::entity create();
 
     entt::entity createNetworked(int networkID=rand(), bool serverSide=true);
 
+    virtual void createComponents(entt::entity) = 0;
+
   protected:
+
     virtual void makeNetworkedServerSide(Networked &) {}
 
     virtual void makeNetworkedClientSide(Networked &) {}

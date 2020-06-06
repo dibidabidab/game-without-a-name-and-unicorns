@@ -19,9 +19,13 @@ class LuaEntityTemplate : public EntityTemplate
   public:
     LuaEntityTemplate(const char *assetName);
 
-    entt::entity create() override;
+  protected:
 
-    entt::entity create(sol::state &lua, sol::optional<sol::table> arguments);
+    void createComponents(entt::entity entity) override;
+
+    void createComponentsFromScript(entt::entity, sol::state &lua, sol::optional<sol::table> arguments);
+
+    void luaTableToComponents(entt::entity, const sol::table &);
 
 };
 

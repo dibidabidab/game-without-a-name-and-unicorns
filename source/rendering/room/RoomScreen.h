@@ -81,7 +81,7 @@ class RoomScreen : public Screen
         ),
         shadowCaster(room),
         lightMapRenderer(room),
-        inspector(&room->entities),
+        inspector(room->entities),
         spriteSheet(spriteSheet),
         spriteRenderer(spriteSheet)
     {
@@ -96,16 +96,16 @@ class RoomScreen : public Screen
         tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/bricks")});
 
         // Temporary creation of test entities
-        entt::entity lamp1 = room->getTemplate("Lamp")->create();
-        room->getChildComponentByName<AABB>(lamp1, "rope").center = ivec2(130, 125);
-
-        entt::entity lamp2 = room->getTemplate("Lamp")->create();
-        room->getChildComponentByName<AABB>(lamp2, "rope").center = ivec2(220, 125);
-
-        for (int x=85; x < 180; x+=mu::randomInt(4, 15)) {
-            entt::entity plant = room->getTemplate<PlantEntity>()->create();
-            room->getChildComponentByName<AABB>(plant, "rope").center = ivec2(x, 16);
-        }
+//        entt::entity lamp1 = room->getTemplate("Lamp")->create();
+//        room->getChildComponentByName<AABB>(lamp1, "rope").center = ivec2(130, 125);
+//
+//        entt::entity lamp2 = room->getTemplate("Lamp")->create();
+//        room->getChildComponentByName<AABB>(lamp2, "rope").center = ivec2(220, 125);
+//
+//        for (int x=85; x < 180; x+=mu::randomInt(4, 15)) {
+//            entt::entity plant = room->getTemplate<PlantEntity>()->create();
+//            room->getChildComponentByName<AABB>(plant, "rope").center = ivec2(x, 16);
+//        }
 
         entt::entity enemy = room->getTemplate<EnemyEntity>()->create();
         room->entities.get<AABB>(enemy).center = ivec2(400, 125);

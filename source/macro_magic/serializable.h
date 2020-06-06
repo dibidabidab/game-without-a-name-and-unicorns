@@ -2,53 +2,12 @@
 #ifndef GAME_SERIALIZABLE_H
 #define GAME_SERIALIZABLE_H
 
+#include "SerializableStructInfo.h"
+#include "serializable_from_lua_table.h"
 #include "macro_helpers.h"
 #include "json_converters.h"
 #include <json.hpp>
 #include <utils/gu_error.h>
-
-struct SerializableStructInfo
-{
-    const char *name;
-
-    typedef std::vector<const char *> str_vec;
-    typedef std::vector<bool> bool_vec;
-    const str_vec
-        fieldNames,      // names of the fields in the struct
-        fieldTypeNames;  // types of the fields in the struct
-
-    const bool_vec
-        fieldIsPrimitive,          // true for fields that have a primitive value (numbers, booleans, strings, null)
-        structFieldIsFixedSize;    // true for fields that are structured (not primitive) but cannot be extended. e.g.: vec3 must always be an array of length 3
-
-    const int nrOfFields;
-
-    SerializableStructInfo(
-            const char *name, const str_vec &fieldNames, const str_vec &fieldTypeNames,
-            const bool_vec &fieldIsStructured,
-            const bool_vec &structFieldIsFixedSize
-        )
-
-            : name(name), fieldNames(fieldNames), fieldTypeNames(fieldTypeNames),
-              fieldIsPrimitive(fieldIsStructured),
-              structFieldIsFixedSize(structFieldIsFixedSize),
-              nrOfFields(fieldNames.size())
-    {
-        if (infos == NULL)
-            infos = new std::map<std::string, SerializableStructInfo *>();
-
-        infos->operator[](name) = this;
-    }
-
-    static const SerializableStructInfo *getFor(const char *typeName)
-    {
-        return infos->operator[](typeName);
-    }
-
-  private:
-    static std::map<std::string, SerializableStructInfo *> *infos;
-
-};
 
 
 #define FIELD(type, name)                        ()                (type) name
@@ -61,14 +20,14 @@ struct SerializableStructInfo
 #define PULL_FIELD_OUT_JSON(field) \
     PULL_OUT_JSON(EAT field)
 
+#define PULL_OUT_JSON(X)  \
+    getTo(ARGNAME(X), j.at(ARGNAME_AS_STRING(X)))
+
 #define COPY_FROM_OTHER(field) \
     ARGNAME(EAT field) = other.ARGNAME(EAT field)
 
 #define PUT_IN_JSON(X)  \
     {ARGNAME_AS_STRING(X), ARGNAME(X)}
-
-#define PULL_OUT_JSON(X)  \
-    getTo(ARGNAME(X), j.at(ARGNAME_AS_STRING(X)))
 
 // array:
 #define PUT_FIELD_IN_JSON_ARRAY(field) \
@@ -137,6 +96,10 @@ bool isStructFieldFixedSize()
         /* Dump field types and names */                        \
         DOFOREACH_SEMICOLON(ARGPAIR_FROM_FIELD, __VA_ARGS__)               \
         \
+        void fromLuaTable(const sol::table &table)\
+        {\
+            FROM_LUA_TABLE(__VA_ARGS__)\
+        }\
         inline static const SerializableStructInfo STRUCT_INFO = SerializableStructInfo(#className, {\
             DOFOREACH(PUT_FIELD_NAME_IN_VEC, __VA_ARGS__)\
         }, {\
@@ -146,7 +109,9 @@ bool isStructFieldFixedSize()
             DOFOREACH(IS_FIELD_TYPE_PRIMITIVE, __VA_ARGS__)\
         }, {\
             DOFOREACH(IS_FIELD_TYPE_FIXED_SIZE, __VA_ARGS__)\
-        });\
+        },\
+        [](auto ptr, auto table) { ((className *) ptr)->fromLuaTable(table); });\
+        \
         void toJson(json &j) const\
         {\
             j = json{DOFOREACH(PUT_FIELD_IN_JSON, __VA_ARGS__)};\
@@ -179,6 +144,6 @@ bool isStructFieldFixedSize()
     \
     static void from_json(const json& j, className& v) {\
         v.fromJsonArray(j);\
-    }
+    }\
 
 #endif //GAME_SERIALIZABLE_H
