@@ -20,10 +20,6 @@
 #include "../ecs/systems/AudioSystem.h"
 #include "../ecs/systems/physics/WavesSystem.h"
 
-#include "../ecs/entity_templates/PlantEntity.h"
-#include "../ecs/entity_templates/PlayerEntity.h"
-#include "../ecs/entity_templates/EnemyEntity.h"
-#include "../ecs/entity_templates/RainbowEntity.h"
 #include "../ecs/entity_templates/LuaEntityTemplate.h"
 
 Room::Room(ivec2 size)
@@ -38,11 +34,6 @@ void Room::initialize(Level *lvl, int roomI_)
 
     level = lvl;
     roomI = roomI_;
-
-    registerEntityTemplate<EnemyEntity>();
-    registerEntityTemplate<PlantEntity>();
-    registerEntityTemplate<PlayerEntity>();
-    registerEntityTemplate<RainbowEntity>();
 
     for (auto &el : AssetManager::getLoadedAssetsForType<LuaEntityScript>())
         registerLuaEntityTemplate(el.second->shortPath.c_str());
@@ -137,7 +128,7 @@ void Room::addSystem(EntitySystem *sys)
     systems.push_back(sys);
 }
 
-EntityTemplate *Room::getTemplate(std::string name)
+EntityTemplate &Room::getTemplate(std::string name)
 {
     try {
         return getTemplate(hashStringCrossPlatform(name));
@@ -148,12 +139,12 @@ EntityTemplate *Room::getTemplate(std::string name)
     }
 }
 
-EntityTemplate *Room::getTemplate(int templateHash)
+EntityTemplate &Room::getTemplate(int templateHash)
 {
     auto t = entityTemplates[templateHash];
     if (!t)
         throw gu_err("No EntityTemplate found for hash " + std::to_string(templateHash));
-    return t;
+    return *t;
 }
 
 const std::vector<std::string> &Room::getTemplateNames() const

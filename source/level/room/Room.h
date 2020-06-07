@@ -66,14 +66,14 @@ class Room
     void addSystem(EntitySystem *sys);
 
     template <class EntityTemplate_>
-    EntityTemplate *getTemplate()
+    EntityTemplate &getTemplate()
     {
         return getTemplate(getTypeName<EntityTemplate_>());
     }
 
-    EntityTemplate *getTemplate(std::string name);
+    EntityTemplate &getTemplate(std::string name);
 
-    EntityTemplate *getTemplate(int templateHash);
+    EntityTemplate &getTemplate(int templateHash);
 
     const std::vector<std::string> &getTemplateNames() const;
 

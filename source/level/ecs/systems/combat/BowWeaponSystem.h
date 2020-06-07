@@ -72,7 +72,7 @@ class BowWeaponSystem : public EntitySystem
             if (input && input->attack && bow.cooldown >= bow.fireRate)
             {
                 bow.cooldown = 0;
-                auto arrowEntity = room->getTemplate(bow.arrowTemplate)->create();
+                auto arrowEntity = room->getTemplate(bow.arrowTemplate).create();
 
                 vec2 arrowSpawnPoint = aabb.center;
                 room->entities.get<AABB>(arrowEntity).center = arrowSpawnPoint;

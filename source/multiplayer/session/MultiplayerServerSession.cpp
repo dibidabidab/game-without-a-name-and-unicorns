@@ -184,7 +184,7 @@ void MultiplayerServerSession::setLevel(Level *newLevel)
 void MultiplayerServerSession::createPlayerEntity(Player_ptr &player)
 {
     Room &room = level->getRoom(0);
-    auto e = room.getTemplate<PlayerEntity>()->createNetworked();
+    auto e = room.getTemplate("Player").createNetworked();
     room.entities.assign<PlayerControlled>(e, player->id);
 }
 

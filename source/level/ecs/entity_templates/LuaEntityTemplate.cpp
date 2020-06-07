@@ -11,7 +11,7 @@ void LuaEntityTemplate::createComponents(entt::entity e)
 {
     sol::state lua;
 
-    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math);
+    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table);
 
     createComponentsFromScript(e, lua, sol::optional<sol::table>());
 }
@@ -23,6 +23,7 @@ void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::state &l
     try
     {
         env["entity"] = e;
+        env["components"].get_or_create<sol::table>();
 
         if (arguments.has_value())
             env["args"] = arguments;
@@ -33,18 +34,22 @@ void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::state &l
             if (!env["args"][argName].valid())
                 env["args"][argName] = defaultVal;
         };
-        env["createChild"] = [&](const char *childName) {
+        env["createChild"] = [&](const char *childName) -> int {
 
             if (env[childName].valid())
                 throw gu_err("Could not create child.\nIt seems that the lua script already has a variable named '" + std::string(childName) + "'");
 
-            env[childName] = int(createChild(e, childName));
+            int child = int(createChild(e, childName));
+
+            env[childName] = child;
 
             env["childComponents"].get_or_create<sol::table>()[childName].get_or_create<sol::table>();
+
+            return child;
         };
         env["applyTemplate"] = [&](int extendE, const char *templateName, sol::optional<sol::table> extendArgs) {
 
-            auto entityTemplate = room->getTemplate(templateName); // could throw error :)
+            auto entityTemplate = &room->getTemplate(templateName); // could throw error :)
 
             if (dynamic_cast<LuaEntityTemplate *>(entityTemplate))
             {

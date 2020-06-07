@@ -26,7 +26,7 @@ struct lua_converter
             field = optional.value();
         else
         {
-            auto info = SerializableStructInfo::getFor(getTypeName<type>().c_str());
+            auto info = SerializableStructInfo::getFor(getTypeName<type>().c_str()); // todo: getFor that takes typeid(type) instead of a string
 
             if (!info)
                 throw gu_err("Unable to convert '" + std::string(key) + "' to " + getTypeName<type>());
@@ -81,7 +81,7 @@ struct lua_converter<asset<type>>
     __PULL_FIELD_OUT_LUA_TABLE__(EAT field)
 
 #define __PULL_FIELD_OUT_LUA_TABLE__(X)  \
-    lua_converter<typeof(ARGNAME(X))>::getFrom(ARGNAME(X), table, ARGNAME_AS_STRING(X))
+    lua_converter<ARGTYPE(X)>::getFrom(ARGNAME(X), table, ARGNAME_AS_STRING(X))
 
 
 // the macro to be used in serializable.h:

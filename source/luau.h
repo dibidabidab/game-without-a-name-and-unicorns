@@ -11,7 +11,7 @@ extern "C" {
     #include "lauxlib.h"
     #include "lualib.h"
 }
-
+#define SOL_ALL_SAFETIES_ON 1
 #include "../external/lua/sol2/single/include/sol/sol.hpp"
 
 namespace luau
