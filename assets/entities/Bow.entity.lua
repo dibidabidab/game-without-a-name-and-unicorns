@@ -1,4 +1,9 @@
 
+arg("archer", nil)
+arg("leftArm", nil)
+arg("rightArm", nil)
+arg("rotatePivot", {0, 0})
+
 -- handBowAnchor marks the position where one of the player's hand should go when holding the bow
 applyTemplate(createChild("handBowAnchor"), "SpriteAnchor", {
   spriteEntity = entity,
@@ -24,6 +29,11 @@ components = {
   Bow = {
     handBowAnchor = handBowAnchor,
     handStringAnchor = handStringAnchor,
+
+    archer = args.archer,
+    archerLeftArm = args.leftArm,
+    archerRightArm = args.rightArm,
+    rotatePivot = args.rotatePivot,
 
     arrowTemplate = "Arrow"
   }

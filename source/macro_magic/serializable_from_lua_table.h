@@ -25,7 +25,7 @@ struct lua_converter
             field = optional.value();
         else
         {
-            auto info = SerializableStructInfo::getFor(getTypeName<type>().c_str()); // todo: getFor that takes typeid(type) instead of a string
+            auto info = SerializableStructInfo::getFor<type>();
 
             if (!info)
                 throw gu_err("Unable to convert to " + getTypeName<type>());

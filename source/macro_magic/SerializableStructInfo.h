@@ -32,7 +32,8 @@ struct SerializableStructInfo
             const bool_vec &fieldIsStructured,
             const bool_vec &structFieldIsFixedSize,
 
-            fromLuaFunc fromLuaTableFunction
+            fromLuaFunc fromLuaTableFunction,
+            std::size_t typeHash
     )
 
             : name(name), fieldNames(fieldNames), fieldTypeNames(fieldTypeNames),
@@ -44,13 +45,22 @@ struct SerializableStructInfo
     {
         if (infos == NULL)
             infos = new std::map<std::string, SerializableStructInfo *>();
+        if (infosByType == NULL)
+            infosByType = new std::map<std::size_t, SerializableStructInfo *>();
 
         infos->operator[](name) = this;
+        infosByType->operator[](typeHash) = this;
     }
 
     static const SerializableStructInfo *getFor(const char *typeName)
     {
         return infos->operator[](typeName);
+    }
+
+    template<typename type>
+    static const SerializableStructInfo *getFor()
+    {
+        return infosByType->operator[](typeid(type).hash_code());
     }
 
     template<typename StructType>
@@ -59,8 +69,15 @@ struct SerializableStructInfo
         return [](void *ptr, auto &tbl) { ((StructType *) ptr)->fromLuaTable(tbl); };
     }
 
+    template<typename StructType>
+    static std::size_t getTypeHash()
+    {
+        return typeid(StructType).hash_code();
+    }
+
   private:
     static std::map<std::string, SerializableStructInfo *> *infos;
+    static std::map<size_t, SerializableStructInfo *> *infosByType;
 
 };
 

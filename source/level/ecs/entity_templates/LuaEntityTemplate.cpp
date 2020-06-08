@@ -9,11 +9,14 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName) : script(assetName)
 
 void LuaEntityTemplate::createComponents(entt::entity e)
 {
-    sol::state lua;
+    static sol::state *lua = NULL;
 
-    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table);
-
-    createComponentsFromScript(e, lua, sol::optional<sol::table>());
+    if (lua == NULL)
+    {
+        lua = new sol::state;
+        lua->open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table);
+    }
+    createComponentsFromScript(e, *lua, sol::optional<sol::table>());
 }
 
 void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::state &lua, sol::optional<sol::table> arguments)
@@ -68,7 +71,10 @@ void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::state &l
 
         for (const auto &[childName, compsTable] : childComponentsTable)
         {
-            auto child = room->getChildByName(e, childName.as<std::string>().c_str());
+            auto childNameStr = childName.as<std::string>();
+            auto child = room->getChildByName(e, childNameStr.c_str());
+            if (!room->entities.valid(child))
+                throw gu_err("Cannot add components to non-existing child named '" + childNameStr + "'. Call createChild(name) first!");
             luaTableToComponents(child, compsTable);
         }
     }

@@ -99,10 +99,10 @@ class RoomScreen : public Screen
         entt::entity lamp2 = room->getTemplate("Lamp").create();
         room->getChildComponentByName<AABB>(lamp2, "rope").center = ivec2(220, 125);
 
-//        for (int x=85; x < 180; x+=mu::randomInt(4, 15)) {
-//            entt::entity plant = room->getTemplate("Plant").create();
-//            room->getChildComponentByName<AABB>(plant, "rope").center = ivec2(x, 16);
-//        }
+        for (int x=85; x < 180; x+=mu::randomInt(4, 15)) {
+            entt::entity plant = room->getTemplate("Plant").create();
+            room->getChildComponentByName<AABB>(plant, "plantStem").center = ivec2(x, 16);
+        }
 
         entt::entity enemy = room->getTemplate("Enemy").create();
         room->entities.get<AABB>(enemy).center = ivec2(400, 125);
