@@ -20,7 +20,7 @@ COMPONENT(
         vec2 delta = p1 - p0;
         if (delta.x == 0)
             return max(p0.y, p1.y);
-        return p0.y + delta.y * ((x - p0.x) / delta.x);
+        return p0.y + delta.y * ((static_cast<float>(x) - p0.x) / delta.x);
     }
 
     static float heightAtX(int x, const Polyline &line, const AABB &platformAABB)

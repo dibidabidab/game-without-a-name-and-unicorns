@@ -13,11 +13,8 @@ void PhysicsSystem::update(double deltaTime, Room *room)
         {
             aabb.halfSize.x = std::max<int>(aabb.halfSize.x, abs(p.x));
             aabb.halfSize.y = std::max<int>(
-                    aabb.halfSize.y,
-                    p.y > 0 ?
-                    p.y + TerrainCollisionDetector::DETECT_POLY_PLATFORM_MARGIN  // add some extra space so the CollisionDetector can detect PolyPlatforms below the entity
-                            :
-                    -p.y
+                    aabb.halfSize.y,    // VV add some extra space so the CollisionDetector can detect PolyPlatforms below the entity
+                    p.y > 0 ? p.y + TerrainCollisionDetector::DETECT_POLY_PLATFORM_MARGIN : -p.y
             );
         }
 
@@ -145,14 +142,12 @@ void PhysicsSystem::updateDistanceConstraint(AABB &aabb, const DistanceConstrain
 void PhysicsSystem::repositionAfterCollision(const AABB &staticAABB, AABB &dynAABB, entt::entity dynEntity)
 {
     ivec2
-            diff = abs(staticAABB.center - dynAABB.center),
-
-            overlap = staticAABB.halfSize + dynAABB.halfSize - diff;
+        diff = abs(staticAABB.center - dynAABB.center),
+        overlap = staticAABB.halfSize + dynAABB.halfSize - diff;
 
     int
-            axis = overlap.x > overlap.y ? 1 : 0,
-
-            direction = dynAABB.center[axis] < staticAABB.center[axis] ? -1 : 1;
+        axis = overlap.x > overlap.y ? 1 : 0,
+        direction = dynAABB.center[axis] < staticAABB.center[axis] ? -1 : 1;
 
     ivec2 pixelsToMove(0);
     pixelsToMove[axis] = overlap[axis] * direction;
@@ -208,7 +203,7 @@ void PhysicsSystem::updatePosition(Physics &physics, AABB &body, double deltaTim
 
 bool PhysicsSystem::tryMove(Physics &physics, AABB &body, Move toDo)
 {
-    std::list<Move> movesToDo;
+    std::list<Move> movesToDo; // doubly linked list
 
     Move prevMove = Move::none;
     while (toDo != Move::none)
@@ -221,42 +216,43 @@ bool PhysicsSystem::tryMove(Physics &physics, AABB &body, Move toDo)
     }
     for (auto move : movesToDo)
         doMove(physics, body, move);
+
     updateTerrainCollisions(physics, body);
     return true;
 }
 
-bool PhysicsSystem::canDoMove(Physics &p, AABB &aabb, Move &moveToDo, Move prevMove)
+bool PhysicsSystem::canDoMove(Physics &physics, AABB &aabb, Move &moveToDo, Move prevMove)
 {
     Move originalMove = moveToDo;
     moveToDo = Move::none;
 
     switch (originalMove)
     {
-        case up:    return !p.touches.ceiling;
+        case up:    return !physics.touches.ceiling;
         case down:
-            return !p.touches.floor
-                   || (p.touches.slopeDown && prevMove == right)
-                   || (p.touches.slopeUp && prevMove == left);
+            return !physics.touches.floor
+                   || (physics.touches.slopeDown && prevMove == right)
+                   || (physics.touches.slopeUp && prevMove == left);
         case left:
-            if (p.touches.slopeDown && (!p.touches.halfSlopeDown || (aabb.bottomLeft().x + 1) % 2 == 0))
+            if (physics.touches.slopeDown && (!physics.touches.halfSlopeDown || (aabb.bottomLeft().x + 1) % 2 == 0))
                 moveToDo = up;
-            else if (p.touches.slopeUp && !p.touches.flatFloor && (!p.touches.halfSlopeUp || aabb.bottomRight().x % 2 == 0))
+            else if (physics.touches.slopeUp && !physics.touches.flatFloor && (!physics.touches.halfSlopeUp || aabb.bottomRight().x % 2 == 0))
                 moveToDo = down;
-            return !p.touches.leftWall;
+            return !physics.touches.leftWall;
 
         case right:
-            if (p.touches.slopeUp && (!p.touches.halfSlopeUp || aabb.center.x % 2 == 0))
+            if (physics.touches.slopeUp && (!physics.touches.halfSlopeUp || aabb.center.x % 2 == 0))
                 moveToDo = up;
-            else if (p.touches.slopeDown && !p.touches.flatFloor && (!p.touches.halfSlopeDown || aabb.bottomLeft().x % 2 == 0))
+            else if (physics.touches.slopeDown && !physics.touches.flatFloor && (!physics.touches.halfSlopeDown || aabb.bottomLeft().x % 2 == 0))
                 moveToDo = down;
-            return !p.touches.rightWall;
+            return !physics.touches.rightWall;
 
         case none:  return true;
     }
     return true;
 }
 
-void PhysicsSystem::doMove(Physics &p, AABB &body, Move move)
+void PhysicsSystem::doMove(Physics &physics, AABB &body, Move move)
 {
     switch (move)
     {
@@ -268,11 +264,11 @@ void PhysicsSystem::doMove(Physics &p, AABB &body, Move move)
     }
 }
 
-void PhysicsSystem::updateTerrainCollisions(Physics &p, AABB &body)
+void PhysicsSystem::updateTerrainCollisions(Physics &physics, AABB &body)
 {
     AABB outlineBox = body;
     outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
-    p.touches = collisionDetector->detect(outlineBox, p.ignorePlatforms, p.ignorePolyPlatforms);
+    physics.touches = collisionDetector->detect(outlineBox, physics.ignorePlatforms, physics.ignorePolyPlatforms);
 }
 
 template<typename vec>
@@ -303,21 +299,15 @@ void PhysicsSystem::moveBody(Physics &physics, AABB &body, vec &pixelsToMove)
                 pixelsToMove.y = physics.touches.polyPlatformDeltaLeft;
         }
 
-        ivec2 prevPos = body.center;
-
         if (tryMove(physics, body, toDo)) // move succeeded -> decrease pixelsToMove:
         {
             switch (toDo)
             {
-                case up:    pixelsToMove.y--;
-                    break;
-                case down:  pixelsToMove.y++;
-                    break;
-                case left:  pixelsToMove.x++;
-                    break;
-                case right: pixelsToMove.x--;
-                case none:
-                    break;
+                case up:    pixelsToMove.y--; break;
+                case down:  pixelsToMove.y++; break;
+                case left:  pixelsToMove.x++; break;
+                case right: pixelsToMove.x--; break;
+                case none: break;
             }
         } // move is not possible:
         else if (toDo == Move::left || toDo == Move::right)  pixelsToMove.x = 0; // cant move horizontally anymore.
@@ -325,45 +315,48 @@ void PhysicsSystem::moveBody(Physics &physics, AABB &body, vec &pixelsToMove)
     }
 }
 
-void PhysicsSystem::preventFallingThroughPolyPlatform(Physics &p, AABB &aabb)
+void PhysicsSystem::preventFallingThroughPolyPlatform(Physics &physics, AABB &aabb)
 {
     bool wasAbovePlatform =
-            p.prevTouched.abovePolyPlatformEntity != entt::null
-            && !p.touches.polyPlatform
-            && p.prevTouched.abovePolyPlatformEntity != p.touches.abovePolyPlatformEntity;
+            physics.prevTouched.abovePolyPlatformEntity != entt::null
+            && !physics.touches.polyPlatform
+            && physics.prevTouched.abovePolyPlatformEntity != physics.touches.abovePolyPlatformEntity;
 
-    bool wasOnPlatform = p.prevTouched.polyPlatform && !p.touches.polyPlatform;
+    bool wasOnPlatform = physics.prevTouched.polyPlatform && !physics.touches.polyPlatform;
 
     if (!wasAbovePlatform && !wasOnPlatform)
         return;
 
+
     // entity MIGHT have fallen through polyPlatform
+    auto platformEntity = wasAbovePlatform ? physics.prevTouched.abovePolyPlatformEntity : physics.prevTouched.polyPlatformEntity;
 
-    auto platformEntity = wasAbovePlatform ? p.prevTouched.abovePolyPlatformEntity : p.prevTouched.polyPlatformEntity;
-
-    PolyPlatform *platform = room->entities.try_get<PolyPlatform>(platformEntity);
-    Polyline *line = room->entities.try_get<Polyline>(platformEntity);
-    AABB *platformAABB = room->entities.try_get<AABB>(platformEntity);
+    PolyPlatform *platform  = room->entities.try_get<PolyPlatform>(platformEntity);
+    Polyline *line          = room->entities.try_get<Polyline>(platformEntity);
+    AABB *platformAABB      = room->entities.try_get<AABB>(platformEntity);
 
     if (!platform || !line || !platformAABB)
         return; // platform doesn't exist anymore
 
-    if (platform->allowFallThrough && p.ignorePolyPlatforms)
-        return; // fall through was intended
+    bool
+        fallTroughIntended          = platform->allowFallThrough && physics.ignorePolyPlatforms,
+        entityWalkedOfThePlatform   = aabb.center.x <= platformAABB->bottomLeft().x || aabb.center.x > platformAABB->bottomRight().x;
 
-    if (aabb.center.x <= platformAABB->bottomLeft().x || aabb.center.x > platformAABB->bottomRight().x)
-        return; // entity walked off platform.
-
-    int platformHeight = platform->heightAtX(aabb.center.x, *line, *platformAABB);
-
-    int newY = platformHeight + aabb.halfSize.y + 1;
-
-    if (newY < aabb.center.y && (!wasOnPlatform || p.velocity.y > 0))
+    if (fallTroughIntended || entityWalkedOfThePlatform)
         return;
 
-    p.pixelsMovedByPolyPlatform.y += newY - aabb.center.y;
+
+    // is the entity movement valid
+    int platformHeight = platform->heightAtX(aabb.center.x, *line, *platformAABB);
+    int newY = platformHeight + aabb.halfSize.y + 1;
+    bool invalidNewPosition = newY < aabb.center.y && (!wasOnPlatform || physics.velocity.y > 0);
+
+    if (invalidNewPosition)
+        return;
+
+    physics.pixelsMovedByPolyPlatform.y += newY - aabb.center.y;
 
     aabb.center.y = newY;
 
-    updateTerrainCollisions(p, aabb);
+    updateTerrainCollisions(physics, aabb);
 }

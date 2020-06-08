@@ -20,9 +20,7 @@ class WavesSystem : public EntitySystem
     void update(double deltaTime, Room *room) override
     {
         room->entities.view<PolyPlatform, Polyline, PolyPlatformWaves, AABB>().each([&](
-
             PolyPlatform &platform, Polyline &line, PolyPlatformWaves &wave, AABB &aabb
-
         ){
             {
                 float fakeDeltaTime = deltaTime;
