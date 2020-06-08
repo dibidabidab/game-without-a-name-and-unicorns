@@ -149,7 +149,7 @@ void NetworkingSystem::handleDataUpdate(Packet::entity_data_update *update, cons
 void NetworkingSystem::handleEntityCreation(Packet::from_server::entity_created *packet)
 {
     assert(!mpSession->isServer());
-    room->getTemplate(packet->entityTemplateHash)->createNetworked(packet->networkId, false);
+    room->getTemplate(packet->entityTemplateHash).createNetworked(packet->networkId, false);
 }
 
 void NetworkingSystem::handleDataRemoval(Packet::entity_data_removed *packet, const Player *receivedFrom)

@@ -5,7 +5,6 @@
 #include "../../level/ecs/components/PlatformerMovement.h"
 #include "../../level/ecs/components/Networked.h"
 #include "../../level/ecs/components/PlayerControlled.h"
-#include "../../level/ecs/entity_templates/PlayerEntity.h"
 
 using namespace Packet;
 using namespace Packet::from_player;
@@ -184,7 +183,7 @@ void MultiplayerServerSession::setLevel(Level *newLevel)
 void MultiplayerServerSession::createPlayerEntity(Player_ptr &player)
 {
     Room &room = level->getRoom(0);
-    auto e = room.getTemplate<PlayerEntity>()->createNetworked();
+    auto e = room.getTemplate("Player").createNetworked();
     room.entities.assign<PlayerControlled>(e, player->id);
 }
 

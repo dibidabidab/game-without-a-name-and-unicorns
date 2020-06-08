@@ -3,6 +3,13 @@
 #include "../components/Networked.h"
 #include "../components/Children.h"
 
+entt::entity EntityTemplate::create()
+{
+    entt::entity e = room->entities.create();
+    createComponents(e);
+    return e;
+}
+
 entt::entity EntityTemplate::createNetworked(int networkID, bool serverSide)
 {
     auto e = create();

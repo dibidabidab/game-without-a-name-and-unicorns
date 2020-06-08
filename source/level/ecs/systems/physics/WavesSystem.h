@@ -22,51 +22,16 @@ class WavesSystem : public EntitySystem
         room->entities.view<PolyPlatform, Polyline, PolyPlatformWaves, AABB>().each([&](
             PolyPlatform &platform, Polyline &line, PolyPlatformWaves &wave, AABB &aabb
         ){
-            int i = 0;
-            for (vec2 &p : line.points)
             {
-                if (i == wave.springs.size())
-                    wave.springs.emplace_back();
+                float fakeDeltaTime = deltaTime;
+                constexpr float maxDeltaTime = 1. / 120.;
 
-                PolyPlatformWaves::Spring &spring = wave.springs.at(i);
-
-                // x = height - targetHeight;
-                float x = p.y - (p.y - spring.yOffset);
-
-                float acceleration = -wave.stiffness * x;
-
-                spring.velocity *= max(0., 1. - wave.dampening * deltaTime);
-
-                p.y += spring.velocity * deltaTime;
-                spring.yOffset += spring.velocity * deltaTime;
-                spring.velocity += acceleration * deltaTime;
-
-                i++;
-            }
-            wave.springs.resize(i);
-
-            // propagate waves:
-
-            std::vector<float> leftDeltas(wave.springs.size());
-            std::vector<float> rightDeltas(wave.springs.size());
-
-            for (int j = 0; j < 8; j++)
-            {
-                i = 0;
-                for (vec2 &p : line.points)
+                while (fakeDeltaTime > maxDeltaTime)
                 {
-                    if (i > 0)
-                    {
-                        leftDeltas[i] = wave.spread * deltaTime * (wave.springs[i].yOffset - wave.springs[i - 1].yOffset);
-                        wave.springs[i - 1].velocity += leftDeltas[i];
-                    }
-                    if (i < wave.springs.size() - 1)
-                    {
-                        rightDeltas[i] = wave.spread * deltaTime * (wave.springs[i].yOffset - wave.springs[i + 1].yOffset);
-                        wave.springs[i + 1].velocity += rightDeltas[i];
-                    }
-                    i++;
+                    updateWaves(maxDeltaTime, platform, line, wave, aabb);
+                    fakeDeltaTime -= maxDeltaTime;
                 }
+                updateWaves(fakeDeltaTime, platform, line, wave, aabb);
             }
 
             for (auto e : platform.entitiesOnPlatform)
@@ -81,7 +46,7 @@ class WavesSystem : public EntitySystem
                 {
                     int xIndex = onPlatformAABB->center.x - aabb.center.x;
 
-                    i = 0;
+                    int i = 0;
                     bool left = false;
                     for (vec2 &p : line.points)
                     {
@@ -97,6 +62,58 @@ class WavesSystem : public EntitySystem
                 }
             }
         });
+    }
+
+    void updateWaves(float deltaTime, PolyPlatform &platform, Polyline &line, PolyPlatformWaves &wave, AABB &aabb)
+    {
+        int i = 0;
+        for (vec2 &p : line.points)
+        {
+            if (i == wave.springs.size())
+                wave.springs.emplace_back();
+
+            PolyPlatformWaves::Spring &spring = wave.springs.at(i);
+
+            // x = height - targetHeight;
+            float x = p.y - (p.y - spring.yOffset);
+
+            float acceleration = -wave.stiffness * x;
+
+            spring.velocity *= max(0., 1. - wave.dampening * deltaTime);
+
+            p.y += spring.velocity * deltaTime;
+            spring.yOffset += spring.velocity * deltaTime;
+            spring.velocity += acceleration * deltaTime;
+
+            i++;
+        }
+        wave.springs.resize(i);
+
+        // propagate waves:
+
+        std::vector<float> leftDeltas(wave.springs.size());
+        std::vector<float> rightDeltas(wave.springs.size());
+
+        for (int j = 0; j < 8; j++)
+        {
+            i = 0;
+            for (vec2 &p : line.points)
+            {
+                if (i > 0)
+                {
+                    leftDeltas[i] =
+                            wave.spread * deltaTime * (wave.springs[i].yOffset - wave.springs[i - 1].yOffset);
+                    wave.springs[i - 1].velocity += leftDeltas[i];
+                }
+                if (i < wave.springs.size() - 1)
+                {
+                    rightDeltas[i] =
+                            wave.spread * deltaTime * (wave.springs[i].yOffset - wave.springs[i + 1].yOffset);
+                    wave.springs[i + 1].velocity += rightDeltas[i];
+                }
+                i++;
+            }
+        }
     }
 
 };

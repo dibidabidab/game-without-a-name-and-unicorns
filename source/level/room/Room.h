@@ -5,7 +5,7 @@
 #include <list>
 #include "../ecs/entity_templates/EntityTemplate.h"
 #include "../ecs/systems/EntitySystem.h"
-#include "../../../entt/src/entt/entity/registry.hpp"
+#include "../../../external/entt/src/entt/entity/registry.hpp"
 #include "TileMap.h"
 #include "../Level.h"
 #include <json.hpp>
@@ -65,37 +65,46 @@ class Room
 
     void addSystem(EntitySystem *sys);
 
-    template <class EntityTemplate>
-    void registerEntityTemplate()
-    {
-        auto name = getTypeName<EntityTemplate>();
-        int hash = hashStringCrossPlatform(name);
-        auto et = entityTemplates[hash] = new EntityTemplate();
-        et->room = this;
-        et->templateHash = hash;
-        entityTemplateNames.push_back(name);
-    }
-
     template <class EntityTemplate_>
-    EntityTemplate *getTemplate()
+    EntityTemplate &getTemplate()
     {
         return getTemplate(getTypeName<EntityTemplate_>());
     }
 
-    EntityTemplate *getTemplate(std::string name);
+    EntityTemplate &getTemplate(std::string name);
 
-    EntityTemplate *getTemplate(int templateHash);
+    EntityTemplate &getTemplate(int templateHash);
 
     const std::vector<std::string> &getTemplateNames() const;
 
     entt::entity getChildByName(entt::entity parent, const char *childName);
 
     template<typename Component>
-    Component *getChildComponentByName(entt::entity parent, const char *childName)
+    Component &getChildComponentByName(entt::entity parent, const char *childName)
+    {
+        entt::entity child = getChildByName(parent, childName);
+        return entities.get<Component>(child);
+    }
+
+    template<typename Component>
+    Component *tryGetChildComponentByName(entt::entity parent, const char *childName)
     {
         entt::entity child = getChildByName(parent, childName);
         return entities.try_get<Component>(child);
     }
+
+  private:
+
+    template <class EntityTemplate>
+    void registerEntityTemplate()
+    {
+        auto name = getTypeName<EntityTemplate>();
+        addEntityTemplate(name, new EntityTemplate());
+    }
+
+    void registerLuaEntityTemplate(const char *assetPath);
+
+    void addEntityTemplate(const std::string &name, EntityTemplate *);
 
 };
 

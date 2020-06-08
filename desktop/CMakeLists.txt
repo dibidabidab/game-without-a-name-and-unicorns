@@ -20,19 +20,24 @@ set_property(TARGET game PROPERTY CXX_STANDARD 17)
 set_property(TARGET game PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # gameutils repo:
-add_subdirectory(../gu/library/ ./bin/gu)
+add_subdirectory(../external/gu/library/ ./bin/gu)
 target_link_libraries(game gameutils)
 
 
 # ---WEBSOCKETPP---
-include_directories(../websocketpp)
-target_include_directories(game PUBLIC ../websocketpp)
+include_directories(../external/websocketpp)
+target_include_directories(game PUBLIC ../external/websocketpp)
 
 
 # ---ASIO---
 add_definitions (-D_WEBSOCKETPP_CPP11_STL_)
-include_directories(../asio/asio/include)
-target_include_directories(game PUBLIC ../asio/asio/include)
+include_directories(../external/asio/asio/include)
+target_include_directories(game PUBLIC ../external/asio/asio/include)
+
+
+# ---LUA---
+add_subdirectory(../external/lua ./bin/lua)
+target_link_libraries(game lua)
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS  "/Ox /EHsc")

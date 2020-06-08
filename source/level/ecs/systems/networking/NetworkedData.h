@@ -5,7 +5,7 @@
 #include <list>
 #include <json.hpp>
 #include <gu/game_utils.h>
-#include "../../../../entt/src/entt/entity/registry.hpp"
+#include "../../../../external/entt/src/entt/entity/registry.hpp"
 
 typedef int hash;
 

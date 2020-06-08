@@ -7,23 +7,9 @@
 #include "components/physics/Physics.h"
 
 
-EntityInspector::EntityInspector(entt::registry *reg) : reg(reg)
+EntityInspector::EntityInspector(entt::registry &reg) : reg(reg)
 {
 
-}
-
-void EntityInspector::findEntitiesWithComponent(const char *component, std::vector<entt::entity> &out)
-{
-    auto utils = ComponentUtils::getFor(component);
-    if (!utils) return;
-    for (int i = 0; i < reg->size(); i++)
-        if (utils->entityHasComponent(getByIndex(i), reg))
-            out.push_back(getByIndex(i));
-}
-
-entt::entity EntityInspector::getByIndex(int i)
-{
-    return reg->data()[i];
 }
 
 void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
@@ -43,7 +29,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
         moveEntityGUI(cam, lineRenderer);
         return;
     }
-    reg->view<Inspecting>().each([&](auto e, Inspecting &ins) {
+    reg.view<Inspecting>().each([&](auto e, Inspecting &ins) {
         drawEntityInspectorGUI(e, ins);
     });
 
@@ -60,7 +46,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     }
     if (!open) show = false;
 
-    ImGui::Text("%lu entities active", reg->alive());
+    ImGui::Text("%lu entities active", reg.alive());
     pickEntity = ImGui::Button("Pick entity from screen (I)") || KeyInput::justPressed(GLFW_KEY_I);
     moveEntity = ImGui::Button("Move entity (M)") || KeyInput::justPressed(GLFW_KEY_M);
 
@@ -90,7 +76,7 @@ void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     bool breakk = false;
     lineRenderer.axes(p, 10, vec3(1));
 
-    reg->view<AABB>().each([&] (entt::entity e, AABB &box) {
+    reg.view<AABB>().each([&] (entt::entity e, AABB &box) {
 
         if (box.contains(p) && !breakk)
         {
@@ -102,7 +88,7 @@ void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
 
             if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT))
             {
-                reg->assign_or_replace<Inspecting>(e);
+                reg.assign_or_replace<Inspecting>(e);
                 pickEntity = false;
             }
             return;
@@ -123,7 +109,7 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     {
         lineRenderer.arrows(p, 10, vec3(1, 0, 1));
 
-        reg->view<AABB>().each([&] (entt::entity e, AABB &box) {
+        reg.view<AABB>().each([&] (entt::entity e, AABB &box) {
 
             if (box.contains(p) && !breakk)
             {
@@ -144,7 +130,7 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     else
     {
         lineRenderer.arrows(p, 5, vec3(0, 1, 0));
-        AABB *aabb = reg->try_get<AABB>(movingEntity);
+        AABB *aabb = reg.try_get<AABB>(movingEntity);
 
         if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_LEFT) || aabb == NULL)
         {
@@ -160,7 +146,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
 {
     if (!ins.show)
     {
-        reg->remove<Inspecting>(e);
+        reg.remove<Inspecting>(e);
         return;
     }
     ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX, MouseInput::mouseY), ImGuiCond_Once);
@@ -175,7 +161,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
     }
     if (ImGui::Button("Destroy entity"))
     {
-        reg->destroy(e);
+        reg.destroy(e);
         ImGui::End();
         return;
     }
@@ -205,11 +191,11 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
         auto componentUtils = ComponentUtils::getFor(componentName);
         if (!componentUtils->entityHasComponent(e, reg)) continue;
 
-        ImGui::PushID(componentName);
+        ImGui::PushID(componentName.c_str());
         ImGui::AlignTextToFramePadding();
 
         bool dontRemove = true;
-        bool component_open = ImGui::CollapsingHeader(componentName, &dontRemove);
+        bool component_open = ImGui::CollapsingHeader(componentName.c_str(), &dontRemove);
         if (!dontRemove)
         {
             componentUtils->removeComponent(e, reg);
@@ -217,11 +203,11 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
         }
         ImGui::NextColumn();
 
-        bool &freeze = ins.freezeComponent[componentName];
+        bool &freeze = ins.freezeComponent[componentName.c_str()];
 
         if (freeze)
             componentUtils->setJsonComponent(
-                    ins.frozenComponentContents[componentName], e, reg
+                    ins.frozenComponentContents[componentName.c_str()], e, reg
             );
 
         if (freezeAll) freeze = true;
@@ -233,11 +219,11 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
 
         ImGui::NextColumn();
         if (component_open)
-            drawComponentFieldsTree(e, ins, componentName, componentUtils);
+            drawComponentFieldsTree(e, ins, componentName.c_str(), componentUtils);
 
         if (freeze)
             componentUtils->getJsonComponent(
-                 ins.frozenComponentContents[componentName], e, reg
+                 ins.frozenComponentContents[componentName.c_str()], e, reg
             );
 
         ImGui::PopID();
@@ -527,21 +513,21 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
             auto utils = ComponentUtils::getFor(typeName);
             if (utils->entityHasComponent(e, reg))
                 continue;
-            if (ImGui::Selectable(typeName))
+            if (ImGui::Selectable(typeName.c_str()))
             {
                 ins.addingComponentTypeName = typeName;
-                ins.addingComponentJson = utils->construct();
+                ins.addingComponentJson = utils->getDefaultJsonComponent();
             }
         }
         ImGui::EndPopup();
     }
 
-    if (ins.addingComponentTypeName == NULL) return;
+    if (ins.addingComponentTypeName.empty()) return;
 
     ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX - 200, MouseInput::mouseY - 15), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
 
-    std::string title = "Adding " + std::string(ins.addingComponentTypeName) + " to entity #" + std::to_string(int(e));
+    std::string title = "Adding " + ins.addingComponentTypeName + " to entity #" + std::to_string(int(e));
     bool open = true;
     ImGui::Begin(title.c_str(), &open);
 
@@ -549,7 +535,7 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
     ImGui::Columns(2);
     ImGui::Separator();
 
-    drawFieldsTree(ins.addingComponentJson, SerializableStructInfo::getFor(ins.addingComponentTypeName), ins, false);
+    drawFieldsTree(ins.addingComponentJson, SerializableStructInfo::getFor(ins.addingComponentTypeName.c_str()), ins, false);
 
     ImGui::Columns(1);
     ImGui::Separator();
@@ -561,12 +547,12 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
         auto utils = ComponentUtils::getFor(ins.addingComponentTypeName);
         try
         {
-            utils->addComponent(ins.addingComponentJson, e, reg);
+            utils->setJsonComponent(ins.addingComponentJson, e, reg);
         } catch (std::exception& e) {
             std::cerr << "Exception while trying to add component in inspector:\n" << e.what() << std::endl;
         }
     }
     ImGui::End();
     if (!open)
-        ins.addingComponentTypeName = NULL;
+        ins.addingComponentTypeName.clear();
 }

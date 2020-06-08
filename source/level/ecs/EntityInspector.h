@@ -5,7 +5,7 @@
 
 #include <graphics/camera.h>
 #include <graphics/3d/debug_line_renderer.h>
-#include "../../../entt/src/entt/entity/registry.hpp"
+#include "../../../external/entt/src/entt/entity/registry.hpp"
 #include "../../macro_magic/component.h"
 
 struct InspectPathState
@@ -22,7 +22,7 @@ COMPONENT(Inspecting, HASH(0),
     std::map<const char *, bool> freezeComponent;
     std::map<const char *, json> frozenComponentContents;
 
-    const char *addingComponentTypeName = NULL;
+    std::string addingComponentTypeName;
 
     std::vector<std::string> currentPath;
     std::map<std::string, InspectPathState> state;
@@ -38,7 +38,7 @@ END_COMPONENT(Inspecting)
 
 class EntityInspector
 {
-    entt::registry *reg;
+    entt::registry &reg;
 
   public:
 
@@ -52,11 +52,7 @@ class EntityInspector
     std::vector<std::string> entityTemplates;
     std::string templateToCreate = "";
 
-    EntityInspector(entt::registry *reg);
-
-    void findEntitiesWithComponent(const char *component, std::vector<entt::entity> &out);
-
-    entt::entity getByIndex(int i);
+    EntityInspector(entt::registry &reg);
 
     void drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
 

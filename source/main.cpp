@@ -14,6 +14,7 @@
 #include "ImGuiStyle.h"
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
+#include "level/ecs/entity_templates/LuaEntityTemplate.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {
@@ -104,6 +105,11 @@ int main(int argc, char *argv[])
         au::OggLoader::load(path.c_str(), *sound);
         return sound;
     });
+    AssetManager::addAssetLoader<LuaEntityScript>(".entity.lua", [](auto path) {
+
+        return new LuaEntityScript{ File::readString(path.c_str()) };
+    });
+
 
     bool server = false;
     int serverPort = 0;

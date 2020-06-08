@@ -20,6 +20,8 @@
 #include "../ecs/systems/AudioSystem.h"
 #include "../ecs/systems/physics/WavesSystem.h"
 
+#include "../ecs/entity_templates/LuaEntityTemplate.h"
+
 Room::Room(ivec2 size)
 {
     tileMap = new TileMap(size);
@@ -32,6 +34,10 @@ void Room::initialize(Level *lvl, int roomI_)
 
     level = lvl;
     roomI = roomI_;
+
+    for (auto &el : AssetManager::getLoadedAssetsForType<LuaEntityScript>())
+        registerLuaEntityTemplate(el.second->shortPath.c_str());
+
     systems.push_front(new AudioSystem("audio"));
     systems.push_front(new LimbJointSystem("knee/elbow joints"));
     systems.push_front(new SpriteAnchorSystem("sprite anchors"));
@@ -122,17 +128,23 @@ void Room::addSystem(EntitySystem *sys)
     systems.push_back(sys);
 }
 
-EntityTemplate *Room::getTemplate(std::string name)
+EntityTemplate &Room::getTemplate(std::string name)
 {
-    return getTemplate(hashStringCrossPlatform(name));
+    try {
+        return getTemplate(hashStringCrossPlatform(name));
+    }
+    catch (_gu_err &)
+    {
+        throw gu_err("No EntityTemplate named " + name + " found");
+    }
 }
 
-EntityTemplate *Room::getTemplate(int templateHash)
+EntityTemplate &Room::getTemplate(int templateHash)
 {
     auto t = entityTemplates[templateHash];
     if (!t)
         throw gu_err("No EntityTemplate found for hash " + std::to_string(templateHash));
-    return t;
+    return *t;
 }
 
 const std::vector<std::string> &Room::getTemplateNames() const
@@ -149,4 +161,26 @@ entt::entity Room::getChildByName(entt::entity parent, const char *childName)
     if (it == p->childrenByName.end())
         return entt::null;
     return it->second;
+}
+
+void Room::registerLuaEntityTemplate(const char *assetPath)
+{
+    auto name = splitString(assetPath, "/").back();
+
+    addEntityTemplate(name, new LuaEntityTemplate(assetPath));
+}
+
+void Room::addEntityTemplate(const std::string &name, EntityTemplate *t)
+{
+    int hash = hashStringCrossPlatform(name);
+
+    bool replace = entityTemplates[hash] != NULL;
+
+    delete entityTemplates[hash];
+    auto et = entityTemplates[hash] = t;
+    et->room = this;
+    et->templateHash = hash;
+
+    if (!replace)
+        entityTemplateNames.push_back(name);
 }

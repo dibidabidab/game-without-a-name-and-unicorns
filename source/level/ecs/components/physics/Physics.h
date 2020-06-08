@@ -21,7 +21,7 @@ COMPONENT(
         center.x / centerHashStep, center.y / centerHashStep
     ),
 
-    FIELD(ivec2, halfSize),
+    FIELD_DEF_VAL(ivec2, halfSize, ivec2(1)),
     FIELD_DEF_VAL(ivec2, center, ivec2(0))
 )
     int centerHashStep = 10;
