@@ -53,6 +53,12 @@ struct SerializableStructInfo
         return infos->operator[](typeName);
     }
 
+    template<typename StructType>
+    static fromLuaFunc createFromLuaFunc()
+    {
+        return [](void *ptr, auto &tbl) { ((StructType *) ptr)->fromLuaTable(tbl); };
+    }
+
   private:
     static std::map<std::string, SerializableStructInfo *> *infos;
 

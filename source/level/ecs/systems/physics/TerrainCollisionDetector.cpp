@@ -215,11 +215,16 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
         if ((fallThrough && platform.allowFallThrough) || !platformAABB.contains(point))
             return false;
 
+        int nrOfPoints = line.points.size();
+
+        if (nrOfPoints < 2)
+            return false; // very big infinite loop if you dont return here, woops
+
         auto it = line.points.begin();
 
         int heightLeft = -99, height = 0, heightRight = 0;
 
-        for (int i = 0; i < line.points.size() - 1; i++)
+        for (int i = 0; i < nrOfPoints - 1; i++)
         {
             const vec2 p0 = *it + vec2(platformAABB.center);
             const vec2 p1 = *(++it) + vec2(platformAABB.center);

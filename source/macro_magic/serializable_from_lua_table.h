@@ -15,13 +15,12 @@
 template<typename type>
 struct lua_converter
 {
-    static void getFrom(type &field, const sol::table &table, const char *key)
+    static void getFrom(sol::object v, type &field)
     {
-        sol::table_proxy v = table[key];
         if (!v.valid())
             return;
 
-        auto optional = v.get<sol::optional<type>>();
+        auto optional = v.as<sol::optional<type>>();
         if (optional.has_value())
             field = optional.value();
         else
@@ -29,11 +28,11 @@ struct lua_converter
             auto info = SerializableStructInfo::getFor(getTypeName<type>().c_str()); // todo: getFor that takes typeid(type) instead of a string
 
             if (!info)
-                throw gu_err("Unable to convert '" + std::string(key) + "' to " + getTypeName<type>());
+                throw gu_err("Unable to convert to " + getTypeName<type>());
 
-            auto optionalTable = v.get<sol::optional<sol::table>>();
+            auto optionalTable = v.as<sol::optional<sol::table>>();
             if (!optionalTable.has_value())
-                throw gu_err("Unable to convert '" + std::string(key) + "' to " + getTypeName<type>() + " as it is not a table!");
+                throw gu_err("Unable to convert to " + getTypeName<type>() + " as it is not a table!");
 
             info->fromLuaTableFunction(&field, optionalTable.value());
         }
@@ -43,45 +42,88 @@ struct lua_converter
 template <int len, typename type, qualifier something>
 struct lua_converter<vec<len, type, something>>
 {
-    static void getFrom(vec<len, type, something> &v, const sol::table &table, const char *key)
+    static void getFrom(sol::object v, vec<len, type, something> &vec)
     {
-        auto val = table[key];
-
-        if (!val.valid())
+        if (!v.valid())
             return;
 
-        sol::optional<sol::table> vecTable = val;
-        if (!vecTable.has_value())
-            throw gu_err("In order to convert to vec" + std::to_string(len) + ", '" + std::string(key) + "' should be a table with " + std::to_string(len) + " numbers!");
+        auto vecTable = v.as<sol::optional<sol::table>>();
+
+        if (!vecTable.has_value() || vecTable.value().size() != len)
+            throw gu_err("In order to convert to vec" + std::to_string(len) + ", value should be a table with " + std::to_string(len) + " numbers!");
 
         for (int i = 0; i < len; i++)
-            v[i] = vecTable.value()[i + 1].get<type>();
+            vec[i] = vecTable.value()[i + 1].get<type>();
     }
 };
 
 template <typename type>
 struct lua_converter<asset<type>>
 {
-    static void getFrom(asset<type> &asset, const sol::table &table, const char *key)
+    static void getFrom(sol::object v, asset<type> &asset)
     {
-        auto val = table[key];
-
-        if (!val.valid())
+        if (!v.valid())
             return;
 
-        sol::optional<std::string> path = val;
+        auto path = v.as<sol::optional<std::string>>();
         if (!path.has_value())
-            throw gu_err("In order to set asset<" + getTypeName<type>() + ">, '" + std::string(key) + "' should be a string (example: 'sprites/my_very_nice_sprite').");
+            throw gu_err("In order to set asset<" + getTypeName<type>() + ">, value should be a string (example: 'sprites/my_very_nice_sprite').");
 
         asset.set(path.value());
     }
 };
 
+template <typename type>
+struct lua_converter<std::vector<type>>
+{
+    static void getFrom(sol::object v, std::vector<type> &vec)
+    {
+        if (!v.valid())
+            return;
+
+        auto listTable = v.as<sol::optional<sol::table>>();
+
+        if (!listTable.has_value())
+            throw gu_err("Cannot convert non-table to vector :(");
+
+        vec.resize(listTable.value().size());
+
+        int i = 0;
+        for (auto &[_, val] : listTable.value())
+            lua_converter<type>::getFrom(val, vec[i++]);
+    }
+};
+
+template <typename type>
+struct lua_converter<std::list<type>>
+{
+    static void getFrom(sol::object v, std::list<type> &list)
+    {
+        if (!v.valid())
+            return;
+
+        auto listTable = v.as<sol::optional<sol::table>>();
+
+        if (!listTable.has_value())
+            throw gu_err("Cannot convert non-table to list :(");
+
+        list.clear();
+
+        for (auto &[key, val] : listTable.value())
+        {
+            list.emplace_back();
+            type &back = list.back();
+            lua_converter<type>::getFrom(val, back);
+        }
+    }
+};
+
+
 #define PULL_FIELD_OUT_LUA_TABLE(field) \
     __PULL_FIELD_OUT_LUA_TABLE__(EAT field)
 
 #define __PULL_FIELD_OUT_LUA_TABLE__(X)  \
-    lua_converter<ARGTYPE(X)>::getFrom(ARGNAME(X), table, ARGNAME_AS_STRING(X))
+    lua_converter<ARGTYPE(X)>::getFrom(table[ARGNAME_AS_STRING(X)], ARGNAME(X))
 
 
 // the macro to be used in serializable.h:

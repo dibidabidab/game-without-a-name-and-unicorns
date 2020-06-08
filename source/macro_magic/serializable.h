@@ -110,7 +110,8 @@ bool isStructFieldFixedSize()
         }, {\
             DOFOREACH(IS_FIELD_TYPE_FIXED_SIZE, __VA_ARGS__)\
         },\
-        [](auto ptr, auto table) { ((className *) ptr)->fromLuaTable(table); });\
+            SerializableStructInfo::createFromLuaFunc<className>()\
+        );\
         \
         void toJson(json &j) const\
         {\

@@ -1,6 +1,8 @@
 
 components = {
-    AABB = {},
+    AABB = {
+        center = {120, 120}
+    },
     PolyPlatform = {},
     PolyPlatformWaves = {},
     Polyline = {
@@ -26,7 +28,7 @@ for _ = 1, 25 do
     table.insert(components.Polyline.points, {posX, posY})
 
     posX = posX + velX
-    posY = posY - velY
+    posY = posY + velY
 
     velY = velY - .8
 end
