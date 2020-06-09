@@ -10,9 +10,9 @@
 #include <utils/gu_error.h>
 
 
-#define FIELD(type, name)                        ()                (type) name
+#define FIELD(type, name)                        ()                (type)name
 
-#define FIELD_DEF_VAL(type, name, default_value) (= default_value) (type) name
+#define FIELD_DEF_VAL(type, name, default_value) (= default_value) (type)name
 
 #define PUT_FIELD_IN_JSON(field) \
     PUT_IN_JSON(EAT field)

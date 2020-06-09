@@ -31,6 +31,9 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
 
     reg.view<AsepriteView, AABB>().each([&](AsepriteView &view, const AABB &aabb) {
 
+        if (!view.sprite.isSet())
+            return;
+
         if (view.frame >= view.sprite->frameCount)
             view.frame = 0;
 
