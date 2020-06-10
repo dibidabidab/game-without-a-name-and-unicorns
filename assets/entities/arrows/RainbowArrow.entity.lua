@@ -2,5 +2,8 @@
 applyTemplate(entity, "Arrow")
 
 components = {
-  RainbowSpawner = {}
+  RainbowSpawner = {},
+  Physics = {
+    gravity = 4000
+  }
 }

@@ -21,6 +21,7 @@
 #include "../ecs/systems/physics/WavesSystem.h"
 
 #include "../ecs/entity_templates/LuaEntityTemplate.h"
+#include "../ecs/systems/RainbowSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -49,6 +50,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
     systems.push_front(new KnockBackSystem("knockback physics"));
     systems.push_front(new PhysicsSystem("physics"));
+    systems.push_front(new RainbowSystem("rainbows"));
     systems.push_front(new ArrowSystem("bow arrows"));
     systems.push_front(new BowWeaponSystem("bow weapons"));
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));

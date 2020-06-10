@@ -280,6 +280,9 @@ class RoomScreen : public Screen
         });
         if (debugPolyPlatforms) room->entities.view<AABB, Polyline, PolyPlatform>().each([&](const AABB &aabb, const Polyline &line, auto &) {
 
+            if (line.points.empty())
+                return;
+
             auto it = line.points.begin();
             for (int i = 0; i < line.points.size() - 1; i++)
             {

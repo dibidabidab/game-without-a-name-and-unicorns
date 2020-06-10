@@ -17,18 +17,19 @@ components = {
     }
 }
 
-velX = 8
-velY = 10
-
-posX = -75
-posY = -100
-
-for _ = 1, 25 do
-
-    table.insert(components.Polyline.points, {posX, posY})
-
-    posX = posX + velX
-    posY = posY + velY
-
-    velY = velY - .8
-end
+-- example rainbow:
+--velX = 8
+--velY = 10
+--
+--posX = -75
+--posY = -100
+--
+--for _ = 1, 25 do
+--
+--    table.insert(components.Polyline.points, {posX, posY})
+--
+--    posX = posX + velX
+--    posY = posY + velY
+--
+--    velY = velY - .8
+--end
