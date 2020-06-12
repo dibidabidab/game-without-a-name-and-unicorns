@@ -54,7 +54,7 @@ class WavesSystem : public EntitySystem
                             left = true;
                         if (left && p.x > xIndex)
                         {
-                            wave.springs[i].velocity += onPlatformPhysics->prevVelocity.y;
+                            wave.springs[i].velocity += onPlatformPhysics->prevVelocity.y * wave.impactMultiplier;
                             break;
                         }
                         i++;

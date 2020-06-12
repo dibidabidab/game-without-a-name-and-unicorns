@@ -4,7 +4,9 @@ components = {
         center = {120, 120}
     },
     PolyPlatform = {},
-    PolyPlatformWaves = {},
+    PolyPlatformWaves = {
+        impactMultiplier = 1.2
+    },
     Polyline = {
         points = {}
     },
@@ -14,7 +16,8 @@ components = {
         repeatY = 11,
         addAABBOffset = true,
         zIndexEnd = -64, zIndexBegin = -64
-    }
+    },
+    Rainbow = {}
 }
 
 -- example rainbow:

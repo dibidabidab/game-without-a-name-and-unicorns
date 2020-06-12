@@ -47,7 +47,8 @@ COMPONENT(
     HASH(stiffness, dampening, spread),
     FIELD_DEF_VAL(float, stiffness, 240),
     FIELD_DEF_VAL(float, dampening, 4),
-    FIELD_DEF_VAL(float, spread, 45)
+    FIELD_DEF_VAL(float, spread, 45),
+    FIELD_DEF_VAL(float, impactMultiplier, 3)
 )
 
     struct Spring
