@@ -21,7 +21,7 @@ END_COMPONENT(Rainbow)
 COMPONENT(
     RainbowSpawner,
     HASH(0),
-    FIELD_DEF_VAL(float, maxRainbowLength, 160),
+    FIELD_DEF_VAL(float, maxRainbowLength, 220),
     FIELD(Rainbow, rainbowSettings)
 )
 

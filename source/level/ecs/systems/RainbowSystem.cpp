@@ -23,7 +23,7 @@ void RainbowSystem::updateRainbowSpawners(float deltaTime)
 
         if (rainbowLine->points.empty())
         {
-            ivec2 offset(spawner.maxRainbowLength * .5);
+            ivec2 offset(spawner.maxRainbowLength * .5, 32);
             rainbowAABB->center = aabb.center + offset;
         }
         ivec2 currPos = aabb.center - rainbowAABB->center;
@@ -124,13 +124,18 @@ void RainbowSystem::limitRainbowArrowAngle()
 {
     room->entities.view<Arrow, RainbowSpawner, Physics>().each([&](Arrow &arr, RainbowSpawner &spawner, Physics &physics) {
 
+        if (physics.velocity.x == 0)
+            return; // prevent division by 0
+
         float steepness = abs(physics.velocity.y) / abs(physics.velocity.x);
+
+        auto prevVel = physics.velocity;
 
         if (steepness > 1)
         {
             float velTotal = length(physics.velocity);
 
-            physics.velocity = velTotal * normalize(vec2(physics.velocity.y / steepness, physics.velocity.x));
+            physics.velocity = velTotal * normalize(vec2(physics.velocity.x, physics.velocity.y / steepness));
         }
     });
 }
