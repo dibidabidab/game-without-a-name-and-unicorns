@@ -59,18 +59,31 @@ class PlatformerMovementSystem : public EntitySystem
             .each([&](entt::entity e, PlatformerMovement &movement, PlatformerMovementInput &input, Physics &physics, const AABB &aabb) {
 
             if (
-                    input.jump
-                    && (physics.touches.floor || physics.airTime < movement.coyoteTime)
-                    && physics.velocity.y <= 0
+                    physics.touches.floor && !physics.prevTouched.floor
+                    && physics.prevVelocity.y <= 0 // only stop the jump if player FELL on the floor (and not jumped through platform)
             )
             {
-                physics.velocity.y = movement.jumpVelocity;
+                // set this to false BEFORE possibly jumping again in the next IF.
+                movement.currentlyJumping = false;
+                movement.jumpPressedSinceBegin = false;
+            }
+
+            if (
+                    input.jump
+                    && (physics.touches.floor || physics.airTime < movement.coyoteTime)
+                    && !movement.currentlyJumping
+                    && physics.prevVelocity.y <= 0
+            )
+            {
+                physics.velocity.y = max(movement.jumpVelocity, min(movement.maxJumpVelocity, movement.jumpVelocity + physics.velocity.y));
                 movement.jumpPressedSinceBegin = true;
+                movement.currentlyJumping = true;
                 if (physics.touches.floor)
                     spawnDustTrail(aabb.bottomCenter(), "jump");
             }
             if (!input.jump)
                 movement.jumpPressedSinceBegin = false;
+
             if (movement.jumpPressedSinceBegin && physics.velocity.y >= 0)
                 physics.velocity.y += physics.gravity * movement.jumpAntiGravity * deltaTime;
 

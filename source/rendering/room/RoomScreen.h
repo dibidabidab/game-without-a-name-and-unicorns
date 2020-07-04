@@ -106,8 +106,6 @@ class RoomScreen : public Screen
 
         entt::entity enemy = room->getTemplate("Enemy").create();
         room->entities.get<AABB>(enemy).center = ivec2(400, 125);
-
-        room->getTemplate("Rainbow").create();
     }
 
     void render(double deltaTime) override
@@ -279,6 +277,9 @@ class RoomScreen : public Screen
             lineRenderer.line(aim.target, aabb.center, mu::X);
         });
         if (debugPolyPlatforms) room->entities.view<AABB, Polyline, PolyPlatform>().each([&](const AABB &aabb, const Polyline &line, auto &) {
+
+            if (line.points.empty())
+                return;
 
             auto it = line.points.begin();
             for (int i = 0; i < line.points.size() - 1; i++)

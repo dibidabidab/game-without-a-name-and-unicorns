@@ -1,9 +1,9 @@
 
 components = {
-    AABB = {
-        center = {120, 120}
+    AABB = {},
+    PolyPlatform = {
+        material = 1 -- "bouncy" material
     },
-    PolyPlatform = {},
     PolyPlatformWaves = {},
     Polyline = {
         points = {}
@@ -14,21 +14,23 @@ components = {
         repeatY = 11,
         addAABBOffset = true,
         zIndexEnd = -64, zIndexBegin = -64
-    }
+    },
+    Rainbow = {}
 }
 
-velX = 8
-velY = 10
-
-posX = -75
-posY = -100
-
-for _ = 1, 25 do
-
-    table.insert(components.Polyline.points, {posX, posY})
-
-    posX = posX + velX
-    posY = posY + velY
-
-    velY = velY - .8
-end
+-- example rainbow:
+--velX = 8
+--velY = 10
+--
+--posX = -75
+--posY = -100
+--
+--for _ = 1, 25 do
+--
+--    table.insert(components.Polyline.points, {posX, posY})
+--
+--    posX = posX + velX
+--    posY = posY + velY
+--
+--    velY = velY - .8
+--end

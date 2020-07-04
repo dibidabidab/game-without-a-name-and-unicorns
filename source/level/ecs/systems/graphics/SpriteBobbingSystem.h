@@ -2,11 +2,11 @@
 #ifndef GAME_SPRITEBOBBINGSYSTEM_H
 #define GAME_SPRITEBOBBINGSYSTEM_H
 
-#include "../../room/Room.h"
-#include "EntitySystem.h"
-#include "../components/graphics/SpriteBobbing.h"
-#include "../components/graphics/AsepriteView.h"
-#include "../components/physics/Physics.h"
+#include "../../../room/Room.h"
+#include "../EntitySystem.h"
+#include "../../components/graphics/SpriteBobbing.h"
+#include "../../components/graphics/AsepriteView.h"
+#include "../../components/physics/Physics.h"
 
 /**
  * see SpriteBobbing documentation

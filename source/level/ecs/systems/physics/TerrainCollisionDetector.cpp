@@ -10,11 +10,11 @@ TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignore
 
     collisions.polyPlatform = ignorePolyPlatforms ? false : onPolyPlatform(aabb, collisions, ignorePlatforms);
 
-    collisions.halfSlopeDown = halfSlopeDownIntersection(aabb);
-    collisions.halfSlopeUp = halfSlopeUpIntersection(aabb);
-    collisions.slopeDown = collisions.halfSlopeDown || slopeDownIntersection(aabb);
-    collisions.slopeUp = collisions.halfSlopeUp || slopeUpIntersection(aabb);
-    collisions.flatFloor = floorIntersection(aabb, ignorePlatforms);
+    collisions.halfSlopeDown = halfSlopeDownIntersection(aabb, collisions.floorMaterial);
+    collisions.halfSlopeUp = halfSlopeUpIntersection(aabb, collisions.floorMaterial);
+    collisions.slopeDown = collisions.halfSlopeDown || slopeDownIntersection(aabb, collisions.floorMaterial);
+    collisions.slopeUp = collisions.halfSlopeUp || slopeUpIntersection(aabb, collisions.floorMaterial);
+    collisions.flatFloor = floorIntersection(aabb, ignorePlatforms, collisions.floorMaterial);
     collisions.floor = collisions.polyPlatform || collisions.slopeUp || collisions.slopeDown || collisions.flatFloor;
     collisions.slopedCeilingDown = slopedCeilingDownIntersection(aabb);
     collisions.slopedCeilingUp = slopedCeilingUpIntersection(aabb);
@@ -54,7 +54,7 @@ bool lineIntersectsWithFullBlock(const ivec2 &p0, const ivec2 &p1, const TileMap
  * Checks if point p overlaps a slope
  * @param slopeType     Type of slope to check for
  */
-bool pointOnSlope(const ivec2 &p, const TileMap *map, Tile slopeType)
+bool pointOnSlope(const ivec2 &p, const TileMap *map, Tile slopeType, TileMaterial &mat)
 {
     int
         tileX = p.x / TileMap::PIXELS_PER_TILE,
@@ -69,35 +69,47 @@ bool pointOnSlope(const ivec2 &p, const TileMap *map, Tile slopeType)
         tilePixelX = p.x % TileMap::PIXELS_PER_TILE,
         tilePixelY = p.y % TileMap::PIXELS_PER_TILE;
 
+    bool onSlope = false;
+
     switch (tile)
     {
         case Tile::slope_down:
-            return tilePixelY <= TileMap::PIXELS_PER_TILE - 1 - tilePixelX;
+            onSlope = tilePixelY <= TileMap::PIXELS_PER_TILE - 1 - tilePixelX;
+            break;
 
         case Tile::slope_up:
-            return tilePixelY <= tilePixelX;
+            onSlope = tilePixelY <= tilePixelX;
+            break;
 
         case Tile::sloped_ceil_down:
-            return tilePixelY >= TileMap::PIXELS_PER_TILE - 1 - tilePixelX;
+            onSlope = tilePixelY >= TileMap::PIXELS_PER_TILE - 1 - tilePixelX;
+            break;
 
         case Tile::sloped_ceil_up:
-            return tilePixelY >= tilePixelX;
+            onSlope = tilePixelY >= tilePixelX;
+            break;
 
         case Tile::slope_down_half0:
-            return tilePixelY <= TileMap::PIXELS_PER_TILE - 1 - (tilePixelX * .5);
+            onSlope = tilePixelY <= TileMap::PIXELS_PER_TILE - 1 - (tilePixelX * .5);
+            break;
 
         case Tile::slope_down_half1:
-            return tilePixelY <= TileMap::PIXELS_PER_TILE - 1 - (tilePixelX * .5) - 8;
+            onSlope = tilePixelY <= TileMap::PIXELS_PER_TILE - 1 - (tilePixelX * .5) - 8;
+            break;
 
         case Tile::slope_up_half0:
-            return tilePixelY <= tilePixelX * .5;
+            onSlope = tilePixelY <= tilePixelX * .5;
+            break;
 
         case Tile::slope_up_half1:
-            return tilePixelY <= tilePixelX * .5 + 8;
+            onSlope = tilePixelY <= tilePixelX * .5 + 8;
+            break;
 
         default: break;
     }
-    return false;
+    if (onSlope)
+        mat = map->getMaterial(tileX, tileY);
+    return onSlope;
 }
 
 bool TerrainCollisionDetector::ceilingIntersection(const AABB &aabb)
@@ -109,39 +121,41 @@ bool TerrainCollisionDetector::ceilingIntersection(const AABB &aabb)
     );
 }
 
-bool TerrainCollisionDetector::slopeDownIntersection(const AABB &aabb)
+bool TerrainCollisionDetector::slopeDownIntersection(const AABB &aabb, TileMaterial &mat)
 {
     return
-        pointOnSlope(aabb.bottomLeft() + ivec2(1, 0), map, Tile::slope_down)
+        pointOnSlope(aabb.bottomLeft() + ivec2(1, 0), map, Tile::slope_down, mat)
         ||
-        pointOnSlope(aabb.bottomLeft() + ivec2(0, 1), map, Tile::slope_down);
+        pointOnSlope(aabb.bottomLeft() + ivec2(0, 1), map, Tile::slope_down, mat);
 }
 
-bool TerrainCollisionDetector::slopeUpIntersection(const AABB &aabb)
+bool TerrainCollisionDetector::slopeUpIntersection(const AABB &aabb, TileMaterial &mat)
 {
     return
-        pointOnSlope(aabb.bottomRight() - ivec2(1, 0), map, Tile::slope_up)
+        pointOnSlope(aabb.bottomRight() - ivec2(1, 0), map, Tile::slope_up, mat)
         ||
-        pointOnSlope(aabb.bottomRight() + ivec2(0, 1), map, Tile::slope_up);
+        pointOnSlope(aabb.bottomRight() + ivec2(0, 1), map, Tile::slope_up, mat);
 }
 
 bool TerrainCollisionDetector::slopedCeilingDownIntersection(const AABB &aabb)
 {
+    static TileMaterial _;
     return
-        pointOnSlope(aabb.topRight() - ivec2(1, 0), map, Tile::sloped_ceil_down)
+        pointOnSlope(aabb.topRight() - ivec2(1, 0), map, Tile::sloped_ceil_down, _)
         ||
-        pointOnSlope(aabb.topRight() - ivec2(0, 1), map, Tile::sloped_ceil_down);
+        pointOnSlope(aabb.topRight() - ivec2(0, 1), map, Tile::sloped_ceil_down, _);
 }
 
 bool TerrainCollisionDetector::slopedCeilingUpIntersection(const AABB &aabb)
 {
+    static TileMaterial _;
     return
-        pointOnSlope(aabb.topLeft() + ivec2(1, 0), map, Tile::sloped_ceil_up)
+        pointOnSlope(aabb.topLeft() + ivec2(1, 0), map, Tile::sloped_ceil_up, _)
         ||
-        pointOnSlope(aabb.topLeft() - ivec2(0, 1), map, Tile::sloped_ceil_up);
+        pointOnSlope(aabb.topLeft() - ivec2(0, 1), map, Tile::sloped_ceil_up, _);
 }
 
-bool TerrainCollisionDetector::floorIntersection(const AABB &aabb, bool ignorePlatforms)
+bool TerrainCollisionDetector::floorIntersection(const AABB &aabb, bool ignorePlatforms, TileMaterial &mat)
 {
     ivec2
         p0 = aabb.bottomLeft()  + ivec2(1, 0),
@@ -155,6 +169,8 @@ bool TerrainCollisionDetector::floorIntersection(const AABB &aabb, bool ignorePl
                 && (p0.y % TileMap::PIXELS_PER_TILE) == TileMap::PIXELS_PER_TILE - 1
             )
             col = true;
+        if (col)
+            mat = map->getMaterial(t.x, t.y);
     });
     return col;
 }
@@ -177,28 +193,28 @@ bool TerrainCollisionDetector::rightWallIntersection(const AABB &aabb)
     );
 }
 
-bool TerrainCollisionDetector::halfSlopeDownIntersection(const AABB &aabb)
+bool TerrainCollisionDetector::halfSlopeDownIntersection(const AABB &aabb, TileMaterial &mat)
 {
     return
-            pointOnSlope(aabb.bottomLeft() + ivec2(1, 0), map, Tile::slope_down_half0)
+            pointOnSlope(aabb.bottomLeft() + ivec2(1, 0), map, Tile::slope_down_half0, mat)
             ||
-            pointOnSlope(aabb.bottomLeft() + ivec2(0, 1), map, Tile::slope_down_half0)
+            pointOnSlope(aabb.bottomLeft() + ivec2(0, 1), map, Tile::slope_down_half0, mat)
             ||
-            pointOnSlope(aabb.bottomLeft() + ivec2(1, 0), map, Tile::slope_down_half1)
+            pointOnSlope(aabb.bottomLeft() + ivec2(1, 0), map, Tile::slope_down_half1, mat)
             ||
-            pointOnSlope(aabb.bottomLeft() + ivec2(0, 1), map, Tile::slope_down_half1);
+            pointOnSlope(aabb.bottomLeft() + ivec2(0, 1), map, Tile::slope_down_half1, mat);
 }
 
-bool TerrainCollisionDetector::halfSlopeUpIntersection(const AABB &aabb)
+bool TerrainCollisionDetector::halfSlopeUpIntersection(const AABB &aabb, TileMaterial &mat)
 {
     return
-            pointOnSlope(aabb.bottomRight() - ivec2(1, 0), map, Tile::slope_up_half0)
+            pointOnSlope(aabb.bottomRight() - ivec2(1, 0), map, Tile::slope_up_half0, mat)
             ||
-            pointOnSlope(aabb.bottomRight() + ivec2(0, 1), map, Tile::slope_up_half0)
+            pointOnSlope(aabb.bottomRight() + ivec2(0, 1), map, Tile::slope_up_half0, mat)
             ||
-            pointOnSlope(aabb.bottomRight() - ivec2(1, 0), map, Tile::slope_up_half1)
+            pointOnSlope(aabb.bottomRight() - ivec2(1, 0), map, Tile::slope_up_half1, mat)
             ||
-            pointOnSlope(aabb.bottomRight() + ivec2(0, 1), map, Tile::slope_up_half1);
+            pointOnSlope(aabb.bottomRight() + ivec2(0, 1), map, Tile::slope_up_half1, mat);
 }
 
 bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollisions &col, bool fallThrough)
@@ -245,6 +261,7 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
 
                     col.polyPlatformDeltaLeft = heightLeft - height;
                     col.polyPlatformDeltaRight = heightRight - height;
+                    col.floorMaterial = platform.material;
                     return true;
                 }
                 else if (height < point.y) // entity is above platform:

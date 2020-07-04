@@ -180,7 +180,9 @@ void PhysicsSystem::updateVelocity(Physics &physics, double deltaTime)
 
     physics.velocity *= max(0.f, 1.f - friction);
 
-    if (physics.touches.floor && physics.velocity.y < 0) physics.velocity.y = 0;
+    if (physics.touches.floor && physics.velocity.y < 0)
+        physics.velocity.y *= -TILE_PROPERTIES[int(physics.touches.floorMaterial)].bounciness;
+
     if (physics.touches.ceiling && physics.velocity.y > 0) physics.velocity.y = 0;
 
     if (physics.touches.leftWall && physics.velocity.x < 0) physics.velocity.x = 0;
@@ -348,6 +350,9 @@ void PhysicsSystem::preventFallingThroughPolyPlatform(Physics &physics, AABB &aa
 
     // is the entity movement valid
     int platformHeight = platform->heightAtX(aabb.center.x, *line, *platformAABB);
+    if (platformHeight == -1)
+        return;
+
     int newY = platformHeight + aabb.halfSize.y + 1;
     bool invalidNewPosition = newY < aabb.center.y && (!wasOnPlatform || physics.velocity.y > 0);
 

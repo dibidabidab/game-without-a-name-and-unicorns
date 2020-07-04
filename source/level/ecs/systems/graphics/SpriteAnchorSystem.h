@@ -2,11 +2,11 @@
 #ifndef GAME_SPRITEANCHORSYSTEM_H
 #define GAME_SPRITEANCHORSYSTEM_H
 
-#include "../../room/Room.h"
-#include "EntitySystem.h"
-#include "../components/graphics/SpriteAnchor.h"
-#include "../components/graphics/AsepriteView.h"
-#include "../components/physics/Physics.h"
+#include "../../../room/Room.h"
+#include "../EntitySystem.h"
+#include "../../components/graphics/SpriteAnchor.h"
+#include "../../components/graphics/AsepriteView.h"
+#include "../../components/physics/Physics.h"
 
 /**
  * see SpriteAnchor documentation

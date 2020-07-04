@@ -13,8 +13,7 @@ COMPONENT(
     HASH(radius, castShadow),
 
     FIELD_DEF_VAL(uint8, radius, 128),
-    FIELD_DEF_VAL(bool, castShadow, true),
-    FIELD(AABB, aabb)
+    FIELD_DEF_VAL(bool, castShadow, true)
 )
 
     ivec2 prevPosition;

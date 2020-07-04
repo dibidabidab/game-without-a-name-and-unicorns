@@ -21,7 +21,8 @@ COMPONENT(
     HASH(jumpVelocity, walkVelocity, coyoteTime),
 
     FIELD_DEF_VAL(float, walkVelocity, 90),
-    FIELD_DEF_VAL(float, jumpVelocity, 409),
+    FIELD_DEF_VAL(float, jumpVelocity, 380),
+    FIELD_DEF_VAL(float, maxJumpVelocity, 500),
     FIELD_DEF_VAL(float, coyoteTime, .25),
     FIELD_DEF_VAL(float, jumpAntiGravity, .7),
     FIELD_DEF_VAL(float, airControl, 6),
@@ -30,7 +31,7 @@ COMPONENT(
     // used by system:
     float fallPressedTimer = 0;
 
-    bool jumpPressedSinceBegin = false;
+    bool jumpPressedSinceBegin = false, currentlyJumping = false;
 
 END_COMPONENT(PlatformerMovement)
 

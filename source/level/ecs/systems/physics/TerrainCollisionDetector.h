@@ -4,6 +4,7 @@
 
 #include "../../../../macro_magic/serializable.h"
 #include "../../../../../external/entt/src/entt/entity/registry.hpp"
+#include "../../../room/TileMap.h"
 
 class TileMap;
 struct AABB;
@@ -24,6 +25,8 @@ struct TerrainCollisions
         rightWall         = false,  // anything that should prevent an entity from going to the right
         polyPlatform      = false,  // (possibly moving?) platforms with multiple non-grid-based vertices
         anything          = false;  // ANY of the above
+
+    TileMaterial floorMaterial = TileMaterial::brick;
 
     /**
      * if polyPlatform == true, then the following values will be set:
@@ -67,11 +70,11 @@ class TerrainCollisionDetector
     bool ceilingIntersection(const AABB &aabb);
     bool slopedCeilingDownIntersection(const AABB &aabb);
     bool slopedCeilingUpIntersection(const AABB &aabb);
-    bool slopeDownIntersection(const AABB &aabb);
-    bool slopeUpIntersection(const AABB &aabb);
-    bool halfSlopeDownIntersection(const AABB &aabb);
-    bool halfSlopeUpIntersection(const AABB &aabb);
-    bool floorIntersection(const AABB &aabb, bool ignorePlatforms);
+    bool slopeDownIntersection(const AABB &aabb, TileMaterial &);
+    bool slopeUpIntersection(const AABB &aabb, TileMaterial &);
+    bool halfSlopeDownIntersection(const AABB &aabb, TileMaterial &);
+    bool halfSlopeUpIntersection(const AABB &aabb, TileMaterial &);
+    bool floorIntersection(const AABB &aabb, bool ignorePlatforms, TileMaterial &);
     bool leftWallIntersection(const AABB &aabb);
     bool rightWallIntersection(const AABB &aabb);
 
