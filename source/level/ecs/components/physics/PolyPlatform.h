@@ -8,7 +8,8 @@
 COMPONENT(
     PolyPlatform,
     HASH(allowFallThrough),
-    FIELD_DEF_VAL(bool, allowFallThrough, true)
+    FIELD_DEF_VAL(bool, allowFallThrough, true),
+    FIELD_DEF_VAL(TileMaterial, material, TileMaterial::brick)
 )
 
     std::vector<entt::entity> entitiesOnPlatform, entitiesAbovePlatform;
@@ -35,7 +36,7 @@ COMPONENT(
             if (p0.x <= x && p1.x >= x)
                 return heightAtX(x, p0, p1);
         }
-        return 0;
+        return -1;
     }
 
 
@@ -48,7 +49,7 @@ COMPONENT(
     FIELD_DEF_VAL(float, stiffness, 240),
     FIELD_DEF_VAL(float, dampening, 4),
     FIELD_DEF_VAL(float, spread, 45),
-    FIELD_DEF_VAL(float, impactMultiplier, 3)
+    FIELD_DEF_VAL(float, impactMultiplier, 1)
 )
 
     struct Spring

@@ -37,7 +37,23 @@ enum class Tile : unsigned char
 
 enum class TileMaterial : unsigned char
 {
-    brick
+    brick, bouncy
+};
+
+struct TileMaterialProperties
+{
+    float friction = 1;
+    float bounciness = 0;
+};
+
+inline constexpr TileMaterialProperties TILE_PROPERTIES[] = {
+        // brick:
+        {},
+        // bouncy:
+        {
+            1.5,
+            1.
+        }
 };
 
 typedef std::vector<std::pair<vec2, vec2>> TileMapOutlines;

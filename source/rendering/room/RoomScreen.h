@@ -106,8 +106,6 @@ class RoomScreen : public Screen
 
         entt::entity enemy = room->getTemplate("Enemy").create();
         room->entities.get<AABB>(enemy).center = ivec2(400, 125);
-
-        room->getTemplate("Rainbow").create();
     }
 
     void render(double deltaTime) override

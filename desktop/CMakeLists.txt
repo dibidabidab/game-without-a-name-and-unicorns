@@ -44,6 +44,13 @@ if (MSVC)
 
 else()
     # -no-pie is used to get 'application/x-application' as mime type instead of 'application/x-sharedlib'
-    set(CMAKE_CXX_FLAGS  "-no-pie -O3")
+    set(CMAKE_CXX_FLAGS  "-no-pie")
+
+    if (NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Release)
+    endif()
+    message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 endif()

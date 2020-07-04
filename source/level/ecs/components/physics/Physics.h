@@ -118,7 +118,7 @@ COMPONENT(
         airFriction, floorFriction, wallFriction, ignorePlatforms
     ),
 
-    FIELD_DEF_VAL   (float, gravity, 1200),
+    FIELD_DEF_VAL   (float, gravity, 1250),
     FIELD_DEF_VAL   (float, airFriction, 2.8),
     FIELD_DEF_VAL   (float, floorFriction, 18),
     FIELD_DEF_VAL   (float, wallFriction, 6),

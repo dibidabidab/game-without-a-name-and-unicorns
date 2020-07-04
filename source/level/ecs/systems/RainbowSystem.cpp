@@ -125,7 +125,7 @@ void RainbowSystem::limitRainbowArrowAngle()
     room->entities.view<Arrow, RainbowSpawner, Physics>().each([&](Arrow &arr, RainbowSpawner &spawner, Physics &physics) {
 
         if (physics.velocity.x == 0)
-            return; // prevent division by 0
+            physics.velocity.x = 1; // prevent division by 0
 
         float steepness = abs(physics.velocity.y) / abs(physics.velocity.x);
 

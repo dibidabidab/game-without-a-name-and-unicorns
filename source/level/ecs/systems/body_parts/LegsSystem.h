@@ -102,7 +102,7 @@ class LegsSystem : public EntitySystem
                         break;
                 }
 
-                leg.maxDistToTarget = 5;
+                leg.maxDistToTarget = 2;
             }
             else    // walking
             {
