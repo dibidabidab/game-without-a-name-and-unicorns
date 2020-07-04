@@ -46,7 +46,7 @@ struct TileMaterialProperties
     float bounciness = 0;
 };
 
-constexpr TileMaterialProperties TILE_PROPERTIES[] = {
+inline const TileMaterialProperties TILE_PROPERTIES[2] = {
         // brick:
         {},
         // bouncy:

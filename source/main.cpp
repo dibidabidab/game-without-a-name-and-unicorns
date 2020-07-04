@@ -11,6 +11,7 @@
 #include "multiplayer/io/MultiplayerIO.h"
 #include "multiplayer/session/MultiplayerClientSession.h"
 #include "multiplayer/session/MultiplayerServerSession.h"
+#include "multiplayer/session/OfflineMultiplayerSession.h"
 #include "ImGuiStyle.h"
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
@@ -134,9 +135,9 @@ int main(int argc, char *argv[])
     }
     #endif
 
-    if (!server)
+    if (!server && argc == 3 && strcmp(argv[1], "--join") == 0)
     {
-        SharedSocket ws = SharedSocket(new WebSocket(argc > 1 ? std::string(argv[1]) : "ws://192.168.2.5:55555"));
+        SharedSocket ws = SharedSocket(new WebSocket(std::string(argv[2])));
         mpSession = new MultiplayerClientSession(ws);
 
         ws->onOpen = [&]() {
@@ -157,6 +158,14 @@ int main(int argc, char *argv[])
         };
         afterInit = [=] () mutable {
             ws->open();
+        };
+    }
+    else
+    {
+        // offline session:
+        mpSession = new OfflineMultiplayerSession(Level::testLevel());
+        afterInit = [=] {
+            mpSession->join("poopoo");
         };
     }
 
