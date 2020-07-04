@@ -18,10 +18,31 @@ void Level::update(double deltaTime)
     gu::profiler::Zone levelUpdateZone("level update");
     assert(rooms != NULL);
     updating = true;
-    time += deltaTime;
 
-    for (int i = 0; i < nrOfRooms; i++)
-        rooms[i].update(deltaTime);
+    updateAccumulator += deltaTime;
+
+    static float MIN_DELTA_TIME = 1. / MAX_UPDATES_PER_SEC;
+    static float MAX_DELTA_TIME = 1. / MIN_UPDATES_PER_SEC;
+
+    int updates = 0;
+
+    while (updateAccumulator >= MIN_DELTA_TIME && updates++ < MAX_UPDATES_PER_FRAME)
+    {
+        float roomDeltaTime = min(updateAccumulator, MAX_DELTA_TIME);
+        time += roomDeltaTime;
+
+        for (int i = 0; i < nrOfRooms; i++)
+            rooms[i].update(roomDeltaTime);
+
+        updateAccumulator -= roomDeltaTime;
+    }
+
+    if (updateAccumulator > 2.)
+    {
+        std::cerr << "Level::update() can't reach MIN_UPDATES_PER_SEC! Skipping " << updateAccumulator << "sec!" << std::endl;
+        updateAccumulator = 0;
+    }
+
     updating = false;
 }
 
