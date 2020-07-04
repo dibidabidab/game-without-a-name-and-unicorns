@@ -20,8 +20,8 @@ jobs:
         sudo apt-get install freeglut3-dev -y
         python initialize_project.py
         cd desktop
-        cmake .
-        cmake .
+        cmake . -DCMAKE_BUILD_TYPE=Release
+        cmake . -DCMAKE_BUILD_TYPE=Release
         make -j8
         cd out
         mkdir assets
