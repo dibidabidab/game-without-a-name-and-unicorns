@@ -8,7 +8,7 @@
 #include "../../components/physics/Physics.h"
 #include "../../components/graphics/AsepriteView.h"
 #include "../../components/combat/Aiming.h"
-#include "../../components/DespawnAfter.h"
+#include "../../components/Spawning.h"
 #include "../../components/Polyline.h"
 #include "../../components/combat/Health.h"
 #include "../../components/combat/KnockBack.h"

@@ -65,12 +65,6 @@ class ChildrenSystem : public EntitySystem
 
     void update(double deltaTime, Room *room) override
     {
-        // todo: DespawnAfter actually has nothing to do with the ChildrenSystem. I was just too lazy to create a new system
-        room->entities.view<DespawnAfter>().each([&](auto e, DespawnAfter &despawnAfter) {
-            despawnAfter.timer += deltaTime;
-            if (despawnAfter.timer >= despawnAfter.time)
-                room->entities.destroy(e);
-        });
     }
 
 };

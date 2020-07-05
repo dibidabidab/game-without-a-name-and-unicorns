@@ -19,7 +19,7 @@ class Level
     constexpr static int
         MAX_UPDATES_PER_SEC = 100,
         MIN_UPDATES_PER_SEC = 30,
-        MAX_UPDATES_PER_FRAME = 2;
+        MAX_UPDATES_PER_FRAME = 1;
 
     friend void to_json(json& j, const Level& lvl);
     friend void from_json(const json& j, Level& lvl);

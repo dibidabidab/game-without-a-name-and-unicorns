@@ -11,7 +11,7 @@ struct ComponentUtils
   public:
 
     std::function<bool(entt::entity, const entt::registry &)> entityHasComponent;
-    std::function<void(json &, entt::entity, const entt::registry &)> getJsonComponent;
+    std::function<void(json &, entt::entity, const entt::registry &)> getJsonComponent, getJsonComponentWithKeys;
     std::function<void(const json &, entt::entity, entt::registry &)> setJsonComponent;
     std::function<void(entt::entity, entt::registry &)> removeComponent;
     std::function<json()> getDefaultJsonComponent;
@@ -40,6 +40,10 @@ struct ComponentUtils
         u->getJsonComponent = [] (json &j, entt::entity e, const entt::registry &reg)
         {
             reg.get<Component>(e).toJsonArray(j);
+        };
+        u->getJsonComponentWithKeys = [] (json &j, entt::entity e, const entt::registry &reg)
+        {
+            reg.get<Component>(e).toJson(j);
         };
         u->setJsonComponent = [] (const json &j, entt::entity e, entt::registry &reg)
         {

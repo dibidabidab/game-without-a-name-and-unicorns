@@ -22,6 +22,7 @@
 
 #include "../ecs/entity_templates/LuaEntityTemplate.h"
 #include "../ecs/systems/RainbowSystem.h"
+#include "../ecs/systems/SpawningSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -56,6 +57,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
     systems.push_front(new PlayerControlSystem("player control"));
     systems.push_front(new ChildrenSystem("children"));
+    systems.push_front(new SpawningSystem("(de)spawning"));
 
     for (auto sys : systems) sys->init(this);
     initialized = true;
@@ -169,7 +171,7 @@ void Room::registerLuaEntityTemplate(const char *assetPath)
 {
     auto name = splitString(assetPath, "/").back();
 
-    addEntityTemplate(name, new LuaEntityTemplate(assetPath));
+    addEntityTemplate(name, new LuaEntityTemplate(assetPath, this));
 }
 
 void Room::addEntityTemplate(const std::string &name, EntityTemplate *t)

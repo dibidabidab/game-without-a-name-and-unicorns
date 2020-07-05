@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     });
     AssetManager::addAssetLoader<LuaEntityScript>(".entity.lua", [](auto path) {
 
-        return new LuaEntityScript{ File::readString(path.c_str()) };
+        return new LuaEntityScript(File::readString(path.c_str()));
     });
 
 

@@ -2,68 +2,100 @@
 #include "LuaEntityTemplate.h"
 #include "../../../macro_magic/component.h"
 
-LuaEntityTemplate::LuaEntityTemplate(const char *assetName) : script(assetName)
+LuaEntityTemplate::LuaEntityTemplate(const char *assetName, Room *r)
+    : script(assetName),
+      env(getLuaState(), sol::create, getLuaState().globals())
 {
+    room = r;
 
+    env["arg"] = [&](const char *argName, sol::optional<sol::reference> defaultVal) {
+        if (!env["args"][argName].valid())
+            env["args"][argName] = defaultVal;
+    };
+    env["getTile"] = [&](int x, int y) -> int {
+        return static_cast<int>(room->getMap().getTile(x, y));
+    };
+    env["getTileMaterial"] = [&](int x, int y) -> int {
+        return static_cast<int>(room->getMap().getMaterial(x, y));
+    };
+    env["getLevelTime"] = [&]() -> double {
+        return room->getLevel()->getTime();
+    };
+    env["roomWidth"] = room->getMap().width;
+    env["roomHeight"] = room->getMap().height;
+    env["getComponent"] = [&](int fromEntity, const std::string &componentName) -> sol::optional<sol::table> {
+
+        auto utils = ComponentUtils::getFor(componentName);
+        if (!utils)
+            throw gu_err("Error while calling getComponent(): Component Type named " + componentName + " does NOT exist!");
+
+        if (!utils->entityHasComponent(static_cast<entt::entity>(fromEntity), room->entities))
+            return sol::optional<sol::table>();
+
+        json j;
+        utils->getJsonComponentWithKeys(j, static_cast<entt::entity>(fromEntity), room->entities);
+        sol::table table(env);
+        luau::jsonToLuaTable(j, table);
+
+        return table;
+    };
+
+    env["createChild"] = [&](const char *childName) -> int {
+
+//        if (env[childName].valid())
+//            throw gu_err("Could not create child.\nIt seems that the lua script already has a variable named '" + std::string(childName) + "'");
+
+        int child = int(createChild(currentlyCreating, childName));
+
+        env[childName] = child;
+
+        env["childComponents"].get_or_create<sol::table>()[childName].get_or_create<sol::table>();
+
+        return child;
+    };
+    env["applyTemplate"] = [&](int extendE, const char *templateName, sol::optional<sol::table> extendArgs) {
+
+        auto entityTemplate = &room->getTemplate(templateName); // could throw error :)
+
+        if (dynamic_cast<LuaEntityTemplate *>(entityTemplate))
+        {
+            ((LuaEntityTemplate *) entityTemplate)->
+                    createComponentsFromScript(entt::entity(extendE), extendArgs);
+        }
+        else
+            entityTemplate->createComponents(entt::entity(extendE));
+    };
 }
 
 void LuaEntityTemplate::createComponents(entt::entity e)
 {
-    static sol::state *lua = NULL;
-
-    if (lua == NULL)
-    {
-        lua = new sol::state;
-        lua->open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table);
-    }
-    createComponentsFromScript(e, *lua, sol::optional<sol::table>());
+    gu::profiler::Zone zone("lua entity script");
+    createComponentsFromScript(e, sol::optional<sol::table>());
 }
 
-void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::state &lua, sol::optional<sol::table> arguments)
+void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::optional<sol::table> arguments)
 {
-    sol::environment env(lua, sol::create, lua.globals());
-
     try
     {
+        if (currentlyCreating != entt::null)
+            throw gu_err("Circular dependency found in EntityTemplate...");
+        currentlyCreating = e;
+
         env["entity"] = e;
-        env["components"].get_or_create<sol::table>();
+        env["components"].get_or_create<sol::table>().clear();
+        env["childComponents"].get_or_create<sol::table>().clear();
 
         if (arguments.has_value())
             env["args"] = arguments;
         else
-            env["args"].get_or_create<sol::table>();
+            env["args"].get_or_create<sol::table>().clear();
 
-        env["arg"] = [&](const char *argName, sol::optional<sol::reference> defaultVal) {
-            if (!env["args"][argName].valid())
-                env["args"][argName] = defaultVal;
-        };
-        env["createChild"] = [&](const char *childName) -> int {
+        {
+            gu::profiler::Zone zone("bytecode");
 
-            if (env[childName].valid())
-                throw gu_err("Could not create child.\nIt seems that the lua script already has a variable named '" + std::string(childName) + "'");
-
-            int child = int(createChild(e, childName));
-
-            env[childName] = child;
-
-            env["childComponents"].get_or_create<sol::table>()[childName].get_or_create<sol::table>();
-
-            return child;
-        };
-        env["applyTemplate"] = [&](int extendE, const char *templateName, sol::optional<sol::table> extendArgs) {
-
-            auto entityTemplate = &room->getTemplate(templateName); // could throw error :)
-
-            if (dynamic_cast<LuaEntityTemplate *>(entityTemplate))
-            {
-                ((LuaEntityTemplate *) entityTemplate)->
-                    createComponentsFromScript(entt::entity(extendE), lua, extendArgs);
-            }
-            else
-                entityTemplate->createComponents(entt::entity(extendE));
-        };
-
-        lua.script(script->source, env);
+            // running bytecode instead of text can be 40% faster :O
+            getLuaState().script(script->bytecode.as_string_view(), env);
+        }
 
         luaTableToComponents(e, env["components"]);
 
@@ -83,10 +115,13 @@ void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::state &l
         std::cerr << "Error while creating entity using " << script.getLoadedAsset().fullPath << ":" << std::endl;
         std::cerr << e.what() << std::endl;
     }
+    currentlyCreating = entt::null;
 }
 
 void LuaEntityTemplate::luaTableToComponents(entt::entity e, const sol::table &table)
 {
+    gu::profiler::Zone zone("luaTableToComponents");
+
     for (const auto &[componentName, comp] : table)
     {
         if (!componentName.is<std::string>())
@@ -103,4 +138,24 @@ void LuaEntityTemplate::luaTableToComponents(entt::entity e, const sol::table &t
 
         utils->setFromLuaTable(comp.as<sol::table>(), e, room->entities);
     }
+}
+
+sol::state &LuaEntityTemplate::getLuaState()
+{
+    static sol::state *lua = NULL;
+
+    if (lua == NULL)
+    {
+        lua = new sol::state;
+        lua->open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table);
+    }
+    return *lua;
+}
+
+LuaEntityScript::LuaEntityScript(std::string s) : source(std::move(s))
+{
+    sol::load_result lr = LuaEntityTemplate::getLuaState().load(source);
+    if (!lr.valid())
+        throw gu_err("Lua code invalid!");
+    bytecode = sol::protected_function(lr).dump();
 }

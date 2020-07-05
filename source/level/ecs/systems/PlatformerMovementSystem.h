@@ -11,7 +11,7 @@
 #include "../components/PlayerControlled.h"
 #include "../components/combat/Aiming.h"
 #include "../components/graphics/AsepriteView.h"
-#include "../components/DespawnAfter.h"
+#include "../components/Spawning.h"
 #include "../components/SoundSpeaker.h"
 
 /**
