@@ -50,7 +50,7 @@ class EntityInspector
     entt::entity movingEntity = entt::null;
 
     std::vector<std::string> entityTemplates;
-    std::string templateToCreate = "";
+    std::string templateToCreate = "", templateToEdit = "";
 
     EntityInspector(entt::registry &reg);
 

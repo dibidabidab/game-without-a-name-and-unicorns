@@ -4,6 +4,7 @@
 #include <files/FileWatcher.h>
 #include <audio/WavLoader.h>
 #include <audio/OggLoader.h>
+#include <utils/code_editor/CodeEditor.h>
 
 #include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
@@ -228,6 +229,10 @@ int main(int argc, char *argv[])
             AssetManager::loadFile(assetToReload, "assets/");
         assetToReload.clear();
         assetToReloadMutex.unlock();
+
+        CodeEditor::drawGUI(
+            ImGui::GetIO().Fonts->Fonts.back()  // default monospace font (added by setImGuiStyle())
+        );
     };
 
     mpSession->onJoinRequestDeclined = [&](auto reason) {

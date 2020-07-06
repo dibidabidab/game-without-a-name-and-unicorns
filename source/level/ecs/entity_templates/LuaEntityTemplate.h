@@ -22,11 +22,12 @@ struct LuaEntityScript
 class LuaEntityTemplate : public EntityTemplate
 {
 
-    asset<LuaEntityScript> script;
     sol::environment env;
     entt::entity currentlyCreating = entt::null;
 
   public:
+    asset<LuaEntityScript> script;
+
     LuaEntityTemplate(const char *assetName, Room *room);
 
     static sol::state &getLuaState();

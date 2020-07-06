@@ -15,6 +15,7 @@ EntityInspector::EntityInspector(entt::registry &reg) : reg(reg)
 void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
 {
     templateToCreate.clear();
+    templateToEdit.clear();
     if (!show) return;
 
     gu::profiler::Zone z("entity inspector");
@@ -55,12 +56,22 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
 
     if (ImGui::BeginPopup("create_entity"))
     {
-        ImGui::Text("Template:");
+        ImGui::Text("Template:                              ");
         ImGui::Separator();
 
+        ImGui::Columns(2, NULL, false);
+        ImGui::SetColumnOffset(1, 110);
+
         for (auto &name : entityTemplates)
+        {
             if (ImGui::Selectable(name.c_str()))
                 templateToCreate = name;
+            ImGui::NextColumn();
+            if (ImGui::Button(("Edit###" + name).c_str()))
+                templateToEdit = name;
+            ImGui::NextColumn();
+        }
+        ImGui::Columns(1);
         ImGui::EndPopup();
     }
 
