@@ -297,32 +297,39 @@ class RoomScreen : public Screen
         if (!inspector.templateToCreate.empty())
             room->getTemplate(inspector.templateToCreate).create();
         if (!inspector.templateToEdit.empty())
-        {
-            auto &entityTemplate = room->getTemplate(inspector.templateToEdit);
-            if (dynamic_cast<LuaEntityTemplate *>(&entityTemplate))
-            {
-                auto script = ((LuaEntityTemplate *) &entityTemplate)->script;
-
-                auto &tab = CodeEditor::tabs.emplace_back();
-                tab.title = script.getLoadedAsset().fullPath;
-                tab.code = script->source;
-                tab.languageDefinition = TextEditor::LanguageDefinition::C(); // the lua definition is pretty broken
-                tab.save = [script] (auto &tab) {
-
-                    File::writeBinary(script.getLoadedAsset().fullPath.c_str(), tab.code); // todo: why is this called writeBINARY? lol
-
-                    AssetManager::loadFile(script.getLoadedAsset().fullPath, "assets/");
-                };
-                tab.revert = [script] (auto &tab) {
-                    tab.code = script->source;
-                };
-            }
-        }
+            editLuaTemplateCode();
 
         paletteEditor.drawGUI(palettes);
 
         if (renderShadowDebugLines)
             shadowCaster.drawDebugLines(cam);
+    }
+
+    void editLuaTemplateCode()
+    {
+        auto &entityTemplate = room->getTemplate(inspector.templateToEdit);
+        if (!dynamic_cast<LuaEntityTemplate *>(&entityTemplate))
+            return;
+
+        auto script = ((LuaEntityTemplate *) &entityTemplate)->script;
+
+        for (auto &t : CodeEditor::tabs)
+            if (t.title == script.getLoadedAsset().fullPath)
+                return;
+
+        auto &tab = CodeEditor::tabs.emplace_back();
+        tab.title = script.getLoadedAsset().fullPath;
+        tab.code = script->source;
+        tab.languageDefinition = TextEditor::LanguageDefinition::C(); // the lua definition is pretty broken
+        tab.save = [script] (auto &tab) {
+
+            File::writeBinary(script.getLoadedAsset().fullPath.c_str(), tab.code); // todo: why is this called writeBINARY? lol
+
+            AssetManager::loadFile(script.getLoadedAsset().fullPath, "assets/");
+        };
+        tab.revert = [script] (auto &tab) {
+            tab.code = script->source;
+        };
     }
 
     void renderDebugBackground()

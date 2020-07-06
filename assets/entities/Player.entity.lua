@@ -69,13 +69,13 @@ createChild("leftArm")
 createChild("rightArm")
 
 applyTemplate(leftArm, "Arm", {
-    length = legLength,
+    length = armLength,
     body = entity,
     shoulderAnchor = {-3, 4},
     spriteSliceName = "arm_left"
 })
 applyTemplate(rightArm, "Arm", {
-    length = legLength,
+    length = armLength,
     body = entity,
     shoulderAnchor = {3, 4},
     spriteSliceName = "arm_right"
