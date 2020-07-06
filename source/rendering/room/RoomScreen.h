@@ -185,7 +185,7 @@ class RoomScreen : public Screen
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
 
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(180, 250), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(180, 280), ImGuiCond_FirstUseEver);
 
         static bool
             vsync = false,
@@ -207,6 +207,35 @@ class RoomScreen : public Screen
             ImGui::Checkbox("debug poly-platforms", &debugPolyPlatforms);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
+            if (ImGui::Button("edit shader"))
+                ImGui::OpenPopup("edit_shader");
+
+            if (ImGui::BeginPopup("edit_shader"))
+            {
+                for (auto &[name, asset] : AssetManager::getLoadedAssetsForType<std::string>())
+                {
+                    if (!stringEndsWith(name, ".frag") && !stringEndsWith(name, ".vert"))
+                        continue;
+                    if (ImGui::Selectable(name.c_str()))
+                    {
+                        auto &tab = CodeEditor::tabs.emplace_back();
+                        tab.title = asset->fullPath;
+
+                        tab.code = *((std::string *)asset->obj);
+                        tab.languageDefinition = TextEditor::LanguageDefinition::C();
+                        tab.save = [] (auto &tab) {
+
+                            File::writeBinary(tab.title.c_str(), tab.code);
+
+                            AssetManager::loadFile(tab.title, "assets/");
+                        };
+                        tab.revert = [] (auto &tab) {
+                            tab.code = File::readString(tab.title.c_str());
+                        };
+                    }
+                }
+                ImGui::EndPopup();
+            }
 
             gu::setVSync(vsync);
 
