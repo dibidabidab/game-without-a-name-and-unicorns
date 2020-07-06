@@ -61,12 +61,6 @@ int main(int argc, char *argv[])
 {
     Game::loadSettings();
 
-    json j;
-
-    Game::settings.toJson(j);
-
-    std::cout << j.dump() << '\n';
-
     std::mutex assetToReloadMutex;
     std::string assetToReload;
 

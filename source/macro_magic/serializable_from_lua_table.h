@@ -53,7 +53,7 @@ struct lua_converter<vec<len, type, something>>
             throw gu_err("In order to convert to vec" + std::to_string(len) + ", value should be a table with " + std::to_string(len) + " numbers!");
 
         for (int i = 0; i < len; i++)
-            vec[i] = vecTable.value()[i + 1].get<type>();
+            vec[i] = vecTable.value()[i + 1].get<float>(); // get<float>() because get<int>() might cause error when value is a float
     }
 };
 

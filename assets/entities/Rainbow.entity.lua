@@ -15,7 +15,10 @@ components = {
         addAABBOffset = true,
         zIndexEnd = -64, zIndexBegin = -64
     },
-    Rainbow = {}
+    Rainbow = {},
+    TemplateSpawner = {
+        templateName = "RainbowParticle"
+    }
 }
 
 -- example rainbow:

@@ -34,7 +34,7 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, Room *r)
 
         json j;
         utils->getJsonComponentWithKeys(j, static_cast<entt::entity>(fromEntity), room->entities);
-        sol::table table(env);
+        auto table = sol::table::create(env.lua_state());
         luau::jsonToLuaTable(j, table);
 
         return table;
