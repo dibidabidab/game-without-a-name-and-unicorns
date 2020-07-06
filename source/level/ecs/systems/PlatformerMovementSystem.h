@@ -13,6 +13,7 @@
 #include "../components/graphics/AsepriteView.h"
 #include "../components/Spawning.h"
 #include "../components/SoundSpeaker.h"
+#include "../../../Game.h"
 
 /**
  * Responsible for:
@@ -47,10 +48,10 @@ class PlatformerMovementSystem : public EntitySystem
         room->entities.view<PlatformerMovement, LocalPlayer>().each([&](entt::entity e, PlatformerMovement &movement, LocalPlayer) {
 
             PlatformerMovementInput input;
-            input.jump = KeyInput::pressed(GLFW_KEY_SPACE);
-            input.fall = KeyInput::pressed(GLFW_KEY_S);
-            input.left = KeyInput::pressed(GLFW_KEY_A);
-            input.right = KeyInput::pressed(GLFW_KEY_D);
+            input.jump = KeyInput::pressed(Game::settings.keyInput.jump);
+            input.fall = KeyInput::pressed(Game::settings.keyInput.fall);
+            input.left = KeyInput::pressed(Game::settings.keyInput.walkLeft);
+            input.right = KeyInput::pressed(Game::settings.keyInput.walkRight);
             input.attack = MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT);
 
             room->entities.assign_or_replace<PlatformerMovementInput>(e, input);

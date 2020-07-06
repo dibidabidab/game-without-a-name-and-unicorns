@@ -147,4 +147,14 @@ bool isStructFieldFixedSize()
         v.fromJsonArray(j);\
     }\
 
+#define END_SERIALIZABLE_FULL_JSON(className)\
+    };\
+    static void to_json(json& j, const className& v) {\
+        v.toJson(j);\
+    }\
+    \
+    static void from_json(const json& j, className& v) {\
+        v.fromJson(j);\
+    }\
+
 #endif //GAME_SERIALIZABLE_H

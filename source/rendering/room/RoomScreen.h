@@ -36,6 +36,7 @@
 #include "../../level/ecs/components/Polyline.h"
 #include "../../level/ecs/components/physics/PolyPlatform.h"
 #include "../../level/ecs/entity_templates/LuaEntityTemplate.h"
+#include "../../Game.h"
 
 class RoomScreen : public Screen
 {
@@ -185,10 +186,10 @@ class RoomScreen : public Screen
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
 
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(180, 280), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(180, 300), ImGuiCond_FirstUseEver);
 
         static bool
-            vsync = false,
+            vsync = Game::settings.graphics.vsync,
             renderTiles = false,
             renderShadowDebugLines = false,
             renderHitboxes = false,

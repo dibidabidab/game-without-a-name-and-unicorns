@@ -17,6 +17,7 @@
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
 #include "level/ecs/entity_templates/LuaEntityTemplate.h"
+#include "Game.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {
@@ -58,6 +59,14 @@ std::string prompt(std::string text)
 
 int main(int argc, char *argv[])
 {
+    Game::loadSettings();
+
+    json j;
+
+    Game::settings.toJson(j);
+
+    std::cout << j.dump() << '\n';
+
     std::mutex assetToReloadMutex;
     std::string assetToReload;
 
@@ -171,13 +180,14 @@ int main(int argc, char *argv[])
     }
 
     gu::Config config;
-    config.width = 1900;
-    config.height = 900;
+    config.width = Game::settings.graphics.windowSize.x;
+    config.height = Game::settings.graphics.windowSize.y;
     config.title = "dibidabidab";
-    config.vsync = false;
+    config.vsync = Game::settings.graphics.vsync;
     config.samples = 0;
     config.printOpenGLMessages = false;
     config.printOpenGLErrors = false;
+    gu::fullscreen = Game::settings.graphics.fullscreen; // dont ask me why this is not in config
     if (!gu::init(config))
         return -1;
     au::init();
@@ -233,6 +243,13 @@ int main(int argc, char *argv[])
         CodeEditor::drawGUI(
             ImGui::GetIO().Fonts->Fonts.back()  // default monospace font (added by setImGuiStyle())
         );
+
+        if (!gu::fullscreen) // dont save fullscreen-resolution
+            Game::settings.graphics.windowSize = ivec2(
+                gu::width, gu::height
+            );
+        Game::settings.graphics.vsync = gu::config.vsync;
+        Game::settings.graphics.fullscreen = gu::fullscreen;
     };
 
     mpSession->onJoinRequestDeclined = [&](auto reason) {
@@ -247,6 +264,8 @@ int main(int argc, char *argv[])
     delete mpSession;
 
     au::terminate();
+
+    Game::saveSettings();
 
     #ifdef EMSCRIPTEN
     return 0;

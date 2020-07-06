@@ -10,8 +10,6 @@ class AudioSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;
 
-    float masterVolume = 1;
-
   protected:
 
 
@@ -40,7 +38,7 @@ class AudioSystem : public EntitySystem
                             speaker.source->play();
                     }
 
-                    speaker.source->setVolume(speaker.volume * masterVolume);
+                    speaker.source->setVolume(speaker.volume * Game::settings.audio.masterVolume);
                     speaker.source->setLooping(speaker.looping);
                     speaker.source->setPitch(speaker.pitch);
                 }

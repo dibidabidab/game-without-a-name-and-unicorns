@@ -3,6 +3,7 @@
 */cmake-build-debug/*
 *.cbp
 imgui.ini
+settings.json
 
 desktop/out/*
 html/out/*
