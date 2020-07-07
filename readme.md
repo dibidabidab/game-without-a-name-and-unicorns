@@ -16,7 +16,7 @@ run `python3 initialize_project.py` to download dependencies.
 
 `cd desktop`
 
-`cmake .` (only the first time, and everytime you add new files)
+`cmake .` (or `cmake . -DCMAKE_BUILD_TYPE=Release`)
 
 `make -j8` (or `cmake --build . -j8 --config Release`)
 
@@ -24,6 +24,10 @@ run `python3 initialize_project.py` to download dependencies.
 
 `./desktop/out/game` (or `./desktop/out/Release/game.exe`)
 
+##### Note for windows:
+Make sure you move `OpenAL32.dll` to the working directory (the game might not launch without). 
+
+You can find it in `desktop/out/Release/bin/gu/bin/openal/Release/` or in a similar directory. 
 
 ### Compile for HTML/Web
 
@@ -33,7 +37,7 @@ run `python3 initialize_project.py` to download dependencies.
 
 `emconfigure cmake .` (only the first time, and everytime you add new files)
 
-`make`
+`make -j8`
 
 `emrun out/game.html`
 
