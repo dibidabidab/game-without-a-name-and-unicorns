@@ -1,10 +1,10 @@
 
-rainbow = getComponent(entity, "SpawnedBy").spawner
+spawnedBy = getComponent(entity, "SpawnedBy")
+rainbow = spawnedBy.spawner
 line = getComponent(rainbow, "Polyline")
-rainbowAABB = getComponent(rainbow, "AABB")
 
-x = rainbowAABB.center[1]
-y = rainbowAABB.center[2]
+x = spawnedBy.spawnerPos[1]
+y = spawnedBy.spawnerPos[2]
 
 pointIndex = 1
 if math.random() > .5 then
@@ -14,21 +14,25 @@ end
 x = x + line.points[pointIndex][1]
 y = y + line.points[pointIndex][2] + math.random(-12, 0)
 
+maxVel = 60
+
 components = {
     AABB = {
-        center = {x, y}
+        center = {x, y},
+        halfSize = {math.random(1, 5), math.random(1, 5)}
     },
     Physics = {
         gravity = 0,
-        velocity = {math.random(-40, 40), math.random(-40, 40)}
+        velocity = {math.random(-maxVel, maxVel), math.random(-maxVel, maxVel)}
     },
     DynamicCollider = {},
     DespawnAfter = {
-        time = .4
+        time = 1.
     },
     AsepriteView = {
-        sprite = "sprites/plant",
-        frame = math.random(0, 2)
+        sprite = "sprites/rainbow_particle",
+        loop = false,
+        playingTag = 0,
     }
 }
 

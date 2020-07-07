@@ -10,8 +10,13 @@
 class SpawningSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;
+
+    Room *room = NULL;
+
   protected:
     void update(double deltaTime, Room *room) override;
+
+    void spawn(entt::entity spawnerEntity, TemplateSpawner &spawner);
 };
 
 

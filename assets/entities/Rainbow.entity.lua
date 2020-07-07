@@ -17,7 +17,11 @@ components = {
     },
     Rainbow = {},
     TemplateSpawner = {
-        templateName = "RainbowParticle"
+        templateName = "RainbowParticle",
+        minDelay = .1,
+        maxDelay = .2,
+        minQuantity = 3,
+        maxQuantity = 10
     }
 }
 
