@@ -37,6 +37,7 @@
 #include "../../level/ecs/components/physics/PolyPlatform.h"
 #include "../../level/ecs/entity_templates/LuaEntityTemplate.h"
 #include "../../Game.h"
+#include "../../level/ecs/components/graphics/PaletteSetter.h"
 
 class RoomScreen : public Screen
 {
@@ -66,6 +67,9 @@ class RoomScreen : public Screen
     SpriteRenderer spriteRenderer;
 
     PolylineRenderer polylineRenderer;
+
+    uint currentPaletteEffect = 0, prevPaletteEffect = 0;
+    float timeSinceNewPaletteEffect = 0;
 
   public:
 
@@ -149,6 +153,7 @@ class RoomScreen : public Screen
 
             gu::profiler::Zone z("apply palette");
 
+            setPaletteEffect(deltaTime);
             applyPaletteShader.use();
 
             glUniform2i(applyPaletteShader.location("realResolution"), gu::widthPixels, gu::heightPixels);
@@ -156,6 +161,9 @@ class RoomScreen : public Screen
             auto palettesTexture = palettes.get3DTexture();
             palettesTexture->bind(0);
             glUniform1i(applyPaletteShader.location("palettes"), 0);
+            glUniform1ui(applyPaletteShader.location("paletteEffect"), currentPaletteEffect);
+            glUniform1ui(applyPaletteShader.location("prevPaletteEffect"), prevPaletteEffect);
+            glUniform1f(applyPaletteShader.location("timeSinceNewPaletteEffect"), timeSinceNewPaletteEffect);
 
             indexedFbo->colorTexture->bind(1, applyPaletteShader, "indexedImage");
             lightMapRenderer.fbo->colorTexture->bind(2, applyPaletteShader, "lightMap");
@@ -163,6 +171,25 @@ class RoomScreen : public Screen
             Mesh::getQuad()->render();
         }
         renderDebugStuff();
+    }
+
+    void setPaletteEffect(float deltaTime)
+    {
+        timeSinceNewPaletteEffect += deltaTime;
+        int highestPriority = -99999;
+        room->entities.view<PaletteSetter>().each([&](const PaletteSetter &p) {
+            if (p.priority > highestPriority)
+            {
+                highestPriority = p.priority;
+                uint index = palettes.effectIndex(p.paletteName);
+                if (index != currentPaletteEffect)
+                {
+                    prevPaletteEffect = currentPaletteEffect;
+                    currentPaletteEffect = index;
+                    timeSinceNewPaletteEffect = 0;
+                }
+            }
+        });
     }
 
     void onResize() override

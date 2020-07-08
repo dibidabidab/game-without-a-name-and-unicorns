@@ -63,6 +63,14 @@ Palettes3D::Palettes3D()
             asset<Palette>("palettes/default2")
         }
     });
+    effects.push_back({
+        "test",
+        {
+            asset<Palette>("palettes/test0"),
+            asset<Palette>("palettes/test1"),
+            asset<Palette>("palettes/test2")
+        }
+    });
 }
 
 int Palettes3D::effectIndex(const std::string &name) const

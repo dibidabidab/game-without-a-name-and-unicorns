@@ -24,6 +24,10 @@ components = {
     SpriteBobbing = {
         feet = {leftLeg, rightLeg}
     },
+    PaletteSetter = {
+        priority = 1,
+        paletteName = "default"
+    }
 }
 
 

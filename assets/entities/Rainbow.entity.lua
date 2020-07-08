@@ -22,6 +22,10 @@ components = {
         maxDelay = .2,
         minQuantity = 3,
         maxQuantity = 10
+    },
+    PaletteSetter = {
+        paletteName = "test",
+        priority = 10
     }
 }
 
