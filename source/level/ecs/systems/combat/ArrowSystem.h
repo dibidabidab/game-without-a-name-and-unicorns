@@ -32,16 +32,18 @@ class ArrowSystem : public EntitySystem
                 s.volume = .18;
                 return;
             }
+            if (arrow.prevPos == ivec2(0)) // assume arrow.prevPos was not set before
+                arrow.prevPos = aabb.center;
 
             bool enemyHit = false;
             room->entities.view<AABB, Health>().each([&](
                 auto eOther, AABB &aabbOther, Health &healthOther
             ){
-                if (eOther == arrow.launchedBy || !aabb.overlaps(aabbOther))
+                if (enemyHit || eOther == arrow.launchedBy || !aabbOther.lineIntersectsOrInside(aabb.center, arrow.prevPos))
                     return;
 
                 healthOther.attacks.push_back({
-                    "hit",
+                    arrow.damageType,
                     1,
                     arrow.launchedBy,
                     vec2(aabb.center) - physics.velocity
@@ -62,6 +64,7 @@ class ArrowSystem : public EntitySystem
             if (frame == sprite.sprite->frameCount)
                 frame = 0;
             sprite.frame = frame;
+            arrow.prevPos = aabb.center;
         });
 
         addTrailPointsTimer += deltaTime;

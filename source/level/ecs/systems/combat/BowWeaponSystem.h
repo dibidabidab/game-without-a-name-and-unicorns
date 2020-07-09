@@ -75,9 +75,12 @@ class BowWeaponSystem : public EntitySystem
                 auto arrowEntity = room->getTemplate(bow.arrowTemplate).create();
 
                 vec2 arrowSpawnPoint = aabb.center;
-                room->entities.get<AABB>(arrowEntity).center = arrowSpawnPoint;
-                room->entities.get<Physics>(arrowEntity).velocity = aimDirection * 1000.f;
-                room->entities.get<Arrow>(arrowEntity).launchedBy = bow.archer;
+                room->entities.get_or_assign<AABB>(arrowEntity).center = arrowSpawnPoint;
+
+                auto &arrow = room->entities.get_or_assign<Arrow>(arrowEntity);
+
+                room->entities.get_or_assign<Physics>(arrowEntity).velocity = aimDirection * arrow.launchVelocity;
+                arrow.launchedBy = bow.archer;
 
                 sprite.paused = false;
 

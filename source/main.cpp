@@ -32,14 +32,6 @@ EM_JS(void, alertJS, (const char *text), {
 
     alert(UTF8ToString(text));
 });
-EM_JS(const char *, urlHash, (), {
-
-    var input = prompt(UTF8ToString(text));
-    var lengthBytes = lengthBytesUTF8(input) + 1;
-    var stringOnWasmHeap = _malloc(lengthBytes);
-    stringToUTF8(input, stringOnWasmHeap, lengthBytes);
-    return stringOnWasmHeap;
-});
 #endif
 
 std::string prompt(std::string text)

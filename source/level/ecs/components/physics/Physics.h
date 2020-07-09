@@ -61,6 +61,54 @@ COMPONENT(
             other.center.y + other.halfSize.y > center.y - halfSize.y;
     }
 
+    enum OutCode : uint8
+    {
+        INSIDE = 0,
+        LEFT = 1,
+        RIGHT = 2,
+        BOTTOM = 4,
+        TOP = 8
+    };
+
+    template <class vec>
+    uint8 computeOutCode(const vec &p)
+    {
+        uint8 code = INSIDE;
+        if (p.x < center.x - halfSize.x)
+            code |= LEFT;
+        else if (p.x > center.x + halfSize.x)
+            code |= RIGHT;
+        if (p.y < center.y - halfSize.y)
+            code |= BOTTOM;
+        else if (p.y > center.y + halfSize.y)
+            code |= TOP;
+        return code;
+    }
+
+    /**
+     * based on: https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
+     */
+    template <class vec>
+    bool lineIntersectsOrInside(const vec &p0, const vec &p1)
+    {
+        auto code0 = computeOutCode(p0), code1 = computeOutCode(p1);
+        if (!(code0 | code1))
+        {
+            // both points inside AABB; trivially accept
+            return true;
+        }
+        else if (code0 & code1)
+        {
+            // both points share an outside zone (LEFT, RIGHT, TOP, or BOTTOM), so both must be outside AABB
+            return false;
+        }
+        else return
+                mu::lineSegmentsIntersect(p0, p1, bottomLeft(), topLeft())
+                || mu::lineSegmentsIntersect(p0, p1, bottomRight(), topRight())
+                || mu::lineSegmentsIntersect(p0, p1, bottomLeft(), bottomRight())
+                || mu::lineSegmentsIntersect(p0, p1, topLeft(), topRight());
+    }
+
 END_COMPONENT(AABB)
 
 template <>
