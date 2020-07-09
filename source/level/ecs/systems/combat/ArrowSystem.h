@@ -39,8 +39,16 @@ class ArrowSystem : public EntitySystem
             room->entities.view<AABB, Health>().each([&](
                 auto eOther, AABB &aabbOther, Health &healthOther
             ){
-                if (enemyHit || eOther == arrow.launchedBy || !aabbOther.lineIntersectsOrInside(aabb.center, arrow.prevPos))
+                if (enemyHit || (eOther == arrow.launchedBy) != arrow.returnToSender || !aabbOther.lineIntersectsOrInside(aabb.center, arrow.prevPos))
                     return;
+
+                if (!healthOther.doesTakeDamageType(arrow.damageType))
+                {
+                    // enemy does not take this type of damage -> reflect arrow!
+                    physics.velocity = normalize(physics.velocity) * arrow.launchVelocity * -.5f;
+                    arrow.returnToSender = !arrow.returnToSender;
+                    return;
+                }
 
                 healthOther.attacks.push_back({
                     arrow.damageType,

@@ -9,7 +9,8 @@ COMPONENT(
     HASH(0),
     FIELD_DEF_VAL(entt::entity, launchedBy, entt::null),
     FIELD_DEF_VAL(float, launchVelocity, 1000),
-    FIELD_DEF_VAL(std::string, damageType, "hit")
+    FIELD_DEF_VAL(std::string, damageType, "hit"),
+    FIELD_DEF_VAL(bool, returnToSender, false)
 )
     ivec2 prevPos;
 

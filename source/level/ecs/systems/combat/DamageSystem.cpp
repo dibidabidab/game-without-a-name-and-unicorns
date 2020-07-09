@@ -11,9 +11,11 @@ void DamageSystem::update(double deltaTime, Room *room)
 
     room->entities.view<Health>().each([&](auto e, Health &health) {
 
-        for (auto &attack : health.attacks)
+        health.immunityTimer = max<float>(0, health.immunityTimer - deltaTime);
+
+        if (health.immunityTimer == 0.) for (auto &attack : health.attacks)
         {
-            if (health.takesDamageFrom.find(attack.type) == health.takesDamageFrom.end())
+            if (!health.doesTakeDamageType(attack.type))
             {
                 // this entity does NOT take damage of this type..
 
@@ -51,6 +53,7 @@ void DamageSystem::update(double deltaTime, Room *room)
                 continue;
             }
             health.currHealth -= attack.points;
+            health.immunityTimer += damageType.immunity;
         }
 
         health.attacks.clear();

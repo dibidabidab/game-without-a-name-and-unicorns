@@ -7,6 +7,7 @@
 
 #include "../../../../macro_magic/component.h"
 #include <set>
+#include <map>
 
 SERIALIZABLE(
     DamageType,
@@ -35,8 +36,15 @@ COMPONENT(
     FIELD_DEF_VAL(uint16, maxHealth, 20),
     FIELD(std::set<std::string>, takesDamageFrom),
     FIELD(std::list<Damage>, attacks),
+    FIELD_DEF_VAL(float, immunityTimer, 0),
     FIELD_DEF_VAL(float, knockBackResistance, 0.) // should be between 0 and 1. Values outside that range can create funny results I think
 )
+
+    bool doesTakeDamageType(const std::string& damageType) const
+    {
+        return takesDamageFrom.find(damageType) != takesDamageFrom.end();
+    }
+
 END_COMPONENT(Health)
 
 #endif //GAME_HEALTH_H
