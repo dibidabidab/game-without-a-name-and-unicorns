@@ -16,13 +16,13 @@
 #include "../ecs/systems/ChildrenSystem.h"
 #include "../ecs/systems/body_parts/HeadsSystem.h"
 #include "../ecs/systems/combat/ArrowSystem.h"
-#include "../ecs/systems/combat/KnockBackSystem.h"
 #include "../ecs/systems/AudioSystem.h"
 #include "../ecs/systems/physics/WavesSystem.h"
 
 #include "../ecs/entity_templates/LuaEntityTemplate.h"
 #include "../ecs/systems/RainbowSystem.h"
 #include "../ecs/systems/SpawningSystem.h"
+#include "../ecs/systems/combat/DamageSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -49,7 +49,6 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new HeadsSystem("heads"));
     systems.push_front(new WavesSystem("platform waves"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
-    systems.push_front(new KnockBackSystem("knockback physics"));
     systems.push_front(new PhysicsSystem("physics"));
     systems.push_front(new RainbowSystem("rainbows"));
     systems.push_front(new ArrowSystem("bow arrows"));
@@ -58,6 +57,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new PlayerControlSystem("player control"));
     systems.push_front(new ChildrenSystem("children"));
     systems.push_front(new SpawningSystem("(de)spawning"));
+    systems.push_front(new DamageSystem());
 
     for (auto sys : systems) sys->init(this);
     initialized = true;

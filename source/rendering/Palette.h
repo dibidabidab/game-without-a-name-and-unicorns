@@ -41,6 +41,9 @@ class Palettes3D
 
     Palettes3D();
 
+    /**
+     * returns -1 when no effect was found for name
+     */
     int effectIndex(const std::string &name) const;
 
     SharedTexArray get3DTexture();

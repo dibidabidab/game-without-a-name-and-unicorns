@@ -2,6 +2,7 @@
 #include "CameraMovement.h"
 #include "../../level/ecs/components/PlayerControlled.h"
 #include "../../level/ecs/components/physics/Physics.h"
+#include "../../level/ecs/components/combat/Aiming.h"
 
 void move(float &x, float targetX, float deltaTime)
 {

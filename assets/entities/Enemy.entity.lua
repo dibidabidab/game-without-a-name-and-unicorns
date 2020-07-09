@@ -7,8 +7,9 @@ components = {
         ignorePolyPlatforms = false
     },
     StaticCollider = {},
-    KnockBack = {},
-    Health = {},
+    Health = {
+        takesDamageFrom = {"hit"}
+    },
     AsepriteView = {
         sprite = "sprites/enemy"
     }

@@ -94,6 +94,10 @@ int main(int argc, char *argv[])
 
         return new std::string(File::readString(path.c_str()));
     });
+    AssetManager::addAssetLoader<json>(".json", [](auto path) {
+
+        return new json(json::parse(File::readString(path.c_str())));
+    });
     AssetManager::addAssetLoader<Palette>(".gpl", [](auto path) {
 
         return new Palette(path.c_str());

@@ -35,6 +35,6 @@ components = {
     archerRightArm = args.rightArm,
     rotatePivot = args.rotatePivot,
 
-    arrowTemplate = "RainbowArrow"
+    arrowTemplate = "Arrow"
   }
 }

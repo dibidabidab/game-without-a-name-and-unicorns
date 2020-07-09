@@ -181,8 +181,8 @@ class RoomScreen : public Screen
             if (p.priority > highestPriority)
             {
                 highestPriority = p.priority;
-                uint index = palettes.effectIndex(p.paletteName);
-                if (index != currentPaletteEffect)
+                int index = palettes.effectIndex(p.paletteName);
+                if (index != currentPaletteEffect && index != -1)
                 {
                     prevPaletteEffect = currentPaletteEffect;
                     currentPaletteEffect = index;
@@ -356,7 +356,7 @@ class RoomScreen : public Screen
         if (!inspector.templateToEdit.empty())
             editLuaTemplateCode();
 
-        paletteEditor.drawGUI(palettes);
+        paletteEditor.drawGUI(palettes, currentPaletteEffect);
 
         if (renderShadowDebugLines)
             shadowCaster.drawDebugLines(cam);

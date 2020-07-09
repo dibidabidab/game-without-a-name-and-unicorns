@@ -79,10 +79,10 @@ int Palettes3D::effectIndex(const std::string &name) const
     for (auto &effect : effects)
     {
         if (effect.name == name)
-            break;
+            return i;
         i++;
     }
-    return i;
+    return -1;
 }
 
 void Palettes3D::create3DTexture()

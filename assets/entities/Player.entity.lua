@@ -14,8 +14,9 @@ components = {
     PlatformerMovement = {},
     Flip = {},
     LightPoint = {},
-    Health = {},
-    KnockBack = {},
+    Health = {
+        takesDamageFrom = {"hit"}
+    },
     Aiming = {},
     AsepriteView = {
         sprite = "sprites/player_body",

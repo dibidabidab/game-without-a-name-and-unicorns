@@ -4,7 +4,7 @@
 #include <gu/profiler.h>
 #include <imgui.h>
 
-void PaletteEditor::drawGUI(Palettes3D &palettes)
+void PaletteEditor::drawGUI(Palettes3D &palettes, uint currentlyRendered)
 {
     if (!show) return;
     gu::profiler::Zone z("palette editor");
@@ -24,7 +24,13 @@ void PaletteEditor::drawGUI(Palettes3D &palettes)
     if (selectedEffect.empty())
         selectedEffect = palettes.effects.at(0).name;
 
-    if (ImGui::BeginCombo("effect", selectedEffect.c_str()))
+    ImGui::TextDisabled("Currently rendered effect:");
+    ImGui::SameLine();
+    ImGui::Text("%s", palettes.effects.at(currentlyRendered).name.c_str());
+
+    ImGui::Separator();
+
+    if (ImGui::BeginCombo("Edit effect", selectedEffect.c_str()))
     {
         for (auto &effect : palettes.effects)
         {

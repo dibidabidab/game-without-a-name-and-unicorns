@@ -11,7 +11,6 @@
 #include "../../components/Spawning.h"
 #include "../../components/Polyline.h"
 #include "../../components/combat/Health.h"
-#include "../../components/combat/KnockBack.h"
 #include "../../components/SoundSpeaker.h"
 
 class ArrowSystem : public EntitySystem
@@ -41,15 +40,13 @@ class ArrowSystem : public EntitySystem
                 if (eOther == arrow.launchedBy || !aabb.overlaps(aabbOther))
                     return;
 
+                healthOther.attacks.push_back({
+                    "hit",
+                    1,
+                    arrow.launchedBy,
+                    vec2(aabb.center) - physics.velocity
+                });
                 enemyHit = true;
-                healthOther.curHealth -= 5;
-
-                KnockBack *knockBack = room->entities.try_get<KnockBack>(eOther);
-                if (knockBack)
-                    knockBack->add(250, normalize(physics.velocity));
-
-//                if (healthOther.curHealth <= 0.0f)  // todo, this should not be responsibility of ArrowSystem
-//                    room->entities.destroy(eOther);
             });
             if (enemyHit)
             {
