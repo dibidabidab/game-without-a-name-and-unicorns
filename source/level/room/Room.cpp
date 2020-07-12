@@ -23,6 +23,7 @@
 #include "../ecs/systems/RainbowSystem.h"
 #include "../ecs/systems/SpawningSystem.h"
 #include "../ecs/systems/combat/DamageSystem.h"
+#include "../ecs/systems/graphics/SpriteSlicerSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -44,6 +45,7 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new LimbJointSystem("knee/elbow joints"));
     systems.push_front(new SpriteAnchorSystem("sprite anchors"));
     systems.push_front(new SpriteBobbingSystem("sprite bobbing"));
+    systems.push_front(new SpriteSlicerSystem("sprite slicer"));
     systems.push_front(new LegsSystem("legs"));
     systems.push_front(new ArmsSystem("arms"));
     systems.push_front(new HeadsSystem("heads"));
