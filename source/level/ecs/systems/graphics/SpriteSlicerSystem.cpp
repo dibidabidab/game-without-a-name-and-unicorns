@@ -15,17 +15,33 @@ void SpriteSlicerSystem::update(double deltaTime, Room *room)
 
         room->entities.remove<SliceSpriteIntoPieces>(e0);
     });
+
+    auto aabbIt = aabbs.begin();
+    auto viewIt = views.begin();
+
+    while (aabbIt != aabbs.end())
+    {
+        auto e = room->entities.create();
+        room->entities.assign<AABB>(e, *aabbIt);
+        room->entities.assign<AsepriteView>(e, *viewIt);
+
+        ++aabbIt;
+        ++viewIt;
+    }
+    aabbs.clear();
+    views.clear();
 }
 
 void SpriteSlicerSystem::slice(AABB &aabb0, AsepriteView &view0, int steps)
 {
-    int axis = steps == 2 ? 0 : 1;// mu::random() > .5 ? 0 : 1; // 0 = x, 1 = y
+    int axis = mu::random() > .5 ? 0 : 1; // 0 = x, 1 = y
 
     auto width = axis == 0 ? view0.sprite->width : view0.sprite->height;
 
-    auto e1 = room->entities.create();
-    AABB &aabb1 = room->entities.assign<AABB>(e1, aabb0);
-    AsepriteView &view1 = room->entities.assign<AsepriteView>(e1, view0);
+    aabbs.push_back(aabb0);
+    AABB &aabb1 = aabbs.back();
+    views.push_back(view0);
+    AsepriteView &view1 = views.back();
 
     if (axis == 0) // x
     {
@@ -92,7 +108,6 @@ void SpriteSlicerSystem::slice(AABB &aabb0, AsepriteView &view0, int steps)
         view1.clip.topRight.x = view0.clip.lowerRight.x;
         view1.clip.topRight.y = width - x1;
     }
-
     if (--steps > 0)
     {
         slice(aabb0, view0, steps);
