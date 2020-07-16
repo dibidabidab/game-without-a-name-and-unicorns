@@ -118,6 +118,51 @@ struct lua_converter<std::list<type>>
     }
 };
 
+template<>
+struct lua_converter<json>
+{
+    static void getFrom(sol::object v, json &jsonOut)
+    {
+        if (!v.valid())
+            return;
+
+        auto listTable = v.as<sol::optional<sol::table>>();
+        if (listTable.has_value())
+        {
+            jsonOut = json::object(); // assume its an object (keys are strings).
+            for (auto &[key, val] : listTable.value())
+            {
+                if (jsonOut.is_object() && key.get_type() == sol::type::number)
+                    jsonOut = json::array();
+
+                json jsonVal;
+
+                switch (val.get_type())
+                {
+                    case sol::type::number:
+                        jsonVal = val.as<double>();
+                        break;
+                    case sol::type::boolean:
+                        jsonVal = val.as<bool>();
+                        break;
+                    case sol::type::string:
+                        jsonVal = val.as<std::string>();
+                        break;
+                    case sol::type::table:
+                        getFrom(val, jsonVal);
+                        break;
+                    default:
+                        break;
+                }
+                if (jsonOut.is_object())
+                    jsonOut[key.as<std::string>()] = jsonVal;
+                else
+                    jsonOut.push_back(jsonVal);
+            }
+        }
+    }
+};
+
 
 #define PULL_FIELD_OUT_LUA_TABLE(field) \
     __PULL_FIELD_OUT_LUA_TABLE__(EAT field)

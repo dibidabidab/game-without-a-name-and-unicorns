@@ -1,16 +1,21 @@
 
 components = {
     AABB = {
-        halfSize = {50, 50}
+        halfSize = {5, 8}
     },
-    --Physics = {
-    --    ignorePolyPlatforms = false
-    --},
+    Physics = {
+        ignorePolyPlatforms = false
+    },
     StaticCollider = {},
     Health = {
-        takesDamageFrom = {"hit"}
+        takesDamageFrom = {"hit"},
+        componentsToAddOnDeath = {
+            SliceSpriteIntoPieces = {
+                steps = 6
+            }
+        }
     },
     AsepriteView = {
-        sprite = "sprites/test"
+        sprite = "sprites/enemy"
     }
 }

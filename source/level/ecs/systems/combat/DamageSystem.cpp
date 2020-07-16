@@ -60,8 +60,28 @@ void DamageSystem::update(double deltaTime, Room *room)
 
         if (health.currHealth == 0)
         {
-            // todo: animation and stuff
-            room->entities.destroy(e);
+            if (health.componentsToAddOnDeath.is_object())
+            {
+                for (auto &[componentName, component] : health.componentsToAddOnDeath.items())
+                {
+                    const ComponentUtils *utils = ComponentUtils::getFor(componentName);
+                    if (!utils)
+                    {
+                        std::cerr << "componentsToAddOnDeath for entity#" << int(e) << " contains '" << componentName << "' which is not a component type!" << std::endl;
+                        continue;
+                    }
+                    try
+                    {
+                        utils->setJsonComponentWithKeys(component, e, room->entities);
+                    }
+                    catch (std::exception &exc)
+                    {
+                        std::cerr << "Error while adding " << componentName << " to dead entity#" << int(e) << ":\n" << exc.what() << std::endl;
+                    }
+                }
+            }
+
+            room->entities.remove<Health>(e);
         }
     });
 }
