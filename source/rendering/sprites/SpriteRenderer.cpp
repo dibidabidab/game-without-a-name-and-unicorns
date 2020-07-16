@@ -14,17 +14,17 @@ SpriteRenderer::SpriteRenderer(const MegaSpriteSheet *s)
             .add_({"TEXTURE_OFFSET", 2})
             .add_({"ROTATE_90_DEG", 1, 4, GL_INT})
 
-            .add_({"CLIP_LOWER_LEFT_X", 1, 1, GL_UNSIGNED_BYTE})
-            .add_({"CLIP_LOWER_LEFT_Y", 1, 1, GL_UNSIGNED_BYTE})
+            .add_({"CLIP_LOWER_LEFT_X", 1, 4, GL_INT})
+            .add_({"CLIP_LOWER_LEFT_Y", 1, 4, GL_INT})
 
-            .add_({"CLIP_LOWER_RIGHT_X", 1, 1, GL_UNSIGNED_BYTE})
-            .add_({"CLIP_LOWER_RIGHT_Y", 1, 1, GL_UNSIGNED_BYTE})
+            .add_({"CLIP_LOWER_RIGHT_X", 1, 4, GL_INT})
+            .add_({"CLIP_LOWER_RIGHT_Y", 1, 4, GL_INT})
 
-            .add_({"CLIP_TOP_LEFT_X", 1, 1, GL_UNSIGNED_BYTE})
-            .add_({"CLIP_TOP_LEFT_Y", 1, 1, GL_UNSIGNED_BYTE})
+            .add_({"CLIP_TOP_LEFT_X", 1, 4, GL_INT})
+            .add_({"CLIP_TOP_LEFT_Y", 1, 4, GL_INT})
 
-            .add_({"CLIP_TOP_RIGHT_X", 1, 1, GL_UNSIGNED_BYTE})
-            .add_({"CLIP_TOP_RIGHT_Y", 1, 1, GL_UNSIGNED_BYTE}),
+            .add_({"CLIP_TOP_RIGHT_X", 1, 4, GL_INT})
+            .add_({"CLIP_TOP_RIGHT_Y", 1, 4, GL_INT}),
         std::vector<u_char>()
     )
 {
@@ -82,13 +82,13 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
         instancedData.set<int>(view.rotate90Deg ? 1 : 0, i, attrOffset);
         attrOffset += sizeof(int);
 
-        instancedData.set<u8vec2>(view.clip.lowerLeft, i, attrOffset);
-        attrOffset += sizeof(u8vec2);
-        instancedData.set<u8vec2>(view.clip.lowerRight, i, attrOffset);
-        attrOffset += sizeof(u8vec2);
-        instancedData.set<u8vec2>(view.clip.topLeft, i, attrOffset);
-        attrOffset += sizeof(u8vec2);
-        instancedData.set<u8vec2>(view.clip.topRight, i, attrOffset);
+        instancedData.set<ivec2>(view.clip.lowerLeft, i, attrOffset);
+        attrOffset += sizeof(ivec2);
+        instancedData.set<ivec2>(view.clip.lowerRight, i, attrOffset);
+        attrOffset += sizeof(ivec2);
+        instancedData.set<ivec2>(view.clip.topLeft, i, attrOffset);
+        attrOffset += sizeof(ivec2);
+        instancedData.set<ivec2>(view.clip.topRight, i, attrOffset);
 
         i++;
     });
