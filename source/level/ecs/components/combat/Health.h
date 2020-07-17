@@ -39,7 +39,8 @@ COMPONENT(
     FIELD_DEF_VAL(float, immunityTimer, 0),
     FIELD_DEF_VAL(float, knockBackResistance, 0.), // should be between 0 and 1. Values outside that range can create funny results I think
 
-    FIELD(json, componentsToAddOnDeath)
+    FIELD(json, componentsToAddOnDeath),
+    FIELD(std::string, givePlayerArrowOnKill)
 )
 
     bool doesTakeDamageType(const std::string& damageType) const

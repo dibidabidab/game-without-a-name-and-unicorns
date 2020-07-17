@@ -1,6 +1,12 @@
 {
-  "hit": {
-    "knockback": 400,
-    "immunity": 0.5
+  "damageTypes": {
+    "hit": {
+      "knockback": 400,
+      "immunity": 0.5
+    }
+  },
+  "arrowPalettes": {
+    "Arrow": "default",
+    "RainbowArrow": "test"
   }
 }

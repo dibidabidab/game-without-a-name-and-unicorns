@@ -15,7 +15,8 @@ components = {
             }
         },
         currHealth = 2,
-        maxHealth = 2
+        maxHealth = 2,
+        givePlayerArrowOnKill = "RainbowArrow"
     },
     AsepriteView = {
         sprite = "sprites/enemy"

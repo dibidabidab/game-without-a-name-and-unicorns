@@ -3,6 +3,9 @@
 #include "../../../room/Room.h"
 #include "../../components/combat/Health.h"
 #include "../../components/physics/Physics.h"
+#include "../../components/PlayerControlled.h"
+#include "../../components/combat/Bow.h"
+#include "../../components/graphics/PaletteSetter.h"
 
 void DamageSystem::update(double deltaTime, Room *room)
 {
@@ -50,6 +53,25 @@ void DamageSystem::update(double deltaTime, Room *room)
             {
                 // this attack is the death cause of this entity
                 health.currHealth = 0;
+
+                if (!health.givePlayerArrowOnKill.empty() && room->entities.try_get<PlayerControlled>(attack.dealtBy) != NULL)
+                {
+                    Bow *bow = room->tryGetChildComponentByName<Bow>(attack.dealtBy, "bow");
+                    if (bow)
+                    {
+                        bow->arrowTemplate = health.givePlayerArrowOnKill;
+
+                        PaletteSetter *p = room->entities.try_get<PaletteSetter>(attack.dealtBy);
+                        if (p) try
+                        {
+                            p->paletteName = damageTypesJson.get()["arrowPalettes"][bow->arrowTemplate];
+                        }
+                        catch (std::exception &)
+                        {
+                            std::cerr << "No palette name found for " << bow->arrowTemplate << std::endl;
+                        }
+                    }
+                }
                 continue;
             }
             health.currHealth -= attack.points;
@@ -95,7 +117,7 @@ void DamageSystem::loadDamageTypes()
 {
     try
     {
-        damageTypes = damageTypesJson.get().get<decltype(damageTypes)>();
+        damageTypes = damageTypesJson.get()["damageTypes"].get<decltype(damageTypes)>();
     } catch (std::exception &e)
     {
         throw gu_err("Content of " + damageTypesJson.getLoadedAsset().fullPath + " is invalid!");

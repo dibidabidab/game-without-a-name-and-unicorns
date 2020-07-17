@@ -26,7 +26,9 @@ void PaletteEditor::drawGUI(Palettes3D &palettes, uint currentlyRendered)
 
     ImGui::TextDisabled("Currently rendered effect:");
     ImGui::SameLine();
-    ImGui::Text("%s", palettes.effects.at(currentlyRendered).name.c_str());
+    auto currentlyRenderedStr = palettes.effects.at(currentlyRendered).name;
+    auto c = selectedEffect == currentlyRenderedStr ? ImVec4(1, 1, 1, 1) : ImVec4(1, 0, .1, 1);
+    ImGui::TextColored(c, "%s", currentlyRenderedStr.c_str());
 
     ImGui::Separator();
 
