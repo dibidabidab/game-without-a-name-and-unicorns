@@ -8,8 +8,7 @@
 #include "../ecs/systems/PlayerControlSystem.h"
 #include "../ecs/systems/physics/VerletPhysicsSystem.h"
 #include "../ecs/systems/body_parts/LegsSystem.h"
-#include "../ecs/systems/graphics/SpriteBobbingSystem.h"
-#include "../ecs/systems/graphics/SpriteAnchorSystem.h"
+#include "../ecs/systems/graphics/SpriteSystem.h"
 #include "../ecs/systems/body_parts/LimbJointSystem.h"
 #include "../ecs/systems/body_parts/ArmsSystem.h"
 #include "../ecs/systems/combat/BowWeaponSystem.h"
@@ -43,8 +42,7 @@ void Room::initialize(Level *lvl, int roomI_)
 
     systems.push_front(new AudioSystem("audio"));
     systems.push_front(new LimbJointSystem("knee/elbow joints"));
-    systems.push_front(new SpriteAnchorSystem("sprite anchors"));
-    systems.push_front(new SpriteBobbingSystem("sprite bobbing"));
+    systems.push_front(new SpriteSystem("(animated) sprites"));
     systems.push_front(new SpriteSlicerSystem("sprite slicer"));
     systems.push_front(new LegsSystem("legs"));
     systems.push_front(new ArmsSystem("arms"));

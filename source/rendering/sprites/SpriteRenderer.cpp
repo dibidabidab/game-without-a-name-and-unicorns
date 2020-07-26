@@ -46,15 +46,6 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
         if (!view.sprite.isSet())
             return;
 
-        if (view.frame >= view.sprite->frameCount)
-            view.frame = 0;
-
-        if (view.playingTag >= view.sprite->tags.size())
-            view.playingTag = -1;
-
-        if (view.playingTag >= 0)
-            updateAnimation(view, deltaTime);
-
         ivec2 frameOffset = megaSpriteSheet->spriteInfo(view.sprite.get()).frameOffsets.at(view.frame);
 
         instancedData.addVertices(1);
@@ -101,62 +92,4 @@ void SpriteRenderer::render(double deltaTime, const Camera &cam, entt::registry 
     megaSpriteSheet->texture->bind(0, shader, "spriteSheet");
 
     quad->renderInstances(i);
-}
-
-void SpriteRenderer::updateAnimation(AsepriteView &view, double deltaTime)
-{
-    if (!view.paused)
-        view.frameTimer += deltaTime;
-
-    const auto *frame = &view.sprite->frames.at(view.frame);
-
-    while (view.frameTimer >= frame->duration)
-    {
-        view.frameTimer -= frame->duration;
-
-        const auto &tag = view.sprite->tags[view.playingTag];
-
-        if (tag.loopDirection == aseprite::Tag::pingPong)
-        {
-            if (view.pong && view.frame-- <= tag.from)
-            {
-                view.pong = false;
-                if (!view.loop)
-                {
-                    view.playingTag = -1;
-                    view.frame = tag.from;
-                    return;
-                }
-                view.frame = tag.from == tag.to ? tag.from : tag.from + 1;
-            }
-            else if (!view.pong && view.frame++ >= tag.to)
-            {
-                view.pong = true;
-                view.frame = tag.from == tag.to ? tag.from : tag.to - 1;
-            }
-        }
-        else if (tag.loopDirection == aseprite::Tag::reverse)
-        {
-            if (view.frame-- <= tag.from)
-            {
-                if (!view.loop)
-                {
-                    view.playingTag = -1;
-                    view.frame = tag.from;
-                    return;
-                }
-                view.frame = tag.to;
-            }
-        }
-        else if (view.frame++ >= tag.to)
-        {
-            if (!view.loop)
-            {
-                view.playingTag = -1;
-                view.frame = tag.to;
-                return;
-            }
-            view.frame = tag.from;
-        }
-    }
 }

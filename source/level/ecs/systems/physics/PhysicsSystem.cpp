@@ -180,13 +180,16 @@ void PhysicsSystem::updateVelocity(Physics &physics, double deltaTime)
 
     physics.velocity *= max(0.f, 1.f - friction);
 
-    if (physics.touches.floor && physics.velocity.y < 0)
-        physics.velocity.y *= -TILE_PROPERTIES[int(physics.touches.floorMaterial)].bounciness;
+    if (!physics.ghost)
+    {
+        if (physics.touches.floor && physics.velocity.y < 0)
+            physics.velocity.y *= -TILE_PROPERTIES[int(physics.touches.floorMaterial)].bounciness;
 
-    if (physics.touches.ceiling && physics.velocity.y > 0) physics.velocity.y = 0;
+        if (physics.touches.ceiling && physics.velocity.y > 0) physics.velocity.y = 0;
 
-    if (physics.touches.leftWall && physics.velocity.x < 0) physics.velocity.x = 0;
-    if (physics.touches.rightWall && physics.velocity.x > 0) physics.velocity.x = 0;
+        if (physics.touches.leftWall && physics.velocity.x < 0) physics.velocity.x = 0;
+        if (physics.touches.rightWall && physics.velocity.x > 0) physics.velocity.x = 0;
+    }
 }
 
 void PhysicsSystem::updatePosition(Physics &physics, AABB &body, double deltaTime)
@@ -276,6 +279,13 @@ void PhysicsSystem::updateTerrainCollisions(Physics &physics, AABB &body)
 template<typename vec>
 void PhysicsSystem::moveBody(Physics &physics, AABB &body, vec &pixelsToMove)
 {
+    if (physics.ghost)
+    {
+        body.center += pixelsToMove;
+        pixelsToMove -= pixelsToMove;
+        updateTerrainCollisions(physics, body);
+        return;
+    }
     while (true)
     {
         Move toDo;

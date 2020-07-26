@@ -38,6 +38,7 @@
 #include "../../level/ecs/entity_templates/LuaEntityTemplate.h"
 #include "../../Game.h"
 #include "../../level/ecs/components/graphics/PaletteSetter.h"
+#include "blood_splatter/BloodSplatterRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -55,6 +56,7 @@ class RoomScreen : public Screen
     FrameBuffer *indexedFbo = nullptr;
 
     TileMapRenderer tileMapRenderer;
+    BloodSplatterRenderer bloodSplatterRenderer;
 
     ShaderAsset applyPaletteShader;
     Palettes3D palettes;
@@ -79,6 +81,7 @@ class RoomScreen : public Screen
         cam(.1, 100, 0, 0),
         camMovement(room, &cam),
         tileMapRenderer(&room->getMap()),
+        bloodSplatterRenderer(room),
         applyPaletteShader(
             "applyPaletteShader", "shaders/apply_palette.vert", "shaders/apply_palette.frag"
         ),
@@ -126,6 +129,7 @@ class RoomScreen : public Screen
             gu::profiler::Zone z("indexed image");
 
             tileMapRenderer.updateMapTextureIfNeeded();
+            bloodSplatterRenderer.updateSplatterTexture(deltaTime);
 
             indexedFbo->bind();
 
@@ -136,8 +140,9 @@ class RoomScreen : public Screen
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
 
-            tileMapRenderer.render(cam);
+            tileMapRenderer.render(cam, bloodSplatterRenderer.fbo.colorTexture);
             spriteRenderer.render(deltaTime, cam, room->entities);
+            bloodSplatterRenderer.render(cam);
             polylineRenderer.render(room->entities, cam);
 
             glDisable(GL_DEPTH_TEST);

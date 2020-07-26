@@ -66,10 +66,7 @@ void TileMapRenderer::renderTile(int x, int y)
 
     tileSet->variations.at(variation)->bind(0, tileShader, "tileSet");
 
-//    glUniform1i(tileShader.location("inner"), 1);
     Mesh::getQuad()->render();
-//    glUniform1i(tileShader.location("inner"), 0);
-//    Mesh::getQuad()->render();
 }
 
 void TileMapRenderer::updateMapTextureIfNeeded()
@@ -85,7 +82,7 @@ void TileMapRenderer::updateMapTextureIfNeeded()
         createMapTexture();
 }
 
-void TileMapRenderer::render(const Camera &cam)
+void TileMapRenderer::render(const Camera &cam, const SharedTexture &bloodSplatterTexture)
 {
     gu::profiler::Zone z("tilemap render");
 
@@ -94,6 +91,7 @@ void TileMapRenderer::render(const Camera &cam)
     glUniform2f(mapShader.location("camPos"), cam.position.x / float(fbo.width), cam.position.y / float(fbo.height));
     glUniform2f(mapShader.location("camSize"), cam.viewportWidth / float(fbo.width), cam.viewportHeight / float(fbo.height));
     fbo.colorTexture->bind(0, mapShader, "mapTexture");
+    bloodSplatterTexture->bind(1, mapShader, "bloodSplatterTexture");
 
     Mesh::getQuad()->render();
 }

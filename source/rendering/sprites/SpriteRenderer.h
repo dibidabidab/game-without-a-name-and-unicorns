@@ -29,10 +29,6 @@ class SpriteRenderer
 
     void render(double deltaTime, const Camera &cam, entt::registry &reg);
 
-  private:
-
-    void updateAnimation(AsepriteView &, double deltaTime);
-
 };
 
 
