@@ -103,7 +103,7 @@ void SpriteSystem::updateAnimations(double deltaTime)
         if (view.frame >= view.sprite->frameCount)
             view.frame = 0;
 
-        if (view.playingTag >= view.sprite->tags.size())
+        if (int(view.playingTag) >= int(view.sprite->tags.size()))
             view.playingTag = -1;
 
         if (view.playingTag < 0)
@@ -116,6 +116,7 @@ void SpriteSystem::updateAnimations(double deltaTime)
 
         while (view.frameTimer >= frame->duration)
         {
+            frame = &view.sprite->frames.at(view.frame);
             view.frameTimer -= frame->duration;
 
             const auto &tag = view.sprite->tags[view.playingTag];
