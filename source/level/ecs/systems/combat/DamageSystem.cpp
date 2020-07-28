@@ -6,6 +6,7 @@
 #include "../../components/PlayerControlled.h"
 #include "../../components/combat/Bow.h"
 #include "../../components/graphics/PaletteSetter.h"
+#include "../../components/graphics/BloodDrop.h"
 
 void DamageSystem::update(double deltaTime, Room *room)
 {
@@ -33,10 +34,11 @@ void DamageSystem::update(double deltaTime, Room *room)
             }
             DamageType &damageType = t->second;
 
+            Physics *p = room->entities.try_get<Physics>(e);
+            AABB *aabb = room->entities.try_get<AABB>(e);
+
             if (damageType.knockback != 0 && health.knockBackResistance != 1)
             {
-                Physics *p = room->entities.try_get<Physics>(e);
-                AABB *aabb = room->entities.try_get<AABB>(e);
                 if (p && aabb)
                 {
                     vec2 direction = vec2(aabb->center) - attack.sourcePosition;
@@ -47,6 +49,22 @@ void DamageSystem::update(double deltaTime, Room *room)
 
                     p->velocity += direction * force;
                 }
+            }
+            if (aabb) for (int i = 0; i < mu::randomInt(10, 30); i++)
+            {
+                auto dropE = room->entities.create();
+
+                float dropSize = mu::random(.8, 2.5);
+                auto &drop = room->entities.assign<BloodDrop>(dropE, dropSize);
+                if (dropSize > 1.3)
+                    drop.splitAtTime = mu::random(.05, .5);
+
+                room->entities.assign<AABB>(dropE, ivec2(1), aabb->center);
+                auto &dropPhysics = room->entities.assign<Physics>(dropE);
+                dropPhysics.wallFriction = dropPhysics.floorFriction = mu::random(10, 60);
+                dropPhysics.velocity = vec2(mu::random(-250, 250), mu::random(-250, 250));
+                if (p)
+                    dropPhysics.velocity += p->velocity * (mu::random() > .9 ? -.5f : 1.f);
             }
 
             if (health.currHealth <= attack.points)

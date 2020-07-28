@@ -28,7 +28,7 @@ class TileMapRenderer
 
     void updateMapTextureIfNeeded();
 
-    void render(const Camera &cam);
+    void render(const Camera &cam, const SharedTexture &bloodSplatterTexture);
 
     FrameBuffer fbo;
   private:
