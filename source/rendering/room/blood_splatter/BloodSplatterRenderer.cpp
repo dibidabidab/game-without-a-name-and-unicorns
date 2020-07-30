@@ -89,7 +89,8 @@ void BloodSplatterRenderer::updateSplatterTexture(float deltaTime)
 
         for (int i = 0; i < newOnes; i++)
         {
-            newDrops.push_back({BloodDrop{drop.size}, aabb, physics});
+            BloodDrop newDrop{drop.size};
+            newDrops.push_back({newDrop, aabb, physics});
             newDrops.back().physics.velocity += vec2(mu::random(-100, 100), mu::random(-100, 100));
         }
     });
