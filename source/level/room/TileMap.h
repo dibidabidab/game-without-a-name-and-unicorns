@@ -37,7 +37,7 @@ enum class Tile : unsigned char
 
 enum class TileMaterial : unsigned char
 {
-    brick, bouncy
+    brick, grass, bouncy
 };
 
 struct TileMaterialProperties
@@ -46,8 +46,10 @@ struct TileMaterialProperties
     float bounciness = 0;
 };
 
-inline const TileMaterialProperties TILE_PROPERTIES[2] = {
+inline const TileMaterialProperties TILE_PROPERTIES[3] = {
         // brick:
+        {},
+        // grass:
         {},
         // bouncy:
         {

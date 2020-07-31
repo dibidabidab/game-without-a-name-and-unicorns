@@ -1,7 +1,7 @@
 GIMP Palette
 #
   0   0   0	transparent
- 34  32  38	background
+166  41 101	background
 188  80  80	sky
   0 194 255	grass
 255 132 226	grass_dark
@@ -16,4 +16,5 @@ GIMP Palette
  81 255 112	rainbow_green
  77 179 255	rainbow_blue
 253 132 255	rainbow_pink
-255  40 171	rainbow_pink
+255  40 171	fire0
+255 135 135	fire1

@@ -2,11 +2,11 @@ GIMP Palette
 #
   0   0   0	transparent
  34  32  38	background
- 59  47  85	sky
+ 80  47  85	sky
  41  64  73	grass
  34  32  38	grass_dark
- 34  32  38	brick
- 34  32  38	wood
+104  44  67	brick
+127   0  67	wood
  34  32  38	string
  34  32  38	skin
  34  32  38	hat
@@ -16,3 +16,5 @@ GIMP Palette
  76 172 113	rainbow_green
  71 109 192	rainbow_blue
 180  87 144	rainbow_pink
+255 179  83	fire0
+255 247 104	fire1

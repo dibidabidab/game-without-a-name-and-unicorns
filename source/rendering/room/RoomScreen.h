@@ -99,7 +99,8 @@ class RoomScreen : public Screen
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
 
-        tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/bricks")});
+        tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/tilesets/bricks")});
+        tileMapRenderer.tileSets.insert({TileMaterial::grass, asset<TileSet>("sprites/tilesets/grass")});
 
         // Temporary creation of test entities
         entt::entity lamp1 = room->getTemplate("Lamp").create();

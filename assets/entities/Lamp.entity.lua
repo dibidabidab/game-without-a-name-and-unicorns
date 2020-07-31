@@ -12,10 +12,13 @@ components = {
     halfSize = {3, 8}
   },
   LightPoint = {
-    radius = 128
+    radius = math.random(60, 90)
   },
   AsepriteView = {
-    sprite = "sprites/lamp"
+    sprite = "sprites/lamp",
+    playingTag = 0,
+    frame = math.random(10),
+    aabbAlign = {.5, 0}
   },
   DynamicCollider = {}
 }
