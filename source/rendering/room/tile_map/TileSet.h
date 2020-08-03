@@ -5,7 +5,8 @@
 
 #include <utils/aseprite/Aseprite.h>
 #include <graphics/texture.h>
-#include "../../../level/room/TileMap.h"
+
+class TileMap;
 
 class TileSet
 {
@@ -18,7 +19,7 @@ class TileSet
 
         std::vector<std::string> pattern;
 
-        int match(const TileMap &, int x, int y);
+        int match(const TileMap &, int x, int y) const;
     };
 
     aseprite::Sprite sprite;
@@ -27,7 +28,7 @@ class TileSet
   public:
     TileSet(const char *filePath);
 
-    const SubTexture *getSubTextureForTile(const TileMap &, int x, int y);
+    const SubTexture *getSubTextureForTile(const TileMap &, int x, int y) const;
 
     std::vector<SharedTexture> variations;
 };

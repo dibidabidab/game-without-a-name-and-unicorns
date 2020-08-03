@@ -9,7 +9,7 @@
 namespace DebugTileRenderer
 {
 
-    void renderTile(DebugLineRenderer &lineRenderer, Tile tile, int x, int y, const vec3 &color)
+    inline void renderTile(DebugLineRenderer &lineRenderer, Tile tile, int x, int y, const vec3 &color)
     {
         switch (tile)
         {

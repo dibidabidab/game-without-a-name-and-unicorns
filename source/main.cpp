@@ -5,6 +5,7 @@
 #include <audio/WavLoader.h>
 #include <audio/OggLoader.h>
 #include <utils/code_editor/CodeEditor.h>
+#include <utils/aseprite/AsepriteLoader.h>
 
 #include "rendering/room/RoomScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
@@ -111,6 +112,34 @@ int main(int argc, char *argv[])
         return new LuaEntityScript(File::readString(path.c_str()));
     });
 
+    gu::Config config;
+    config.width = Game::settings.graphics.windowSize.x;
+    config.height = Game::settings.graphics.windowSize.y;
+    config.title = "dibidabidab";
+    config.vsync = Game::settings.graphics.vsync;
+    config.samples = 0;
+    config.printOpenGLMessages = false;
+    config.printOpenGLErrors = false;
+    gu::fullscreen = Game::settings.graphics.fullscreen; // dont ask me why this is not in config
+    if (!gu::init(config))
+        return -1;
+    au::init();
+    setImGuiStyle();
+
+    std::cout << "Running game with\n - GL_VERSION: " << glGetString(GL_VERSION) << "\n";
+    std::cout << " - GL_RENDERER: " << glGetString(GL_RENDERER) << "\n";
+
+    std::vector<std::string> audioDevices;
+    if (!au::getAvailableDevices(audioDevices, NULL))
+        throw gu_err("could not get audio devices");
+
+    std::cout << "Available audio devices:\n";
+    for (auto &dev : audioDevices)
+        std::cout << " - " << dev << std::endl;
+
+    AssetManager::load("assets");
+
+    Screen *roomScreen = NULL;
 
     bool server = false;
     int serverPort = 0;
@@ -150,11 +179,11 @@ int main(int argc, char *argv[])
         ws->onConnectionFailed = []() {
             std::cout << "connection failed :C" << std::endl;
 
-            #ifdef EMSCRIPTEN
+        #ifdef EMSCRIPTEN
             EM_ASM(
                 alert("Websocket connection failed");
             );
-            #endif
+        #endif
         };
         afterInit = [=] () mutable {
             ws->open();
@@ -168,36 +197,6 @@ int main(int argc, char *argv[])
             mpSession->join("poopoo");
         };
     }
-
-    gu::Config config;
-    config.width = Game::settings.graphics.windowSize.x;
-    config.height = Game::settings.graphics.windowSize.y;
-    config.title = "dibidabidab";
-    config.vsync = Game::settings.graphics.vsync;
-    config.samples = 0;
-    config.printOpenGLMessages = false;
-    config.printOpenGLErrors = false;
-    gu::fullscreen = Game::settings.graphics.fullscreen; // dont ask me why this is not in config
-    if (!gu::init(config))
-        return -1;
-    au::init();
-
-    setImGuiStyle();
-
-    std::cout << "Running game with\n - GL_VERSION: " << glGetString(GL_VERSION) << "\n";
-    std::cout << " - GL_RENDERER: " << glGetString(GL_RENDERER) << "\n";
-
-    std::vector<std::string> audioDevices;
-    if (!au::getAvailableDevices(audioDevices, NULL))
-        throw gu_err("could not get audio devices");
-
-    std::cout << "Available audio devices:\n";
-    for (auto &dev : audioDevices)
-        std::cout << " - " << dev << std::endl;
-
-    AssetManager::load("assets");
-
-    Screen *roomScreen = NULL;
 
     mpSession->onNewLevel = [&](Level *lvl)
     {
@@ -251,6 +250,7 @@ int main(int argc, char *argv[])
     afterInit();
 
     gu::run();
+    delete mpSession->getLevel(); // trigger tilemap save, todo: remove this
     delete mpSession;
 
     au::terminate();

@@ -9,7 +9,7 @@ COMPONENT(
     PolyPlatform,
     HASH(allowFallThrough),
     FIELD_DEF_VAL(bool, allowFallThrough, true),
-    FIELD_DEF_VAL(TileMaterial, material, TileMaterial::brick)
+    FIELD_DEF_VAL(TileMaterial, material, 0)
 )
 
     std::vector<entt::entity> entitiesOnPlatform, entitiesAbovePlatform;

@@ -11,10 +11,12 @@ TileMap::TileMap(ivec2 size)
     width(size.x), height(size.y),
 
     tiles(new Tile[size.x * size.y]),
-    tileMaterials(new TileMaterial[size.x * size.y])
+    tileMaterials(new TileMaterial[size.x * size.y]),
+    materialProperties(asset<json>("tile_materials").get().get<decltype(materialProperties)>()),
+    nrOfMaterialTypes(materialProperties.size())
 {
     std::fill_n(tiles, width * height, Tile::empty);
-    std::fill_n(tileMaterials, width * height, TileMaterial::brick);
+    std::fill_n(tileMaterials, width * height, 0);
     std::cout << "TileMap (" << int(width) << "x" << int(height) << ") created\n";
 }
 
@@ -52,7 +54,7 @@ Tile TileMap::getTile(uint8 x, uint8 y) const
 
 TileMaterial TileMap::getMaterial(uint8 x, uint8 y) const
 {
-    if (!contains(x, y)) return TileMaterial::brick;
+    if (!contains(x, y)) return 0;
     return tileMaterials[x * height + y];
 }
 
@@ -63,16 +65,22 @@ void TileMap::setTile(uint8 x, uint8 y, Tile tile)
 
 void TileMap::setTile(uint8 x, uint8 y, Tile tile, TileMaterial material)
 {
-    if (contains(x, y))
-    {
-        tiles[x * height + y] = tile;
-        tileMaterials[x * height + y] = material;
+    if (!contains(x, y))
+        return;
 
-        tile_update update { x, y, uint8(tile), uint8(material) };
-        tileUpdatesSinceLastUpdate.push_back(update);
+    auto &t = tiles[x * height + y];
+    auto &m = tileMaterials[x * height + y];
 
-        refreshOutlines();
-    }
+    if (t == tile && m == material)
+        return; // current tile+material is the same. Prevent rerender of tileMap and sending updates over network..
+
+    t = tile;
+    m = material;
+
+    tile_update update { x, y, uint8(tile), material };
+    tileUpdatesSinceLastUpdate.push_back(update);
+
+    refreshOutlines();
 }
 
 bool TileMap::contains(uint8 x, uint8 y) const
@@ -94,4 +102,11 @@ void TileMap::loopThroughTiles(const ivec2 &pixelCoordsMin, const ivec2 &pixelCo
         for (int y = pixelCoordsMin.y / TileMap::PIXELS_PER_TILE; y <= pixelCoordsMax.y / TileMap::PIXELS_PER_TILE; y++)
             callback(ivec2(x, y), getTile(x, y));
     }
+}
+
+const TileMaterialProperties &TileMap::getMaterialProperties(TileMaterial m) const
+{
+    if (m >= materialProperties.size())
+        throw gu_err("No TileMaterialProperties found for TileMaterial#" + std::to_string(int(m)));
+    return materialProperties[m];
 }

@@ -26,7 +26,7 @@ struct TerrainCollisions
         polyPlatform      = false,  // (possibly moving?) platforms with multiple non-grid-based vertices
         anything          = false;  // ANY of the above
 
-    TileMaterial floorMaterial = TileMaterial::brick;
+    TileMaterial floorMaterial = 0;
 
     /**
      * if polyPlatform == true, then the following values will be set:

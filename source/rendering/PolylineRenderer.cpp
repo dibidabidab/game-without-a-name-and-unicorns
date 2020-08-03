@@ -89,7 +89,7 @@ void PolylineRenderer::render(const entt::registry &reg, const Camera &cam)
         for (int i = 0; i < nrOfCurveSegments; i++)
         {
             float t = float(i + 1) / nrOfCurveSegments;
-            vec2 newPos;
+            vec2 newPos(0);
 
             if (points.size() == 3)
                 mu::quadraticBezier(points[0], points[1], points[2], t, newPos);

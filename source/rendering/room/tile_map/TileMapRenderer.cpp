@@ -19,7 +19,8 @@ TileMapRenderer::TileMapRenderer(TileMap *map)
           "tileMapShader",
           "shaders/tile_map/tile_map.vert",
           "shaders/tile_map/tile_map.frag"
-      )
+      ),
+      lastTileSetReloadTime(glfwGetTime())
 {
     fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
     fbo.addDepthBuffer();
@@ -50,10 +51,7 @@ void TileMapRenderer::renderTile(int x, int y)
 {
     TileMaterial material = map->getMaterial(x, y);
 
-    if (tileSets.count(material) == 0)
-        return;
-
-    auto &tileSet = tileSets.at(material);
+    auto &tileSet = map->getMaterialProperties(material).tileSet;
 
     auto subTexture = tileSet->getSubTextureForTile(*map, x, y);
     if (!subTexture)
@@ -74,9 +72,15 @@ void TileMapRenderer::updateMapTextureIfNeeded()
     gu::profiler::Zone z("tilemap render");
 
     bool tileSetReloaded = false;
-    for (auto &ts : tileSets)
-        if (ts.second.hasReloaded())
+
+    for (int i = 0; i < map->nrOfMaterialTypes; i++)
+    {
+        if (map->getMaterialProperties(i).tileSet.getLoadedAsset().loadedSinceTime > lastTileSetReloadTime)
+        {
             tileSetReloaded = true;
+            lastTileSetReloadTime = glfwGetTime();
+        }
+    }
 
     if (!map->updatesPrevUpdate().empty() || !textureCreated || tileSetReloaded)
         createMapTexture();

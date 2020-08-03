@@ -183,7 +183,7 @@ void PhysicsSystem::updateVelocity(Physics &physics, double deltaTime)
     if (!physics.ghost)
     {
         if (physics.touches.floor && physics.velocity.y < 0)
-            physics.velocity.y *= -TILE_PROPERTIES[int(physics.touches.floorMaterial)].bounciness;
+            physics.velocity.y *= -room->getMap().getMaterialProperties(physics.touches.floorMaterial).bounciness;
 
         if (physics.touches.ceiling && physics.velocity.y > 0) physics.velocity.y = 0;
 

@@ -3,6 +3,7 @@
 #include <utils/aseprite/AsepriteLoader.h>
 #include <utils/aseprite/AsepriteTextureGenerator.h>
 #include <utils/string.h>
+#include "../../../level/room/TileMap.h"
 
 TileSet::TileSet(const char *filePath)
 {
@@ -15,14 +16,14 @@ TileSet::TileSet(const char *filePath)
         subTextures.emplace_back(slice);
 }
 
-const TileSet::SubTexture *TileSet::getSubTextureForTile(const TileMap &map, int x, int y)
+const TileSet::SubTexture *TileSet::getSubTextureForTile(const TileMap &map, int x, int y) const
 {
-    SubTexture *best = NULL;
+    const SubTexture *best = NULL;
     int bestScore = -1;
 
     for (int i = 0; i < subTextures.size(); i++)
     {
-        SubTexture *subT = &subTextures[i];
+        const SubTexture *subT = &subTextures[i];
         int score = subT->match(map, x, y);
         if (score > bestScore)
         {
@@ -33,7 +34,7 @@ const TileSet::SubTexture *TileSet::getSubTextureForTile(const TileMap &map, int
     return best;
 }
 
-int TileSet::SubTexture::match(const TileMap &map, int tx, int ty)
+int TileSet::SubTexture::match(const TileMap &map, int tx, int ty) const
 {
     int result = 0;
     int i = 0;

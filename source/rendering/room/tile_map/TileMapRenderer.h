@@ -20,9 +20,9 @@ class TileMapRenderer
 
     bool textureCreated = false;
 
-  public:
+    double lastTileSetReloadTime = 0;
 
-    std::map<TileMaterial, asset<TileSet>> tileSets;
+  public:
 
     TileMapRenderer(TileMap *);
 

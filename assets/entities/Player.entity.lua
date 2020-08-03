@@ -13,7 +13,9 @@ components = {
     StaticCollider = {},
     PlatformerMovement = {},
     Flip = {},
-    LightPoint = {},
+    LightPoint = {
+        radius = 60
+    },
     Health = {
         takesDamageFrom = {"hit"}
     },

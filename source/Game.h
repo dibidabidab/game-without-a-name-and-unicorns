@@ -4,12 +4,18 @@
 
 #include "macro_magic/serializable.h"
 
+#ifdef EMSCRIPTEN
+#define V_SYNC_ENABLED_BY_DEFAULT false
+#else
+#define V_SYNC_ENABLED_BY_DEFAULT true
+#endif
+
 namespace Game
 {
 
     SERIALIZABLE(
         GraphicsSettings,
-        FIELD_DEF_VAL(bool, vsync, true),
+        FIELD_DEF_VAL(bool, vsync, V_SYNC_ENABLED_BY_DEFAULT),
         FIELD_DEF_VAL(bool, fullscreen, false),
         FIELD_DEF_VAL(ivec2, windowSize, ivec2(1600, 900))
     )

@@ -11,14 +11,12 @@
 #include <utils/quad_renderer.h>
 #include <imgui.h>
 
-#include <utils/aseprite/AsepriteLoader.h>
 #include "../../level/room/Room.h"
 #include "../../level/room/RoomEditor.h"
 #include "DebugTileRenderer.h"
 #include "../../level/ecs/components/physics/Physics.h"
 #include "../../level/ecs/components/PlatformerMovement.h"
 #include "../../level/ecs/components/Networked.h"
-#include "../../macro_magic/component.h"
 #include "../../level/ecs/EntityInspector.h"
 #include "CameraMovement.h"
 #include "tile_map/TileMapRenderer.h"
@@ -98,9 +96,6 @@ class RoomScreen : public Screen
 
         cam.position = mu::Z;
         cam.lookAt(mu::ZERO_3);
-
-        tileMapRenderer.tileSets.insert({TileMaterial::brick, asset<TileSet>("sprites/tilesets/bricks")});
-        tileMapRenderer.tileSets.insert({TileMaterial::grass, asset<TileSet>("sprites/tilesets/grass")});
 
         // Temporary creation of test entities
         entt::entity lamp1 = room->getTemplate("Lamp").create();

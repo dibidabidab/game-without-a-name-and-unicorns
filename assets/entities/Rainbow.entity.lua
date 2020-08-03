@@ -2,7 +2,7 @@
 components = {
     AABB = {},
     PolyPlatform = {
-        material = 1 -- "bouncy" material
+        material = 2 -- "bouncy" material
     },
     PolyPlatformWaves = {},
     Polyline = {

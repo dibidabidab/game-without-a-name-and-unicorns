@@ -9,6 +9,7 @@
 #include "TileMapOutliner.h"
 #include "../ecs/systems/EntitySystem.h"
 #include "../../macro_magic/serializable.h"
+#include "../../rendering/room/tile_map/TileSet.h"
 
 SERIALIZABLE(
     tile_update,
@@ -34,29 +35,16 @@ enum class Tile : unsigned char
     // same as slope_up, but spread over 2 tiles:
     slope_up_half0, slope_up_half1,
 };
+typedef uint8 TileMaterial;
 
-enum class TileMaterial : unsigned char
-{
-    brick, grass, bouncy
-};
-
-struct TileMaterialProperties
-{
-    float friction = 1;
-    float bounciness = 0;
-};
-
-inline const TileMaterialProperties TILE_PROPERTIES[3] = {
-        // brick:
-        {},
-        // grass:
-        {},
-        // bouncy:
-        {
-            1.5,
-            1.
-        }
-};
+SERIALIZABLE(
+    TileMaterialProperties,
+    FIELD(std::string, name),
+    FIELD(asset<TileSet>, tileSet),
+    FIELD_DEF_VAL(float, friction, 1),
+    FIELD_DEF_VAL(float, bounciness, 0)
+)
+END_SERIALIZABLE_FULL_JSON(TileMaterialProperties)
 
 typedef std::vector<std::pair<vec2, vec2>> TileMapOutlines;
 
@@ -71,6 +59,8 @@ class TileMap
     std::list<tile_update> tileUpdatesSinceLastUpdate, tileUpdatesPrevUpdate;
     friend class Room;
 
+    const std::vector<TileMaterialProperties> materialProperties;
+
   public:
 
     static const int PIXELS_PER_TILE = 16;
@@ -82,11 +72,8 @@ class TileMap
             Tile::slope_down_half0, Tile::slope_down_half1,
             Tile::slope_up_half0, Tile::slope_up_half1
     };
-    constexpr const static auto TILE_MATERIALS = {
-            TileMaterial::brick
-    };
 
-    const uint8 width, height;
+    const uint8 width, height, nrOfMaterialTypes;
 
     /**
      * Creates an empty map
@@ -99,9 +86,11 @@ class TileMap
 
     TileMaterial getMaterial(uint8 x, uint8 y) const;
 
-    void setTile(uint8 x, uint8 y, Tile tile);
+    const TileMaterialProperties &getMaterialProperties(TileMaterial) const;
 
-    void setTile(uint8 x, uint8 y, Tile tile, TileMaterial material);
+    void setTile(uint8 x, uint8 y, Tile);
+
+    void setTile(uint8 x, uint8 y, Tile, TileMaterial);
 
     bool contains(uint8 x, uint8 y) const;
 

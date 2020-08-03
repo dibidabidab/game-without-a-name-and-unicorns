@@ -1,0 +1,20 @@
+[
+  {
+    "name": "brick",
+    "tileSet": "sprites/tilesets/bricks",
+    "friction": 1,
+    "bounciness": 0
+  },
+  {
+    "name": "grass",
+    "tileSet": "sprites/tilesets/grass",
+    "friction": 1,
+    "bounciness": 0
+  },
+  {
+    "name": "bouncy rainbow stuff",
+    "tileSet": "sprites/tilesets/bricks",
+    "friction": 1.5,
+    "bounciness": 1.0
+  }
+]
