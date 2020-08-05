@@ -72,17 +72,7 @@ void ShadowCaster::updateMesh(const LightPoint &light, const vec2 &lightPos)
     {
         const vec2 line[2] = {outline.first * vec2(16), outline.second * vec2(16)};
 
-        bool render = false;
-        float distance = length(line[0] - lightPos);
-        if (distance <= light.radius)
-            render = true;
-        else
-        {
-            distance = length(line[1] - lightPos);
-            render = distance <= light.radius;
-        }
-
-        if (!render)
+        if (mu::minimumDistance(line[0], line[1], lightPos) > light.radius)
             continue;
 
         vec2 lineNormal = line[1] - line[0];

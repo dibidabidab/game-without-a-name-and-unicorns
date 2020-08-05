@@ -91,13 +91,14 @@ void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
 
         if (box.contains(p) && !breakk)
         {
+            MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10, 10);
             breakk = true;
 
             box.draw(lineRenderer, mu::Y);
 
             ImGui::SetTooltip("#%d", int(e));
 
-            if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT))
+            if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT, 10))
             {
                 reg.assign_or_replace<Inspecting>(e);
                 pickEntity = false;
@@ -124,13 +125,14 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
 
             if (box.contains(p) && !breakk)
             {
+                MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10);
                 breakk = true;
 
                 box.draw(lineRenderer, mu::Y);
 
                 ImGui::SetTooltip("hold LMB to move #%d", int(e));
 
-                if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT))
+                if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT, 10))
                     movingEntity = e;
                 return;
             }
@@ -140,10 +142,11 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     }
     else
     {
+        MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10, 5);
         lineRenderer.arrows(p, 5, vec3(0, 1, 0));
         AABB *aabb = reg.try_get<AABB>(movingEntity);
 
-        if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_LEFT) || aabb == NULL)
+        if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_LEFT, 10) || aabb == NULL)
         {
             movingEntity = entt::null;
             moveEntity = false;

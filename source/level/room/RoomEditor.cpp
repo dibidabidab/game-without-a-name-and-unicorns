@@ -7,12 +7,19 @@ void RoomEditor::update(OrthographicCamera &cam, TileMap *room, DebugLineRendere
     ImGui::SetNextWindowPos(ImVec2(200, 200), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
 
-    ImGui::Begin("Room editor");
+    if (!ImGui::Begin("Room editor"))
+    {
+        ImGui::End();
+        return;
+    }
+    constexpr int MOUSE_PRIORITY = 1;
+    MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, MOUSE_PRIORITY, 5);
+    MouseInput::capture(GLFW_MOUSE_BUTTON_RIGHT, MOUSE_PRIORITY, 5);
 
     ivec2 hoveredTile(cam.cursorTo2DWorldPos() / vec2(TileMap::PIXELS_PER_TILE));
-    if (MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT))
+    if (MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT, MOUSE_PRIORITY))
         room->setTile(hoveredTile.x, hoveredTile.y, placing, material);
-    if (MouseInput::pressed(GLFW_MOUSE_BUTTON_RIGHT))
+    if (MouseInput::pressed(GLFW_MOUSE_BUTTON_RIGHT, MOUSE_PRIORITY))
         room->setTile(hoveredTile.x, hoveredTile.y, room->getTile(hoveredTile.x, hoveredTile.y), material);
 
     if (room->contains(hoveredTile.x, hoveredTile.y))
