@@ -20,6 +20,9 @@ components = {
     },
     AsepriteView = {
         sprite = "sprites/enemy"
+    },
+    LightPoint = {
+        radius = 60
     }
 }
 

@@ -13,7 +13,8 @@ COMPONENT(
     HASH(radius, castShadow),
 
     FIELD_DEF_VAL(uint8, radius, 128),
-    FIELD_DEF_VAL(bool, castShadow, true)
+    FIELD_DEF_VAL(bool, castShadow, true),
+    FIELD_DEF_VAL(bool, checkForTerrainCollision, false)
 )
 
     ivec2 prevPosition;

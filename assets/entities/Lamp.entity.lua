@@ -12,7 +12,8 @@ components = {
     halfSize = {3, 8}
   },
   LightPoint = {
-    radius = math.random(60, 90)
+    radius = math.random(60, 90),
+    checkForTerrainCollision = true
   },
   AsepriteView = {
     sprite = "sprites/lamp",
@@ -20,5 +21,17 @@ components = {
     frame = math.random(10),
     aabbAlign = {.5, 0}
   },
-  DynamicCollider = {}
+  DynamicCollider = {},
+  Health = {
+    takesDamageFrom = {"hit"},
+    componentsToAddOnDeath = {
+      SliceSpriteIntoPieces = {
+        steps = 3
+      }
+    },
+    componentsToRemoveOnDeath = {"LightPoint"},
+    currHealth = 1,
+    maxHealth = 1,
+    bloodColor = 0
+  }
 }

@@ -8,14 +8,19 @@ void SpriteSlicerSystem::update(double deltaTime, Room *room)
 {
     this->room = room;
 
-    room->entities.view<AsepriteView, SliceSpriteIntoPieces, AABB, Physics>()
-    .each([&](auto e0, AsepriteView &view, SliceSpriteIntoPieces &s, AABB &aabb, Physics &physics) {
+    room->entities.view<AsepriteView, SliceSpriteIntoPieces, AABB>()
+    .each([&](auto e0, AsepriteView &view, SliceSpriteIntoPieces &s, AABB &aabb) {
 
         view.paused = true;
 
         aabbs.push_back(aabb);
         views.push_back(view);
-        physicss.push_back(physics);
+
+        Physics *p = room->entities.try_get<Physics>(e0);
+        if (p)
+            physicss.push_back(*p);
+        else
+            physicss.emplace_back();
 
         slice(physicss.back(), aabbs.back(), views.back(), s.steps, ivec2(aabb.center + view.positionOffset));
 

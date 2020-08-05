@@ -50,12 +50,12 @@ void DamageSystem::update(double deltaTime, Room *room)
                     p->velocity += direction * force;
                 }
             }
-            if (aabb) for (int i = 0; i < mu::randomInt(10, 30); i++)
+            if (aabb && health.bloodColor != 0u) for (int i = 0; i < mu::randomInt(10, 30); i++)
             {
                 auto dropE = room->entities.create();
 
                 float dropSize = mu::random(.8, 2.5);
-                auto &drop = room->entities.assign<BloodDrop>(dropE, dropSize);
+                auto &drop = room->entities.assign<BloodDrop>(dropE, dropSize, health.bloodColor);
                 if (dropSize > 1.3)
                     drop.splitAtTime = mu::random(.05, .5);
 
@@ -100,6 +100,16 @@ void DamageSystem::update(double deltaTime, Room *room)
 
         if (health.currHealth == 0)
         {
+            for (auto &componentName : health.componentsToRemoveOnDeath)
+            {
+                const ComponentUtils *utils = ComponentUtils::getFor(componentName);
+                if (!utils)
+                {
+                    std::cerr << "componentsToRemoveOnDeath for entity#" << int(e) << " contains '" << componentName << "' which is not a component type!" << std::endl;
+                    continue;
+                }
+                utils->removeComponent(e, room->entities);
+            }
             if (health.componentsToAddOnDeath.is_object())
             {
                 for (auto &[componentName, component] : health.componentsToAddOnDeath.items())

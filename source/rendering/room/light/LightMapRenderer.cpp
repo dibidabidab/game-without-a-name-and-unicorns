@@ -47,12 +47,16 @@ void LightMapRenderer::render(const Camera &cam, const SharedTexture &shadowText
 
     shadowTexture->bind(0, shader, "shadowTexture");
 
+    TerrainCollisionDetector terrainCollisionDetector(room->getMap());
+
     int i = 0;
     lightsData.vertices.clear();
     room->entities.view<AABB, LightPoint>().each([&](AABB &aabb, LightPoint &light) {
 
-        lightsData.addVertices(1);
+        if (light.checkForTerrainCollision && terrainCollisionDetector.detect(aabb, true).anything)
+            return;
 
+        lightsData.addVertices(1);
         lightsData.set<vec2>(aabb.center, i, 0);
         lightsData.set<float>(light.radius, i, sizeof(vec2));
 

@@ -20,8 +20,9 @@
 #define PULL_FIELD_OUT_JSON(field) \
     PULL_OUT_JSON(EAT field)
 
-#define PULL_OUT_JSON(X)  \
-    getTo(ARGNAME(X), j.at(ARGNAME_AS_STRING(X)))
+#define PULL_OUT_JSON(X) \
+    if (j.contains(ARGNAME_AS_STRING(X)))   \
+        getTo(ARGNAME(X), j.at(ARGNAME_AS_STRING(X)))
 
 #define COPY_FROM_OTHER(field) \
     ARGNAME(EAT field) = other.ARGNAME(EAT field)
