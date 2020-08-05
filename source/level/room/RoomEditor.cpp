@@ -11,7 +11,7 @@ void RoomEditor::update(OrthographicCamera &cam, TileMap *room, DebugLineRendere
 
     ivec2 hoveredTile(cam.cursorTo2DWorldPos() / vec2(TileMap::PIXELS_PER_TILE));
     if (MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT))
-        room->setTile(hoveredTile.x, hoveredTile.y, placing);
+        room->setTile(hoveredTile.x, hoveredTile.y, placing, material);
     if (MouseInput::pressed(GLFW_MOUSE_BUTTON_RIGHT))
         room->setTile(hoveredTile.x, hoveredTile.y, room->getTile(hoveredTile.x, hoveredTile.y), material);
 
