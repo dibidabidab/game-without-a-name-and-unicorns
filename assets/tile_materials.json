@@ -3,18 +3,21 @@
     "name": "brick",
     "tileSet": "sprites/tilesets/bricks",
     "friction": 1,
-    "bounciness": 0
+    "bounciness": 0,
+    "color": [1, 0.6, 0.9]
   },
   {
     "name": "grass",
     "tileSet": "sprites/tilesets/grass",
     "friction": 1,
-    "bounciness": 0
+    "bounciness": 0,
+    "color": [0.1, 1, 0.3]
   },
   {
     "name": "bouncy rainbow stuff",
     "tileSet": "sprites/tilesets/bricks",
     "friction": 1.5,
-    "bounciness": 1.0
+    "bounciness": 1.0,
+    "color": [1, 0, 0]
   }
 ]

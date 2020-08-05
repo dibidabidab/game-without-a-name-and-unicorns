@@ -42,7 +42,8 @@ SERIALIZABLE(
     FIELD(std::string, name),
     FIELD(asset<TileSet>, tileSet),
     FIELD_DEF_VAL(float, friction, 1),
-    FIELD_DEF_VAL(float, bounciness, 0)
+    FIELD_DEF_VAL(float, bounciness, 0),
+    FIELD(vec3, color)
 )
 END_SERIALIZABLE_FULL_JSON(TileMaterialProperties)
 

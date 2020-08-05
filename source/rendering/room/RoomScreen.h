@@ -225,6 +225,7 @@ class RoomScreen : public Screen
             debugAimTargets = renderHitboxes,
             debugPolyPlatforms = renderHitboxes;
 
+        static bool editRoom = false;
         if (ImGui::Begin("debug tools"))
         {
             ImGui::Checkbox("vsync", &vsync);
@@ -270,20 +271,22 @@ class RoomScreen : public Screen
 
             if (showRoomEditor)
             {
-                static bool editRoom = false;
+
                 if (!editRoom) editRoom = ImGui::Button("edit tileMap");
-                else {
-                    static RoomEditor roomEditor;
-                    editRoom = !ImGui::Button("stop editing tileMap");
-                    roomEditor.update(cam, &room->getMap(), lineRenderer);
-                }
+                else           editRoom = !ImGui::Button("stop editing tileMap");
             }
         }
         ImGui::End();
+
         if (renderTiles)
         {
             renderDebugBackground();
             renderDebugTiles();
+        }
+        if (editRoom)
+        {
+            static RoomEditor roomEditor;
+            roomEditor.update(cam, &room->getMap(), lineRenderer);
         }
 
         lineRenderer.scale = 1;

@@ -15,6 +15,8 @@ class RoomEditor
 
     Tile placing = Tile::full;
 
+    TileMaterial material = 0;
+
   public:
 
     void update(OrthographicCamera &cam, TileMap *room, DebugLineRenderer &lineRenderer);

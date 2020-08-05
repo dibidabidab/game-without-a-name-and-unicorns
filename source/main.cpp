@@ -83,6 +83,10 @@ int main(int argc, char *argv[])
         spriteSheet.add(*sprite);
         return sprite;
     });
+    AssetManager::addAssetLoader<Texture>(".png|.jpg|.jpeg|.tga|.bmp|.psd|.gif|.hdr", [&](auto path) {
+
+        return new Texture(Texture::fromImageFile(path.c_str()));
+    });
     AssetManager::addAssetLoader<std::string>(".frag|.vert", [](auto path) {
 
         return new std::string(File::readString(path.c_str()));
@@ -118,8 +122,8 @@ int main(int argc, char *argv[])
     config.title = "dibidabidab";
     config.vsync = Game::settings.graphics.vsync;
     config.samples = 0;
-    config.printOpenGLMessages = false;
-    config.printOpenGLErrors = false;
+    config.printOpenGLMessages = Game::settings.graphics.printOpenGLMessages;
+    config.printOpenGLErrors = Game::settings.graphics.printOpenGLErrors;
     gu::fullscreen = Game::settings.graphics.fullscreen; // dont ask me why this is not in config
     if (!gu::init(config))
         return -1;
