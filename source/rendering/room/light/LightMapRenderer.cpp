@@ -58,7 +58,7 @@ void LightMapRenderer::render(const Camera &cam, const SharedTexture &shadowText
 
         lightsData.addVertices(1);
         lightsData.set<vec2>(aabb.center, i, 0);
-        lightsData.set<float>(light.radius, i, sizeof(vec2));
+        lightsData.set<float>(light.radius + light.flickeringRadius, i, sizeof(vec2));
 
         ivec2 shadowTexturePos(-1);
         if (light.castShadow)

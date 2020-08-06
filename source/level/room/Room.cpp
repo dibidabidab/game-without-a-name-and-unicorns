@@ -23,6 +23,7 @@
 #include "../ecs/systems/SpawningSystem.h"
 #include "../ecs/systems/combat/DamageSystem.h"
 #include "../ecs/systems/graphics/SpriteSlicerSystem.h"
+#include "../ecs/systems/graphics/LightSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -42,6 +43,7 @@ void Room::initialize(Level *lvl, int roomI_)
 
     systems.push_front(new AudioSystem("audio"));
     systems.push_front(new LimbJointSystem("knee/elbow joints"));
+    systems.push_front(new LightSystem("lights"));
     systems.push_front(new SpriteSystem("(animated) sprites"));
     systems.push_front(new SpriteSlicerSystem("sprite slicer"));
     systems.push_front(new LegsSystem("legs"));

@@ -172,7 +172,7 @@ void PhysicsSystem::updateVelocity(Physics &physics, double deltaTime)
     float friction = physics.airFriction;
 
     if (physics.touches.floor)
-        friction = physics.floorFriction;
+        friction = physics.floorFriction * room->getMap().getMaterialProperties(physics.touches.floorMaterial).friction;
     else if (physics.velocity.y < 0 && (physics.touches.rightWall || physics.touches.leftWall))
         friction = physics.wallFriction;
 

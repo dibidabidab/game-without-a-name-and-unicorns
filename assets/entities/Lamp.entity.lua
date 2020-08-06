@@ -13,7 +13,9 @@ components = {
   },
   LightPoint = {
     radius = math.random(60, 90),
-    checkForTerrainCollision = true
+    checkForTerrainCollision = true,
+    radiusFlickeringFrequency = 3.,
+    radiusFlickeringIntensity = 3
   },
   AsepriteView = {
     sprite = "sprites/lamp",
