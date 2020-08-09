@@ -148,8 +148,11 @@ void PolylineRenderer::addSegment(const DrawPolyline &draw, int i, int polylineS
             lineSegments.set<uint32>(color, nrOfSegments, 12);
 
             nrOfSegments++;
-            p0.y--;
-            p1.y--;
+            if (draw.repeatY > 0)
+            {
+                p0.y--;
+                p1.y--;
+            }
             repeatI++;
         }
         p0.x++;

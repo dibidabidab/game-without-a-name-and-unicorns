@@ -65,6 +65,17 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, Room *r)
         else
             entityTemplate->createComponents(entt::entity(extendE));
     };
+
+
+    // math utils lol:
+    env["rotate2d"] = [&](float x, float y, float degrees) -> sol::table {
+        auto table = sol::table::create(env.lua_state());
+
+        auto result = rotate(vec2(x, y), degrees * mu::DEGREES_TO_RAD);
+        table[1] = result.x;
+        table[2] = result.y;
+        return table;
+    };
 }
 
 void LuaEntityTemplate::createComponents(entt::entity e)

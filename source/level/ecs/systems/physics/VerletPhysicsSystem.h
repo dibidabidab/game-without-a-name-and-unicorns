@@ -32,20 +32,24 @@ class VerletPhysicsSystem : public EntitySystem
             while (rope.points.size() > rope.nrOfPoints)
                 rope.points.pop_back();
 
+            bool addedPoints = false;
             while (rope.points.size() < rope.nrOfPoints)
             {
+                addedPoints = true;
                 rope.points.emplace_back();
                 auto &p = rope.points.back();
                 int size = rope.points.size();
                 if (size == 1)
                     p.currentPos = p.prevPos = aabb.center;
                 else
-                    p.currentPos = p.prevPos = rope.points[size - 2].currentPos + vec2(0, -segmentLength);
+                    p.currentPos = p.prevPos = rope.points[size - 2].currentPos + normalize(rope.gravity) * segmentLength;
             }
 
             AABB *endPointAABB = NULL;
             if (rope.endPointEntity != entt::null)
                 endPointAABB = room->entities.try_get<AABB>(rope.endPointEntity);
+            if (endPointAABB && addedPoints)
+                endPointAABB->center = rope.points.back().currentPos;
 
             for (int i = 0; i < rope.nrOfPoints; i++)
             {
@@ -105,8 +109,18 @@ class VerletPhysicsSystem : public EntitySystem
                 return;
 
             attach.x = min<float>(1, max<float>(0, attach.x));
-            int pointIndex = (rope->nrOfPoints - 1) * attach.x;
-            aabb.center = rope->points.at(pointIndex).currentPos;
+
+            float pointIndex = (rope->nrOfPoints - 1) * attach.x;
+
+            int
+                pointIndex0 = pointIndex,
+                pointIndex1 = ceil(pointIndex);
+
+            auto &point0Pos = rope->points.at(pointIndex0).currentPos;
+            auto &point1Pos = rope->points.at(pointIndex1).currentPos;
+
+            aabb.center = point0Pos;
+            aabb.center += (point1Pos - point0Pos) * (pointIndex - pointIndex0);
         });
     }
 };
