@@ -219,6 +219,7 @@ class RoomScreen : public Screen
         static bool
             vsync = Game::settings.graphics.vsync,
             renderTiles = false,
+            renderWindArrows = false,
             renderShadowDebugLines = false,
             renderHitboxes = false,
             debugLegs = renderHitboxes,
@@ -230,6 +231,7 @@ class RoomScreen : public Screen
         {
             ImGui::Checkbox("vsync", &vsync);
             ImGui::Checkbox("render debug-tiles", &renderTiles);
+            ImGui::Checkbox("render wind-arrows", &renderWindArrows);
             ImGui::Checkbox("render shadow-debug-lines", &renderShadowDebugLines);
             ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
             ImGui::Checkbox("debug legs", &debugLegs);
@@ -283,6 +285,8 @@ class RoomScreen : public Screen
             renderDebugBackground();
             renderDebugTiles();
         }
+        if (renderWindArrows)
+            this->renderWindArrows();
         if (editRoom)
         {
             static RoomEditor roomEditor;
@@ -426,6 +430,20 @@ class RoomScreen : public Screen
         // tile outlines:
         for (auto &outline : map.getOutlines())
             lineRenderer.line(outline.first, outline.second, mu::Z + mu::X);
+    }
+
+    void renderWindArrows()
+    {
+        TileMap &map = room->getMap();
+        auto &wind = map.wind;
+        for (int x = 0; x < map.width; x++)
+            for (int y = 0; y < map.height; y++)
+            {
+                auto &dir = wind.get(x, y);
+                if (dir.x == 0 && dir.y == 0)
+                    continue;
+                lineRenderer.arrow(vec2(x, y), vec2(x, y) + dir, .1, vec3(1));
+            }
     }
 
     ~RoomScreen()

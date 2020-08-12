@@ -1,6 +1,6 @@
 
 arg("length", math.random(120, 200))
-arg("zIndex", -600)
+arg("zIndex", -600 - math.random(200))
 
 components = {
     AABB = {
@@ -122,15 +122,13 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
 
     if length > 20 then
 
-        local nrOfNewBranches = math.random(1, length > 32 and 3 or 2)
+        local nrOfNewBranches = math.random(1, length > 32 and (length > 48 and 5 or 3) or 2)
 
         local _
         for _ = 1, nrOfNewBranches do
 
-            print(branchName, _)
-
             local newLength = childComponents[branchName].VerletRope.length * (.2 + math.random() * .3)
-            local newPosAlongParent = math.random() * .7 + .2
+            local newPosAlongParent = math.random() * .6 + .3
             local newZIndex = zIndexBegin + newPosAlongParent * (zIndexEnd - zIndexBegin)
 
             addBranch(branch, childComponents[branchName], math.random() > .5 and -1 or 1, newPosAlongParent, newLength, false, newZIndex)

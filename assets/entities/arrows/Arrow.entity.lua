@@ -5,7 +5,8 @@ components = {
   Physics = {
     gravity = 0,
     airFriction = 0,
-    ignorePlatforms = true
+    ignorePlatforms = true,
+    createWind = 1.
   },
   StaticCollider = {},
   AsepriteView = {

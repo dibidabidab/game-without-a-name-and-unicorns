@@ -7,7 +7,11 @@ components = {
         sprite = "sprites/plant",
         frame = math.random(0, 2)
     },
-    DynamicCollider = {}
+    DynamicCollider = {},
+    Physics = {
+        gravity = 0,
+        moveByWind = 50
+    }
 }
 
 createChild("plantStem")

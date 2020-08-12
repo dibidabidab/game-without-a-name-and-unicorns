@@ -13,7 +13,9 @@ TileMap::TileMap(ivec2 size)
     tiles(new Tile[size.x * size.y]),
     tileMaterials(new TileMaterial[size.x * size.y]),
     materialProperties(asset<json>("tile_materials").get().get<decltype(materialProperties)>()),
-    nrOfMaterialTypes(materialProperties.size())
+    nrOfMaterialTypes(materialProperties.size()),
+
+    wind(size)
 {
     std::fill_n(tiles, width * height, Tile::empty);
     std::fill_n(tileMaterials, width * height, 0);

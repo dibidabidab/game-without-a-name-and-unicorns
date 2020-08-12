@@ -32,7 +32,7 @@ class PhysicsSystem : public EntitySystem
 
     using EntitySystem::EntitySystem;
   protected:
-    void update(double deltaTime, Room *room) override;
+    void update(double deltaTime, Room *) override;
 
   private:
 
@@ -40,7 +40,7 @@ class PhysicsSystem : public EntitySystem
 
     void preventFallingThroughPolyPlatform(Physics &, AABB &);
 
-    void updateDistanceConstraint(AABB &aabb, const DistanceConstraint &constraint);
+    void updateDistanceConstraint(AABB &, const DistanceConstraint &);
 
     void repositionAfterCollision(const AABB &staticAABB, AABB &dynAABB, entt::entity dynEntity);
 
@@ -49,34 +49,36 @@ class PhysicsSystem : public EntitySystem
     /**
      * Updates the velocity of a body.
      */
-    void updateVelocity(Physics &physics, double deltaTime);
+    void updateVelocity(Physics &, AABB &, double deltaTime);
 
     /**
      * Updates the position of a body using its velocity
      */
-    void updatePosition(Physics &physics, AABB &body, double deltaTime);
+    void updatePosition(Physics &, AABB &, double deltaTime);
+
+    void updateWind(Physics &, AABB &, double deltaTime);
 
     template <typename vec>
-    void moveBody(Physics &physics, AABB &body, vec &pixelsToMove);
+    void moveBody(Physics &, AABB &, vec &pixelsToMove);
 
     /**
      * Will try to do the move, returns true if success
      */
-    bool tryMove(Physics &physics, AABB &body, Move toDo);
+    bool tryMove(Physics &, AABB &, Move);
 
     /**
      * Checks if a move is possible.
      * Sometimes a move is possible but requires another move to be done as well,
      * therefore `moveToDo` will be changed to that other move (or Move::none)
      */
-    bool canDoMove(Physics &physics, AABB &aabb, Move &moveToDo, Move prevMove);
+    bool canDoMove(Physics &, AABB &, Move &moveToDo, Move prevMove);
 
     /**
      * Executes the move (without checking if the move is possible to do)
      */
-    void doMove(Physics &physics, AABB &body, Move move);
+    void doMove(Physics &, AABB &, Move);
 
-    void updateTerrainCollisions(Physics &physics, AABB &body);
+    void updateTerrainCollisions(Physics &, AABB &);
 
 };
 

@@ -11,6 +11,11 @@ components = {
   AABB = {
     halfSize = {3, 8}
   },
+  Physics = {
+    gravity = 0,
+    ghost = true,
+    moveByWind = 300
+  },
   LightPoint = {
     radius = math.random(60, 90),
     checkForTerrainCollision = true,

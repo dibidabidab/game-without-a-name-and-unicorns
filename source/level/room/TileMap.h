@@ -10,6 +10,7 @@
 #include "../ecs/systems/EntitySystem.h"
 #include "../../macro_magic/serializable.h"
 #include "../../rendering/room/tile_map/TileSet.h"
+#include "WindMap.h"
 
 SERIALIZABLE(
     tile_update,
@@ -75,6 +76,8 @@ class TileMap
     };
 
     const uint8 width, height, nrOfMaterialTypes;
+
+    WindMap wind;
 
     /**
      * Creates an empty map

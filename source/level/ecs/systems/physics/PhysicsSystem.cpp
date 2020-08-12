@@ -38,7 +38,8 @@ void PhysicsSystem::update(double deltaTime, Room *room)
         auto tmpVel = physics.velocity;
 
         updatePosition(physics, body, deltaTime);
-        updateVelocity(physics, deltaTime);
+        updateVelocity(physics, body, deltaTime);
+        updateWind(physics, body, deltaTime);
 
         physics.prevTouched = prevTouched;
 
@@ -165,7 +166,7 @@ void PhysicsSystem::repositionAfterCollision(const AABB &staticAABB, AABB &dynAA
     moveBody(*p, dynAABB, pixelsToMove);
 }
 
-void PhysicsSystem::updateVelocity(Physics &physics, double deltaTime)
+void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTime)
 {
     physics.velocity.y -= physics.gravity * deltaTime;
 
@@ -189,6 +190,10 @@ void PhysicsSystem::updateVelocity(Physics &physics, double deltaTime)
 
         if (physics.touches.leftWall && physics.velocity.x < 0) physics.velocity.x = 0;
         if (physics.touches.rightWall && physics.velocity.x > 0) physics.velocity.x = 0;
+    }
+    if (physics.moveByWind != 0)
+    {
+        physics.velocity += room->getMap().wind.getAtPixelCoordinates(aabb.center.x, aabb.center.y) * vec2(deltaTime * physics.moveByWind);
     }
 }
 
@@ -374,4 +379,12 @@ void PhysicsSystem::preventFallingThroughPolyPlatform(Physics &physics, AABB &aa
     aabb.center.y = newY;
 
     updateTerrainCollisions(physics, aabb);
+}
+
+void PhysicsSystem::updateWind(Physics &physics, AABB &body, double deltaTime)
+{
+    if (physics.createWind == 0)
+        return;
+
+    room->getMap().wind.getAtPixelCoordinates(body.center.x, body.center.y) += physics.velocity * vec2(deltaTime * physics.createWind);
 }

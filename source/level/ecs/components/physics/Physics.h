@@ -173,7 +173,9 @@ COMPONENT(
     FIELD_DEF_VAL   (vec2,  velocity, vec2(0)),
     FIELD_DEF_VAL   (bool,  ignorePlatforms, false),
     FIELD_DEF_VAL   (bool,  ignorePolyPlatforms, true),
-    FIELD_DEF_VAL   (bool,  ghost, false)
+    FIELD_DEF_VAL   (bool,  ghost, false),
+    FIELD_DEF_VAL   (float, createWind, 0),
+    FIELD_DEF_VAL   (float, moveByWind, 0)
 )
 
     TerrainCollisions touches, prevTouched;

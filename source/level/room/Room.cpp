@@ -91,6 +91,7 @@ void Room::update(double deltaTime)
     }
     tileMap->tileUpdatesPrevUpdate = tileMap->tileUpdatesSinceLastUpdate;
     tileMap->tileUpdatesSinceLastUpdate.clear();
+    tileMap->wind.update(deltaTime);
 }
 
 Room::~Room()
