@@ -1,6 +1,7 @@
 
-arg("length", math.random(120, 200))
+arg("length", math.random(120, 220))
 arg("zIndex", -600 - math.random(200))
+arg("appleChance", math.random() * .1)
 
 components = {
     AABB = {
@@ -52,7 +53,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
         goto begin
     end
 
-    local thickness = length > 52 and 3 or (length > 24 and 2 or 1)
+    local thickness = length > 64 and 3 or (length > 30 and 2 or 1)
     local xThickness = 1
     local yThickness = 1
     if horizontal then
@@ -109,7 +110,14 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
                     sprite = "sprites/tree_leaves",
                     zIndex = leavePosAlongBranch > .7 and zIndexBegin or zIndexEnd,
                     frame = math.random(0, 2)
-                }
+                },
+                TemplateSpawner = {
+                    templateName = "TreeLeaveParticle",
+                    minDelay = 4,
+                    maxDelay = 100,
+                    minQuantity = 1,
+                    maxQuantity = 1
+                },
             }
 
             local minStep = 5 / length
@@ -145,13 +153,36 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
             }
         }
 
-        local minStep = 2 / length
+        local minStep = 4 / length
         local maxStep = minStep * 2
 
         leavePosAlongBranch = leavePosAlongBranch + minStep + math.random() * (maxStep - minStep)
 
     until leavePosAlongBranch >= .96
     -- END SMALL LEAVES
+
+    -- APPLE:
+    if math.random() < args.appleChance then
+        local appleName = "apple." .. branchNr
+        applyTemplate(createChild(appleName), "Apple")
+        childComponents[appleName] = {
+            AttachToRope = {
+                ropeEntity = branch,
+                x = math.random(),
+                offset = {0, -4}
+            },
+            Physics = {
+                gravity = 0
+            },
+            Health = {
+                componentsToRemoveOnDeath = { "Physics" }
+            },
+            AsepriteView = {
+                zIndex = zIndexEnd + 32
+            }
+        }
+    end
+    -- END APPLE
 
     -- SUB BRANCHES:
     if length > 20 then
@@ -174,7 +205,7 @@ end
 
 addBranches = function(side)
 
-    x = .1 + math.random() * .3
+    x = .1 + math.random() * .4
 
     repeat
 

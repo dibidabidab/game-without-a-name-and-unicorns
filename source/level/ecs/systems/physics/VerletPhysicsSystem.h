@@ -124,6 +124,7 @@ class VerletPhysicsSystem : public EntitySystem
 
             aabb.center = point0Pos;
             aabb.center += (point1Pos - point0Pos) * (pointIndex - pointIndex0);
+            aabb.center += attach.offset;
         });
     }
 };

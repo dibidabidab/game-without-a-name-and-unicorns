@@ -35,7 +35,8 @@ COMPONENT(
     HASH(ropeEntity),
 
     FIELD_DEF_VAL(entt::entity, ropeEntity, entt::null),
-    FIELD_DEF_VAL(float, x, 1) // where along the rope the entity should stick to. 0 = start, 1 = end
+    FIELD_DEF_VAL(float, x, 1), // where along the rope the entity should stick to. 0 = start, 1 = end
+    FIELD_DEF_VAL(ivec2, offset, ivec2(0))
 )
 END_COMPONENT(AttachToRope)
 
