@@ -5,7 +5,7 @@ applyTemplate(rope, "Rope", {
   color = 6,
   endPointEntity = entity,
   length = math.random(20, 40),
-  moveByWind = 2
+  moveByWind = 1
 })
 
 components = {

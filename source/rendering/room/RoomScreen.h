@@ -214,7 +214,7 @@ class RoomScreen : public Screen
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
 
         ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(180, 300), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(180, 320), ImGuiCond_FirstUseEver);
 
         static bool
             vsync = Game::settings.graphics.vsync,
@@ -223,8 +223,7 @@ class RoomScreen : public Screen
             renderShadowDebugLines = false,
             renderHitboxes = false,
             debugLegs = renderHitboxes,
-            debugAimTargets = renderHitboxes,
-            debugPolyPlatforms = renderHitboxes;
+            debugAimTargets = renderHitboxes;
 
         static bool editRoom = false;
         if (ImGui::Begin("debug tools"))
@@ -236,7 +235,6 @@ class RoomScreen : public Screen
             ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
             ImGui::Checkbox("debug legs", &debugLegs);
             ImGui::Checkbox("debug aim targets", &debugAimTargets);
-            ImGui::Checkbox("debug poly-platforms", &debugPolyPlatforms);
             inspector.show |= ImGui::Button("entity inspector");
             paletteEditor.show |= ImGui::Button("palette editor");
             if (ImGui::Button("edit shader"))
@@ -309,7 +307,20 @@ class RoomScreen : public Screen
                 for (int i = 1; i < rope.points.size(); i++)
                     lineRenderer.line(rope.points.at(i - 1).currentPos, rope.points.at(i).currentPos, vec3(mu::X));
             });
-            lineRenderer.axes(mu::ZERO_3, 16, vec3(1));
+            room->entities.view<AABB, Polyline, PolyPlatform>().each([&](const AABB &aabb, const Polyline &line, auto &) {
+
+                if (line.points.empty())
+                    return;
+
+                auto it = line.points.begin();
+                for (int i = 0; i < line.points.size() - 1; i++)
+                {
+                    vec2 p0 = *it + vec2(aabb.center);
+                    vec2 p1 = *(++it) + vec2(aabb.center);
+                    lineRenderer.line(p0, p1, mu::X + mu::Z);
+                    lineRenderer.circle(p0, 2, 8, vec3(1));
+                }
+            });
         }
 
         if (debugLegs)
@@ -341,20 +352,6 @@ class RoomScreen : public Screen
         if (debugAimTargets) room->entities.view<Aiming, AABB>().each([&](const Aiming &aim, const AABB &aabb) {
             lineRenderer.axes(aim.target, 4, mu::X);
             lineRenderer.line(aim.target, aabb.center, mu::X);
-        });
-        if (debugPolyPlatforms) room->entities.view<AABB, Polyline, PolyPlatform>().each([&](const AABB &aabb, const Polyline &line, auto &) {
-
-            if (line.points.empty())
-                return;
-
-            auto it = line.points.begin();
-            for (int i = 0; i < line.points.size() - 1; i++)
-            {
-                vec2 p0 = *it + vec2(aabb.center);
-                vec2 p1 = *(++it) + vec2(aabb.center);
-                lineRenderer.line(p0, p1, mu::X + mu::Z);
-                lineRenderer.circle(p0, 2, 8, vec3(1));
-            }
         });
 
         inspector.entityTemplates = room->getTemplateNames();

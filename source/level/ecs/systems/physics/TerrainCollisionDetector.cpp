@@ -4,11 +4,12 @@
 #include "../../components/physics/PolyPlatform.h"
 #include "../../components/Polyline.h"
 
-TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms)
+void TerrainCollisionDetector::detect(
+        TerrainCollisions &collisions, const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms, bool ignoreFluids
+)
 {
-    TerrainCollisions collisions; // todo, remember prev polyPlatformEntity
-
     collisions.polyPlatform = ignorePolyPlatforms ? false : onPolyPlatform(aabb, collisions, ignorePlatforms);
+    collisions.fluid = ignoreFluids ? false : inFluid(aabb, collisions);
 
     collisions.halfSlopeDown = halfSlopeDownIntersection(aabb, collisions.floorMaterial);
     collisions.halfSlopeUp = halfSlopeUpIntersection(aabb, collisions.floorMaterial);
@@ -31,9 +32,7 @@ TerrainCollisions TerrainCollisionDetector::detect(const AABB &aabb, bool ignore
             collisions.rightWall = true;
     }
 
-    collisions.anything = collisions.floor || collisions.leftWall || collisions.rightWall || collisions.ceiling;
-
-    return collisions;
+    collisions.anything = collisions.floor || collisions.leftWall || collisions.rightWall || collisions.ceiling || collisions.fluid;
 }
 
 /**
@@ -310,4 +309,34 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
     col.polyPlatformEntity = entt::null;
     col.polyPlatformDeltaLeft = col.polyPlatformDeltaRight = 0;
     return false;
+}
+
+bool TerrainCollisionDetector::inFluid(const AABB &aabb, TerrainCollisions &col)
+{
+    bool foundFluid = false;
+
+    auto test = [&](auto fluidEntity, const AABB &fluidBox, Fluid &fluid) {
+
+        if (foundFluid || !fluidBox.overlaps(aabb))
+            return;
+
+        col.fluidEntity = fluidEntity;
+        foundFluid = true;
+    };
+
+    if (col.fluidEntity != entt::null) // entity was in a fluid previous frame, test if entity is still in the same fluid before looping over all other fluids.
+    {
+        const AABB *aabb = reg->try_get<AABB>(col.fluidEntity);
+        Fluid *fluid = reg->try_get<Fluid>(col.fluidEntity);
+        if (aabb && fluid)
+            test(col.fluidEntity, *aabb, *fluid);
+    }
+
+    if (!foundFluid)
+    {
+        col.fluidEntity = entt::null;
+        reg->view<AABB, Fluid>().each(test);
+    }
+
+    return foundFluid;
 }

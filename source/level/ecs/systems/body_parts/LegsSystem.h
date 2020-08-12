@@ -91,7 +91,8 @@ class LegsSystem : public EntitySystem
 
                     tempFoot.center = leg.target;
 
-                    auto footTouches = collisionDetector.detect(tempFoot, false, !bodyPhysics.touches.polyPlatform);
+                    TerrainCollisions footTouches;
+                    collisionDetector.detect(footTouches, tempFoot, false, !bodyPhysics.touches.polyPlatform);
 
                     if (footTouches.pixelsAbovePolyPlatform != 0)
                     {
@@ -116,7 +117,8 @@ class LegsSystem : public EntitySystem
 
                     tempFoot.center = leg.target;
 
-                    auto footTouches = collisionDetector.detect(tempFoot, false, bodyPhysics.ignorePolyPlatforms);
+                    TerrainCollisions footTouches;
+                    collisionDetector.detect(footTouches, tempFoot, false, bodyPhysics.ignorePolyPlatforms);
 
                     if (footTouches.pixelsAbovePolyPlatform != 0 && footTouches.pixelsAbovePolyPlatform < 4)
                     {
@@ -235,8 +237,10 @@ class LegsSystem : public EntitySystem
             }
 
             TerrainCollisionDetector collisionDetector(room->getMap());
+            TerrainCollisions footTouches;
+            collisionDetector.detect(footTouches, footAABB, false, bodyPhysics.touches.polyPlatform);
 
-            if (collisionDetector.detect(footAABB, false, bodyPhysics.touches.polyPlatform).floor) // foot has reached the floor. stop moving
+            if (footTouches.floor) // foot has reached the floor. stop moving
             {
                 leg.stopMoving();
                 return vec2(0);

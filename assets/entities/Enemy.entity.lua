@@ -4,7 +4,8 @@ components = {
         halfSize = {5, 8}
     },
     Physics = {
-        ignorePolyPlatforms = false
+        ignorePolyPlatforms = false,
+        ignoreFluids = false
     },
     StaticCollider = {},
     Health = {

@@ -23,7 +23,8 @@ struct TerrainCollisions
         slopedCeilingUp   = false,  // only Tile::sloped_ceil_up
         leftWall          = false,  // anything that should prevent an entity from going to the left
         rightWall         = false,  // anything that should prevent an entity from going to the right
-        polyPlatform      = false,  // (possibly moving?) platforms with multiple non-grid-based vertices
+        polyPlatform      = false,  // (possibly moving?)-platforms with multiple non-grid-based vertices
+        fluid             = false,  // fluids, eg: a pool of water
         anything          = false;  // ANY of the above
 
     TileMaterial floorMaterial = 0;
@@ -46,6 +47,8 @@ struct TerrainCollisions
      */
     entt::entity abovePolyPlatformEntity = entt::null;
     uint8 pixelsAbovePolyPlatform = 0;
+
+    entt::entity fluidEntity = entt::null;
 };
 
 // TODO, bug: when Tile::slope_up and Tile::slope_down are placed next to each other -> player can fall through them
@@ -63,22 +66,24 @@ class TerrainCollisionDetector
     /**
      * Detects collisions with the terrain.
      */
-    TerrainCollisions detect(const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms=true);
+    void detect(TerrainCollisions &, const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms=true, bool ignoreFluids=true);
 
   private:
 
-    bool ceilingIntersection(const AABB &aabb);
-    bool slopedCeilingDownIntersection(const AABB &aabb);
-    bool slopedCeilingUpIntersection(const AABB &aabb);
-    bool slopeDownIntersection(const AABB &aabb, TileMaterial &);
-    bool slopeUpIntersection(const AABB &aabb, TileMaterial &);
-    bool halfSlopeDownIntersection(const AABB &aabb, TileMaterial &);
-    bool halfSlopeUpIntersection(const AABB &aabb, TileMaterial &);
-    bool floorIntersection(const AABB &aabb, bool ignorePlatforms, TileMaterial &);
-    bool leftWallIntersection(const AABB &aabb);
-    bool rightWallIntersection(const AABB &aabb);
+    bool ceilingIntersection(const AABB &);
+    bool slopedCeilingDownIntersection(const AABB &);
+    bool slopedCeilingUpIntersection(const AABB &);
+    bool slopeDownIntersection(const AABB &, TileMaterial &);
+    bool slopeUpIntersection(const AABB &, TileMaterial &);
+    bool halfSlopeDownIntersection(const AABB &, TileMaterial &);
+    bool halfSlopeUpIntersection(const AABB &, TileMaterial &);
+    bool floorIntersection(const AABB &, bool ignorePlatforms, TileMaterial &);
+    bool leftWallIntersection(const AABB &);
+    bool rightWallIntersection(const AABB &);
 
-    bool onPolyPlatform(const AABB &aabb, TerrainCollisions &, bool fallThrough);
+    bool onPolyPlatform(const AABB &, TerrainCollisions &, bool fallThrough);
+
+    bool inFluid(const AABB &, TerrainCollisions &);
 
 };
 

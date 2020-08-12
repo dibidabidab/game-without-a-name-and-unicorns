@@ -28,7 +28,10 @@ class HeadsSystem : public EntitySystem
                 AABB tmpAABB = aabb;
                 tmpAABB.center.y -= i;
 
-                if (!collisionDetector.detect(tmpAABB, true).ceiling)
+                TerrainCollisions headTouches;
+                collisionDetector.detect(headTouches, tmpAABB, true);
+
+                if (!headTouches.ceiling)
                     break;
             }
 

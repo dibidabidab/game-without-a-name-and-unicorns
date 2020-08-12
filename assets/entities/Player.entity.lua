@@ -5,7 +5,8 @@ createChild("rightLeg")
 components = {
     Physics = {
         ignorePolyPlatforms = false,
-        createWind = 3
+        createWind = 3,
+        ignoreFluids = false
     },
     AABB = {
         halfSize = {3, 13},

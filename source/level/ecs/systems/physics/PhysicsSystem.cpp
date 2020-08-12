@@ -31,6 +31,10 @@ void PhysicsSystem::update(double deltaTime, Room *room)
         platform.entitiesOnPlatform.clear();
     });
 
+    room->entities.view<Fluid>().each([&](Fluid &fluid) {
+        fluid.entitiesInFluid.clear();
+    });
+
 
     room->entities.view<Physics, AABB>().each([&](auto e, Physics &physics, AABB &body) {                 /// PHYSICS UPDATE
 
@@ -66,6 +70,9 @@ void PhysicsSystem::update(double deltaTime, Room *room)
             physics.justMovedByPolyPlatform = false;
         else
             physics.pixelsMovedByPolyPlatform = ivec2(0);
+
+        if (physics.touches.fluid)
+            room->entities.get<Fluid>(physics.touches.fluidEntity).entitiesInFluid.push_back(e);
     });
 
 
@@ -168,7 +175,13 @@ void PhysicsSystem::repositionAfterCollision(const AABB &staticAABB, AABB &dynAA
 
 void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTime)
 {
-    physics.velocity.y -= physics.gravity * deltaTime;
+    Fluid *fluid = physics.touches.fluid ? room->entities.try_get<Fluid>(physics.touches.fluidEntity) : NULL;
+
+    float gravity = physics.gravity;
+    if (fluid)
+        gravity -= fluid->reduceGravity;
+
+    physics.velocity.y -= gravity * deltaTime;
 
     float friction = physics.airFriction;
 
@@ -176,6 +189,9 @@ void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTim
         friction = physics.floorFriction * room->getMap().getMaterialProperties(physics.touches.floorMaterial).friction;
     else if (physics.velocity.y < 0 && (physics.touches.rightWall || physics.touches.leftWall))
         friction = physics.wallFriction;
+
+    if (fluid)
+        friction *= fluid->friction;
 
     friction *= deltaTime;
 
@@ -278,7 +294,7 @@ void PhysicsSystem::updateTerrainCollisions(Physics &physics, AABB &body)
 {
     AABB outlineBox = body;
     outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
-    physics.touches = collisionDetector->detect(outlineBox, physics.ignorePlatforms, physics.ignorePolyPlatforms);
+    collisionDetector->detect(physics.touches, outlineBox, physics.ignorePlatforms, physics.ignorePolyPlatforms, physics.ignoreFluids);
 }
 
 template<typename vec>

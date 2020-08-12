@@ -161,10 +161,7 @@ struct ComponentInterpolator<AABB>
 COMPONENT(
     Physics,
 
-    HASH(
-        int(velocity.x) / 50, int(velocity.y) / 50, int(gravity), bool(velocity.x == 0), bool(velocity.y == 0), // todo this is probably broken since the introduction of friction.
-        airFriction, floorFriction, wallFriction, ignorePlatforms
-    ),
+    HASH(0), // todo: make this multiplayer-compatible again
 
     FIELD_DEF_VAL   (float, gravity, 1250),
     FIELD_DEF_VAL   (float, airFriction, 2.8),
@@ -175,7 +172,8 @@ COMPONENT(
     FIELD_DEF_VAL   (bool,  ignorePolyPlatforms, true),
     FIELD_DEF_VAL   (bool,  ghost, false),
     FIELD_DEF_VAL   (float, createWind, 0),
-    FIELD_DEF_VAL   (float, moveByWind, 0)
+    FIELD_DEF_VAL   (float, moveByWind, 0),
+    FIELD_DEF_VAL   (bool,  ignoreFluids, true)
 )
 
     TerrainCollisions touches, prevTouched;
@@ -207,6 +205,8 @@ COMPONENT(
             lineRenderer.circle(body.bottomCenter(), 2, 8, mu::Y);
         if (touches.pixelsAbovePolyPlatform != 0)
             lineRenderer.line(body.bottomCenter(), body.bottomCenter() - ivec2(0, touches.pixelsAbovePolyPlatform), vec3(1, 1, 0));
+        if (touches.fluid)
+            lineRenderer.circle(body.center, min(body.halfSize.x, body.halfSize.y), 8, color);
     }
 
 END_COMPONENT(Physics)
@@ -239,5 +239,16 @@ COMPONENT(
     FIELD_DEF_VAL(vec2, targetOffset, vec2(0))
 )
 END_COMPONENT(DistanceConstraint)
+
+COMPONENT(
+    Fluid,
+    HASH(0),
+    FIELD_DEF_VAL(float, friction, 3),
+    FIELD_DEF_VAL(float, reduceGravity, 800)
+)
+
+    std::vector<entt::entity> entitiesInFluid;
+
+END_COMPONENT(Fluid)
 
 #endif

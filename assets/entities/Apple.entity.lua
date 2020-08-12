@@ -18,7 +18,7 @@ components = {
             },
             SoundSpeaker = {
                 sound = "sounds/apple_hit",
-                pitch = math.random() + .5,
+                pitch = math.random() + .9,
                 volume = 1. + math.random()
             }
         },
