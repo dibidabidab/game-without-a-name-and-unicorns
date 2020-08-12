@@ -15,6 +15,11 @@ components = {
             },
             DespawnAfter = {
                 time = .1
+            },
+            SoundSpeaker = {
+                sound = "sounds/apple_hit",
+                pitch = math.random() + .5,
+                volume = 1. + math.random()
             }
         },
         currHealth = 1,
