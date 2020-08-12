@@ -76,7 +76,7 @@ class RoomScreen : public Screen
     RoomScreen(Room *room, const MegaSpriteSheet *spriteSheet, bool showRoomEditor=false)
         :
         room(room), showRoomEditor(showRoomEditor),
-        cam(.1, 100, 0, 0),
+        cam(.1, 1000, 0, 0),
         camMovement(room, &cam),
         tileMapRenderer(&room->getMap()),
         bloodSplatterRenderer(room),

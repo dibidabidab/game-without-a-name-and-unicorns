@@ -13,9 +13,10 @@ PolylineRenderer::PolylineRenderer()
         VertAttributes()
                 .add_({"POINT_A_X", 1, 2, GL_SHORT})
                 .add_({"POINT_A_Y", 1, 2, GL_SHORT})
+                .add_({"POINT_A_Z", 1, 2, GL_SHORT})
                 .add_({"POINT_B_X", 1, 2, GL_SHORT})
                 .add_({"POINT_B_Y", 1, 2, GL_SHORT})
-                .add_({"Z_INDEX", 1})
+                .add_({"POINT_B_Z", 1, 2, GL_SHORT})
                 .add_({"SEGMENT_COLOR_INDEX", 1, 4, GL_UNSIGNED_INT}),
         std::vector<u_char>()
     )
@@ -125,8 +126,11 @@ void PolylineRenderer::addSegment(const DrawPolyline &draw, int i, int polylineS
     if (!draw.colors.empty())
         color = draw.colors.at(i % draw.colors.size());
 
-    float zIndex = polylineSegments == 1 ? 0 : i / float(polylineSegments - 1);
-    zIndex = draw.zIndexBegin * zIndex + draw.zIndexEnd * (1. - zIndex);
+    float zIndex0 = i / float(polylineSegments);
+    zIndex0 = draw.zIndexBegin + zIndex0 * (draw.zIndexEnd - draw.zIndexBegin);
+
+    float zIndex1 = (i + 1.f) / float(polylineSegments);
+    zIndex1 = draw.zIndexBegin + zIndex1 * (draw.zIndexEnd - draw.zIndexBegin);
 
     int repeatI = 0;
     for (int xRepeat = 0; xRepeat < 1 + draw.repeatX; xRepeat++)
@@ -139,12 +143,13 @@ void PolylineRenderer::addSegment(const DrawPolyline &draw, int i, int polylineS
             }
 
             lineSegments.addVertices(1);
-            lineSegments.set<uint16>(p0.x, nrOfSegments, 0);
-            lineSegments.set<uint16>(p0.y, nrOfSegments, 2);
-            lineSegments.set<uint16>(p1.x, nrOfSegments, 4);
-            lineSegments.set<uint16>(p1.y, nrOfSegments, 6);
+            lineSegments.set<int16>(p0.x, nrOfSegments, 0);
+            lineSegments.set<int16>(p0.y, nrOfSegments, 2);
+            lineSegments.set<int16>(zIndex0, nrOfSegments, 4);
+            lineSegments.set<int16>(p1.x, nrOfSegments, 6);
+            lineSegments.set<int16>(p1.y, nrOfSegments, 8);
+            lineSegments.set<int16>(zIndex1, nrOfSegments, 10);
 
-            lineSegments.set<float>(zIndex, nrOfSegments, 8);
             lineSegments.set<uint32>(color, nrOfSegments, 12);
 
             nrOfSegments++;
