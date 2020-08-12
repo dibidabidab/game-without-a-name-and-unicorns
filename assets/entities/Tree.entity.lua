@@ -13,13 +13,14 @@ components = {
     },
     VerletRope = {
         length = args.length,
-        gravity = {0, 250},
+        gravity = {0, 100},
         friction = .8,
-        nrOfPoints = 4
+        nrOfPoints = 4,
+        moveByWind = 6
     },
     AsepriteView = {
         sprite = "sprites/tree_leaves",
-        frame = 3,
+        frame = 4,
         zIndex = args.zIndex
     }
 }
@@ -32,8 +33,6 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
     branchNr = branchNr + 1
 
     local branchName = "branch." .. branchNr
-    print(branchName)
-
     local branch = createChild(branchName)
 
     ::begin::
@@ -76,8 +75,9 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
         VerletRope = {
             length = length,
             gravity = gravity,
-            friction = .8,
-            nrOfPoints = 1
+            friction = .95,
+            nrOfPoints = 1,
+            moveByWind = 6
         },
         AttachToRope = {
             ropeEntity = parentBranch,
@@ -85,15 +85,16 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
         }
     }
 
+    -- BIG LEAVES:
     if addLeaves then
 
-        leavePosAlongBranch = math.min(18 / length, 1)
+        local leavePosAlongBranch = math.min(18 / length, 1)
 
         repeat
 
             leavesNr = leavesNr + 1
 
-            leavesName = "leaves." .. leavesNr
+            local leavesName = "leaves." .. leavesNr
             createChild(leavesName)
 
             childComponents[leavesName] = {
@@ -106,20 +107,53 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
                 },
                 AsepriteView = {
                     sprite = "sprites/tree_leaves",
-                    zIndex = leavePosAlongBranch > .6 and zIndexBegin or zIndexEnd,--zIndexBegin + leavePosAlongBranch * (zIndexEnd - zIndexBegin),
+                    zIndex = leavePosAlongBranch > .7 and zIndexBegin or zIndexEnd,
                     frame = math.random(0, 2)
                 }
             }
 
-            minStep = 5 / length
-            maxStep = minStep * 3
+            local minStep = 5 / length
+            local maxStep = minStep * 3
 
             leavePosAlongBranch = leavePosAlongBranch + minStep + math.random() * (maxStep - minStep)
 
         until leavePosAlongBranch > .9
-
     end
+    -- END BIG LEAVES
 
+    -- SMALL LEAVES:
+    local leavePosAlongBranch = math.min(64 / length, 1)
+    repeat
+
+        leavesNr = leavesNr + 1
+
+        local leavesName = "leave_small." .. leavesNr
+        createChild(leavesName)
+
+        childComponents[leavesName] = {
+            AABB = {},
+            AttachToRope = {
+                ropeEntity = branch,
+                x = leavePosAlongBranch
+            },
+            AsepriteView = {
+                sprite = "sprites/tree_leaves",
+                zIndex = zIndexBegin + leavePosAlongBranch * (zIndexEnd - zIndexBegin),
+                frame = 3,
+                flipHorizontal = gravity[1] < 0 and true or false,
+                flipVertical = gravity[2] < 0 and true or false
+            }
+        }
+
+        local minStep = 2 / length
+        local maxStep = minStep * 2
+
+        leavePosAlongBranch = leavePosAlongBranch + minStep + math.random() * (maxStep - minStep)
+
+    until leavePosAlongBranch >= .96
+    -- END SMALL LEAVES
+
+    -- SUB BRANCHES:
     if length > 20 then
 
         local nrOfNewBranches = math.random(1, length > 32 and (length > 48 and 5 or 3) or 2)
@@ -128,12 +162,13 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
         for _ = 1, nrOfNewBranches do
 
             local newLength = childComponents[branchName].VerletRope.length * (.2 + math.random() * .3)
-            local newPosAlongParent = math.random() * .6 + .3
+            local newPosAlongParent = math.random() * .5 + .4
             local newZIndex = zIndexBegin + newPosAlongParent * (zIndexEnd - zIndexBegin)
 
             addBranch(branch, childComponents[branchName], math.random() > .5 and -1 or 1, newPosAlongParent, newLength, false, newZIndex)
         end
     end
+    -- END SUB BRANCHES
 
 end
 

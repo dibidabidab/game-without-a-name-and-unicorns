@@ -10,6 +10,7 @@ components = {
     }
   },
   Physics = {
-    gravity = 4000
+    gravity = 4000,
+    createWind = 1.5
   }
 }

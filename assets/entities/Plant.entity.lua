@@ -7,17 +7,14 @@ components = {
         sprite = "sprites/plant",
         frame = math.random(0, 2)
     },
-    DynamicCollider = {},
-    Physics = {
-        gravity = 0,
-        moveByWind = 50
-    }
+    DynamicCollider = {}
 }
 
 createChild("plantStem")
 applyTemplate(plantStem, "Rope", {
     draw = true,
-    color = 4
+    color = 4,
+    moveByWind = 10
 })
 
 length = math.random(5, 25)

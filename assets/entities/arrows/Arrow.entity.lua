@@ -6,7 +6,7 @@ components = {
     gravity = 0,
     airFriction = 0,
     ignorePlatforms = true,
-    createWind = 1.
+    createWind = .8
   },
   StaticCollider = {},
   AsepriteView = {

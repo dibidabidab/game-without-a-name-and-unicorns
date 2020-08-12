@@ -4,17 +4,13 @@ applyTemplate(rope, "Rope", {
   draw = true,
   color = 6,
   endPointEntity = entity,
-  length = math.random(20, 40)
+  length = math.random(20, 40),
+  moveByWind = 2
 })
 
 components = {
   AABB = {
     halfSize = {3, 8}
-  },
-  Physics = {
-    gravity = 0,
-    ghost = true,
-    moveByWind = 300
   },
   LightPoint = {
     radius = math.random(60, 90),

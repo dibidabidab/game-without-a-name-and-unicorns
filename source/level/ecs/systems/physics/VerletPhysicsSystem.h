@@ -62,6 +62,9 @@ class VerletPhysicsSystem : public EntitySystem
                 }
 
                 vec2 velocity = (p.currentPos - p.prevPos) * vec2(rope.friction);
+                if (rope.moveByWind != 0)
+                    velocity += room->getMap().wind.getAtPixelCoordinates(p.currentPos.x, p.currentPos.y) * vec2(deltaTime * rope.moveByWind);
+
                 p.prevPos = p.currentPos;
                 p.currentPos += velocity;
                 p.currentPos += rope.gravity * vec2(deltaTime);

@@ -46,7 +46,7 @@ void WindMap::update(float deltaTime)
             vec2 surrounding = get(x - 1, y) + get(x + 1, y) + get(x, y - 1) + get(x, y + 1);
             surrounding *= .25;
 
-            constexpr float SPREAD = 100;
+            constexpr float SPREAD = 200;
             constexpr float DECREASE = 2;
 
             auto &dir = get(x, y);
