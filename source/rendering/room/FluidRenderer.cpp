@@ -7,6 +7,7 @@
 FluidRenderer::FluidRenderer()
     :
     shader("Fluid shader", "shaders/fluids/trapezoid.vert", "shaders/fluids/trapezoid.frag"),
+    reflectionsShader("Fluid Reflections shader", "shaders/fluids/reflectionTrapezoid.vert", "shaders/fluids/reflectionTrapezoid.frag"),
     segments(
         VertAttributes()
             .add_({"BOTTOM_Y", 1, 2, GL_SHORT})
@@ -69,10 +70,40 @@ void FluidRenderer::render(entt::registry &reg, const Camera &cam)
             nrOfSegments++;
         }
     });
+    if (nrOfSegments == 0)
+        return;
 
     segmentsID = trapezoidMesh->vertBuffer->uploadPerInstanceData(segments, 1, segmentsID);
 
     shader.use();
     glUniformMatrix4fv(shader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
     trapezoidMesh->renderInstances(nrOfSegments);
+}
+
+void FluidRenderer::onResize(const Camera &cam)
+{
+    delete reflectionsFbo;
+    reflectionsFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
+    reflectionsFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+}
+
+void FluidRenderer::renderReflections(FrameBuffer *indexedImage, const Camera &cam)
+{
+    gu::profiler::Zone z("fluid reflections");
+
+    reflectionsFbo->bind();
+
+    uint zero = 0;
+    glClearBufferuiv(GL_COLOR, 0, &zero);
+
+    if (nrOfSegments != 0)
+    {
+        reflectionsShader.use();
+        glUniformMatrix4fv(reflectionsShader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
+        indexedImage->colorTexture->bind(2, reflectionsShader, "indexedImage");
+        indexedImage->depthTexture->bind(3, reflectionsShader, "indexedImageDepth");
+        trapezoidMesh->renderInstances(nrOfSegments);
+    }
+
+    reflectionsFbo->unbind();
 }

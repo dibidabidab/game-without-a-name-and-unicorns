@@ -5,12 +5,13 @@
 #include <graphics/3d/mesh.h>
 #include <graphics/shader_asset.h>
 #include <graphics/camera.h>
+#include <graphics/frame_buffer.h>
 #include "../../external/entt/src/entt/entity/registry.hpp"
 
 class FluidRenderer
 {
 
-    ShaderAsset shader;
+    ShaderAsset shader, reflectionsShader;
 
     SharedMesh trapezoidMesh;
     VertData segments;
@@ -20,10 +21,15 @@ class FluidRenderer
 
   public:
 
+    FrameBuffer *reflectionsFbo = NULL;
+
     FluidRenderer();
 
     void render(entt::registry &, const Camera &);
 
+    void renderReflections(FrameBuffer *indexedImage, const Camera &);
+
+    void onResize(const Camera &);
 };
 
 

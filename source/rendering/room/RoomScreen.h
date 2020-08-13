@@ -148,12 +148,14 @@ class RoomScreen : public Screen
             indexedFbo->unbind();
         }
         {
-            gu::profiler::Zone z("lights & shadows");
+            gu::profiler::Zone z("lights/shadows/reflections");
             shadowCaster.updateShadowTexture(tileMapRenderer.fbo.colorTexture, !room->getMap().updatesPrevUpdate().empty());
 
             lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
+
+            fluidRenderer.renderReflections(indexedFbo, cam);
         }
-        {   // indexed image + lights --> RGB image
+        {   // indexed image + lights + reflections --> RGB image
 
             gu::profiler::Zone z("apply palette");
 
@@ -169,8 +171,9 @@ class RoomScreen : public Screen
             glUniform1ui(applyPaletteShader.location("prevPaletteEffect"), prevPaletteEffect);
             glUniform1f(applyPaletteShader.location("timeSinceNewPaletteEffect"), timeSinceNewPaletteEffect);
 
-            indexedFbo->colorTexture->bind(1, applyPaletteShader, "indexedImage");
+            fluidRenderer.reflectionsFbo->colorTexture->bind(1, applyPaletteShader, "reflectionsMap");
             lightMapRenderer.fbo->colorTexture->bind(2, applyPaletteShader, "lightMap");
+            indexedFbo->colorTexture->bind(3, applyPaletteShader, "indexedImage");
 
             Mesh::getQuad()->render();
         }
@@ -206,7 +209,9 @@ class RoomScreen : public Screen
         delete indexedFbo;
         indexedFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
         indexedFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
-        indexedFbo->addDepthBuffer();
+        indexedFbo->addDepthTexture(GL_NEAREST, GL_NEAREST);
+
+        fluidRenderer.onResize(cam);
     }
 
     void renderDebugStuff()
