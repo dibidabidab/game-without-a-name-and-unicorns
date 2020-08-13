@@ -30,7 +30,7 @@ class MegaSpriteSheet
 
   private:
 
-    const static int CHUNK_SIZE = 16, CHUNKS_PER_ROW = SIZE / CHUNK_SIZE;
+    const static int CHUNK_SIZE = 8, CHUNKS_PER_ROW = SIZE / CHUNK_SIZE;
 
     bool used[CHUNKS_PER_ROW][CHUNKS_PER_ROW] = {};
 

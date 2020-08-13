@@ -69,7 +69,7 @@ void BloodSplatterRenderer::updateSplatterTexture(float deltaTime)
 
         drop.timer += deltaTime;
 
-        if (physics.touches.anything && drop.drawPermanentAfterTime == 0)
+        if (drop.permanentDrawOnTerrain && physics.touches.anything && drop.drawPermanentAfterTime == 0)
             drop.drawPermanentAfterTime = mu::random(.01, .2) + drop.timer;
 
         if (drop.drawPermanentAfterTime != 0 && drop.drawPermanentAfterTime < drop.timer && !drop.permanentDraw)
@@ -79,7 +79,7 @@ void BloodSplatterRenderer::updateSplatterTexture(float deltaTime)
             room->entities.assign<DespawnAfter>(e, mu::random(.3, 1));
         }
 
-        if (drop.timer < drop.splitAtTime || drop.splitAtTime == 0 || drop.permanentDraw)
+        if (!drop.split || drop.timer < drop.splitAtTime || drop.splitAtTime == 0 || drop.permanentDraw)
             return;
 
         int newOnes = mu::randomInt(1, 20);

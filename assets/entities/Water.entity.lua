@@ -25,14 +25,16 @@ components = {
     },
     DrawPolyline = {
         addAABBOffset = true,
-        colors = {5}
+        colors = {19}
     },
     Fluid = {
         friction = 2.83, -- this value gives a funny walk animation underwater
         reduceGravity = 900,
 
         enterSound = "sounds/jump_in_water",
-        leaveSound = "sounds/jump_out_water"
+        leaveSound = "sounds/jump_out_water",
+
+        color = 18
     },
     PolylineWaves = {
         stiffness = 150,

@@ -246,6 +246,7 @@ COMPONENT(
     HASH(0),
     FIELD_DEF_VAL(float, friction, 3),
     FIELD_DEF_VAL(float, reduceGravity, 800),
+    FIELD_DEF_VAL(uint8, color, 0u),
 
     FIELD(asset<au::Sound>, enterSound),
     FIELD(asset<au::Sound>, leaveSound)

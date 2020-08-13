@@ -1,6 +1,7 @@
 
 #include "PhysicsSystem.h"
 #include "../../components/Spawning.h"
+#include "../../components/graphics/BloodDrop.h"
 
 void PhysicsSystem::update(double deltaTime, Room *room)
 {
@@ -78,12 +79,13 @@ void PhysicsSystem::update(double deltaTime, Room *room)
         if (physics.touches.fluid && !physics.prevTouched.fluid && physics.velocity.y < 0)
         {
             const auto &fluid = room->entities.get<Fluid>(physics.touches.fluidEntity);
-            spawnFluidSplash(fluid.enterSound, physics, body);
+            spawnFluidSplash(fluid.enterSound, physics, body, fluid.color);
         }
         else if (physics.prevTouched.fluid && !physics.touches.fluid && physics.velocity.y > 0)
         {
             const auto *fluid = room->entities.try_get<Fluid>(physics.prevTouched.fluidEntity);
-            spawnFluidSplash(fluid ? fluid->leaveSound : asset<au::Sound>(), physics, body);
+            if (fluid)
+                spawnFluidSplash(fluid->leaveSound, physics, body, fluid->color);
         }
     });
 
@@ -421,11 +423,37 @@ void PhysicsSystem::updateWind(Physics &physics, AABB &body, double deltaTime)
     room->getMap().wind.getAtPixelCoordinates(body.center.x, body.center.y) += physics.velocity * vec2(deltaTime * physics.createWind);
 }
 
-void PhysicsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Physics &physics, const AABB &aabb)
+void PhysicsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Physics &physics, const AABB &aabb, uint8 fluidColor)
 {
+    float absYVel = abs(physics.velocity.y);
+
     auto speakerEntity = room->entities.create();
     auto &s = room->entities.assign<SoundSpeaker>(speakerEntity, sound);
-    s.volume = min<float>(1., abs(physics.velocity.y) / 200);
-    s.pitch = max<float>(.8, 2. - (abs(physics.velocity.y) / 200)) + mu::random(-.3, .3) ;
+    s.volume = min<float>(1., absYVel / 200);
+    s.pitch = max<float>(.8, 2. - (absYVel / 200)) + mu::random(-.3, .3) ;
     room->entities.assign<DespawnAfter>(speakerEntity, .4f);
+
+    for (int i = 0; i < absYVel * .1; i++)
+    {
+        auto dropE = room->entities.create();
+        room->entities.assign<AABB>(dropE, ivec2(1), aabb.bottomCenter());
+        auto &dropPhysics = room->entities.assign<Physics>(dropE);
+        dropPhysics.airFriction = 0.;
+        dropPhysics.velocity = rotate(vec2(0, absYVel * mu::random(.5, 1.6)), mu::random(20, 70) * mu::DEGREES_TO_RAD);
+        if (mu::random() > .5)
+            dropPhysics.velocity.x *= -1;
+        dropPhysics.velocity.x -= physics.velocity.x;
+
+        if (physics.velocity.y > 0)
+            dropPhysics.velocity *= .6; // leaving fluid
+
+        auto &drop = room->entities.assign<BloodDrop>(dropE);
+        drop.size = mu::random(.2, 1.3);
+        drop.permanentDrawOnTerrain = false;
+        drop.split = false;
+        drop.color = fluidColor;
+
+        room->entities.assign<DespawnAfter>(dropE, mu::random(.4, .6));
+
+    }
 }
