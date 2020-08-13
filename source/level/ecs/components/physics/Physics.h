@@ -3,6 +3,7 @@
 #define GAME_PHYSICS_H
 
 #include <utils/math_utils.h>
+#include <audio/audio.h>
 #include <graphics/3d/debug_line_renderer.h>
 #include "../../systems/physics/TerrainCollisionDetector.h"
 #include "../../../Level.h"
@@ -244,7 +245,10 @@ COMPONENT(
     Fluid,
     HASH(0),
     FIELD_DEF_VAL(float, friction, 3),
-    FIELD_DEF_VAL(float, reduceGravity, 800)
+    FIELD_DEF_VAL(float, reduceGravity, 800),
+
+    FIELD(asset<au::Sound>, enterSound),
+    FIELD(asset<au::Sound>, leaveSound)
 )
 
     std::vector<entt::entity> entitiesInFluid;

@@ -48,6 +48,7 @@ struct TerrainCollisions
     entt::entity abovePolyPlatformEntity = entt::null;
     uint8 pixelsAbovePolyPlatform = 0;
 
+    uint8 fluidDepth = 0;
     entt::entity fluidEntity = entt::null;
 };
 

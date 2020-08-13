@@ -8,6 +8,7 @@
 #include "../../components/physics/Physics.h"
 #include "../../components/physics/PolyPlatform.h"
 #include "../../components/Polyline.h"
+#include "../../components/SoundSpeaker.h"
 
 namespace
 {
@@ -35,6 +36,8 @@ class PhysicsSystem : public EntitySystem
     void update(double deltaTime, Room *) override;
 
   private:
+
+    void spawnFluidSplash(const asset<au::Sound>&, const Physics &, const AABB &);
 
     void moveEntitiesOnPolyPlatform(const PolyPlatform &, const ivec2 &);
 

@@ -16,40 +16,17 @@ COMPONENT(
 
     ivec2 prevAABBPos = ivec2(0);
 
-    static float heightAtX(int x, const vec2 &p0, const vec2 &p1)
-    {
-        vec2 delta = p1 - p0;
-        if (delta.x == 0)
-            return max(p0.y, p1.y);
-        return p0.y + delta.y * ((static_cast<float>(x) - p0.x) / delta.x);
-    }
-
-    static float heightAtX(int x, const Polyline &line, const AABB &platformAABB)
-    {
-        auto it = line.points.begin();
-
-        for (int i = 0; i < line.points.size() - 1; i++)
-        {
-            const vec2 p0 = *it + vec2(platformAABB.center);
-            const vec2 p1 = *(++it) + vec2(platformAABB.center);
-
-            if (p0.x <= x && p1.x >= x)
-                return heightAtX(x, p0, p1);
-        }
-        return -1;
-    }
-
-
 END_COMPONENT(PolyPlatform)
 
 
 COMPONENT(
-    PolyPlatformWaves,
+    PolylineWaves,
     HASH(stiffness, dampening, spread),
     FIELD_DEF_VAL(float, stiffness, 240),
     FIELD_DEF_VAL(float, dampening, 4),
     FIELD_DEF_VAL(float, spread, 45),
-    FIELD_DEF_VAL(float, impactMultiplier, 1)
+    FIELD_DEF_VAL(float, impactMultiplier, 1),
+    FIELD_DEF_VAL(float, moveByWind, 0)
 )
 
     struct Spring
@@ -60,6 +37,6 @@ COMPONENT(
 
     std::vector<Spring> springs;
 
-END_COMPONENT(PolyPlatformWaves)
+END_COMPONENT(PolylineWaves)
 
 #endif //GAME_POLYPLATFORM_H

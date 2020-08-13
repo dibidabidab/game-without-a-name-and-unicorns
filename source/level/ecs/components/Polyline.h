@@ -21,6 +21,30 @@ COMPONENT(
     HASH(0),
     FIELD(std::list<vec2>, points)
 )
+
+    static float heightAtX(int x, const vec2 &p0, const vec2 &p1)
+    {
+        vec2 delta = p1 - p0;
+        if (delta.x == 0)
+            return max(p0.y, p1.y);
+        return p0.y + delta.y * ((static_cast<float>(x) - p0.x) / delta.x);
+    }
+
+    float heightAtX(int x, const vec2 &offset)
+    {
+        auto it = points.begin();
+
+        for (int i = 0; i < points.size() - 1; i++)
+        {
+            const vec2 p0 = *it + offset;
+            const vec2 p1 = *(++it) + offset;
+
+            if (p0.x <= x && p1.x >= x)
+                return heightAtX(x, p0, p1);
+        }
+        return -1;
+    }
+
 END_COMPONENT(Polyline)
 
 #endif //GAME_POLYLINE_H

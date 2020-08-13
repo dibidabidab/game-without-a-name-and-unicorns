@@ -6,8 +6,7 @@ components = {
     AsepriteView = {
         sprite = "sprites/plant",
         frame = math.random(0, 2)
-    },
-    DynamicCollider = {}
+    }
 }
 
 createChild("plantStem")

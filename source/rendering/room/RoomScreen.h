@@ -307,7 +307,8 @@ class RoomScreen : public Screen
                 for (int i = 1; i < rope.points.size(); i++)
                     lineRenderer.line(rope.points.at(i - 1).currentPos, rope.points.at(i).currentPos, vec3(mu::X));
             });
-            room->entities.view<AABB, Polyline, PolyPlatform>().each([&](const AABB &aabb, const Polyline &line, auto &) {
+
+            auto drawPolyLine = [&](const AABB &aabb, const Polyline &line, auto &) {
 
                 if (line.points.empty())
                     return;
@@ -320,7 +321,9 @@ class RoomScreen : public Screen
                     lineRenderer.line(p0, p1, mu::X + mu::Z);
                     lineRenderer.circle(p0, 2, 8, vec3(1));
                 }
-            });
+            };
+            room->entities.view<AABB, Polyline, PolyPlatform>().each(drawPolyLine);
+            room->entities.view<AABB, Polyline, Fluid>().each(drawPolyLine);
         }
 
         if (debugLegs)

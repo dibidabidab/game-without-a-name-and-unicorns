@@ -219,6 +219,7 @@ bool TerrainCollisionDetector::halfSlopeUpIntersection(const AABB &aabb, TileMat
 bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollisions &col, bool fallThrough)
 {
     if (!reg) return false;
+    col.abovePolyPlatformEntity = entt::null;
 
     ivec2 point = aabb.bottomCenter();
     int xLeft = point.x - 1, xRight = point.x + 1;
@@ -246,9 +247,9 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
 
             int xMin = p0.x, xMax = p1.x - 1;
             if (xMax >= xLeft && xMin <= xLeft)
-                heightLeft = platform.heightAtX(xLeft, p0, p1);
+                heightLeft = line.heightAtX(xLeft, p0, p1);
             if (xMax >= point.x && xMin <= point.x)
-                height = platform.heightAtX(point.x, p0, p1);
+                height = line.heightAtX(point.x, p0, p1);
             if (xMax >= xRight && xMin <= xRight)
             {
                 if (height == point.y) // entity is ON the platform:
@@ -256,7 +257,7 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
                     if (heightLeft == -99)
                         heightLeft = height;
 
-                    heightRight = platform.heightAtX(xRight, p0, p1);
+                    heightRight = line.heightAtX(xRight, p0, p1);
 
                     col.polyPlatformDeltaLeft = heightLeft - height;
                     col.polyPlatformDeltaRight = heightRight - height;
@@ -314,11 +315,22 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
 bool TerrainCollisionDetector::inFluid(const AABB &aabb, TerrainCollisions &col)
 {
     bool foundFluid = false;
+    col.fluidDepth = 255;
 
     auto test = [&](auto fluidEntity, const AABB &fluidBox, Fluid &fluid) {
 
         if (foundFluid || !fluidBox.overlaps(aabb))
             return;
+
+        Polyline *surfaceLine = reg->try_get<Polyline>(fluidEntity);
+        if (surfaceLine)
+        {
+            float height = surfaceLine->heightAtX(aabb.center.x, fluidBox.center);
+            int depth = aabb.center.y - aabb.halfSize.y - height;
+            if (depth >= 0)
+                return;
+            col.fluidDepth = depth;
+        }
 
         col.fluidEntity = fluidEntity;
         foundFluid = true;

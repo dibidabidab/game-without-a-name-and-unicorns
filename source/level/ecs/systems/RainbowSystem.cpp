@@ -110,7 +110,7 @@ void RainbowSystem::updateDisappearingRainbows(float deltaTime)
             {
                 line.points.pop_front();
 
-                PolyPlatformWaves *waves = room->entities.try_get<PolyPlatformWaves>(e);
+                PolylineWaves *waves = room->entities.try_get<PolylineWaves>(e);
                 if (waves && !waves->springs.empty())
                     waves->springs.erase(waves->springs.begin());
             }

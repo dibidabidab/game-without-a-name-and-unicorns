@@ -4,7 +4,7 @@ components = {
     PolyPlatform = {
         material = 2 -- "bouncy" material
     },
-    PolyPlatformWaves = {},
+    PolylineWaves = {},
     Polyline = {
         points = {}
     },

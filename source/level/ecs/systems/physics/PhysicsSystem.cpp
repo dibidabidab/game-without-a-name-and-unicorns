@@ -1,5 +1,6 @@
 
 #include "PhysicsSystem.h"
+#include "../../components/Spawning.h"
 
 void PhysicsSystem::update(double deltaTime, Room *room)
 {
@@ -73,6 +74,17 @@ void PhysicsSystem::update(double deltaTime, Room *room)
 
         if (physics.touches.fluid)
             room->entities.get<Fluid>(physics.touches.fluidEntity).entitiesInFluid.push_back(e);
+
+        if (physics.touches.fluid && !physics.prevTouched.fluid && physics.velocity.y < 0)
+        {
+            const auto &fluid = room->entities.get<Fluid>(physics.touches.fluidEntity);
+            spawnFluidSplash(fluid.enterSound, physics, body);
+        }
+        else if (physics.prevTouched.fluid && !physics.touches.fluid && physics.velocity.y > 0)
+        {
+            const auto *fluid = room->entities.try_get<Fluid>(physics.prevTouched.fluidEntity);
+            spawnFluidSplash(fluid ? fluid->leaveSound : asset<au::Sound>(), physics, body);
+        }
     });
 
 
@@ -179,7 +191,11 @@ void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTim
 
     float gravity = physics.gravity;
     if (fluid)
-        gravity -= fluid->reduceGravity;
+    {
+        float m = min<float>(1., physics.touches.fluidDepth / 20.f);
+
+        gravity -= fluid->reduceGravity * m;
+    }
 
     physics.velocity.y -= gravity * deltaTime;
 
@@ -380,7 +396,7 @@ void PhysicsSystem::preventFallingThroughPolyPlatform(Physics &physics, AABB &aa
 
 
     // is the entity movement valid
-    int platformHeight = platform->heightAtX(aabb.center.x, *line, *platformAABB);
+    int platformHeight = line->heightAtX(aabb.center.x, platformAABB->center);
     if (platformHeight == -1)
         return;
 
@@ -403,4 +419,13 @@ void PhysicsSystem::updateWind(Physics &physics, AABB &body, double deltaTime)
         return;
 
     room->getMap().wind.getAtPixelCoordinates(body.center.x, body.center.y) += physics.velocity * vec2(deltaTime * physics.createWind);
+}
+
+void PhysicsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Physics &physics, const AABB &aabb)
+{
+    auto speakerEntity = room->entities.create();
+    auto &s = room->entities.assign<SoundSpeaker>(speakerEntity, sound);
+    s.volume = min<float>(1., abs(physics.velocity.y) / 200);
+    s.pitch = max<float>(.8, 2. - (abs(physics.velocity.y) / 200));
+    room->entities.assign<DespawnAfter>(speakerEntity, .4f);
 }

@@ -15,25 +15,30 @@ class WavesSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;
 
+    Room *room;
+
   protected:
 
     void update(double deltaTime, Room *room) override
     {
-        room->entities.view<PolyPlatform, Polyline, PolyPlatformWaves, AABB>().each([&](
-            PolyPlatform &platform, Polyline &line, PolyPlatformWaves &wave, AABB &aabb
+        this->room = room;
+        room->entities.view<Polyline, PolylineWaves, AABB>().each([&](
+                Polyline &line, PolylineWaves &wave, AABB &aabb
         ){
+            float fakeDeltaTime = deltaTime;
+            constexpr float maxDeltaTime = 1. / 120.;
+
+            while (fakeDeltaTime > maxDeltaTime)
             {
-                float fakeDeltaTime = deltaTime;
-                constexpr float maxDeltaTime = 1. / 120.;
-
-                while (fakeDeltaTime > maxDeltaTime)
-                {
-                    updateWaves(maxDeltaTime, platform, line, wave, aabb);
-                    fakeDeltaTime -= maxDeltaTime;
-                }
-                updateWaves(fakeDeltaTime, platform, line, wave, aabb);
+                updateWaves(maxDeltaTime, line, wave, aabb);
+                fakeDeltaTime -= maxDeltaTime;
             }
+            updateWaves(fakeDeltaTime, line, wave, aabb);
+        });
 
+        room->entities.view<PolyPlatform, Polyline, PolylineWaves, AABB>().each([&](
+                PolyPlatform &platform, Polyline &line, PolylineWaves &wave, AABB &aabb
+        ){
             for (auto e : platform.entitiesOnPlatform)
             {
                 const AABB *onPlatformAABB = room->entities.try_get<AABB>(e);
@@ -64,7 +69,7 @@ class WavesSystem : public EntitySystem
         });
     }
 
-    void updateWaves(float deltaTime, PolyPlatform &platform, Polyline &line, PolyPlatformWaves &wave, AABB &aabb)
+    void updateWaves(float deltaTime, Polyline &line, PolylineWaves &wave, AABB &aabb)
     {
         int i = 0;
         for (vec2 &p : line.points)
@@ -72,7 +77,7 @@ class WavesSystem : public EntitySystem
             if (i == wave.springs.size())
                 wave.springs.emplace_back();
 
-            PolyPlatformWaves::Spring &spring = wave.springs.at(i);
+            PolylineWaves::Spring &spring = wave.springs.at(i);
 
             // x = height - targetHeight;
             float x = p.y - (p.y - spring.yOffset);
@@ -85,6 +90,10 @@ class WavesSystem : public EntitySystem
             spring.yOffset += spring.velocity * deltaTime;
             spring.velocity += acceleration * deltaTime;
 
+            if (wave.moveByWind != 0)
+            {
+                spring.velocity += wave.moveByWind * room->getMap().wind.getAtPixelCoordinates(p.x + aabb.center.x, p.y + aabb.center.y).y;
+            }
             i++;
         }
         wave.springs.resize(i);
