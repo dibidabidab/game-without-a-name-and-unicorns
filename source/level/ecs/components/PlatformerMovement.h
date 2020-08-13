@@ -26,6 +26,7 @@ COMPONENT(
     FIELD_DEF_VAL(float, coyoteTime, .25),
     FIELD_DEF_VAL(float, jumpAntiGravity, .7),
     FIELD_DEF_VAL(float, airControl, 6),
+    FIELD_DEF_VAL(float, swimVelocity, 960),
     FIELD_DEF_VAL(bool, spawnDustTrails, true)
 )
     // used by system:

@@ -426,6 +426,6 @@ void PhysicsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Physic
     auto speakerEntity = room->entities.create();
     auto &s = room->entities.assign<SoundSpeaker>(speakerEntity, sound);
     s.volume = min<float>(1., abs(physics.velocity.y) / 200);
-    s.pitch = max<float>(.8, 2. - (abs(physics.velocity.y) / 200));
+    s.pitch = max<float>(.8, 2. - (abs(physics.velocity.y) / 200)) + mu::random(-.3, .3) ;
     room->entities.assign<DespawnAfter>(speakerEntity, .4f);
 }
