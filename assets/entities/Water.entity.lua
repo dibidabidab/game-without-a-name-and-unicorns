@@ -25,7 +25,8 @@ components = {
     },
     DrawPolyline = {
         addAABBOffset = true,
-        colors = {19}
+        colors = {19},
+        zIndexBegin = -512, zIndexEnd = -512
     },
     Fluid = {
         friction = 2.83, -- this value gives a funny walk animation underwater

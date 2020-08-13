@@ -37,6 +37,7 @@
 #include "../../Game.h"
 #include "../../level/ecs/components/graphics/PaletteSetter.h"
 #include "blood_splatter/BloodSplatterRenderer.h"
+#include "FluidRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -67,6 +68,7 @@ class RoomScreen : public Screen
     SpriteRenderer spriteRenderer;
 
     PolylineRenderer polylineRenderer;
+    FluidRenderer fluidRenderer;
 
     uint currentPaletteEffect = 0, prevPaletteEffect = 0;
     float timeSinceNewPaletteEffect = 0;
@@ -140,6 +142,7 @@ class RoomScreen : public Screen
             spriteRenderer.render(deltaTime, cam, room->entities);
             bloodSplatterRenderer.render(cam);
             polylineRenderer.render(room->entities, cam);
+            fluidRenderer.render(room->entities, cam);
 
             glDisable(GL_DEPTH_TEST);
             indexedFbo->unbind();
