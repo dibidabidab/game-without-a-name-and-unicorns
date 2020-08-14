@@ -153,7 +153,7 @@ class RoomScreen : public Screen
 
             lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
 
-            fluidRenderer.renderReflections(indexedFbo, cam);
+            fluidRenderer.renderReflections(indexedFbo, cam, room->getLevel()->getTime());
         }
         {   // indexed image + lights + reflections --> RGB image
 

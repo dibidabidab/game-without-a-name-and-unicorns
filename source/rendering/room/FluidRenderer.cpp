@@ -13,8 +13,8 @@ FluidRenderer::FluidRenderer()
             .add_({"BOTTOM_Y", 1, 2, GL_SHORT})
             .add_({"LEFT_X", 1, 2, GL_SHORT})
             .add_({"RIGHT_X", 1, 2, GL_SHORT})
-            .add_({"TOP_LEFT_Y", 1, 2, GL_SHORT})
-            .add_({"TOP_RIGHT_Y", 1, 2, GL_SHORT})
+            .add_({"TOP_LEFT_Y", 1, 4, GL_FLOAT})
+            .add_({"TOP_RIGHT_Y", 1, 4, GL_FLOAT})
             .add_({"SEGMENT_COLOR_INDEX", 1, 2, GL_SHORT}),
         std::vector<u_char>()
     )
@@ -54,18 +54,17 @@ void FluidRenderer::render(entt::registry &reg, const Camera &cam)
         {
             segments.addVertices(1);
 
-            short
-                leftX = it->x + aabb.center.x,
-                topLeftY = it->y + aabb.center.y,
-                rightX = (++it)->x + aabb.center.x,
-                topRightY = it->y + aabb.center.y;
+            short leftX = it->x + aabb.center.x;
+            float topLeftY = it->y + aabb.center.y;
+            short rightX = (++it)->x + aabb.center.x;
+            float topRightY = it->y + aabb.center.y;
 
             segments.set<short>(bottomY, nrOfSegments, 0);
             segments.set<short>(leftX, nrOfSegments, 2);
             segments.set<short>(rightX, nrOfSegments, 4);
-            segments.set<short>(topLeftY, nrOfSegments, 6);
-            segments.set<short>(topRightY, nrOfSegments, 8);
-            segments.set<short>(fluid.color, nrOfSegments, 10);
+            segments.set<float>(topLeftY, nrOfSegments, 6);
+            segments.set<float>(topRightY, nrOfSegments, 10);
+            segments.set<short>(fluid.color, nrOfSegments, 14);
 
             nrOfSegments++;
         }
@@ -87,7 +86,7 @@ void FluidRenderer::onResize(const Camera &cam)
     reflectionsFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
 }
 
-void FluidRenderer::renderReflections(FrameBuffer *indexedImage, const Camera &cam)
+void FluidRenderer::renderReflections(FrameBuffer *indexedImage, const Camera &cam, float time)
 {
     gu::profiler::Zone z("fluid reflections");
 
@@ -100,6 +99,7 @@ void FluidRenderer::renderReflections(FrameBuffer *indexedImage, const Camera &c
     {
         reflectionsShader.use();
         glUniformMatrix4fv(reflectionsShader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
+        glUniform1f(reflectionsShader.location("time"), time);
         indexedImage->colorTexture->bind(2, reflectionsShader, "indexedImage");
         indexedImage->depthTexture->bind(3, reflectionsShader, "indexedImageDepth");
         trapezoidMesh->renderInstances(nrOfSegments);

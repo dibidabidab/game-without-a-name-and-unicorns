@@ -247,6 +247,9 @@ COMPONENT(
     FIELD_DEF_VAL(float, friction, 3),
     FIELD_DEF_VAL(float, reduceGravity, 800),
     FIELD_DEF_VAL(uint8, color, 0u),
+    FIELD_DEF_VAL(float, splatterAmount, 1.),
+    FIELD_DEF_VAL(float, splatterDropSize, 1.),
+    FIELD_DEF_VAL(float, splatterVelocity, 1.),
 
     FIELD(asset<au::Sound>, enterSound),
     FIELD(asset<au::Sound>, leaveSound)

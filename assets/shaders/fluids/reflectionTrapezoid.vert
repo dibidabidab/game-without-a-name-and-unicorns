@@ -6,15 +6,16 @@ layout(location = 0) in int pointIndex;
 layout(location = 1) in int bottomY;
 layout(location = 2) in int leftX;
 layout(location = 3) in int rightX;
-layout(location = 4) in int topLeftY;
-layout(location = 5) in int topRightY;
+layout(location = 4) in float topLeftY;
+layout(location = 5) in float topRightY;
 layout(location = 6) in int color;
 
 uniform mat4 projection;
 
 flat out uint colorIndex;
-out vec2 coords;
-out vec2 reflectedCoords;
+out vec2 projectedCoords;
+out vec2 worldCoords;
+out vec2 reflectedWorldCoords;
 
 void main()
 {
@@ -27,19 +28,15 @@ void main()
         pos.x = float(rightX);
 
     if (pointIndex == 0)
-        pos.y = float(topLeftY - bottomY + topLeftY);
+        pos.y = topLeftY - float(bottomY) + topLeftY;
     else if (pointIndex == 3)
-        pos.y = float(topRightY - bottomY + topRightY);
+        pos.y = topRightY - float(bottomY) + topRightY;
     else if (pointIndex == 1)
-        pos.y = float(topLeftY);
+        pos.y = topLeftY;
     else
-        pos.y = float(topRightY);
+        pos.y = topRightY;
 
-    gl_Position = projection * vec4(pos, 1);
-
-    reflectedCoords = gl_Position.xy;
-    reflectedCoords *= .5;
-    reflectedCoords += .5;
+    reflectedWorldCoords = pos.xy;
 
     ////////////////
 
@@ -48,7 +45,9 @@ void main()
 
     gl_Position = projection * vec4(pos, 1);
 
-    coords = gl_Position.xy;
-    coords *= .5;
-    coords += .5;
+    projectedCoords = gl_Position.xy;
+    projectedCoords *= .5;
+    projectedCoords += .5;
+
+    worldCoords = pos.xy;
 }

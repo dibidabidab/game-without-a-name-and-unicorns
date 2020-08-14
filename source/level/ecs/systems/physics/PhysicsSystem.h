@@ -37,7 +37,7 @@ class PhysicsSystem : public EntitySystem
 
   private:
 
-    void spawnFluidSplash(const asset<au::Sound>&, const Physics &, const AABB &, uint8 fluidColor);
+    void spawnFluidSplash(const asset<au::Sound>&, const Physics &, const AABB &, const Fluid &);
 
     void moveEntitiesOnPolyPlatform(const PolyPlatform &, const ivec2 &);
 

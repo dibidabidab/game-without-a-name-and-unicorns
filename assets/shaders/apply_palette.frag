@@ -40,16 +40,20 @@ void main()
     if (indexedColor == 0u)
         indexedColor = 2u; // 2 == sky
 
+    uint reflectionColor = texelFetch(reflectionsMap, pixelCoords, 0).r;
+    if (reflectionColor != 0u)
+        indexedColor = reflectionColor;
+
     uint lightLevel = texelFetch(lightMap, pixelCoords, 0).r;
 
     vec3 colorFromPalette = getColorFromPalette(indexedColor, lightLevel, paletteEffect);
     color = vec4(colorFromPalette, 1);
 
-    uint reflectionColor = texelFetch(reflectionsMap, pixelCoords, 0).r;
-    if (reflectionColor != 0u)
-    {
-        vec3 reflectionColorFromPalette = getColorFromPalette(reflectionColor, lightLevel, paletteEffect);
-        color.rgb *= .7;
-        color.rgb += reflectionColorFromPalette * .3;
-    }
+//    uint reflectionColor = texelFetch(reflectionsMap, pixelCoords, 0).r;
+//    if (reflectionColor != 0u)
+//    {
+//        vec3 reflectionColorFromPalette = getColorFromPalette(reflectionColor, lightLevel, paletteEffect);
+//        color.rgb *= .7;
+//        color.rgb += reflectionColorFromPalette * .3;
+//    }
 }

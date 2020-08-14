@@ -6,8 +6,8 @@ layout(location = 0) in int pointIndex;
 layout(location = 1) in int bottomY;
 layout(location = 2) in int leftX;
 layout(location = 3) in int rightX;
-layout(location = 4) in int topLeftY;
-layout(location = 5) in int topRightY;
+layout(location = 4) in float topLeftY;
+layout(location = 5) in float topRightY;
 layout(location = 6) in int color;
 
 uniform mat4 projection;
@@ -27,9 +27,9 @@ void main()
     if (pointIndex == 0 || pointIndex == 3)
         pos.y = float(bottomY);
     else if (pointIndex == 1)
-        pos.y = float(topLeftY);
+        pos.y = topLeftY;
     else
-        pos.y = float(topRightY);
+        pos.y = topRightY;
 
     gl_Position = projection * vec4(pos, 1);
 }

@@ -6,7 +6,7 @@
 #include <graphics/shader_asset.h>
 #include <graphics/camera.h>
 #include <graphics/frame_buffer.h>
-#include "../../external/entt/src/entt/entity/registry.hpp"
+#include "../../../external/entt/src/entt/entity/registry.hpp"
 
 class FluidRenderer
 {
@@ -27,7 +27,7 @@ class FluidRenderer
 
     void render(entt::registry &, const Camera &);
 
-    void renderReflections(FrameBuffer *indexedImage, const Camera &);
+    void renderReflections(FrameBuffer *indexedImage, const Camera &, float time);
 
     void onResize(const Camera &);
 };
