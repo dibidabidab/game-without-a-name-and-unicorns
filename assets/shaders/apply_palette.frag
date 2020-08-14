@@ -49,11 +49,10 @@ void main()
     vec3 colorFromPalette = getColorFromPalette(indexedColor, lightLevel, paletteEffect);
     color = vec4(colorFromPalette, 1);
 
-//    uint reflectionColor = texelFetch(reflectionsMap, pixelCoords, 0).r;
 //    if (reflectionColor != 0u)
 //    {
 //        vec3 reflectionColorFromPalette = getColorFromPalette(reflectionColor, lightLevel, paletteEffect);
-//        color.rgb *= .7;
-//        color.rgb += reflectionColorFromPalette * .3;
+//        color.rgb *= .6;
+//        color.rgb += reflectionColorFromPalette * .4;
 //    }
 }

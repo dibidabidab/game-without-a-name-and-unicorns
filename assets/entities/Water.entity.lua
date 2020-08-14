@@ -2,7 +2,7 @@
 arg("width", 200)
 arg("depth", 100)
 
-WAVE_MARGIN = 32
+WAVE_MARGIN = 20
 PIXELS_PER_LINE = 8
 
 nrOfPoints = math.ceil(args.width / PIXELS_PER_LINE) + 1
@@ -38,7 +38,10 @@ components = {
         color = 18,
         splatterAmount = 4.,
         splatterDropSize = 1.1,
-        splatterVelocity = .8
+        splatterVelocity = .8,
+
+        bubbleSprite = "sprites/bubble",
+        bubblesAmount = 1.
     },
     PolylineWaves = {
         stiffness = 150,

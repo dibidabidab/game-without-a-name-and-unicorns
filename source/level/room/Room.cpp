@@ -24,6 +24,7 @@
 #include "../ecs/systems/combat/DamageSystem.h"
 #include "../ecs/systems/graphics/SpriteSlicerSystem.h"
 #include "../ecs/systems/graphics/LightSystem.h"
+#include "../ecs/systems/physics/FluidsSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -49,8 +50,9 @@ void Room::initialize(Level *lvl, int roomI_)
     systems.push_front(new LegsSystem("legs"));
     systems.push_front(new ArmsSystem("arms"));
     systems.push_front(new HeadsSystem("heads"));
-    systems.push_front(new WavesSystem("platform waves"));
+    systems.push_front(new WavesSystem("polyline waves"));
     systems.push_front(new VerletPhysicsSystem("verlet physics"));
+    systems.push_front(new FluidsSystem("fluids"));
     systems.push_front(new PhysicsSystem("physics"));
     systems.push_front(new RainbowSystem("rainbows"));
     systems.push_front(new ArrowSystem("bow arrows"));

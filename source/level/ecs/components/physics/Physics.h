@@ -62,6 +62,14 @@ COMPONENT(
             other.center.y + other.halfSize.y > center.y - halfSize.y;
     }
 
+    vec2 randomPointInAABB() const
+    {
+        return vec2(
+            center.x + mu::random(-halfSize.x, halfSize.x),
+            center.y + mu::random(-halfSize.y, halfSize.y)
+        );
+    }
+
     enum OutCode : uint8
     {
         INSIDE = 0,
@@ -174,7 +182,8 @@ COMPONENT(
     FIELD_DEF_VAL   (bool,  ghost, false),
     FIELD_DEF_VAL   (float, createWind, 0),
     FIELD_DEF_VAL   (float, moveByWind, 0),
-    FIELD_DEF_VAL   (bool,  ignoreFluids, true)
+    FIELD_DEF_VAL   (bool,  ignoreFluids, true),
+    FIELD_DEF_VAL   (bool,  fluidAnimations, true)
 )
 
     TerrainCollisions touches, prevTouched;
@@ -252,11 +261,21 @@ COMPONENT(
     FIELD_DEF_VAL(float, splatterVelocity, 1.),
 
     FIELD(asset<au::Sound>, enterSound),
-    FIELD(asset<au::Sound>, leaveSound)
+    FIELD(asset<au::Sound>, leaveSound),
+
+    FIELD(asset<aseprite::Sprite>, bubbleSprite),
+    FIELD_DEF_VAL(float, bubblesAmount, 1.)
 )
 
-    std::vector<entt::entity> entitiesInFluid;
+    std::vector<entt::entity> entitiesInFluid, entitiesLeftFluid;
 
 END_COMPONENT(Fluid)
+
+struct FluidBubbleParticle {
+
+    float timeAlive = 0;
+    float timeBeforeDestroy = 0;
+
+};
 
 #endif
