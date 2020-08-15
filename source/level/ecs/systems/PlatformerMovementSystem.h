@@ -118,7 +118,7 @@ class PlatformerMovementSystem : public EntitySystem
             }
                 accelerateX *= deltaTime;
 
-            float accelerationProgress = abs(accelerateX) / (movement.walkVelocity - abs(physics.velocity.x));
+            float accelerationProgress = abs(accelerateX) / (movement.walkVelocity - abs(physics.velocity.x)); // TODO: divide by 0?
             if (accelerationProgress > 1)
                 accelerateX /= accelerationProgress;
 

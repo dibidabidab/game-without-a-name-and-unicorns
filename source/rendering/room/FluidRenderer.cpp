@@ -10,12 +10,12 @@ FluidRenderer::FluidRenderer()
     reflectionsShader("Fluid Reflections shader", "shaders/fluids/reflectionTrapezoid.vert", "shaders/fluids/reflectionTrapezoid.frag"),
     segments(
         VertAttributes()
+            .add_({"SEGMENT_COLOR_INDEX", 1, 2, GL_SHORT})
             .add_({"BOTTOM_Y", 1, 2, GL_SHORT})
             .add_({"LEFT_X", 1, 2, GL_SHORT})
             .add_({"RIGHT_X", 1, 2, GL_SHORT})
             .add_({"TOP_LEFT_Y", 1, 4, GL_FLOAT})
-            .add_({"TOP_RIGHT_Y", 1, 4, GL_FLOAT})
-            .add_({"SEGMENT_COLOR_INDEX", 1, 2, GL_SHORT}),
+            .add_({"TOP_RIGHT_Y", 1, 4, GL_FLOAT}),
         std::vector<u_char>()
     )
 {
@@ -59,12 +59,12 @@ void FluidRenderer::render(entt::registry &reg, const Camera &cam)
             short rightX = (++it)->x + aabb.center.x;
             float topRightY = it->y + aabb.center.y;
 
-            segments.set<short>(bottomY, nrOfSegments, 0);
-            segments.set<short>(leftX, nrOfSegments, 2);
-            segments.set<short>(rightX, nrOfSegments, 4);
-            segments.set<float>(topLeftY, nrOfSegments, 6);
-            segments.set<float>(topRightY, nrOfSegments, 10);
-            segments.set<short>(fluid.color, nrOfSegments, 14);
+            segments.set<short>(fluid.color, nrOfSegments, 0);
+            segments.set<short>(bottomY, nrOfSegments, 2);
+            segments.set<short>(leftX, nrOfSegments, 4);
+            segments.set<short>(rightX, nrOfSegments, 6);
+            segments.set<float>(topLeftY, nrOfSegments, 8);
+            segments.set<float>(topRightY, nrOfSegments, 12);
 
             nrOfSegments++;
         }
@@ -100,8 +100,8 @@ void FluidRenderer::renderReflections(FrameBuffer *indexedImage, const Camera &c
         reflectionsShader.use();
         glUniformMatrix4fv(reflectionsShader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
         glUniform1f(reflectionsShader.location("time"), time);
-        indexedImage->colorTexture->bind(2, reflectionsShader, "indexedImage");
-        indexedImage->depthTexture->bind(3, reflectionsShader, "indexedImageDepth");
+        indexedImage->colorTexture->bind(1, reflectionsShader, "indexedImage");
+        indexedImage->depthTexture->bind(2, reflectionsShader, "indexedImageDepth");
         trapezoidMesh->renderInstances(nrOfSegments);
     }
 

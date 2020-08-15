@@ -1,14 +1,16 @@
 #version 300 es
 
+precision mediump float;
+
 layout(location = 0) in int pointIndex;
 
 // per instance:
-layout(location = 1) in int bottomY;
-layout(location = 2) in int leftX;
-layout(location = 3) in int rightX;
-layout(location = 4) in float topLeftY;
-layout(location = 5) in float topRightY;
-layout(location = 6) in int color;
+layout(location = 1) in int color;
+layout(location = 2) in int bottomY;
+layout(location = 3) in int leftX;
+layout(location = 4) in int rightX;
+layout(location = 5) in float topLeftY;
+layout(location = 6) in float topRightY;
 
 uniform mat4 projection;
 

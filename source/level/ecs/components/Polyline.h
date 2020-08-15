@@ -32,7 +32,7 @@ COMPONENT(
 
     float heightAtX(int x, const vec2 &offset)
     {
-        static int i;
+        static int i = 0;
         return heightAtX(x, offset, i);
     }
 
