@@ -32,9 +32,15 @@ COMPONENT(
 
     float heightAtX(int x, const vec2 &offset)
     {
+        static int i;
+        return heightAtX(x, offset, i);
+    }
+
+    float heightAtX(int x, const vec2 &offset, int &pointIndex)
+    {
         auto it = points.begin();
 
-        for (int i = 0; i < points.size() - 1; i++)
+        for (pointIndex = 0; pointIndex < points.size() - 1; pointIndex++)
         {
             const vec2 p0 = *it + offset;
             const vec2 p1 = *(++it) + offset;

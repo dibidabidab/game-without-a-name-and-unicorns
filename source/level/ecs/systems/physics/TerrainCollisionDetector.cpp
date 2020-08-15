@@ -325,11 +325,13 @@ bool TerrainCollisionDetector::inFluid(const AABB &aabb, TerrainCollisions &col)
         Polyline *surfaceLine = reg->try_get<Polyline>(fluidEntity);
         if (surfaceLine)
         {
-            float height = surfaceLine->heightAtX(aabb.center.x, fluidBox.center);
+            int pointIndex = 0;
+            float height = surfaceLine->heightAtX(aabb.center.x, fluidBox.center, pointIndex);
             int depth = height - (aabb.center.y - aabb.halfSize.y);
             if (depth < 0)
                 return;
             col.fluidDepth = depth;
+            col.fluidSurfaceLineXIndex = pointIndex;
         }
 
         col.fluidEntity = fluidEntity;

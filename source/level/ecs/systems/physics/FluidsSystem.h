@@ -5,6 +5,8 @@
 #include "../EntitySystem.h"
 #include "../../../Level.h"
 #include "../../components/physics/Physics.h"
+#include "../../components/Polyline.h"
+#include "../../components/physics/PolyPlatform.h"
 
 class FluidsSystem : public EntitySystem
 {
@@ -15,7 +17,10 @@ class FluidsSystem : public EntitySystem
   protected:
     void update(double deltaTime, Room *room) override;
 
-    void spawnFluidSplash(const asset<au::Sound>&, const Physics &, const AABB &, const Fluid &);
+    void spawnFluidSplash(
+            const asset<au::Sound>&,
+            const Fluid &, entt::entity fluidE,
+            const Physics &, const AABB &);
 
 };
 

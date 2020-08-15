@@ -33,7 +33,7 @@ void main()
         discard;
 
     vec2 distortedReflectedWorldCoords = reflectedWorldCoords;
-    distortedReflectedWorldCoords.x += sin(worldCoords.y * .5 + time * 8.);
+    distortedReflectedWorldCoords.x += sin(worldCoords.y * .7 + time * 8.) * 2.;
 
     vec2 projectedDistortedReflectedCoords = (projection * vec4(distortedReflectedWorldCoords, 0, 1.)).xy;
     projectedDistortedReflectedCoords *= .5;
@@ -52,5 +52,5 @@ void main()
     if (depth > .5)
         discard;
 
-    reflectionColor = colorIndex + 1u;
+    reflectionColor = originalReflectionColor;//colorIndex + 1u;
 }

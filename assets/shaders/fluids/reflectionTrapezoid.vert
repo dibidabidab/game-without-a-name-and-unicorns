@@ -28,9 +28,9 @@ void main()
         pos.x = float(rightX);
 
     if (pointIndex == 0)
-        pos.y = topLeftY - float(bottomY) + topLeftY;
+        pos.y = (topLeftY - float(bottomY) + topLeftY) * 1.;
     else if (pointIndex == 3)
-        pos.y = topRightY - float(bottomY) + topRightY;
+        pos.y = (topRightY - float(bottomY) + topRightY) * 1.;
     else if (pointIndex == 1)
         pos.y = topLeftY;
     else

@@ -44,9 +44,8 @@ components = {
         bubblesAmount = 1.
     },
     PolylineWaves = {
-        stiffness = 150,
-        dampening = 1.6,
-        spread = 5,
-        moveByWind = 1.0
+        moveByWind = 1.,
+        impactMultiplier = 2.,
+        spread = 60
     }
 }

@@ -48,8 +48,13 @@ struct TerrainCollisions
     entt::entity abovePolyPlatformEntity = entt::null;
     uint8 pixelsAbovePolyPlatform = 0;
 
-    uint8 fluidDepth = 0;
+    /**
+     * fluidEntity will be set if the entity is in a fluid (eg: water)
+     * fluidDepth tells how deep the entity is inside the fluid.
+     * fluidSurfaceLineXIndex tells at what point of the Polyline the entity is (only if the fluid has a Polyline)
+     */
     entt::entity fluidEntity = entt::null;
+    uint8 fluidDepth = 0, fluidSurfaceLineXIndex = 0;
 };
 
 // TODO, bug: when Tile::slope_up and Tile::slope_down are placed next to each other -> player can fall through them

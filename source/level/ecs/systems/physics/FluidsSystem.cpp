@@ -29,7 +29,7 @@ void FluidsSystem::update(double deltaTime, Room *room)
                 }
             });
 
-    room->entities.view<Fluid, AABB>().each([&](Fluid &fluid, AABB &aabb) {
+    room->entities.view<Fluid, AABB>().each([&](auto fluidE, Fluid &fluid, AABB &aabb) {
 
         auto updateEntitiesInFluid = [&](auto &entities) {
             for (auto e : entities)
@@ -41,9 +41,9 @@ void FluidsSystem::update(double deltaTime, Room *room)
                     continue;
 
                 if (physics->touches.fluid && !physics->prevTouched.fluid && physics->velocity.y < 0)
-                    spawnFluidSplash(fluid.enterSound, *physics, *bodyInFluid, fluid);
+                    spawnFluidSplash(fluid.enterSound, fluid, fluidE, *physics, *bodyInFluid);
                 else if (physics->prevTouched.fluid && !physics->touches.fluid && physics->velocity.y > 0)
-                    spawnFluidSplash(fluid.leaveSound, *physics, *bodyInFluid, fluid);
+                    spawnFluidSplash(fluid.leaveSound, fluid, fluidE, *physics, *bodyInFluid);
 
                 constexpr float BUBBLES_SPAWN_CHANCE = 15;
 
@@ -72,30 +72,38 @@ void FluidsSystem::update(double deltaTime, Room *room)
     });
 }
 
-
-void FluidsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Physics &physics, const AABB &aabb, const Fluid &fluid)
+void FluidsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Fluid &fluid, entt::entity fluidE,
+                                    const Physics &otherPhysics, const AABB &otherAABB)
 {
-    float absYVel = abs(physics.velocity.y);
+    float sizeMultiplier = (otherAABB.halfSize.x * otherAABB.halfSize.y) / 10.f;
+    sizeMultiplier = min(sizeMultiplier, 1.f);
 
-    auto speakerEntity = room->entities.create();
-    auto &s = room->entities.assign<SoundSpeaker>(speakerEntity, sound);
-    s.volume = min<float>(1., absYVel / 200);
-    s.pitch = max<float>(.8, 2. - (absYVel / 200)) + mu::random(-.3, .3) ;
-    room->entities.assign<DespawnAfter>(speakerEntity, .4f);
+    float absYVel = abs(otherPhysics.velocity.y);
 
-    for (int i = 0; i < absYVel * .1 * fluid.splatterAmount; i++)
+    {   // SOUND:
+
+        auto speakerEntity = room->entities.create();
+        auto &s = room->entities.assign<SoundSpeaker>(speakerEntity, sound);
+        s.volume = min<float>(1., absYVel / 200) * sizeMultiplier;
+        s.pitch = max<float>(.8, 2. - (absYVel / 200)) + mu::random(-.3, .3) ;
+        room->entities.assign<DespawnAfter>(speakerEntity, .4f);
+    }
+
+
+    // DROPS:
+    for (int i = 0; i < absYVel * .1 * fluid.splatterAmount * sizeMultiplier; i++)
     {
         auto dropE = room->entities.create();
-        room->entities.assign<AABB>(dropE, ivec2(1), aabb.bottomCenter());
+        room->entities.assign<AABB>(dropE, ivec2(1), otherAABB.bottomCenter());
         auto &dropPhysics = room->entities.assign<Physics>(dropE);
         dropPhysics.airFriction = 0.;
         dropPhysics.velocity = rotate(vec2(0, absYVel * mu::random(.5, 1.6)), mu::random(20, 70) * mu::DEGREES_TO_RAD);
         if (mu::random() > .5)
             dropPhysics.velocity.x *= -1;
-        dropPhysics.velocity.x -= physics.velocity.x;
+        dropPhysics.velocity.x -= otherPhysics.velocity.x;
         dropPhysics.velocity *= fluid.splatterVelocity;
 
-        if (physics.velocity.y > 0)
+        if (otherPhysics.velocity.y > 0)
             dropPhysics.velocity *= .6; // leaving fluid
 
         auto &drop = room->entities.assign<BloodDrop>(dropE);
@@ -105,7 +113,14 @@ void FluidsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Physics
         drop.color = fluid.color;
 
         room->entities.assign<DespawnAfter>(dropE, mu::random(.4, .6));
+    }
 
+    // WAVES:
+    PolylineWaves *waves = room->entities.try_get<PolylineWaves>(fluidE);
+    if (waves && waves->springs.size() > otherPhysics.touches.fluidSurfaceLineXIndex)
+    {
+        waves->springs[otherPhysics.touches.fluidSurfaceLineXIndex].velocity
+            += otherPhysics.velocity.y * waves->impactMultiplier * sizeMultiplier;
     }
 }
 
