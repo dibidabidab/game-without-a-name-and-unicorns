@@ -3,7 +3,9 @@ precision mediump float;
 precision lowp usampler2D;
 precision lowp sampler2DArray;
 
-out vec4 color;
+layout(location=0) out vec3 color;
+layout(location=1) out vec3 bloomColor;
+
 in vec2 v_texCoords;
 
 uniform usampler2D indexedImage;
@@ -47,7 +49,7 @@ void main()
     uint lightLevel = texelFetch(lightMap, pixelCoords, 0).r;
 
     vec3 colorFromPalette = getColorFromPalette(indexedColor, lightLevel, paletteEffect);
-    color = vec4(colorFromPalette, 1);
+    color = colorFromPalette;
 
     if (reflectionColor != 0u)
     {
@@ -55,4 +57,9 @@ void main()
         color.rgb *= .75;
         color.rgb += reflectionColorFromPalette * .25   ;
     }
+
+    if (lightLevel == 2u)
+        bloomColor = getColorFromPalette(indexedColor, 3u, paletteEffect);
+    else
+        bloomColor = vec3(0.);
 }

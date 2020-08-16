@@ -52,12 +52,15 @@ class RoomScreen : public Screen
     OrthographicCamera cam;
     CameraMovement camMovement;
 
-    FrameBuffer *indexedFbo = nullptr;
+    FrameBuffer
+        *indexedFbo = NULL,
+        *rgbAndBloomFbo = NULL,
+        *horizontalBlurFbo = NULL;
 
     TileMapRenderer tileMapRenderer;
     BloodSplatterRenderer bloodSplatterRenderer;
 
-    ShaderAsset applyPaletteShader;
+    ShaderAsset applyPaletteShader, horizontalGaussianShader, postProcessingShader;
     Palettes3D palettes;
     PaletteEditor paletteEditor;
 
@@ -83,7 +86,13 @@ class RoomScreen : public Screen
         tileMapRenderer(&room->getMap()),
         bloodSplatterRenderer(room),
         applyPaletteShader(
-            "applyPaletteShader", "shaders/apply_palette.vert", "shaders/apply_palette.frag"
+            "applyPaletteShader", "shaders/fullscreen_quad.vert", "shaders/apply_palette.frag"
+        ),
+        postProcessingShader(
+            "postProcessingShader", "shaders/fullscreen_quad.vert", "shaders/post_processing.frag"
+        ),
+        horizontalGaussianShader(
+            "postProcessingShader", "shaders/fullscreen_quad.vert", "shaders/horizontal_gaussian_blur.frag"
         ),
         shadowCaster(room),
         lightMapRenderer(room),
@@ -156,9 +165,11 @@ class RoomScreen : public Screen
             if (Game::settings.graphics.waterReflections)
                 fluidRenderer.renderReflections(indexedFbo, cam, room->getLevel()->getTime());
         }
-        {   // indexed image + lights + reflections --> RGB image
+        {   // indexed image + lights + reflections --> low res RGB image + bloom image
 
             gu::profiler::Zone z("apply palette");
+
+            rgbAndBloomFbo->bind();
 
             setPaletteEffect(deltaTime);
             applyPaletteShader.use();
@@ -175,6 +186,24 @@ class RoomScreen : public Screen
             fluidRenderer.reflectionsFbo->colorTexture->bind(1, applyPaletteShader, "reflectionsMap");
             lightMapRenderer.fbo->colorTexture->bind(2, applyPaletteShader, "lightMap");
             indexedFbo->colorTexture->bind(3, applyPaletteShader, "indexedImage");
+
+            Mesh::getQuad()->render();
+
+            rgbAndBloomFbo->unbind();
+        }
+        {
+            horizontalBlurFbo->bind();
+            horizontalGaussianShader.use();
+
+            rgbAndBloomFbo->colorTextures[1]->bind(0, postProcessingShader, "rgbImage");
+            Mesh::getQuad()->render();
+
+            horizontalBlurFbo->unbind();
+
+            postProcessingShader.use();
+
+            rgbAndBloomFbo->colorTexture->bind(0, postProcessingShader, "rgbImage");
+            horizontalBlurFbo->colorTexture->bind(1, postProcessingShader, "bloomImage");
 
             Mesh::getQuad()->render();
         }
@@ -211,6 +240,15 @@ class RoomScreen : public Screen
         indexedFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
         indexedFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
         indexedFbo->addDepthTexture(GL_NEAREST, GL_NEAREST);
+
+        delete rgbAndBloomFbo;
+        rgbAndBloomFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
+        rgbAndBloomFbo->addColorTexture(GL_RGB, GL_NEAREST, GL_NEAREST);    // pixel rgb values
+        rgbAndBloomFbo->addColorTexture(GL_RGB, GL_LINEAR, GL_LINEAR);      // pixel bloom rgb values
+
+        delete horizontalBlurFbo;
+        horizontalBlurFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
+        horizontalBlurFbo->addColorTexture(GL_RGB, GL_LINEAR, GL_LINEAR);
 
         fluidRenderer.onResize(cam);
     }

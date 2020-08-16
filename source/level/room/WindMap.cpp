@@ -49,14 +49,14 @@ void WindMap::update(float deltaTime)
             constexpr float SPREAD = 200;
             constexpr float DECREASE = 2;
 
-            auto &dir = get(x, y);
+            vec2 &windDirection = get(x, y);
 
-            float spread = min<float>(1., SPREAD * deltaTime);
-            float decrease = min<float>(1., DECREASE * deltaTime);
+            float spread = min(1.f, SPREAD * deltaTime);
+            float decrease = min(1.f, DECREASE * deltaTime);
 
-            dir *= 1. - spread;
-            dir += surrounding * spread;
-            dir *= 1. - decrease;
+            windDirection *= 1. - spread;
+            windDirection += surrounding * spread;
+            windDirection *= 1. - decrease;
         }
     }
 }
