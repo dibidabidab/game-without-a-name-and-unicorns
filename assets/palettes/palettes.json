@@ -1,0 +1,14 @@
+{
+  "default": [
+    "palettes/default0",
+    "palettes/default1",
+    "palettes/default2",
+    "palettes/default_bloom"
+  ],
+  "test": [
+    "palettes/test0",
+    "palettes/test1",
+    "palettes/test2",
+    "palettes/test_bloom"
+  ]
+}

@@ -50,9 +50,7 @@ void FluidsSystem::update(double deltaTime, Room *room)
                 if (mu::random() < BUBBLES_SPAWN_CHANCE * deltaTime && fluid.bubbleSprite.isSet())
                 {
                     float vel = length(physics->velocity);
-                    std::cout << "wababab\n";
                     int nrOfBubbles = vel * .015 * fluid.bubblesAmount;
-                    std::cout << "b\n";
 
                     for (int i = 0; i < nrOfBubbles; i++)
                     {

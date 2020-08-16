@@ -19,7 +19,10 @@ namespace Game
         FIELD_DEF_VAL(bool, fullscreen, false),
         FIELD_DEF_VAL(ivec2, windowSize, ivec2(1600, 900)),
         FIELD_DEF_VAL(bool, printOpenGLMessages, false),
-        FIELD_DEF_VAL(bool, printOpenGLErrors, false)
+        FIELD_DEF_VAL(bool, printOpenGLErrors, false),
+
+        FIELD_DEF_VAL(bool, waterReflections, true),
+        FIELD_DEF_VAL(bool, bloom, true)
     )
     END_SERIALIZABLE_FULL_JSON(GraphicsSettings)
 

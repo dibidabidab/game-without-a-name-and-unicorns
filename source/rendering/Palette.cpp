@@ -53,24 +53,25 @@ void Palette::save(const char *path)
     File::writeBinary(path, str);
 }
 
+#define PALETTES_PATH "palettes/palettes.json"
 Palettes3D::Palettes3D()
 {
-    effects.push_back({
-        "default",
+    try
+    {
+        for (auto &[key, list] : asset<json>(PALETTES_PATH)->items())
         {
-            asset<Palette>("palettes/default0"),
-            asset<Palette>("palettes/default1"),
-            asset<Palette>("palettes/default2")
+            if (list.size() != LIGHT_LEVELS)
+                throw gu_err(key + " should have " + std::to_string(LIGHT_LEVELS) + " light levels.");
+            effects.emplace_back();
+            effects.back().name = key;
+            for (int i = 0; i < LIGHT_LEVELS; i++)
+                effects.back().lightLevels[i] = asset<Palette>(list[i]);
         }
-    });
-    effects.push_back({
-        "test",
-        {
-            asset<Palette>("palettes/test0"),
-            asset<Palette>("palettes/test1"),
-            asset<Palette>("palettes/test2")
-        }
-    });
+    }
+    catch (std::exception &e)
+    {
+        throw gu_err("Error while loading " + std::string(PALETTES_PATH) + ": " + e.what());
+    }
 }
 
 int Palettes3D::effectIndex(const std::string &name) const

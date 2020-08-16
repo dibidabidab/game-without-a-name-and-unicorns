@@ -68,10 +68,16 @@ bool PaletteEditor::drawPalettes(Palettes3D::Effect &effect)
     }
     ImGui::Separator();
 
-    ImGui::Text("Color name");
-    ImGui::Separator();
-
     ImGui::Columns(2);
+
+    ImGui::Text("#  Color name");
+
+    ImGui::NextColumn();
+
+    ImGui::Text("Light level 0,1,2 & Bloom");
+
+    ImGui::NextColumn();
+
     for (int i = 0; i < effect.lightLevels[0]->colors.size(); i++)
     {
         auto &firstName = effect.lightLevels[0]->colors.at(i).first;

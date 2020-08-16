@@ -327,9 +327,7 @@ bool TerrainCollisionDetector::inFluid(const AABB &aabb, TerrainCollisions &col)
         {
             int pointIndex = 0;
             float height = surfaceLine->heightAtX(aabb.center.x, fluidBox.center, pointIndex);
-            std::cout << "dibdibdib\n";
             int depth = height - (aabb.center.y - aabb.halfSize.y);
-            std::cout << "dib\n";
             if (depth < 0)
                 return;
             col.fluidDepth = depth;
