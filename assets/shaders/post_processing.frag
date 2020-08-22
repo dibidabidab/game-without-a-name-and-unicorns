@@ -25,11 +25,22 @@ void main()
         vec3 bloomValue = texture(bloomImage, v_texCoords).rgb;
         float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 
-        for(int i = 1; i < 5; ++i)
-        {
-            bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, i)).rgb * weight[i];
-            bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, -i)).rgb * weight[i];
-        }
+        // 1:
+        bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, 1)).rgb * weight[1];
+        bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, -1)).rgb * weight[1];
+
+        // 2:
+        bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, 2)).rgb * weight[2];
+        bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, -2)).rgb * weight[2];
+
+        // 3:
+        bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, 3)).rgb * weight[3];
+        bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, -3)).rgb * weight[3];
+
+        // 4:
+        bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, 4)).rgb * weight[4];
+        bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, -4)).rgb * weight[4];
+
         color += bloomValue;
     }
 }

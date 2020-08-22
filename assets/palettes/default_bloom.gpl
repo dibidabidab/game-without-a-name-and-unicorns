@@ -10,13 +10,13 @@ GIMP Palette
  43  38  67	string
   0   0   0	skin
   0   0   0	hat
-233  55  93	rainbow_red
+ 92   0  19	rainbow_red
   0   0   0	rainbow_orange
   0   0   0	rainbow_yellow
   0   0   0	rainbow_green
   0   0   0	rainbow_blue
-253 132 255	rainbow_pink
-248 141   6	fire0
-199 191  53	fire1
+ 82   0  83	rainbow_pink
+130  73   0	fire0
+133 125   0	fire1
   0   0   0	water0
   0   0   0	water1

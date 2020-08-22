@@ -16,9 +16,19 @@ void main()
 
     color = texture(bloomImage, v_texCoords).rgb;
 
-    for(int i = 1; i < 5; ++i)
-    {
-        color += textureOffset(bloomImage, v_texCoords, ivec2(i, 0)).rgb * weight[i];
-        color += textureOffset(bloomImage, v_texCoords, ivec2(-i, 0)).rgb * weight[i];
-    }
+    // 1:
+    color += textureOffset(bloomImage, v_texCoords, ivec2(1, 0)).rgb * weight[1];
+    color += textureOffset(bloomImage, v_texCoords, ivec2(-1, 0)).rgb * weight[1];
+
+    // 2:
+    color += textureOffset(bloomImage, v_texCoords, ivec2(2, 0)).rgb * weight[2];
+    color += textureOffset(bloomImage, v_texCoords, ivec2(-2, 0)).rgb * weight[2];
+
+    // 3:
+    color += textureOffset(bloomImage, v_texCoords, ivec2(3, 0)).rgb * weight[3];
+    color += textureOffset(bloomImage, v_texCoords, ivec2(-3, 0)).rgb * weight[3];
+
+    // 4:
+    color += textureOffset(bloomImage, v_texCoords, ivec2(4, 0)).rgb * weight[4];
+    color += textureOffset(bloomImage, v_texCoords, ivec2(-4, 0)).rgb * weight[4];
 }
