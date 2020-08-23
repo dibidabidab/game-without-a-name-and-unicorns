@@ -192,13 +192,16 @@ class RoomScreen : public Screen
             rgbAndBloomFbo->unbind();
         }
         {
-            horizontalBlurFbo->bind();
-            horizontalGaussianShader.use();
+            if (Game::settings.graphics.bloom)
+            {
+                horizontalBlurFbo->bind();
+                horizontalGaussianShader.use();
 
-            rgbAndBloomFbo->colorTextures[1]->bind(0, postProcessingShader, "rgbImage");
-            Mesh::getQuad()->render();
+                rgbAndBloomFbo->colorTextures[1]->bind(0, postProcessingShader, "rgbImage");
+                Mesh::getQuad()->render();
 
-            horizontalBlurFbo->unbind();
+                horizontalBlurFbo->unbind();
+            }
 
             postProcessingShader.use();
 

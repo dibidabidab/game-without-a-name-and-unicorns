@@ -1,4 +1,3 @@
-#version 300 es
 precision mediump float;
 precision lowp sampler2DArray;
 
@@ -14,14 +13,18 @@ void main()
 
     color = texture(rgbImage, v_texCoords).rgb;
 
-    {   // VIGNETTE:
+    #ifdef VIGNETTE
+    {
         vec2 uv = v_texCoords;
         uv *=  1.0 - uv.yx;
         float vig = uv.x * uv.y * 100.0;
         vig = pow(vig, .15);
         color *= min(1.f, vig);
     }
-    {   // BLOOM:
+    #endif
+
+    #ifdef BLOOM
+    {
         vec3 bloomValue = texture(bloomImage, v_texCoords).rgb;
         float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 
@@ -43,4 +46,5 @@ void main()
 
         color += bloomValue;
     }
+    #endif
 }

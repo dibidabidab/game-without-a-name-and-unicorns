@@ -1,5 +1,3 @@
-#version 300 es
-
 layout(location = 0) in vec2 a_pos;
 layout(location = 1) in float a_depth;
 

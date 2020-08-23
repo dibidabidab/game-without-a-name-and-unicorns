@@ -253,6 +253,15 @@ int main(int argc, char *argv[])
     };
     afterInit();
 
+    { // todo: move this to a better place:
+        if (Game::settings.graphics.vignette)
+            ShaderDefinitions::define("VIGNETTE");
+        if (Game::settings.graphics.bloom)
+            ShaderDefinitions::define("BLOOM");
+        if (Game::settings.graphics.waterReflections)
+            ShaderDefinitions::define("WATER_REFLECTIONS");
+    }
+
     gu::run();
     delete mpSession->getLevel(); // trigger tilemap save, todo: remove this
     delete mpSession;

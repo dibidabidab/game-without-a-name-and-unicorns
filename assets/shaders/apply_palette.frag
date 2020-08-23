@@ -1,4 +1,3 @@
-#version 300 es
 precision mediump float;
 precision lowp usampler2D;
 precision lowp sampler2DArray;
@@ -42,14 +41,14 @@ void main()
     if (indexedColor == 0u)
         indexedColor = 2u; // 2 == sky
 
-    uint reflectionColor = texelFetch(reflectionsMap, pixelCoords, 0).r;
-//    if (reflectionColor != 0u)
-//        indexedColor = reflectionColor;
-
     uint lightLevel = texelFetch(lightMap, pixelCoords, 0).r;
 
     vec3 colorFromPalette = getColorFromPalette(indexedColor, lightLevel, paletteEffect);
     color = colorFromPalette;
+
+
+    #ifdef WATER_REFLECTIONS
+    uint reflectionColor = texelFetch(reflectionsMap, pixelCoords, 0).r;
 
     if (reflectionColor != 0u)
     {
@@ -57,9 +56,11 @@ void main()
         color.rgb *= .75;
         color.rgb += reflectionColorFromPalette * .25   ;
     }
+    #endif
 
+    bloomColor = vec3(0.);
+    #ifdef BLOOM
     if (lightLevel == 2u)
         bloomColor = getColorFromPalette(indexedColor, 3u, paletteEffect);
-    else
-        bloomColor = vec3(0.);
+    #endif
 }

@@ -1,5 +1,3 @@
-#version 300 es
-
 layout(location = 0) in int pointIndex;
 
 // per instance:

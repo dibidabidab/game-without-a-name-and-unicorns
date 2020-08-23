@@ -1,5 +1,3 @@
-#version 300 es
-
 layout(location = 0) out uint indexedColor;
 
 flat in uint colorIndex;
