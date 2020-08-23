@@ -1,10 +1,10 @@
 
 components = {
     AABB = {},
-    PolyPlatform = {
-        material = 2 -- "bouncy" material
+    PolyPlatform = {},
+    PolylineWaves = {
+        impactMultiplier = 1.5
     },
-    PolylineWaves = {},
     Polyline = {
         points = {}
     },

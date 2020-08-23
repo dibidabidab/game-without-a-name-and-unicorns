@@ -6,7 +6,7 @@ components = {
     rainbowSettings = {
       disappearOnPlayerTouch = true,
       disappearAfterTime = 5,
-      disappearSpeed = 90
+      disappearSpeed = 75
     }
   },
   Physics = {

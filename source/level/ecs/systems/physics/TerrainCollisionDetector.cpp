@@ -220,6 +220,7 @@ bool TerrainCollisionDetector::onPolyPlatform(const AABB &aabb, TerrainCollision
 {
     if (!reg) return false;
     col.abovePolyPlatformEntity = entt::null;
+    col.pixelsAbovePolyPlatform = 0;
 
     ivec2 point = aabb.bottomCenter();
     int xLeft = point.x - 1, xRight = point.x + 1;
