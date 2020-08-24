@@ -13,16 +13,6 @@ uniform usampler2D indexedImage;
 uniform sampler2D indexedImageDepth;
 uniform float time;
 
-#define Z_NEAR .1
-#define Z_FAR 1000.
-
-float linearDepth(float depthSample)
-{
-    depthSample = 2.0 * depthSample - 1.0;
-    float zLinear = 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - depthSample * (Z_FAR - Z_NEAR));
-    return zLinear;
-}
-
 void main()
 {
     uint indexedColor = texture(indexedImage, projectedCoords).r;

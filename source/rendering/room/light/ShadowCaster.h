@@ -29,7 +29,7 @@ class ShadowCaster
 
     ShadowCaster(Room *room);
 
-    void updateMesh(const LightPoint &light, const vec2 &lightPos);
+    void updateMesh(const PointLight &light, const vec2 &lightPos);
 
     void drawDebugLines(const Camera &cam);
 

@@ -7,10 +7,22 @@
 LightMapRenderer::LightMapRenderer(Room *room)
     :
         room(room),
-        shader("LightMapShader", "shaders/light/light_map.vert", "shaders/light/light_map.frag"),
-        lightsData(
-                VertAttributes().add_({"POS", 2}).add_({"RADIUS", 1}).add_({"SHADOW_TEXTURE_POS", 2, sizeof(int) * 2, GL_INT}),
-                std::vector<u_char>()
+        pointLightShader("PointLightShader", "shaders/light/point_light.vert", "shaders/light/point_light.frag"),
+        pointLightsData(
+            VertAttributes()
+                .add_({"POS", 2})
+                .add_({"RADIUS", 1})
+                .add_({"SHADOW_TEXTURE_POS", 2, sizeof(int) * 2, GL_INT}),
+            std::vector<u_char>()
+        ),
+        directionalLightShader("DirectionalLightShader", "shaders/light/directional_light.vert", "shaders/light/directional_light.frag"),
+        directionalLightsData(
+            VertAttributes()
+                .add_({"POS", 2})
+                .add_({"WIDTH", 1})
+                .add_({"DISTANCE", 1})
+                .add_({"ROTATION", 1}),
+            std::vector<u_char>()
         )
 {
     quadMesh = Mesh::createQuad();
@@ -37,21 +49,31 @@ void LightMapRenderer::render(const Camera &cam, const SharedTexture &shadowText
     }
 
     fbo->bind();
-    shader.use();
     glEnable(GL_DEPTH_TEST);
     uint zero = 0;
     glClearBufferuiv(GL_COLOR, 0, &zero);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    glUniformMatrix4fv(shader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
+    renderDirectionalLights(cam);
+    renderPointLights(cam, shadowTexture);
 
-    shadowTexture->bind(0, shader, "shadowTexture");
+    glDisable(GL_DEPTH_TEST);
+    fbo->unbind();
+}
+
+void LightMapRenderer::renderPointLights(const Camera &cam, const SharedTexture &shadowTexture)
+{
+
+    pointLightShader.use();
+    glUniformMatrix4fv(pointLightShader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
+
+    shadowTexture->bind(0, pointLightShader, "shadowTexture");
 
     TerrainCollisionDetector terrainCollisionDetector(room->getMap());
 
     int i = 0;
-    lightsData.vertices.clear();
-    room->entities.view<AABB, LightPoint>().each([&](AABB &aabb, LightPoint &light) {
+    pointLightsData.vertices.clear();
+    room->entities.view<AABB, PointLight>().each([&](AABB &aabb, PointLight &light) {
 
         if (light.checkForTerrainCollision)
         {
@@ -61,9 +83,9 @@ void LightMapRenderer::render(const Camera &cam, const SharedTexture &shadowText
                 return;
         }
 
-        lightsData.addVertices(1);
-        lightsData.set<vec2>(aabb.center, i, 0);
-        lightsData.set<float>(light.radius + light.flickeringRadius, i, sizeof(vec2));
+        pointLightsData.addVertices(1);
+        pointLightsData.set<vec2>(aabb.center, i, 0);
+        pointLightsData.set<float>(light.radius + light.flickeringRadius, i, sizeof(vec2));
 
         ivec2 shadowTexturePos(-1);
         if (light.castShadow)
@@ -73,13 +95,33 @@ void LightMapRenderer::render(const Camera &cam, const SharedTexture &shadowText
             shadowTexturePos *= ivec2(ShadowCaster::SIZE_PER_LIGHT);
             shadowTexturePos += ivec2(ShadowCaster::SIZE_PER_LIGHT / 2);
         }
-        lightsData.set<ivec2>(shadowTexturePos, i, sizeof(vec2) + sizeof(float));
+        pointLightsData.set<ivec2>(shadowTexturePos, i, sizeof(vec2) + sizeof(float));
         i++;
     });
 
-    lightsDataBuffer = quadMesh->vertBuffer->uploadPerInstanceData(lightsData, 1, lightsDataBuffer);
+    pointLightsDataBuffer = quadMesh->vertBuffer->uploadPerInstanceData(pointLightsData, 1, pointLightsDataBuffer);
     quadMesh->renderInstances(i);
+}
 
-    glDisable(GL_DEPTH_TEST);
-    fbo->unbind();
+void LightMapRenderer::renderDirectionalLights(const Camera &cam)
+{
+    int i = 0;
+    directionalLightsData.vertices.clear();
+    room->entities.view<AABB, DirectionalLight>().each([&](AABB &aabb, DirectionalLight &light) {
+
+        directionalLightsData.addVertices(1);
+
+        directionalLightsData.set<vec2>(aabb.center, i, 0);
+        directionalLightsData.set<float>(light.width, i, sizeof(vec2));
+        directionalLightsData.set<float>(light.distance, i, sizeof(vec2) + sizeof(float));
+        directionalLightsData.set<float>(light.rotation * mu::DEGREES_TO_RAD, i, sizeof(vec2) + sizeof(float) * 2);
+
+        i++;
+    });
+
+    directionalLightShader.use();
+    glUniformMatrix4fv(directionalLightShader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
+
+    directionalLightsDataBuffer = quadMesh->vertBuffer->uploadPerInstanceData(directionalLightsData, 1, directionalLightsDataBuffer);
+    quadMesh->renderInstances(i);
 }

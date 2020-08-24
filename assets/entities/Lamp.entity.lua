@@ -12,7 +12,7 @@ components = {
   AABB = {
     halfSize = {3, 8}
   },
-  LightPoint = {
+  PointLight = {
     radius = math.random(60, 90),
     checkForTerrainCollision = true,
     radiusFlickeringFrequency = 3.,
@@ -37,7 +37,7 @@ components = {
         volume = math.random() * .3 + .5
       }
     },
-    componentsToRemoveOnDeath = {"LightPoint"},
+    componentsToRemoveOnDeath = {"PointLight"},
     currHealth = 1,
     maxHealth = 1,
     bloodColor = 0

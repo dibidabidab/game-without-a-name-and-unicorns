@@ -270,7 +270,7 @@ class RoomScreen : public Screen
             vsync = Game::settings.graphics.vsync,
             renderTiles = false,
             renderWindArrows = false,
-            renderShadowDebugLines = false,
+            debugLights = false,
             renderHitboxes = false,
             debugLegs = renderHitboxes,
             debugAimTargets = renderHitboxes;
@@ -279,10 +279,10 @@ class RoomScreen : public Screen
         if (ImGui::Begin("debug tools"))
         {
             ImGui::Checkbox("vsync", &vsync);
-            ImGui::Checkbox("render debug-tiles", &renderTiles);
-            ImGui::Checkbox("render wind-arrows", &renderWindArrows);
-            ImGui::Checkbox("render shadow-debug-lines", &renderShadowDebugLines);
+            ImGui::Checkbox("show debug-tiles", &renderTiles);
+            ImGui::Checkbox("show wind-arrows", &renderWindArrows);
             ImGui::Checkbox("show hitboxes & more", &renderHitboxes);
+            ImGui::Checkbox("debug lights", &debugLights);
             ImGui::Checkbox("debug legs", &debugLegs);
             ImGui::Checkbox("debug aim targets", &debugAimTargets);
             inspector.show |= ImGui::Button("entity inspector");
@@ -416,8 +416,28 @@ class RoomScreen : public Screen
 
         paletteEditor.drawGUI(palettes, currentPaletteEffect);
 
-        if (renderShadowDebugLines)
+        if (debugLights)
+        {
+            static vec3 lightColor(1, 1, 0);
+            room->entities.view<AABB, PointLight>().each([&](AABB &aabb, PointLight &light) {
+
+                lineRenderer.circle(aabb.center, 2, 10, lightColor);
+                for (float angle = 0; angle < 360; angle += 36)
+                {
+                    vec2 dir = rotate(vec2(6, 0), angle * mu::DEGREES_TO_RAD);
+                    lineRenderer.line(vec2(aabb.center) + dir * .5f, vec2(aabb.center) + dir, lightColor);
+                }
+            });
+            room->entities.view<AABB, DirectionalLight>().each([&](AABB &aabb, DirectionalLight &light) {
+
+                float rads = light.rotation * mu::DEGREES_TO_RAD;
+
+                vec2 dir = rotate(vec2(light.width * .5, 0), rads);
+                lineRenderer.line(vec2(aabb.center) - dir, vec2(aabb.center) + dir, lightColor);
+                lineRenderer.arrow(aabb.center, vec2(aabb.center) + rotate(vec2(0, -10), rads), 3, lightColor);
+            });
             shadowCaster.drawDebugLines(cam);
+        }
     }
 
     void editLuaTemplateCode()

@@ -6,10 +6,10 @@
 #include "../physics/Physics.h"
 
 /**
- * Any entity with LightPoint + AABB will create a light that (optionally) casts shadows.
+ * Any entity with PointLight + AABB will create a light that (optionally) casts shadows.
  */
 COMPONENT(
-    LightPoint,
+    PointLight,
     HASH(radius, castShadow),
 
     FIELD_DEF_VAL(uint8, radius, 128),
@@ -28,6 +28,16 @@ COMPONENT(
     int shadowTextureIndex = -1;
     int prevRadius = -1;
 
-END_COMPONENT(LightPoint)
+END_COMPONENT(PointLight)
+
+COMPONENT(
+    DirectionalLight,
+    HASH(0),
+
+    FIELD_DEF_VAL(float, width, 64),
+    FIELD_DEF_VAL(float, distance, 160),
+    FIELD_DEF_VAL(float, rotation, 45)
+)
+END_COMPONENT(DirectionalLight)
 
 #endif //GAME_LIGHT_H

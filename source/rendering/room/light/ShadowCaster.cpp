@@ -53,7 +53,7 @@ void ShadowCaster::drawDebugLines(const Camera &cam)
     debugShader.use();
     glUniformMatrix4fv(debugShader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
 
-    room->entities.view<AABB, LightPoint>().each([&](AABB &aabb, LightPoint &light) {
+    room->entities.view<AABB, PointLight>().each([&](AABB &aabb, PointLight &light) {
         if (!light.castShadow)
             return;
 
@@ -65,7 +65,7 @@ void ShadowCaster::drawDebugLines(const Camera &cam)
     #endif
 }
 
-void ShadowCaster::updateMesh(const LightPoint &light, const vec2 &lightPos)
+void ShadowCaster::updateMesh(const PointLight &light, const vec2 &lightPos)
 {
     int i = 0;
     for (auto &outline : room->getMap().getOutlines())
@@ -168,7 +168,7 @@ void ShadowCaster::updateShadowTexture(const SharedTexture &tileMapTexture, bool
     int i = -1;
     static const int LIGHTS_PER_ROW = TEXTURE_SIZE / SIZE_PER_LIGHT;
 
-    room->entities.view<AABB, LightPoint>().each([&](AABB &aabb, LightPoint &light) {
+    room->entities.view<AABB, PointLight>().each([&](AABB &aabb, PointLight &light) {
         if (!light.castShadow)
         {
             light.shadowTextureIndex = -1;

@@ -15,7 +15,7 @@ components = {
     StaticCollider = {},
     PlatformerMovement = {},
     Flip = {},
-    LightPoint = {
+    PointLight = {
         radius = 60
     },
     Health = {

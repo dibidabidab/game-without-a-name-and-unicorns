@@ -14,11 +14,12 @@ class LightMapRenderer
 {
     Room *room;
 
-    ShaderAsset shader;
+    ShaderAsset pointLightShader, directionalLightShader;
 
     SharedMesh quadMesh;
-    VertData lightsData;
-    int lightsDataBuffer = -1;
+    VertData pointLightsData, directionalLightsData;
+    int pointLightsDataBuffer = -1;
+    int directionalLightsDataBuffer = -1;
 
   public:
 
@@ -29,6 +30,12 @@ class LightMapRenderer
     void render(const Camera &cam, const SharedTexture &shadowTexture);
 
     ~LightMapRenderer();
+
+  private:
+
+    void renderPointLights(const Camera &cam, const SharedTexture &shadowTexture);
+
+    void renderDirectionalLights(const Camera &cam);
 
 };
 

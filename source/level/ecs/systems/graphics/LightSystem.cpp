@@ -5,7 +5,7 @@
 
 void LightSystem::update(double deltaTime, Room *room)
 {
-    room->entities.view<LightPoint>().each([&](LightPoint &l) {
+    room->entities.view<PointLight>().each([&](PointLight &l) {
 
         if (l.radiusFlickeringFrequency == 0)
         {
