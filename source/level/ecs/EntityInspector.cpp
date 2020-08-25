@@ -5,6 +5,7 @@
 #include <input/key_input.h>
 #include "EntityInspector.h"
 #include "components/physics/Physics.h"
+#include "../../Game.h"
 
 
 EntityInspector::EntityInspector(entt::registry &reg) : reg(reg)
@@ -14,11 +15,10 @@ EntityInspector::EntityInspector(entt::registry &reg) : reg(reg)
 
 void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
 {
+    gu::profiler::Zone z("entity inspector");
+
     templateToCreate.clear();
     templateToEdit.clear();
-    if (!show) return;
-
-    gu::profiler::Zone z("entity inspector");
 
     if (pickEntity)
     {
@@ -30,52 +30,52 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
         moveEntityGUI(cam, lineRenderer);
         return;
     }
+    pickEntity = KeyInput::justPressed(Game::settings.keyInput.inspectEntity);
+    moveEntity = KeyInput::justPressed(Game::settings.keyInput.moveEntity);
+
     reg.view<Inspecting>().each([&](auto e, Inspecting &ins) {
         drawEntityInspectorGUI(e, ins);
     });
 
-    ImGui::SetNextWindowPos(ImVec2(320, 10), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(200, 130), ImGuiCond_FirstUseEver);
+    ImGui::BeginMainMenuBar();
 
-    bool open = true;
-
-    if (!ImGui::Begin("Entity inspector", &open))
+    if (ImGui::BeginMenu("Room"))
     {
-        // Early out if the window is collapsed, as an optimization.
-        ImGui::End();
-        return;
-    }
-    if (!open) show = false;
+        auto str = std::to_string(reg.alive()) + " entities active";
+        ImGui::MenuItem(str.c_str(), "", false, false);
 
-    ImGui::Text("%lu entities active", reg.alive());
-    pickEntity = ImGui::Button("Pick entity from screen (I)") || KeyInput::justPressed(GLFW_KEY_I);
-    moveEntity = ImGui::Button("Move entity (M)") || KeyInput::justPressed(GLFW_KEY_M);
-
-    if (ImGui::Button("Create entity"))
-        ImGui::OpenPopup("create_entity");
-
-    if (ImGui::BeginPopup("create_entity"))
-    {
-        ImGui::Text("Template:                              ");
-        ImGui::Separator();
-
-        ImGui::Columns(2, NULL, false);
-        ImGui::SetColumnOffset(1, 110);
-
-        for (auto &name : entityTemplates)
+        if (ImGui::BeginMenu("Create entity"))
         {
-            if (ImGui::Selectable(name.c_str()))
-                templateToCreate = name;
-            ImGui::NextColumn();
-            if (ImGui::Button(("Edit###" + name).c_str()))
-                templateToEdit = name;
-            ImGui::NextColumn();
-        }
-        ImGui::Columns(1);
-        ImGui::EndPopup();
-    }
+            if (ImGui::MenuItem("Empty entity"))
+                reg.assign<Inspecting>(reg.create());
 
-    ImGui::End();
+            ImGui::Separator();
+            ImGui::MenuItem("From template:                     ", "", false, false);
+
+            ImGui::Columns(2, NULL, false);
+            ImGui::SetColumnOffset(1, 140);
+
+            for (auto &name : entityTemplates)
+            {
+                if (ImGui::MenuItem(name.c_str()))
+                    templateToCreate = name;
+                ImGui::NextColumn();
+                if (ImGui::Button(("Edit###" + name).c_str()))
+                    templateToEdit = name;
+                ImGui::NextColumn();
+            }
+            ImGui::Columns(1);
+
+            ImGui::EndMenu();
+        }
+
+        pickEntity |= ImGui::MenuItem("Inspect entity", KeyInput::getKeyName(Game::settings.keyInput.inspectEntity));
+        moveEntity |= ImGui::MenuItem("Move entity", KeyInput::getKeyName(Game::settings.keyInput.moveEntity));
+
+        ImGui::EndMenu();
+    }
+    ImGui::EndMainMenuBar();
+
 }
 
 void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer)

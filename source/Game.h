@@ -3,6 +3,7 @@
 #define GAME_GAME_H
 
 #include "macro_magic/serializable.h"
+#include "rendering/sprites/MegaSpriteSheet.h"
 
 #ifdef EMSCRIPTEN
 #define V_SYNC_ENABLED_BY_DEFAULT false
@@ -44,7 +45,14 @@ namespace Game
         FIELD_DEF_VAL(Key, nextTileShape, GLFW_KEY_RIGHT),
         FIELD_DEF_VAL(Key, prevTileShape, GLFW_KEY_LEFT),
         FIELD_DEF_VAL(Key, nextTileMaterial, GLFW_KEY_DOWN),
-        FIELD_DEF_VAL(Key, prevTileMaterial, GLFW_KEY_UP)
+        FIELD_DEF_VAL(Key, prevTileMaterial, GLFW_KEY_UP),
+
+        FIELD_DEF_VAL(Key, reloadAssets, GLFW_KEY_R),
+        FIELD_DEF_VAL(Key, toggleFullscreen, GLFW_KEY_F11),
+        FIELD_DEF_VAL(Key, toggleDeveloperOptions, GLFW_KEY_F3),
+
+        FIELD_DEF_VAL(Key, inspectEntity, GLFW_KEY_I),
+        FIELD_DEF_VAL(Key, moveEntity, GLFW_KEY_M)
     )
     END_SERIALIZABLE_FULL_JSON(KeyInputSettings)
 
@@ -52,7 +60,9 @@ namespace Game
         Settings,
         FIELD(GraphicsSettings, graphics),
         FIELD(AudioSettings, audio),
-        FIELD(KeyInputSettings, keyInput)
+        FIELD(KeyInputSettings, keyInput),
+
+        FIELD_DEF_VAL(bool, showDeveloperOptions, true)
     )
     END_SERIALIZABLE_FULL_JSON(Settings)
 
@@ -60,6 +70,8 @@ namespace Game
 
     void loadSettings();
     void saveSettings();
+
+    extern MegaSpriteSheet spriteSheet;
 
 };
 

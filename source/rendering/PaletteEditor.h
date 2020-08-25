@@ -12,7 +12,7 @@ class PaletteEditor
     std::string selectedEffect;
 
   public:
-    bool show = true;
+    bool show = false;
 
     void drawGUI(Palettes3D &palettes, uint currentlyRendered=0);
 

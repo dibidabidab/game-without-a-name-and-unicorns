@@ -7,7 +7,7 @@
 #include <utils/code_editor/CodeEditor.h>
 #include <utils/aseprite/AsepriteLoader.h>
 
-#include "rendering/room/RoomScreen.h"
+#include "rendering/LevelScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
 #include "multiplayer/io/web/WebSocketServer.h"
 #include "multiplayer/io/MultiplayerIO.h"
@@ -50,28 +50,8 @@ std::string prompt(std::string text)
 #endif
 }
 
-int main(int argc, char *argv[])
+void addAssetLoaders()
 {
-    Game::loadSettings();
-
-    std::mutex assetToReloadMutex;
-    std::string assetToReload;
-
-    #ifdef linux
-    FileWatcher watcher;
-    watcher.addDirectoryToWatch("assets", true);
-
-    watcher.onChange = [&] (auto path)
-    {
-        assetToReloadMutex.lock();
-        assetToReload = path;
-        assetToReloadMutex.unlock();
-    };
-    watcher.startWatchingAsync();
-    #endif
-
-    MegaSpriteSheet spriteSheet;
-
     AssetManager::addAssetLoader<TileSet>(".tileset.ase", [](auto path) {
 
         return new TileSet(path.c_str());
@@ -80,7 +60,7 @@ int main(int argc, char *argv[])
 
         auto sprite = new aseprite::Sprite;
         aseprite::Loader(path.c_str(), *sprite);
-        spriteSheet.add(*sprite);
+        Game::spriteSheet.add(*sprite);
         return sprite;
     });
     AssetManager::addAssetLoader<Texture>(".png|.jpg|.jpeg|.tga|.bmp|.psd|.gif|.hdr", [&](auto path) {
@@ -115,6 +95,85 @@ int main(int argc, char *argv[])
 
         return new LuaEntityScript(File::readString(path.c_str()));
     });
+}
+
+void showDeveloperOptionsMenuBar()
+{
+    ImGui::BeginMainMenuBar();
+
+    if (ImGui::BeginMenu("Game"))
+    {
+        ImGui::MenuItem(
+            "Show developer options",
+            KeyInput::getKeyName(Game::settings.keyInput.toggleDeveloperOptions),
+            &Game::settings.showDeveloperOptions);
+
+        ImGui::SliderFloat("Master volume", &Game::settings.audio.masterVolume, 0.0f, 3.0f);
+
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Graphics"))
+    {
+        static bool vsync = gu::config.vsync;
+        ImGui::MenuItem("VSync", "", &vsync);
+        gu::setVSync(vsync);
+
+        ImGui::MenuItem("Fullscreen", KeyInput::getKeyName(Game::settings.keyInput.toggleFullscreen), &gu::fullscreen);
+
+        if (ImGui::BeginMenu("Edit shader"))
+        {
+            for (auto &[name, asset] : AssetManager::getLoadedAssetsForType<std::string>())
+            {
+                if (!stringEndsWith(name, ".frag") && !stringEndsWith(name, ".vert"))
+                    continue;
+                if (ImGui::MenuItem(name.c_str()))
+                {
+                    auto &tab = CodeEditor::tabs.emplace_back();
+                    tab.title = asset->fullPath;
+
+                    tab.code = *((std::string *)asset->obj);
+                    tab.languageDefinition = TextEditor::LanguageDefinition::C();
+                    tab.save = [] (auto &tab) {
+
+                        File::writeBinary(tab.title.c_str(), tab.code);
+
+                        AssetManager::loadFile(tab.title, "assets/");
+                    };
+                    tab.revert = [] (auto &tab) {
+                        tab.code = File::readString(tab.title.c_str());
+                    };
+                }
+            }
+            ImGui::EndMenu();
+        }
+
+
+        ImGui::EndMenu();
+    }
+
+    ImGui::EndMainMenuBar();
+}
+
+int main(int argc, char *argv[])
+{
+    Game::loadSettings();
+
+    std::mutex assetToReloadMutex;
+    std::string assetToReload;
+
+    #ifdef linux
+    FileWatcher watcher;
+    watcher.addDirectoryToWatch("assets", true);
+
+    watcher.onChange = [&] (auto path)
+    {
+        assetToReloadMutex.lock();
+        assetToReload = path;
+        assetToReloadMutex.unlock();
+    };
+    watcher.startWatchingAsync();
+    #endif
 
     gu::Config config;
     config.width = Game::settings.graphics.windowSize.x;
@@ -141,9 +200,10 @@ int main(int argc, char *argv[])
     for (auto &dev : audioDevices)
         std::cout << " - " << dev << std::endl;
 
+    addAssetLoaders();
     AssetManager::load("assets");
 
-    Screen *roomScreen = NULL;
+    Screen *lvlScreen = NULL;
 
     bool server = false;
     int serverPort = 0;
@@ -205,26 +265,15 @@ int main(int argc, char *argv[])
     mpSession->onNewLevel = [&](Level *lvl)
     {
         std::cout << "New level!\n";
-        delete roomScreen;
-        gu::setScreen(NULL);
-
-        lvl->onPlayerEnteredRoom = [&](Room *room, int playerId)
-        {
-            if (!mpSession->getLocalPlayer() || playerId != mpSession->getLocalPlayer()->id)
-                return;
-            delete roomScreen;
-            std::cout << "Local player entered room. Show RoomScreen\n";
-            roomScreen = new RoomScreen(room, &spriteSheet, mpSession->isServer());
-            gu::setScreen(roomScreen);
-        };
+        delete lvlScreen;
+        lvlScreen = new LevelScreen(lvl, mpSession->getLocalPlayer() == NULL ? -1 : mpSession->getLocalPlayer()->id);
+        gu::setScreen(lvlScreen);
     };
 
     gu::beforeRender = [&](double deltaTime) {
         mpSession->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .03 : deltaTime);
-        if (KeyInput::justPressed(GLFW_KEY_F11))
-            gu::fullscreen = !gu::fullscreen;
 
-        if (KeyInput::justPressed(GLFW_KEY_R))
+        if (KeyInput::justPressed(Game::settings.keyInput.reloadAssets))
             AssetManager::load("assets");
 
         assetToReloadMutex.lock();
@@ -237,12 +286,24 @@ int main(int argc, char *argv[])
             ImGui::GetIO().Fonts->Fonts.back()  // default monospace font (added by setImGuiStyle())
         );
 
-        if (!gu::fullscreen) // dont save fullscreen-resolution
-            Game::settings.graphics.windowSize = ivec2(
-                gu::width, gu::height
-            );
-        Game::settings.graphics.vsync = gu::config.vsync;
-        Game::settings.graphics.fullscreen = gu::fullscreen;
+        {
+            if (!gu::fullscreen) // dont save fullscreen-resolution
+                Game::settings.graphics.windowSize = ivec2(
+                        gu::width, gu::height
+                );
+            Game::settings.graphics.vsync = gu::config.vsync;
+            Game::settings.graphics.fullscreen = gu::fullscreen;
+        }
+
+        if (KeyInput::justPressed(Game::settings.keyInput.toggleDeveloperOptions))
+            Game::settings.showDeveloperOptions ^= 1;
+
+        if (KeyInput::justPressed(Game::settings.keyInput.toggleFullscreen))
+            gu::fullscreen = !gu::fullscreen;
+
+        if (Game::settings.showDeveloperOptions)
+            showDeveloperOptionsMenuBar();
+        gu::profiler::showGUI = Game::settings.showDeveloperOptions;
     };
 
     mpSession->onJoinRequestDeclined = [&](auto reason) {
@@ -263,6 +324,7 @@ int main(int argc, char *argv[])
     }
 
     gu::run();
+    delete lvlScreen;
     delete mpSession->getLevel(); // trigger tilemap save, todo: remove this
     delete mpSession;
 

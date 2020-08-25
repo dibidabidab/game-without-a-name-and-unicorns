@@ -10,7 +10,7 @@ in vec2 v_pos;
 
 void main()
 {
-    shadow = 2u;
+    shadow = 1u;
     gl_FragDepth = .1;
 
     if (v_depth < 20.)

@@ -43,7 +43,6 @@ class EntityInspector
   public:
 
     bool
-        show = true,
         pickEntity = false,
         moveEntity = false;
 

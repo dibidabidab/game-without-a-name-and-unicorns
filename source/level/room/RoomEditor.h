@@ -19,6 +19,8 @@ class RoomEditor
 
   public:
 
+    bool show = false;
+
     void update(OrthographicCamera &cam, TileMap *room, DebugLineRenderer &lineRenderer);
 };
 
