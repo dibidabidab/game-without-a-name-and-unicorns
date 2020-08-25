@@ -120,6 +120,8 @@ void LightMapRenderer::renderDirectionalLights(const Camera &cam)
     });
 
     directionalLightShader.use();
+    asset<Texture>("light_shafts")->bind(0, directionalLightShader, "lightShaftsTexture");
+    glUniform1f(directionalLightShader.location("time"), room->getLevel()->getTime());
     glUniformMatrix4fv(directionalLightShader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
 
     directionalLightsDataBuffer = quadMesh->vertBuffer->uploadPerInstanceData(directionalLightsData, 1, directionalLightsDataBuffer);

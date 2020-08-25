@@ -8,6 +8,8 @@ layout(location = 4) in float rotation;
 
 uniform mat4 projection;
 
+out vec2 uv;
+
 vec2 rotate(vec2 v, float a) {
     float s = sin(a);
     float c = cos(a);
@@ -17,6 +19,9 @@ vec2 rotate(vec2 v, float a) {
 
 void main()
 {
+    uv = a_pos;
+    uv *= .5;
+    uv += .5;
     vec2 pos = a_pos;
 
     pos.x *= width * .5;

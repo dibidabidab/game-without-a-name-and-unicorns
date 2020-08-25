@@ -36,7 +36,7 @@ COMPONENT(
 
     FIELD_DEF_VAL(float, width, 64),
     FIELD_DEF_VAL(float, distance, 160),
-    FIELD_DEF_VAL(float, rotation, 45)
+    FIELD_DEF_VAL(float, rotation, 20)
 )
 END_COMPONENT(DirectionalLight)
 

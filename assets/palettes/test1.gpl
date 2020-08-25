@@ -2,10 +2,10 @@ GIMP Palette
 #
   0   0   0	transparent
  34  32  38	background
-128  68  68	sky
-141 103 255	grass
-125  39 157	grass_dark
-166  41 101	brick
+120  50  63	sky
+138 102 245	grass
+129  25 208	grass_dark
+197  37  84	brick
  69 214  95	wood
 255 247 104	string
 255 179  83	skin
