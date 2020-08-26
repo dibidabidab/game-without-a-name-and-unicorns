@@ -11,6 +11,7 @@ LevelEditor::LevelEditor(Level *lvl) : lvl(lvl)
 
 void LevelEditor::render()
 {
+    ImGui::ShowDemoWindow();
     moveCameraToRoom = -1;
 
     if (!show)
@@ -37,6 +38,7 @@ void LevelEditor::render()
 
     static bool firstTime = true;
     static float zoom = 4;
+    static Level *loadRoomFromLvl = NULL;
 
     if (ImGui::BeginMenuBar())
     {
@@ -61,7 +63,7 @@ void LevelEditor::render()
 
                 for (auto &path : levelPaths)
                     if (ImGui::MenuItem(path.c_str()))
-                    {}
+                        loadRoomFromLvl = new Level(path.c_str());
 
                 ImGui::EndMenu();
             }
@@ -166,7 +168,7 @@ void LevelEditor::render()
         ImVec2 p0(lowerLeft.x + room.positionInLevel.x * zoom, lowerLeft.y - (room.positionInLevel.y + room.getMap().height) * zoom);
         ImVec2 p1(p0.x + room.getMap().width * zoom, lowerLeft.y - room.positionInLevel.y * zoom);
 
-        auto col = ImVec4(1, 1, 1, .7);
+        auto col = ImVec4(1, 1, 1, .4);
 
         if (p0.x < mousePos.x && p1.x > mousePos.x && p0.y < mousePos.y && p1.y > mousePos.y)
         {
@@ -174,6 +176,7 @@ void LevelEditor::render()
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
             {
                 showingRoomProperties = i;
+                recreateMiniMap = true;
                 resetRoomResizing();
             }
         }
@@ -194,6 +197,91 @@ void LevelEditor::render()
             drawList->AddText(p0, IM_COL32_WHITE, "\n   LocalPlayer");
     }
 
+    static bool importModalOpened = false;
+
+    if (loadRoomFromLvl && !importModalOpened)
+        ImGui::OpenPopup("Import Room");
+
+    ImGui::SetNextWindowSize(ImVec2(550, 500), ImGuiCond_Once);
+
+    if (ImGui::BeginPopupModal("Import Room"))
+    {
+        importModalOpened = true;
+        static SharedTexture importPreviewTexture;
+
+        ImGui::Text("Pick a Room to import");
+        ImGui::Separator();
+
+        ImGui::Columns(2);
+
+        static int importRoomI = -1;
+        if (importRoomI >= loadRoomFromLvl->getNrOfRooms())
+            importRoomI = -1;
+
+        for (int i = 0; i < loadRoomFromLvl->getNrOfRooms(); i++)
+        {
+            std::string str = "Room #" + std::to_string(i);
+            if (ImGui::Button(str.c_str()))
+                importRoomI = i;
+        }
+
+        ImGui::NextColumn();
+
+        if (importRoomI != -1)
+        {
+            const Room &r = loadRoomFromLvl->getRoom(importRoomI);
+
+            ImGui::Text("Size: (%d, %d)", r.getMap().width, r.getMap().height);
+            ImGui::Text("Position: (%d, %d)", r.positionInLevel.x, r.positionInLevel.y);
+
+            if (importPreviewTexture == NULL)
+                importPreviewTexture = MiniMapTextureGenerator::generate(*loadRoomFromLvl);
+
+            auto imgPtr = (void*)(intptr_t)importPreviewTexture->id;
+            float previewZoom = 4;
+
+            ImVec2 uv0(float(r.positionInLevel.x) / float(importPreviewTexture->width), float(r.positionInLevel.y + r.getMap().height) / float(importPreviewTexture->height));
+            ImVec2 uv1(float(r.positionInLevel.x + r.getMap().width) / float(importPreviewTexture->width), float(r.positionInLevel.y) / float(importPreviewTexture->height));
+            uv0.y = 1. - uv0.y;
+            uv1.y = 1. - uv1.y;
+
+            ImGui::Image(imgPtr, ImVec2(r.getMap().width * previewZoom, r.getMap().height * previewZoom), uv0, uv1);
+        }
+        ImGui::NextColumn();
+        ImGui::Columns(1);
+        ImGui::Separator();
+
+        bool close = false;
+
+        if (importRoomI != -1)
+        {
+            if (ImGui::Button("Import", ImVec2(120, 0)))
+            {
+                const Room &r = loadRoomFromLvl->getRoom(importRoomI);
+                showingRoomProperties = lvl->getNrOfRooms();
+                lvl->createRoom(r.getMap().width, r.getMap().height, &r);
+
+                close = true;
+                recreateMiniMap = true;
+            }
+
+            ImGui::SameLine();
+        }
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+            close = true;
+        if (close)
+        {
+            delete loadRoomFromLvl;
+            loadRoomFromLvl = NULL;
+            ImGui::CloseCurrentPopup();
+            importPreviewTexture = NULL;
+            importModalOpened = false;
+        }
+
+        ImGui::SetItemDefaultFocus();
+
+        ImGui::EndPopup();
+    }
     ImGui::End();
 
     if (showingRoomProperties >= lvl->getNrOfRooms())
