@@ -65,7 +65,7 @@ void TileMap::setTile(uint8 x, uint8 y, Tile tile)
     setTile(x, y, tile, getMaterial(x, y));
 }
 
-void TileMap::setTile(uint8 x, uint8 y, Tile tile, TileMaterial material)
+void TileMap::setTile(uint8 x, uint8 y, Tile tile, TileMaterial material, bool registerAsUpdate, bool refreshOutlines)
 {
     if (!contains(x, y))
         return;
@@ -79,10 +79,14 @@ void TileMap::setTile(uint8 x, uint8 y, Tile tile, TileMaterial material)
     t = tile;
     m = material;
 
-    tile_update update { x, y, uint8(tile), material };
-    tileUpdatesSinceLastUpdate.push_back(update);
+    if (registerAsUpdate)
+    {
+        tile_update update { x, y, uint8(tile), material };
+        tileUpdatesSinceLastUpdate.push_back(update);
+    }
 
-    refreshOutlines();
+    if (refreshOutlines)
+        this->refreshOutlines();
 }
 
 bool TileMap::contains(uint8 x, uint8 y) const

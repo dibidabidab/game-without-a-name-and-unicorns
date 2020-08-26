@@ -60,9 +60,6 @@ void RoomScreen::render(double deltaTime)
     camMovement.update(deltaTime);
     room->cursorPositionInRoom = cam.getCursorRayDirection() + cam.position;
 
-    glClearColor(32 / 255., 53 / 255., 189 / 255., 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-
     {   // render indexed stuff:
         gu::profiler::Zone z("indexed image");
 

@@ -25,6 +25,8 @@ class LevelScreen : public Screen
 
     void onResize() override;
 
+    void showRoom(Room *);
+
   private:
 
     void renderDebugTools();

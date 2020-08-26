@@ -1,6 +1,7 @@
 
 #include "LevelEditor.h"
 #include "../level/ecs/components/PlayerControlled.h"
+#include "MiniMapTextureGenerator.h"
 #include <imgui.h>
 
 LevelEditor::LevelEditor(Level *lvl) : lvl(lvl)
@@ -10,8 +11,13 @@ LevelEditor::LevelEditor(Level *lvl) : lvl(lvl)
 
 void LevelEditor::render()
 {
+    moveCameraToRoom = -1;
+
     if (!show)
+    {
+        miniMapTex = NULL;
         return;
+    }
 
     ImGui::SetNextWindowPos(ImVec2(300, 300), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(900, 600), ImGuiCond_FirstUseEver);
@@ -24,6 +30,7 @@ void LevelEditor::render()
 
     if (!ImGui::Begin("Level editor", &show, window_flags))
     {
+        miniMapTex = NULL;
         ImGui::End();
         return;
     }
@@ -35,7 +42,82 @@ void LevelEditor::render()
     {
         if (ImGui::BeginMenu("Editor"))
         {
-            ImGui::MenuItem("Create room");
+            static bool importing = false;
+            static std::vector<std::string> levelPaths;
+
+            if (ImGui::BeginMenu("Import Room from other Level"))
+            {
+                if (!importing)
+                {
+                    levelPaths.clear();
+                    importing = true;
+
+                    File::iterateDirectoryRecursively(".", [&](const std::string &path, bool isDir) {
+                        if (isDir || !stringEndsWith(path, ".lvl"))
+                            return;
+                        levelPaths.push_back(path);
+                    });
+                }
+
+                for (auto &path : levelPaths)
+                    if (ImGui::MenuItem(path.c_str()))
+                    {}
+
+                ImGui::EndMenu();
+            }
+            else importing = false;
+
+            if (ImGui::BeginMenu("Create Room"))
+            {
+                static int width = 24, height = 16;
+
+                ImGui::SliderInt("Width", &width, 1, 255);
+                ImGui::SliderInt("Height", &height, 1, 255);
+
+                if (ImGui::Button("Create"))
+                {
+                    lvl->createRoom(width, height);
+                    showingRoomProperties = lvl->getNrOfRooms() - 1;
+                }
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Move all rooms"))
+            {
+                ivec2 move(0);
+
+                ImGui::PushButtonRepeat(true);
+
+                if (ImGui::ArrowButton("right", ImGuiDir_Right))
+                    move.x++;
+                ImGui::SameLine(0, 10);
+                if (ImGui::ArrowButton("up", ImGuiDir_Up))
+                    move.y++;
+                ImGui::SameLine(0, 10);
+                if (ImGui::ArrowButton("left", ImGuiDir_Left))
+                    move.x--;
+                ImGui::SameLine(0, 10);
+                if (ImGui::ArrowButton("down", ImGuiDir_Down))
+                    move.y--;
+
+                ImGui::PopButtonRepeat();
+
+                bool canMove = true;
+
+                for (int i = 0; i < lvl->getNrOfRooms(); i++)
+                    if (-move.x > int(lvl->getRoom(i).positionInLevel.x) || -move.y > int(lvl->getRoom(i).positionInLevel.y))
+                        canMove = false;
+
+                if (canMove && (move.x != 0 || move.y != 0))
+                {
+                    for (int i = 0; i < lvl->getNrOfRooms(); i++)
+                        lvl->getRoom(i).positionInLevel += move;
+                    miniMapTex = NULL;
+                }
+
+                ImGui::EndMenu();
+            }
 
             ImGui::Separator();
 
@@ -60,15 +142,22 @@ void LevelEditor::render()
 
     auto drawList = ImGui::GetWindowDrawList();
 
-//    asset<Texture> tilesImg("tiles");
-//    auto imgPtr = (void*)(intptr_t)tilesImg->id;
-//    drawList->AddImage(imgPtr, ImVec2(lowerLeft.x, lowerLeft.y - 300), ImVec2(300 + lowerLeft.x, lowerLeft.y));
-
     auto mousePos = ImGui::GetMousePos();
 
     // resize room values:
     static int moveLeftBorder = 0, moveRightBorder = 0, moveTopBorder = 0, moveBottomBorder = 0;
     #define resetRoomResizing() moveLeftBorder = moveRightBorder = moveTopBorder = moveBottomBorder = 0
+
+    static bool recreateMiniMap = false;
+
+    if (!miniMapTex || recreateMiniMap)
+    {
+        miniMapTex = MiniMapTextureGenerator::generate(*lvl);
+        recreateMiniMap = false;
+    }
+
+    auto imgPtr = (void*)(intptr_t)miniMapTex->id;
+    drawList->AddImage(imgPtr, ImVec2(lowerLeft.x, lowerLeft.y - miniMapTex->height * zoom), ImVec2(lowerLeft.x + miniMapTex->width * zoom, lowerLeft.y));
 
     for (int i = 0; i < lvl->getNrOfRooms(); i++)
     {
@@ -82,7 +171,7 @@ void LevelEditor::render()
         if (p0.x < mousePos.x && p1.x > mousePos.x && p0.y < mousePos.y && p1.y > mousePos.y)
         {
             col = ImVec4(.3, .5, 1, 1);
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
             {
                 showingRoomProperties = i;
                 resetRoomResizing();
@@ -122,16 +211,17 @@ void LevelEditor::render()
         if (!open)
             showingRoomProperties = -1;
 
+        ImGui::Text("Index: %d", showingRoomProperties);
         ImGui::Text("Size: (%d, %d)", room.getMap().width, room.getMap().height);
 
         if (ImGui::Button("Move camera here"))
-        {
-
-        }
+            moveCameraToRoom = showingRoomProperties;
 
         if (ImGui::Button("Duplicate Room"))
         {
-
+            showingRoomProperties = lvl->getNrOfRooms();
+            lvl->createRoom(room.getMap().width, room.getMap().height, &room);
+            recreateMiniMap = true;
         }
 
         if (ImGui::Button("Delete Room"))
@@ -144,7 +234,9 @@ void LevelEditor::render()
 
             if (ImGui::Button("Yes", ImVec2(120, 0)))
             {
+                lvl->deleteRoom(showingRoomProperties);
                 ImGui::CloseCurrentPopup();
+                recreateMiniMap = true;
                 showingRoomProperties = -1;
             }
 
@@ -159,8 +251,11 @@ void LevelEditor::render()
         ImGui::Separator();
         ImGui::Text("Position:");
         ivec2 pos = room.positionInLevel;
-        ImGui::InputInt("x", &pos.x, 1, 16);
-        ImGui::InputInt("y", &pos.y, 1, 16);
+        if (ImGui::InputInt("x", &pos.x, 1, 16))
+            recreateMiniMap = true;
+        if (ImGui::InputInt("y", &pos.y, 1, 16))
+            recreateMiniMap = true;
+
         room.positionInLevel.x = max(0, pos.x);
         room.positionInLevel.y = max(0, pos.y);
 
@@ -176,6 +271,7 @@ void LevelEditor::render()
         {
             room.resize(moveLeftBorder, moveRightBorder, moveTopBorder, moveBottomBorder);
             resetRoomResizing();
+            recreateMiniMap = true;
         }
 
         ImGui::End();

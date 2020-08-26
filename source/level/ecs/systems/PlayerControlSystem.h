@@ -36,11 +36,20 @@ class PlayerControlSystem : public EntitySystem
         PlayerControlled &pC = reg.get<PlayerControlled>(entity);
         std::cout << "Entity (" << int(entity) << ") controlled by player "
             << int(pC.playerId) << " LEFT Room" << room->getIndexInLevel() << "\n";
+
+        room->getLevel()->onPlayerLeftRoom(room, pC.playerId);
     }
 
     void update(double deltaTime, Room *room) override
     {
 
+    }
+
+    ~PlayerControlSystem() override
+    {
+        room->entities.view<PlayerControlled>().each([&](auto e, auto) {
+            onDestroyed(room->entities, e);
+        });
     }
 };
 

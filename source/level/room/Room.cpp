@@ -29,16 +29,26 @@
 Room::Room(ivec2 size)
 {
     tileMap = new TileMap(size);
+    for (int x = 0; x < size.x; x++)
+    {
+        tileMap->setTile(x, 0, Tile::full, 0, false, false);
+        tileMap->setTile(x, size.y - 1, Tile::full, 0, false, false);
+    }
+    for (int y = 0; y < size.y; y++)
+    {
+        tileMap->setTile(0, y, Tile::full, 0, false, false);
+        tileMap->setTile(size.x - 1, y, Tile::full, 0, false, false);
+    }
+    tileMap->refreshOutlines();
 }
 
-void Room::initialize(Level *lvl, int roomI_)
+void Room::initialize(Level *lvl)
 {
     assert(!initialized);
     assert(lvl != NULL);
     assert(tileMap != NULL);
 
     level = lvl;
-    roomI = roomI_;
 
     for (auto &el : AssetManager::getLoadedAssetsForType<LuaEntityScript>())
         registerLuaEntityTemplate(el.second->shortPath.c_str());

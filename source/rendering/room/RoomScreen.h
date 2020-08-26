@@ -43,8 +43,6 @@ class RoomScreen : public Screen
 {
     bool showRoomEditor = false;
 
-    Room *room;
-
     EntityInspector inspector;
 
     DebugLineRenderer lineRenderer;
@@ -78,6 +76,8 @@ class RoomScreen : public Screen
     TileMap *tileMap = NULL;
 
   public:
+
+    Room *room;
 
     RoomScreen(Room *room, bool showRoomEditor=false);
 

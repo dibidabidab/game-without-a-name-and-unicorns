@@ -41,7 +41,7 @@ class Room
     friend void from_json(const json& j, Level& lvl);
     friend Level;
 
-    void initialize(Level *lvl, int roomI);
+    void initialize(Level *lvl);
 
   public:
 

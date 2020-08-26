@@ -94,7 +94,7 @@ class TileMap
 
     void setTile(uint8 x, uint8 y, Tile);
 
-    void setTile(uint8 x, uint8 y, Tile, TileMaterial);
+    void setTile(uint8 x, uint8 y, Tile, TileMaterial, bool registerAsUpdate=true, bool refreshOutlines=true);
 
     bool contains(uint8 x, uint8 y) const;
 
@@ -128,8 +128,6 @@ class TileMap
      */
     void fromBinary(const char *data, int size);
 
-
-  private:
     void refreshOutlines();
 
 };

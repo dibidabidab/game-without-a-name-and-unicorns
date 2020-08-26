@@ -11,8 +11,7 @@
 class Level
 {
     double time = 0;
-    Room *rooms = NULL;
-    int nrOfRooms = 0;
+    std::vector<Room *> rooms;
 
     bool updating = false;
     float updateAccumulator = 0;
@@ -26,15 +25,24 @@ class Level
 
   public:
 
+    const std::string loadedFromFile;
+
     Level() = default;
 
-    std::function<void(Room *, int playerId)> onPlayerEnteredRoom;
+    Level(const char *loadFromFile);
 
-    int getNrOfRooms() const { return nrOfRooms; }
+    std::function<void(Room *, int playerId)> onPlayerEnteredRoom, onPlayerLeftRoom;
+    std::function<void(Room *)> beforeRoomDeletion = [](auto) {};
+
+    int getNrOfRooms() const { return rooms.size(); }
 
     Room &getRoom(int i);
 
     const Room &getRoom(int i) const;
+
+    void deleteRoom(int i);
+
+    void createRoom(int width, int height, const Room *duplicate=NULL);
 
     double getTime() const { return time; }
 
@@ -50,6 +58,8 @@ class Level
     void update(double deltaTime);
 
     static Level *testLevel();
+
+    void save(const char *path) const;
 
     ~Level();
 

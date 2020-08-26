@@ -27,10 +27,14 @@ void OfflineMultiplayerSession::update(double deltaTime)
         firstUpdate = false;
         level->initialize();
         onNewLevel(level);
-        Room &room = level->getRoom(0);
-        auto e = room.getTemplate("Player").create();
-        room.entities.assign<PlayerControlled>(e, localPlayer->id);
-        room.entities.assign<LocalPlayer>(e);
+
+        if (level->getNrOfRooms() >= 1)
+        {
+            Room &room = level->getRoom(0);
+            auto e = room.getTemplate("Player").create();
+            room.entities.assign<PlayerControlled>(e, localPlayer->id);
+            room.entities.assign<LocalPlayer>(e);
+        }
     }
     level->update(deltaTime);
 }

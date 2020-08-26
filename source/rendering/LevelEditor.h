@@ -11,7 +11,11 @@ class LevelEditor
     Level *lvl;
     int showingRoomProperties = -1;
 
+    SharedTexture miniMapTex;
+
   public:
+
+    int moveCameraToRoom = -1;
 
     bool show = false;
 

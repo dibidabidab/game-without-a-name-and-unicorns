@@ -1,21 +1,40 @@
 
 #include "LevelScreen.h"
+#include "MiniMapTextureGenerator.h"
 
 LevelScreen::LevelScreen(Level *lvl, int localPlayerID) : lvl(lvl), localPlayerID(localPlayerID), lvlEditor(lvl)
 {
+    lvl->onPlayerLeftRoom = [this](Room *room, int playerId)
+    {
+        if (this->localPlayerID != playerId || (roomScreen && roomScreen->room != room))
+            return;
+        delete roomScreen;
+        roomScreen = NULL;
+    };
+
     lvl->onPlayerEnteredRoom = [this](Room *room, int playerId)
     {
         if (this->localPlayerID != playerId)
             return;
-        delete roomScreen;
         std::cout << "Local player entered room. Show RoomScreen\n";
-        roomScreen = new RoomScreen(room, true);
-        roomScreen->onResize();
+        showRoom(room);
+    };
+
+    lvl->beforeRoomDeletion = [this](Room *r)
+    {
+        if (roomScreen && r == roomScreen->room)
+        {
+            delete roomScreen;
+            roomScreen = NULL;
+        }
     };
 }
 
 void LevelScreen::render(double deltaTime)
 {
+    glClearColor(32 / 255., 53 / 255., 189 / 255., 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     renderDebugTools();
     if (roomScreen)
         roomScreen->render(deltaTime);
@@ -48,5 +67,16 @@ void LevelScreen::renderDebugTools()
     ImGui::EndMainMenuBar();
 
     lvlEditor.render();
+    if (lvlEditor.moveCameraToRoom >= 0)
+        showRoom(&lvl->getRoom(lvlEditor.moveCameraToRoom));
+}
+
+void LevelScreen::showRoom(Room *r)
+{
+    delete roomScreen;
+    if (!r)
+        return;
+    roomScreen = new RoomScreen(r, true);
+    roomScreen->onResize();
 }
 
