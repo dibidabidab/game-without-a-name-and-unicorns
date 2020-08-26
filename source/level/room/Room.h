@@ -45,7 +45,7 @@ class Room
 
   public:
 
-    ivec2 positionInLevel = ivec2(0);
+    uvec2 positionInLevel = uvec2(0);
 
     ivec2 cursorPositionInRoom = ivec2(0);
 
@@ -56,6 +56,8 @@ class Room
     Room(ivec2 size);
 
     ~Room();
+
+    void resize(int moveLeftBorder, int moveRightBorder, int moveTopBorder, int moveBottomBorder);
 
     TileMap &getMap() const;
 

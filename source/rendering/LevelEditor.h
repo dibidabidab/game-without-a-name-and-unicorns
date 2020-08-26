@@ -9,8 +9,11 @@ class LevelEditor
 {
 
     Level *lvl;
+    int showingRoomProperties = -1;
 
   public:
+
+    bool show = false;
 
     LevelEditor(Level *);
 

@@ -5,6 +5,7 @@
 #include <gu/screen.h>
 #include "../level/Level.h"
 #include "room/RoomScreen.h"
+#include "LevelEditor.h"
 
 class LevelScreen : public Screen
 {
@@ -13,6 +14,8 @@ class LevelScreen : public Screen
     int localPlayerID;
 
     RoomScreen *roomScreen = NULL;
+
+    LevelEditor lvlEditor;
 
   public:
 

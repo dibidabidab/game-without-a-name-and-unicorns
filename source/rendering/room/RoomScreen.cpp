@@ -7,8 +7,6 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
         room(room), showRoomEditor(showRoomEditor),
         cam(.1, 1000, 0, 0),
         camMovement(room, &cam),
-        tileMapRenderer(&room->getMap()),
-        bloodSplatterRenderer(room),
         applyPaletteShader(
                 "applyPaletteShader", "shaders/fullscreen_quad.vert", "shaders/apply_palette.frag"
         ),
@@ -21,7 +19,8 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
         shadowCaster(room),
         lightMapRenderer(room),
         inspector(room->entities),
-        spriteRenderer(&Game::spriteSheet)
+        spriteRenderer(&Game::spriteSheet),
+        tileMap(&room->getMap())
 {
     assert(room != NULL);
     assert(Game::spriteSheet.texture != NULL);
@@ -48,6 +47,16 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
 
 void RoomScreen::render(double deltaTime)
 {
+    if (tileMap != &room->getMap() || !tileMapRenderer) // recreate some things when the TileMap has been recreated/resized.
+    {
+        tileMap = &room->getMap();
+
+        delete tileMapRenderer;
+        tileMapRenderer = new TileMapRenderer(tileMap);
+        delete bloodSplatterRenderer;
+        bloodSplatterRenderer = new BloodSplatterRenderer(room);
+    }
+
     camMovement.update(deltaTime);
     room->cursorPositionInRoom = cam.getCursorRayDirection() + cam.position;
 
@@ -57,8 +66,8 @@ void RoomScreen::render(double deltaTime)
     {   // render indexed stuff:
         gu::profiler::Zone z("indexed image");
 
-        tileMapRenderer.updateMapTextureIfNeeded();
-        bloodSplatterRenderer.updateSplatterTexture(deltaTime);
+        tileMapRenderer->updateMapTextureIfNeeded();
+        bloodSplatterRenderer->updateSplatterTexture(deltaTime);
 
         indexedFbo->bind();
 
@@ -69,9 +78,9 @@ void RoomScreen::render(double deltaTime)
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
-        tileMapRenderer.render(cam, bloodSplatterRenderer.fbo.colorTexture);
+        tileMapRenderer->render(cam, bloodSplatterRenderer->fbo.colorTexture);
         spriteRenderer.render(deltaTime, cam, room->entities);
-        bloodSplatterRenderer.render(cam);
+        bloodSplatterRenderer->render(cam);
         polylineRenderer.render(room->entities, cam);
         fluidRenderer.render(room->entities, cam);
 
@@ -80,7 +89,7 @@ void RoomScreen::render(double deltaTime)
     }
     {
         gu::profiler::Zone z("lights/shadows/reflections");
-        shadowCaster.updateShadowTexture(tileMapRenderer.fbo.colorTexture, !room->getMap().updatesPrevUpdate().empty());
+        shadowCaster.updateShadowTexture(tileMapRenderer->fbo.colorTexture, !room->getMap().updatesPrevUpdate().empty());
 
         lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
 

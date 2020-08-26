@@ -1,7 +1,7 @@
 
 #include "LevelScreen.h"
 
-LevelScreen::LevelScreen(Level *lvl, int localPlayerID) : lvl(lvl), localPlayerID(localPlayerID)
+LevelScreen::LevelScreen(Level *lvl, int localPlayerID) : lvl(lvl), localPlayerID(localPlayerID), lvlEditor(lvl)
 {
     lvl->onPlayerEnteredRoom = [this](Room *room, int playerId)
     {
@@ -39,10 +39,14 @@ void LevelScreen::renderDebugTools()
         auto str = std::to_string(lvl->getNrOfRooms()) + " room(s) active.";
         ImGui::MenuItem(str.c_str(), NULL, false, false);
 
-        ImGui::MenuItem("Level editor");
+        if (ImGui::MenuItem("Level editor"))
+            lvlEditor.show = true;
+
         ImGui::EndMenu();
     }
 
     ImGui::EndMainMenuBar();
+
+    lvlEditor.render();
 }
 

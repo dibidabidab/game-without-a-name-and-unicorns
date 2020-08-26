@@ -112,3 +112,10 @@ const TileMaterialProperties &TileMap::getMaterialProperties(TileMaterial m) con
         throw gu_err("No TileMaterialProperties found for TileMaterial#" + std::to_string(int(m)));
     return materialProperties[m];
 }
+
+void TileMap::copy(const TileMap &other, int fromX, int fromY, int toX, int toY, int width, int height)
+{
+    for (int w = 0; w < width; w++)
+        for (int h = 0; h < height; h++)
+            setTile(toX + w, toY + h, other.getTile(fromX + w, fromY + h), other.getMaterial(fromX + w, fromY + h));
+}

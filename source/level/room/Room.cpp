@@ -35,6 +35,7 @@ void Room::initialize(Level *lvl, int roomI_)
 {
     assert(!initialized);
     assert(lvl != NULL);
+    assert(tileMap != NULL);
 
     level = lvl;
     roomI = roomI_;
@@ -102,6 +103,7 @@ Room::~Room()
         delete sys;
     for (auto &entry : entityTemplates)
         delete entry.second;
+    delete tileMap;
 }
 
 TileMap &Room::getMap() const
@@ -117,6 +119,7 @@ void to_json(json &j, const Room &r)
     r.getMap().toBinary(tileMapBinary);
     std::string tileMapBase64 = base64::encode(&tileMapBinary[0], tileMapBinary.size());
     j = json{
+            {"position", r.positionInLevel},
             {"width", r.getMap().width},
             {"height", r.getMap().height},
             {"tileMapBase64", tileMapBase64}
@@ -125,6 +128,7 @@ void to_json(json &j, const Room &r)
 
 void from_json(const json &j, Room &r)
 {
+    r.positionInLevel = j.at("position");
     r.tileMap = new TileMap(ivec2(j.at("width"), j.at("height")));
     std::string tileMapBase64 = j.at("tileMapBase64");
     auto tileMapBinary = base64::decode(&tileMapBase64[0], tileMapBase64.size());
@@ -192,4 +196,27 @@ void Room::addEntityTemplate(const std::string &name, EntityTemplate *t)
 
     if (!replace)
         entityTemplateNames.push_back(name);
+}
+
+void Room::resize(int moveLeftBorder, int moveRightBorder, int moveTopBorder, int moveBottomBorder)
+{
+    TileMap *old = tileMap;
+    tileMap = new TileMap(ivec2(
+        old->width + moveLeftBorder + moveRightBorder,
+        old->height + moveTopBorder + moveBottomBorder
+    ));
+    tileMap->copy(
+        *old,
+        moveLeftBorder < 0 ? -moveLeftBorder : 0,
+        moveBottomBorder < 0 ? -moveBottomBorder : 0,
+
+        moveLeftBorder > 0 ? moveLeftBorder : 0,
+        moveBottomBorder > 0 ? moveBottomBorder : 0,
+
+        old->width, old->height
+    );
+    delete old;
+
+    positionInLevel.x = max<int>(0, positionInLevel.x - moveLeftBorder);
+    positionInLevel.y = max<int>(0, positionInLevel.y - moveBottomBorder);
 }

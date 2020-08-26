@@ -57,8 +57,8 @@ class RoomScreen : public Screen
         *rgbAndBloomFbo = NULL,
         *horizontalBlurFbo = NULL;
 
-    TileMapRenderer tileMapRenderer;
-    BloodSplatterRenderer bloodSplatterRenderer;
+    TileMapRenderer *tileMapRenderer = NULL;
+    BloodSplatterRenderer *bloodSplatterRenderer = NULL;
 
     ShaderAsset applyPaletteShader, horizontalGaussianShader, postProcessingShader;
     Palettes3D palettes;
@@ -74,6 +74,8 @@ class RoomScreen : public Screen
 
     uint currentPaletteEffect = 0, prevPaletteEffect = 0;
     float timeSinceNewPaletteEffect = 0;
+
+    TileMap *tileMap = NULL;
 
   public:
 

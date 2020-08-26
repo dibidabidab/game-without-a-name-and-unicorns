@@ -98,6 +98,8 @@ class TileMap
 
     bool contains(uint8 x, uint8 y) const;
 
+    void copy(const TileMap &other, int fromX, int fromY, int toX, int toY, int width, int height);
+
     const TileMapOutlines &getOutlines() const { return outlines; }
 
     const std::list<tile_update> &updatesSinceLastUpdate() const { return tileUpdatesSinceLastUpdate; }
