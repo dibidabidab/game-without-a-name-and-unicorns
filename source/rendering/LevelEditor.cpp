@@ -17,7 +17,6 @@ static float zoom = 4;
 
 void LevelEditor::render()
 {
-    ImGui::ShowDemoWindow();
     moveCameraToRoom = -1;
 
     if (!show)

@@ -28,7 +28,7 @@ class LuaEntityTemplate : public EntityTemplate
   public:
     asset<LuaEntityScript> script;
 
-    LuaEntityTemplate(const char *assetName, Room *room);
+    LuaEntityTemplate(const char *assetName, const char *name, Room *room);
 
     static sol::state &getLuaState();
 

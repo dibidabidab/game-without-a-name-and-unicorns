@@ -32,10 +32,22 @@ components = {
     PaletteSetter = {
         priority = 1,
         paletteName = "default"
+    },
+    TransRoomable = {
+        templateName = TEMPLATE_NAME,
+        archiveComponents = {"Health", "PaletteSetter", "Physics"}
     }
 }
 
+transRoomed = getComponent(entity, "TransRoomed")
+if transRoomed ~= nil then
 
+    components.AABB.center = transRoomed.positionInNewRoom
+    components.Health = transRoomed.archivedComponents.Health
+    components.PaletteSetter = transRoomed.archivedComponents.PaletteSetter
+    components.Physics.velocity = transRoomed.archivedComponents.Physics.velocity
+
+end
 
 -- HEAD:
 applyTemplate(

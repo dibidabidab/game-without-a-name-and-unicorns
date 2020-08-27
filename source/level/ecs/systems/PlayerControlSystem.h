@@ -28,7 +28,7 @@ class PlayerControlSystem : public EntitySystem
         std::cout << "Entity (" << int(entity) << ") controlled by player "
             << int(pC.playerId) << " ENTERED Room " << room->getIndexInLevel() << "\n";
 
-        room->getLevel()->onPlayerEnteredRoom(room, pC.playerId);
+        room->getLevel().onPlayerEnteredRoom(room, pC.playerId);
     }
 
     void onDestroyed(entt::registry &reg, entt::entity entity)
@@ -37,7 +37,7 @@ class PlayerControlSystem : public EntitySystem
         std::cout << "Entity (" << int(entity) << ") controlled by player "
             << int(pC.playerId) << " LEFT Room" << room->getIndexInLevel() << "\n";
 
-        room->getLevel()->onPlayerLeftRoom(room, pC.playerId);
+        room->getLevel().onPlayerLeftRoom(room, pC.playerId);
     }
 
     void update(double deltaTime, Room *room) override

@@ -63,7 +63,7 @@ class Room
 
     TileMap &getMap() const;
 
-    Level *getLevel() const { return level; };
+    Level &getLevel() const { return *level; };
 
     int getIndexInLevel() const { return roomI; };
 

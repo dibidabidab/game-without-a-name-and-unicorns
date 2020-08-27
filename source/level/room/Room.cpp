@@ -25,6 +25,7 @@
 #include "../ecs/systems/graphics/SpriteSlicerSystem.h"
 #include "../ecs/systems/graphics/LightSystem.h"
 #include "../ecs/systems/physics/FluidsSystem.h"
+#include "../ecs/systems/TransRoomerSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -72,6 +73,7 @@ void Room::initialize(Level *lvl)
     systems.push_front(new PlayerControlSystem("player control"));
     systems.push_front(new ChildrenSystem("children"));
     systems.push_front(new SpawningSystem("(de)spawning"));
+    systems.push_front(new TransRoomerSystem("transroomer"));
     systems.push_front(new DamageSystem());
 
     for (auto sys : systems) sys->init(this);
@@ -192,7 +194,7 @@ void Room::registerLuaEntityTemplate(const char *assetPath)
 {
     auto name = splitString(assetPath, "/").back();
 
-    addEntityTemplate(name, new LuaEntityTemplate(assetPath, this));
+    addEntityTemplate(name, new LuaEntityTemplate(assetPath, name.c_str(), this));
 }
 
 void Room::addEntityTemplate(const std::string &name, EntityTemplate *t)

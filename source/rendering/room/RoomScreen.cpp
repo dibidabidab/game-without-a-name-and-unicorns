@@ -28,21 +28,6 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
 
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);
-
-    // Temporary creation of test entities
-    entt::entity lamp1 = room->getTemplate("Lamp").create();
-    room->getChildComponentByName<AABB>(lamp1, "rope").center = ivec2(130, 125);
-
-    entt::entity lamp2 = room->getTemplate("Lamp").create();
-    room->getChildComponentByName<AABB>(lamp2, "rope").center = ivec2(220, 125);
-
-    for (int x=85; x < 180; x+=mu::randomInt(4, 15)) {
-        entt::entity plant = room->getTemplate("Plant").create();
-        room->getChildComponentByName<AABB>(plant, "plantStem").center = ivec2(x, 16);
-    }
-
-    entt::entity enemy = room->getTemplate("Enemy").create();
-    room->entities.get<AABB>(enemy).center = ivec2(400, 125);
 }
 
 void RoomScreen::render(double deltaTime)
@@ -91,7 +76,7 @@ void RoomScreen::render(double deltaTime)
         lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
 
         if (Game::settings.graphics.waterReflections)
-            fluidRenderer.renderReflections(indexedFbo, cam, room->getLevel()->getTime());
+            fluidRenderer.renderReflections(indexedFbo, cam, room->getLevel().getTime());
     }
     {   // indexed image + lights + reflections --> low res RGB image + bloom image
 

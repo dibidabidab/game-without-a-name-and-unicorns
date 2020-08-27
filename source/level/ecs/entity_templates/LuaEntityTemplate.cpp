@@ -2,11 +2,13 @@
 #include "LuaEntityTemplate.h"
 #include "../../../macro_magic/component.h"
 
-LuaEntityTemplate::LuaEntityTemplate(const char *assetName, Room *r)
+LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Room *r)
     : script(assetName),
       env(getLuaState(), sol::create, getLuaState().globals())
 {
     room = r;
+
+    env["TEMPLATE_NAME"] = name;
 
     env["arg"] = [&](const char *argName, sol::optional<sol::reference> defaultVal) {
         if (!env["args"][argName].valid())
@@ -19,7 +21,7 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, Room *r)
         return static_cast<int>(room->getMap().getMaterial(x, y));
     };
     env["getLevelTime"] = [&]() -> double {
-        return room->getLevel()->getTime();
+        return room->getLevel().getTime();
     };
     env["roomWidth"] = room->getMap().width;
     env["roomHeight"] = room->getMap().height;
