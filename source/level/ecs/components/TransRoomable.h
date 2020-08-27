@@ -15,7 +15,8 @@ COMPONENT(TransRoomed, HASH(0),
 
     FIELD(std::vector<int>, travelHistory),
     FIELD_DEF_VAL(json, archivedComponents, json::object()),
-    FIELD(ivec2, positionInNewRoom)
+    FIELD(ivec2, positionInNewRoom),
+    FIELD(ivec2, travelDir)
 )
 END_COMPONENT(TransRoomed)
 

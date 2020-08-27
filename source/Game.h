@@ -24,7 +24,9 @@ namespace Game
 
         FIELD_DEF_VAL(bool, waterReflections, true),
         FIELD_DEF_VAL(bool, bloom, true),
-        FIELD_DEF_VAL(bool, vignette, true)
+        FIELD_DEF_VAL(bool, vignette, true),
+
+        FIELD_DEF_VAL(bool, roomTransitionAnimation, true)
     )
     END_SERIALIZABLE_FULL_JSON(GraphicsSettings)
 

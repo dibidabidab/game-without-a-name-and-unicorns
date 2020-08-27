@@ -40,6 +40,13 @@ void TransRoomerSystem::update(double deltaTime, Room *room)
             TransRoomed &transRoomed = nextRoom->entities.assign<TransRoomed>(newEntity);
             transRoomed.positionInNewRoom = positionInNextRoom;
 
+            TransRoomed *prevTransRoomed = room->entities.try_get<TransRoomed>(e);
+            if (prevTransRoomed)
+                transRoomed.travelHistory = prevTransRoomed->travelHistory;
+
+            transRoomed.travelHistory.push_back(room->getIndexInLevel());
+            transRoomed.travelDir = travelDir;
+
             for (auto &compName : transable.archiveComponents)
             {
                 auto utils = ComponentUtils::getFor(compName);
@@ -55,11 +62,11 @@ void TransRoomerSystem::update(double deltaTime, Room *room)
             nextRoom->getTemplate(transable.templateName).createComponents(newEntity);
 
             {
+                if (room->entities.has<LocalPlayer>(e))
+                    nextRoom->entities.assign<LocalPlayer>(newEntity);
                 PlayerControlled *playerControlled = room->entities.try_get<PlayerControlled>(e);
                 if (playerControlled)
                     nextRoom->entities.assign<PlayerControlled>(newEntity, *playerControlled);
-                if (room->entities.has<LocalPlayer>(e))
-                    nextRoom->entities.assign<LocalPlayer>(newEntity);
             }
 
             room->entities.destroy(e);

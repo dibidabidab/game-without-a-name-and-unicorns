@@ -14,6 +14,9 @@ class CameraMovement
     float updateAccumulator = 0;
 
   public:
+
+    vec2 offsetAnim = vec2(0);
+
     CameraMovement(Room *room, OrthographicCamera *cam) : room(room), cam(cam)
     {}
 

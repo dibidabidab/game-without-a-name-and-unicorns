@@ -48,7 +48,6 @@ class RoomScreen : public Screen
     DebugLineRenderer lineRenderer;
 
     OrthographicCamera cam;
-    CameraMovement camMovement;
 
     FrameBuffer
         *indexedFbo = NULL,
@@ -76,6 +75,8 @@ class RoomScreen : public Screen
     TileMap *tileMap = NULL;
 
   public:
+
+    CameraMovement camMovement;
 
     Room *room;
 

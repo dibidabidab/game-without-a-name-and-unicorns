@@ -1,6 +1,8 @@
 
 #include "LevelScreen.h"
 #include "MiniMapTextureGenerator.h"
+#include "../level/ecs/components/PlayerControlled.h"
+#include "../level/ecs/components/TransRoomable.h"
 
 LevelScreen::LevelScreen(Level *lvl, int localPlayerID) : lvl(lvl), localPlayerID(localPlayerID), lvlEditor(lvl)
 {
@@ -73,10 +75,20 @@ void LevelScreen::renderDebugTools()
 
 void LevelScreen::showRoom(Room *r)
 {
-    delete roomScreen;
-    if (!r)
-        return;
-    roomScreen = new RoomScreen(r, true);
-    roomScreen->onResize();
+    auto old = roomScreen;
+    roomScreen = NULL;
+    if (r)
+    {
+        roomScreen = new RoomScreen(r, true);
+        roomScreen->onResize();
+
+        if (Game::settings.graphics.roomTransitionAnimation)
+        {
+            r->entities.view<LocalPlayer, TransRoomed>().each([&](auto, TransRoomed &t) {
+                roomScreen->camMovement.offsetAnim = normalize(vec2(t.travelDir)) * -10.f;
+            });
+        }
+    }
+    delete old;
 }
 
