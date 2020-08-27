@@ -47,16 +47,12 @@ void TransRoomerSystem::update(double deltaTime, Room *room)
             transRoomed.travelHistory.push_back(room->getIndexInLevel());
             transRoomed.travelDir = travelDir;
 
-            for (auto &compName : transable.archiveComponents)
+            archiveComponents(transRoomed.archivedComponents, e, room, transable.archiveComponents);
+            for (auto &[childName, componentList] : transable.archiveChildComponents)
             {
-                auto utils = ComponentUtils::getFor(compName);
-                if (!utils)
-                    throw gu_err("Component " + compName + " does not exist!");
-
-                if (!utils->entityHasComponent(e, room->entities))
-                    continue;
-
-                utils->getJsonComponentWithKeys(transRoomed.archivedComponents[compName], e, room->entities);
+                auto childE = room->getChildByName(e, childName.c_str());
+                json &j = transRoomed.archivedChildComponents[childName] = json::object();
+                archiveComponents(j, childE, room, componentList);
             }
 
             nextRoom->getTemplate(transable.templateName).createComponents(newEntity);
@@ -101,4 +97,19 @@ Room *TransRoomerSystem::findNextRoom(Room &current, const ivec2 &travelDir, con
         }
     }
     return NULL;
+}
+
+void TransRoomerSystem::archiveComponents(json &j, entt::entity e, Room *room, const std::vector<std::string> &componentNames)
+{
+    for (auto &compName : componentNames)
+    {
+        auto utils = ComponentUtils::getFor(compName);
+        if (!utils)
+            throw gu_err("Component " + compName + " does not exist!");
+
+        if (!utils->entityHasComponent(e, room->entities))
+            continue;
+
+        utils->getJsonComponentWithKeys(j[compName], e, room->entities);
+    }
 }

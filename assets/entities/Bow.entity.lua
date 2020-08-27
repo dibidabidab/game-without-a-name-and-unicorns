@@ -1,4 +1,5 @@
 
+arg("arrowTemplate", "Arrow")
 arg("archer", nil)
 arg("leftArm", nil)
 arg("rightArm", nil)
@@ -35,6 +36,6 @@ components = {
     archerRightArm = args.rightArm,
     rotatePivot = args.rotatePivot,
 
-    arrowTemplate = "Arrow"
+    arrowTemplate = args.arrowTemplate
   }
 }

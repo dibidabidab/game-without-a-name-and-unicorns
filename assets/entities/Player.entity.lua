@@ -39,6 +39,8 @@ components = {
     }
 }
 
+arrowTemplate = "Arrow"
+
 transRoomed = getComponent(entity, "TransRoomed")
 if transRoomed ~= nil then
 
@@ -46,6 +48,8 @@ if transRoomed ~= nil then
     components.Health = transRoomed.archivedComponents.Health
     components.PaletteSetter = transRoomed.archivedComponents.PaletteSetter
     components.Physics.velocity = transRoomed.archivedComponents.Physics.velocity
+
+    arrowTemplate = transRoomed.archivedChildComponents.bow.Bow.arrowTemplate
 
 end
 
@@ -109,9 +113,11 @@ applyTemplate(
         createChild("bow"),
         "Bow",
         {
+            arrowTemplate = arrowTemplate,
             archer = entity,
             leftArm = leftArm,
             rightArm = rightArm,
             rotatePivot = {0, 7}
         }
 )
+components.TransRoomable.archiveChildComponents = { bow = {"Bow"} } -- archive the Bow component of the bow child

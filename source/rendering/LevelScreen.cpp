@@ -81,13 +81,13 @@ void LevelScreen::showRoom(Room *r)
     {
         roomScreen = new RoomScreen(r, true);
         roomScreen->onResize();
+        if (old)
+            roomScreen->currentPaletteEffect = roomScreen->prevPaletteEffect = old->currentPaletteEffect;
 
         if (Game::settings.graphics.roomTransitionAnimation)
-        {
             r->entities.view<LocalPlayer, TransRoomed>().each([&](auto, TransRoomed &t) {
                 roomScreen->camMovement.offsetAnim = normalize(vec2(t.travelDir)) * -10.f;
             });
-        }
     }
     delete old;
 }

@@ -69,13 +69,12 @@ class RoomScreen : public Screen
     PolylineRenderer polylineRenderer;
     FluidRenderer fluidRenderer;
 
-    uint currentPaletteEffect = 0, prevPaletteEffect = 0;
-    float timeSinceNewPaletteEffect = 0;
-
     TileMap *tileMap = NULL;
 
   public:
 
+    uint currentPaletteEffect = 0, prevPaletteEffect = 0;
+    float timeSinceNewPaletteEffect = 0;
     CameraMovement camMovement;
 
     Room *room;

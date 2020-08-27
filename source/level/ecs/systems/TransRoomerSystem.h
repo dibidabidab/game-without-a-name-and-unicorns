@@ -15,6 +15,8 @@ class TransRoomerSystem : public EntitySystem
 
     Room *findNextRoom(Room &current, const ivec2 &travelDir, const ivec2 &position, ivec2 &positionInNextRoom);
 
+    void archiveComponents(json &j, entt::entity, Room *, const std::vector<std::string> &componentNames);
+
 };
 
 
