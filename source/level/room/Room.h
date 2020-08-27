@@ -41,7 +41,11 @@ class Room
     friend void from_json(const json& j, Level& lvl);
     friend Level;
 
+    json persistentEntities;
+
     void initialize(Level *lvl);
+
+    void loadPersistentEntities();
 
   public:
 

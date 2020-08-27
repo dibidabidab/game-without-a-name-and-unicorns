@@ -26,6 +26,7 @@
 #include "../ecs/systems/graphics/LightSystem.h"
 #include "../ecs/systems/physics/FluidsSystem.h"
 #include "../ecs/systems/TransRoomerSystem.h"
+#include "../ecs/components/Saving.h"
 
 Room::Room(ivec2 size)
 {
@@ -77,6 +78,9 @@ void Room::initialize(Level *lvl)
     systems.push_front(new DamageSystem());
 
     for (auto sys : systems) sys->init(this);
+
+    loadPersistentEntities();
+
     initialized = true;
 }
 
@@ -84,6 +88,9 @@ void Room::update(double deltaTime)
 {
     if (!initialized)
         throw gu_err("Cannot update non-initialized Room!");
+
+    if (entities.empty<PlayerControlled>()) // no player is here, skip update.
+        return;
 
     gu::profiler::Zone roomZone("room " + std::to_string(getIndexInLevel()));
 
@@ -137,16 +144,63 @@ void to_json(json &j, const Room &r)
             {"height", r.getMap().height},
             {"tileMapBase64", tileMapBase64}
     };
+    j["entities"] = json::array();
+    r.entities.view<const Persistent>().each([&](auto e, const Persistent &persistent) {
+
+        j["entities"].push_back(json::object());
+        json &entityJson = j["entities"].back();
+
+        entityJson["template"] = persistent.applyTemplateOnLoad;
+        json &componentsJson = entityJson["components"] = json::object();
+
+        for (auto &componentTypeName : ComponentUtils::getAllComponentTypeNames())
+        {
+            if (persistent.excludeComponents.find(componentTypeName) != persistent.excludeComponents.end())
+                continue;
+
+            auto utils = ComponentUtils::getFor(componentTypeName);
+            if (utils->entityHasComponent(e, r.entities))
+                utils->getJsonComponentWithKeys(componentsJson[componentTypeName], e, r.entities);
+        }
+    });
 }
 
 void from_json(const json &j, Room &r)
 {
     r.name = j.at("name");
+    r.persistentEntities = j.at("entities");
     r.positionInLevel = j.at("position");
     r.tileMap = new TileMap(ivec2(j.at("width"), j.at("height")));
     std::string tileMapBase64 = j.at("tileMapBase64");
     auto tileMapBinary = base64::decode(&tileMapBase64[0], tileMapBase64.size());
     r.tileMap->fromBinary(&tileMapBinary[0], tileMapBinary.size());
+}
+
+void Room::loadPersistentEntities()
+{
+    for (json &jsonEntity : persistentEntities)
+    {
+        try
+        {
+            auto e = entities.create();
+
+            std::string applyTemplate = jsonEntity.at("template");
+            if (!applyTemplate.empty())
+                getTemplate(applyTemplate).createComponents(e);
+
+            for (auto &[componentName, componentJson] : jsonEntity.at("components").items())
+            {
+                auto utils = ComponentUtils::getFor(componentName);
+                if (!utils)
+                    throw gu_err("Tried to load " + componentName + "-component from json. That Component-type does not exist!");
+
+                utils->setJsonComponentWithKeys(componentJson, e, entities);
+            }
+        } catch (std::exception &e)
+        {
+            std::cerr << "Error while loading entity from JSON: \n" << e.what() << std::endl;
+        }
+    }
 }
 
 void Room::addSystem(EntitySystem *sys)
