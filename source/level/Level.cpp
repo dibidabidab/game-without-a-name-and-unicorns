@@ -72,18 +72,21 @@ const Room &Level::getRoom(int i) const
 
 void to_json(json &j, const Level &lvl)
 {
-    j = json::array();
+    j = json::object({{"spawnRoom", lvl.spawnRoom}, {"rooms", json::array()}});
     for (auto room : lvl.rooms)
-        j.push_back(*room);
+        j["rooms"].push_back(*room);
 }
 
 void from_json(const json &j, Level &lvl)
 {
-    lvl.rooms.resize(j.size());
-    for (int i = 0; i < j.size(); i++)
+    lvl.spawnRoom = j.at("spawnRoom");
+    const json &roomsJson = j.at("rooms");
+
+    lvl.rooms.resize(roomsJson.size());
+    for (int i = 0; i < roomsJson.size(); i++)
     {
         lvl.rooms[i] = new Room;
-        from_json(j[i], *lvl.rooms[i]);
+        from_json(roomsJson[i], *lvl.rooms[i]);
         lvl.rooms[i]->level = &lvl;
     }
 }
@@ -146,7 +149,27 @@ void Level::save(const char *path) const
 
 Level::Level(const char *loadFromFile) : loadedFromFile(loadFromFile)
 {
-    auto data = File::readBinary(loadFromFile);
-    json j = json::from_cbor(data);
-    from_json(j, *this);
+    try
+    {
+        auto data = File::readBinary(loadFromFile);
+        json j = json::from_cbor(data);
+        from_json(j, *this);
+    }
+    catch (std::exception &e)
+    {
+        throw gu_err("Failed to load level from " + loadedFromFile + ":\n" + e.what());
+    }
+}
+
+Room *Level::getRoomByName(const char *n)
+{
+    for (auto &r : rooms)
+        if (r->name == n)
+            return r;
+    return NULL;
+}
+
+const Room *Level::getRoomByName(const char *n) const
+{
+    return ((Level *) this)->getRoomByName(n);
 }

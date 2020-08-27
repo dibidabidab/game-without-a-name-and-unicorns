@@ -45,6 +45,8 @@ class Room
 
   public:
 
+    std::string name;
+
     uvec2 positionInLevel = uvec2(0);
 
     ivec2 cursorPositionInRoom = ivec2(0);

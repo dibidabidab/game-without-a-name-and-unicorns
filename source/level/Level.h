@@ -27,6 +27,8 @@ class Level
 
     const std::string loadedFromFile;
 
+    std::string spawnRoom;
+
     Level() = default;
 
     Level(const char *loadFromFile);
@@ -39,6 +41,10 @@ class Level
     Room &getRoom(int i);
 
     const Room &getRoom(int i) const;
+
+    Room *getRoomByName(const char *);
+
+    const Room *getRoomByName(const char *) const;
 
     void deleteRoom(int i);
 

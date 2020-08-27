@@ -129,6 +129,7 @@ void to_json(json &j, const Room &r)
     r.getMap().toBinary(tileMapBinary);
     std::string tileMapBase64 = base64::encode(&tileMapBinary[0], tileMapBinary.size());
     j = json{
+            {"name", r.name},
             {"position", r.positionInLevel},
             {"width", r.getMap().width},
             {"height", r.getMap().height},
@@ -138,6 +139,7 @@ void to_json(json &j, const Room &r)
 
 void from_json(const json &j, Room &r)
 {
+    r.name = j.at("name");
     r.positionInLevel = j.at("position");
     r.tileMap = new TileMap(ivec2(j.at("width"), j.at("height")));
     std::string tileMapBase64 = j.at("tileMapBase64");

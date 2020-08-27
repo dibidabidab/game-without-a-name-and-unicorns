@@ -23,6 +23,14 @@ class LevelEditor
 
     void render();
 
+  private:
+
+    void moveButtons();
+
+    void roomProperties();
+
+    void miniMap();
+
 };
 
 
