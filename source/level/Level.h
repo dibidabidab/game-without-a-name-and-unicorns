@@ -13,7 +13,7 @@ class Level
     double time = 0;
     std::vector<Room *> rooms;
 
-    bool updating = false;
+    bool updating = false, initialized = false;
     float updateAccumulator = 0;
     constexpr static int
         MAX_UPDATES_PER_SEC = 100,

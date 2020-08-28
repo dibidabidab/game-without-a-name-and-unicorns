@@ -3,6 +3,7 @@
 #include <gu/game_utils.h>
 #include <utils/gu_error.h>
 #include <cstring>
+#include <zlib.h>
 
 #include "Level.h"
 #include "ecs/components/PlayerControlled.h"
@@ -15,6 +16,7 @@ void Level::initialize()
         room->roomI = i++;
         room->initialize(this);
     }
+    initialized = true;
 }
 
 void Level::update(double deltaTime)
@@ -144,8 +146,12 @@ void Level::deleteRoom(int i)
 void Level::createRoom(int width, int height, const Room *duplicate)
 {
     auto r = rooms.emplace_back(new Room(ivec2(width, height)));
-    r->roomI = rooms.size() - 1;
-    r->initialize(this);
+
+    if (initialized)
+    {
+        r->roomI = rooms.size() - 1;
+        r->initialize(this);
+    }
 
     if (duplicate)
     {
@@ -166,15 +172,46 @@ void Level::save(const char *path) const
     json j;
     to_json(j, *this);
     json::to_cbor(j, data);
-    File::writeBinary(path, data);
+
+
+    std::vector<uint8> compressedData(12 + data.size() * 1.1);
+    ulong compressedDataSize = compressedData.size();
+
+    int zResult = compress(&compressedData[0], &compressedDataSize, &data[0], data.size());
+
+    if (zResult != Z_OK)
+        throw gu_err("Error while compressing level");
+
+    // store original data size at end of buffer:
+    compressedData.resize(compressedDataSize + sizeof(int));
+    int *originalDataSize = (int *) &compressedData[compressedDataSize];
+    *originalDataSize = int(data.size());
+
+    File::writeBinary(path, compressedData);
 }
 
 Level::Level(const char *loadFromFile) : loadedFromFile(loadFromFile)
 {
     try
     {
-        auto data = File::readBinary(loadFromFile);
-        json j = json::from_cbor(data);
+        auto compressedData = File::readBinary(loadFromFile);
+
+        ulong compressedDataSize = compressedData.size() - sizeof(int);
+
+        ulong originalDataSize = *((int *) &compressedData[compressedDataSize]);
+        ulong originalDataSize_ = originalDataSize;
+
+        std::vector<uint8> uncompressedData(originalDataSize);
+
+        int zResult = uncompress(&uncompressedData[0], &originalDataSize, &compressedData[0], compressedDataSize);
+
+        if (originalDataSize != originalDataSize_)
+            throw gu_err("Length of uncompressed data does not match length of original data");
+
+        if (zResult != Z_OK)
+            throw gu_err("Error while UNcompressing");
+
+        json j = json::from_cbor(uncompressedData);
         from_json(j, *this);
     }
     catch (std::exception &e)
