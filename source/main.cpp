@@ -155,8 +155,51 @@ void showDeveloperOptionsMenuBar()
     ImGui::EndMainMenuBar();
 }
 
+#include <zlib.h>
+
 int main(int argc, char *argv[])
 {
+    // https://bobobobo.wordpress.com/2008/02/23/how-to-use-zlib/
+
+    std::string data = "yolo haha";
+    for (int i = 0; i < 1000; i++)
+        data += "lol";
+
+    std::vector<uint8> compressedData(12 + data.size() * 1.1);
+    ulong compressedDataSize = compressedData.size();
+    {
+
+        int zResult = compress(&compressedData[0], &compressedDataSize, (Bytef *) &data[0], data.size());
+
+        if (zResult != Z_OK)
+            throw gu_err("Error while compressing");
+
+        compressedData.resize(compressedDataSize);
+        std::cout << compressedDataSize << '\n';
+    }
+
+
+    // uncompress:
+
+    {
+        ulong originalDataSize = data.size();
+        std::vector<uint8> uncompressedData(originalDataSize);
+
+        int zResult = uncompress(&uncompressedData[0], &originalDataSize, &compressedData[0], compressedDataSize);
+
+        if (originalDataSize != data.size())
+            throw gu_err("Length of uncompressed data does not match length of original data");
+
+        if (zResult != Z_OK)
+            throw gu_err("Error while UNcompressing");
+
+        std::string wowww((char *) &uncompressedData[0], originalDataSize);
+        assert(wowww == data);
+    }
+
+
+    return 0;
+
     Game::loadSettings();
 
     std::mutex assetToReloadMutex;
