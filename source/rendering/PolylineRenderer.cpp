@@ -1,9 +1,9 @@
 
 #include "PolylineRenderer.h"
-#include "../level/ecs/components/physics/VerletRope.h"
-#include "../level/ecs/components/graphics/DrawPolyline.h"
-#include "../level/ecs/components/Polyline.h"
-#include "../level/ecs/components/physics/Physics.h"
+#include "../level/room/ecs/components/physics/VerletRope.h"
+#include "../level/room/ecs/components/graphics/DrawPolyline.h"
+#include "../level/room/ecs/components/Polyline.h"
+#include "../level/room/ecs/components/physics/Physics.h"
 #include <graphics/3d/vert_buffer.h>
 
 PolylineRenderer::PolylineRenderer()

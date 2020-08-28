@@ -3,8 +3,8 @@
 #define GAME_ROOM_H
 
 #include <list>
-#include "../ecs/entity_templates/EntityTemplate.h"
-#include "../ecs/systems/EntitySystem.h"
+#include "ecs/entity_templates/EntityTemplate.h"
+#include "ecs/systems/EntitySystem.h"
 #include "../../../external/entt/src/entt/entity/registry.hpp"
 #include "TileMap.h"
 #include "../Level.h"

@@ -1,6 +1,6 @@
 
 #include "SpriteRenderer.h"
-#include "../../level/ecs/components/physics/Physics.h"
+#include "../../level/room/ecs/components/physics/Physics.h"
 #include <graphics/3d/vert_buffer.h>
 
 SpriteRenderer::SpriteRenderer(const MegaSpriteSheet *s)

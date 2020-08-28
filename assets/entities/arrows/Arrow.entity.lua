@@ -17,5 +17,8 @@ components = {
   Polyline = {},
   DrawPolyline = {
     colors = { 7 }
+  },
+  TransRoomable = {
+    templateName = "" -- do not create a new Arrow, just let this one disappear.
   }
 }

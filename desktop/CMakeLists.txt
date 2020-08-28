@@ -7,6 +7,8 @@ if (MSVC)
 endif ()
 
 project(game)
+add_compile_definitions(PUT_A_SOCK_IN_IT)
+
 set(EXECUTABLE_OUTPUT_PATH "out")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

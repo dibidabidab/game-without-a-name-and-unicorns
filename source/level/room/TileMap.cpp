@@ -19,7 +19,6 @@ TileMap::TileMap(ivec2 size)
 {
     std::fill_n(tiles, width * height, Tile::empty);
     std::fill_n(tileMaterials, width * height, 0);
-    std::cout << "TileMap (" << int(width) << "x" << int(height) << ") created\n";
 }
 
 void TileMap::fromBinary(const char *data, int size)
@@ -30,7 +29,6 @@ void TileMap::fromBinary(const char *data, int size)
     memcpy(tiles, &data[0], width * height);
     memcpy(tileMaterials, &data[width * height], width * height);
     refreshOutlines();
-    std::cout << "Loaded tileMap from binary.\n";
 }
 
 void TileMap::toBinary(std::vector<char> &out)

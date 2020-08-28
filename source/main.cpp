@@ -7,7 +7,7 @@
 #include <utils/code_editor/CodeEditor.h>
 #include <utils/aseprite/AsepriteLoader.h>
 
-#include "rendering/LevelScreen.h"
+#include "rendering/level/LevelScreen.h"
 #include "multiplayer/io/web/WebSocket.h"
 #include "multiplayer/io/web/WebSocketServer.h"
 #include "multiplayer/io/MultiplayerIO.h"
@@ -17,7 +17,7 @@
 #include "ImGuiStyle.h"
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
-#include "level/ecs/entity_templates/LuaEntityTemplate.h"
+#include "level/room/ecs/entity_templates/LuaEntityTemplate.h"
 #include "Game.h"
 
 #ifdef EMSCRIPTEN

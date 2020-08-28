@@ -7,7 +7,7 @@
 #include "../io/MultiplayerIO.h"
 #include "../packets.h"
 #include "../../level/Level.h"
-#include "../../level/ecs/systems/networking/NetworkingSystem.h"
+#include "../../level/room/ecs/systems/networking/NetworkingSystem.h"
 
 class MultiplayerSession
 {

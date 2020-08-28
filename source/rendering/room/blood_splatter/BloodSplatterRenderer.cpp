@@ -3,9 +3,9 @@
 #include "BloodSplatterRenderer.h"
 
 #include "../../../level/room/Room.h"
-#include "../../../level/ecs/components/graphics/BloodDrop.h"
-#include "../../../level/ecs/components/physics/Physics.h"
-#include "../../../level/ecs/components/Spawning.h"
+#include "../../../level/room/ecs/components/graphics/BloodDrop.h"
+#include "../../../level/room/ecs/components/physics/Physics.h"
+#include "../../../level/room/ecs/components/Spawning.h"
 
 
 BloodSplatterRenderer::BloodSplatterRenderer(Room *r)
