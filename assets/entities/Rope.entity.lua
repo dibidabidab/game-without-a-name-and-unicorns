@@ -1,25 +1,33 @@
 
-arg("draw", false)
-arg("color", 1)
-arg("endPointEntity", nil)
-arg("length", 16)
-arg("moveByWind", 0)
+description("Simple rope using verlet physics")
+defaultArgs({
+    draw = false,
+    color = 1,
+    endPointEntity = nil,
+    length = 16,
+    moveByWind = 0
+})
 
-components = {
-    VerletRope = {
-        endPointEntity = args.endPointEntity,
-        length = args.length,
-        moveByWind = args.moveByWind
-    },
-    AABB = {
-        halfSize = {4, 4}
+function create(rope, args)
+
+    components = {
+        VerletRope = {
+            endPointEntity = args.endPointEntity,
+            length = args.length,
+            moveByWind = args.moveByWind
+        },
+        AABB = {
+            halfSize = {4, 4}
+        }
     }
-}
 
-if args.draw then
+    if args.draw then
 
-    components.DrawPolyline = {
-        colors = { args.color }
-    }
+        components.DrawPolyline = {
+            colors = { args.color }
+        }
 
+    end
+
+    setComponents(rope, components)
 end

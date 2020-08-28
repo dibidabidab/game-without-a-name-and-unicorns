@@ -18,7 +18,7 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
         ),
         shadowCaster(room),
         lightMapRenderer(room),
-        inspector(room->entities),
+        inspector(*room),
         spriteRenderer(&Game::spriteSheet),
         tileMap(&room->getMap())
 {
@@ -178,7 +178,6 @@ void RoomScreen::renderDebugStuff()
     lineRenderer.projection = cam.combined;
 
     {
-        inspector.entityTemplates = room->getTemplateNames();
         inspector.drawGUI(&cam, lineRenderer);
         if (!inspector.templateToCreate.empty())
             room->getTemplate(inspector.templateToCreate).create();

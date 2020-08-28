@@ -10,50 +10,78 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
 
     env["TEMPLATE_NAME"] = name;
 
-    env["arg"] = [&](const char *argName, sol::optional<sol::reference> defaultVal) {
-        if (!env["args"][argName].valid())
-            env["args"][argName] = defaultVal;
+    env["defaultArgs"] = [&](sol::table table) {
+        defaultArgs = table;
+    };
+    env["description"] = [&](const char *d) {
+        description = d;
     };
     env["getTile"] = [&](int x, int y) -> int {
-        return static_cast<int>(room->getMap().getTile(x, y));
+        return int(room->getMap().getTile(x, y));
     };
     env["getTileMaterial"] = [&](int x, int y) -> int {
-        return static_cast<int>(room->getMap().getMaterial(x, y));
+        return int(room->getMap().getMaterial(x, y));
     };
     env["getLevelTime"] = [&]() -> double {
         return room->getLevel().getTime();
     };
     env["roomWidth"] = room->getMap().width;
     env["roomHeight"] = room->getMap().height;
-    env["getComponent"] = [&](int fromEntity, const std::string &componentName) -> sol::optional<sol::table> {
+    env["getComponent"] = [&](int entity, const std::string &componentName) -> sol::optional<sol::table> {
 
-        auto utils = ComponentUtils::getFor(componentName);
-        if (!utils)
-            throw gu_err("Error while calling getComponent(): Component Type named " + componentName + " does NOT exist!");
+        auto &utils = componentUtils(componentName);
 
-        if (!utils->entityHasComponent(static_cast<entt::entity>(fromEntity), room->entities))
+        if (!utils.entityHasComponent(entt::entity(entity), room->entities))
             return sol::optional<sol::table>();
 
         json j;
-        utils->getJsonComponentWithKeys(j, static_cast<entt::entity>(fromEntity), room->entities);
+        // todo: add utils->componentToLuaTable()
+        utils.getJsonComponentWithKeys(j, entt::entity(entity), room->entities);
         auto table = sol::table::create(env.lua_state());
         luau::jsonToLuaTable(j, table);
 
         return table;
     };
+    env["removeComponent"] = [&](int entity, const std::string &componentName) {
+        componentUtils(componentName).removeComponent(entt::entity(entity), room->entities);
+    };
+    env["setComponent"] = [&](int entity, const std::string &componentName, sol::table component) {
+        luaTableToComponent(entt::entity(entity), componentName, component);
+    };
+    env["setComponents"] = [&](int entity, sol::table componentsTable) {
 
-    env["createChild"] = [&](const char *childName) -> int {
+        for (const auto &[componentName, comp] : componentsTable)
+        {
+            if (!componentName.is<std::string>())
+                throw gu_err("All keys in the components table must be a string!");
 
-//        if (env[childName].valid())
-//            throw gu_err("Could not create child.\nIt seems that the lua script already has a variable named '" + std::string(childName) + "'");
+            auto nameStr = componentName.as<std::string>();
 
-        int child = int(createChild(currentlyCreating, childName));
+            if (!comp.is<sol::table>())
+                throw gu_err("Expected a table for " + nameStr);
+            luaTableToComponent(entt::entity(entity), nameStr, comp);
+        }
+    };
 
-        env[childName] = child;
+    env["createEntity"] = [&]() -> int {
 
-        env["childComponents"].get_or_create<sol::table>()[childName].get_or_create<sol::table>();
+        return int(room->entities.create());
+    };
+    env["destroyEntity"] = [&](int e) {
 
+        room->entities.destroy(entt::entity(e));
+    };
+    env["createChild"] = [&](int parentEntity, sol::optional<std::string> childName) -> int {
+
+        int child = int(createChild(entt::entity(parentEntity), childName.has_value() ? childName.value().c_str() : ""));
         return child;
+    };
+    env["getChild"] = [&](int parentEntity, const char *childName) -> sol::optional<int> {
+
+        entt::entity childEntity = room->getChildByName(entt::entity(parentEntity), childName);
+        if (childEntity == entt::null)
+            return sol::optional<int>(); // nil
+        return int(childEntity);
     };
     env["applyTemplate"] = [&](int extendE, const char *templateName, sol::optional<sol::table> extendArgs) {
 
@@ -62,12 +90,11 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
         if (dynamic_cast<LuaEntityTemplate *>(entityTemplate))
         {
             ((LuaEntityTemplate *) entityTemplate)->
-                    createComponentsFromScript(entt::entity(extendE), extendArgs);
+                    createComponentsUsingLuaFunction(entt::entity(extendE), extendArgs);
         }
         else
             entityTemplate->createComponents(entt::entity(extendE));
     };
-
 
     // math utils lol:
     env["rotate2d"] = [&](float x, float y, float degrees) -> sol::table {
@@ -78,78 +105,60 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
         table[2] = result.y;
         return table;
     };
+
+    runScript();
+}
+
+void LuaEntityTemplate::runScript()
+{
+    try
+    {
+        getLuaState().script(script->bytecode.as_string_view(), env);
+        createFunc = env["create"];
+        onDestroyFunc = env["onDestroy"];
+    }
+    catch (std::exception &e)
+    {
+        std::cerr << "Error while running template script " << script.getLoadedAsset().fullPath << ":" << std::endl;
+        std::cerr << e.what() << std::endl;
+    }
 }
 
 void LuaEntityTemplate::createComponents(entt::entity e)
 {
-    gu::profiler::Zone zone("lua entity script");
-    createComponentsFromScript(e, sol::optional<sol::table>());
+    createComponentsUsingLuaFunction(e, sol::optional<sol::table>());
 }
 
-void LuaEntityTemplate::createComponentsFromScript(entt::entity e, sol::optional<sol::table> arguments)
+void LuaEntityTemplate::createComponentsUsingLuaFunction(entt::entity e, sol::optional<sol::table> arguments)
 {
+    if (script.hasReloaded())
+        runScript();
+
     try
     {
-        if (currentlyCreating != entt::null)
-            throw gu_err("Circular dependency found in EntityTemplate...");
-        currentlyCreating = e;
-
-        env["entity"] = e;
-        env["components"].get_or_create<sol::table>().clear();
-        env["childComponents"].get_or_create<sol::table>().clear();
-
-        if (arguments.has_value())
-            env["args"] = arguments;
-        else
-            env["args"].get_or_create<sol::table>().clear();
-
+        if (arguments.has_value() && !defaultArgs.empty())
         {
-            gu::profiler::Zone zone("bytecode");
-
-            // running bytecode instead of text can be 40% faster :O
-            getLuaState().script(script->bytecode.as_string_view(), env);
+            for (auto &[key, defaultVal] : defaultArgs)
+            {
+                if (!arguments.value()[key].valid())
+                    arguments.value()[key] = defaultVal;
+            }
         }
 
-        luaTableToComponents(e, env["components"]);
-
-        auto childComponentsTable = env["childComponents"].get_or_create<sol::table>();
-
-        for (const auto &[childName, compsTable] : childComponentsTable)
+        sol::protected_function_result result = createFunc(e, arguments);
+        if (!result.valid())
         {
-            auto childNameStr = childName.as<std::string>();
-            auto child = room->getChildByName(e, childNameStr.c_str());
-            if (!room->entities.valid(child))
-                throw gu_err("Cannot add components to non-existing child named '" + childNameStr + "'. Call createChild(name) first!");
-            luaTableToComponents(child, compsTable);
+            sol::error err = result;
+            std::string what = err.what();
+            throw gu_err(sol::error(result).what());
         }
+
+        // todo, do things
     }
     catch (std::exception &e)
     {
         std::cerr << "Error while creating entity using " << script.getLoadedAsset().fullPath << ":" << std::endl;
         std::cerr << e.what() << std::endl;
-    }
-    currentlyCreating = entt::null;
-}
-
-void LuaEntityTemplate::luaTableToComponents(entt::entity e, const sol::table &table)
-{
-    gu::profiler::Zone zone("luaTableToComponents");
-
-    for (const auto &[componentName, comp] : table)
-    {
-        if (!componentName.is<std::string>())
-            throw gu_err("All keys in the components table must be a string!");
-
-        auto nameStr = componentName.as<std::string>();
-
-        if (!comp.is<sol::table>())
-            throw gu_err("Expected a table for " + nameStr);
-
-        auto utils = ComponentUtils::getFor(nameStr);
-        if (!utils)
-            throw gu_err("Component named '" + nameStr + "' does not exist!");
-
-        utils->setFromLuaTable(comp.as<sol::table>(), e, room->entities);
     }
 }
 
@@ -164,6 +173,43 @@ sol::state &LuaEntityTemplate::getLuaState()
     }
     return *lua;
 }
+
+const std::string &LuaEntityTemplate::getDescription()
+{
+    if (script.hasReloaded())
+        runScript();
+    return description;
+}
+
+json LuaEntityTemplate::getDefaultArgs()
+{
+    if (script.hasReloaded())
+        runScript();
+    json j;
+    lua_converter<json>::getFrom(defaultArgs, j);
+    return j;
+}
+
+void LuaEntityTemplate::createComponentsUsingLuaFunction(entt::entity e, const json &arguments)
+{
+    auto table = sol::table::create(env.lua_state());
+    luau::jsonToLuaTable(arguments, table);
+    createComponentsUsingLuaFunction(e, table);
+}
+
+void LuaEntityTemplate::luaTableToComponent(entt::entity e, const std::string &componentName, const sol::table &component)
+{
+    componentUtils(componentName).setFromLuaTable(component, e, room->entities);
+}
+
+const ComponentUtils &LuaEntityTemplate::componentUtils(const std::string &componentName)
+{
+    auto utils = ComponentUtils::getFor(componentName);
+    if (!utils)
+        throw gu_err("Component-type named '" + componentName + "' does not exist!");
+    return *utils;
+}
+
 
 LuaEntityScript::LuaEntityScript(std::string s) : source(std::move(s))
 {

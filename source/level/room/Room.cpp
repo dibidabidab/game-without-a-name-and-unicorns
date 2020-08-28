@@ -153,7 +153,7 @@ void to_json(json &j, const Room &r)
 
         for (auto &componentTypeName : ComponentUtils::getAllComponentTypeNames())
         {
-            if (persistent.excludeComponents.find(componentTypeName) != persistent.excludeComponents.end())
+            if (!persistent.saveAllComponents && persistent.saveComponents.find(componentTypeName) == persistent.saveComponents.end())
                 continue;
 
             auto utils = ComponentUtils::getFor(componentTypeName);

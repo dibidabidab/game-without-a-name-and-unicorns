@@ -1,20 +1,25 @@
 
-arg("body", nil)
-arg("halfSize", {2, 4})
-arg("sprite", "sprites/player_head")
+defaultArgs({
+    body = nil,
+    halfSize = {2, 4},
+    sprite = "sprites/player_head"
+})
 
-components = {
-    Head = {
-        body = args.body
-    },
-    AABB = {
-        halfSize = args.halfSize
-    },
-    AsepriteView = {
-        sprite = args.sprite
-    },
-    SpriteAnchor = {
-        spriteEntity = args.body,
-        spriteSliceName = "head"
+function create(head, args)
+    components = {
+        Head = {
+            body = args.body
+        },
+        AABB = {
+            halfSize = args.halfSize
+        },
+        AsepriteView = {
+            sprite = args.sprite
+        },
+        SpriteAnchor = {
+            spriteEntity = args.body,
+            spriteSliceName = "head"
+        }
     }
-}
+    setComponents(head, components)
+end

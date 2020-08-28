@@ -10,7 +10,8 @@ COMPONENT(
     Persistent,
     HASH(0),
     FIELD(std::string, applyTemplateOnLoad),
-    FIELD(std::set<std::string>, excludeComponents)
+    FIELD_DEF_VAL(bool, saveAllComponents, false),
+    FIELD(std::set<std::string>, saveComponents)
 )
 END_COMPONENT(Persistent)
 

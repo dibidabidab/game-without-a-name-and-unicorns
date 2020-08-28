@@ -1,29 +1,34 @@
 
-spawnedBy = getComponent(entity, "SpawnedBy")
+function create(particle)
 
-x = spawnedBy.spawnerPos[1]
-y = spawnedBy.spawnerPos[2]
+    spawnedBy = getComponent(particle, "SpawnedBy")
 
-components = {
-    AABB = {
-        center = {x, y}
-    },
-    Physics = {
-        gravity = math.random(30, 120),
-        velocity = {
-            math.random(-30, 30), 0
+    x = spawnedBy.spawnerPos[1]
+    y = spawnedBy.spawnerPos[2]
+
+    components = {
+        AABB = {
+            center = {x, y}
         },
-        airFriction = .5,
-        moveByWind = 300
+        Physics = {
+            gravity = math.random(30, 120),
+            velocity = {
+                math.random(-30, 30), 0
+            },
+            airFriction = .5,
+            moveByWind = 300
 
-    },
-    AsepriteView = {
-        sprite = "sprites/tree_leaves",
-        frame = 3,
-        flipHorizontal = math.random() > .5,
-        flipVertical = math.random() > .5
-    },
-    DespawnAfter = {
-        time = 3
+        },
+        AsepriteView = {
+            sprite = "sprites/tree_leaves",
+            frame = 3,
+            flipHorizontal = math.random() > .5,
+            flipVertical = math.random() > .5
+        },
+        DespawnAfter = {
+            time = 3
+        }
     }
-}
+
+    setComponents(particle, components)
+end

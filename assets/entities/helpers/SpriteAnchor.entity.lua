@@ -1,15 +1,19 @@
 
--- a simple template that makes it easy to create a SpriteAnchor
+description("a simple template that makes it easy to create a SpriteAnchor")
 
-arg("spriteEntity", nil)
-arg("sliceName", "anchor")
-arg("ignoreSpriteFlipping", false)
+defaultArgs({
+    spriteEntity = nil,
+    sliceName = "anchor",
+    ignoreSpriteFlipping = false
+})
 
-components = {
-    SpriteAnchor = {
-        spriteEntity = args.spriteEntity,
-        spriteSliceName = args.sliceName,
-        ignoreSpriteFlipping = args.ignoreSpriteFlipping
-    },
-    AABB = {}
-}
+function create(anchor, args)
+    setComponents(anchor, {
+        SpriteAnchor = {
+            spriteEntity = args.spriteEntity,
+            spriteSliceName = args.sliceName,
+            ignoreSpriteFlipping = args.ignoreSpriteFlipping
+        },
+        AABB = {}
+    })
+end

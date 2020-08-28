@@ -7,6 +7,7 @@
 #include <utility>
 #include "../../Room.h"
 #include "../../../../luau.h"
+#include "../../../../macro_magic/component.h"
 
 struct LuaEntityScript
 {
@@ -21,9 +22,11 @@ struct LuaEntityScript
 
 class LuaEntityTemplate : public EntityTemplate
 {
-
     sol::environment env;
-    entt::entity currentlyCreating = entt::null;
+
+    sol::function createFunc, onDestroyFunc;
+    std::string description;
+    sol::table defaultArgs;
 
   public:
     asset<LuaEntityScript> script;
@@ -32,13 +35,23 @@ class LuaEntityTemplate : public EntityTemplate
 
     static sol::state &getLuaState();
 
-  protected:
+    const std::string &getDescription();
+
+    json getDefaultArgs();
 
     void createComponents(entt::entity entity) override;
 
-    void createComponentsFromScript(entt::entity, sol::optional<sol::table> arguments);
+    void createComponentsUsingLuaFunction(entt::entity, const json &arguments);
 
-    void luaTableToComponents(entt::entity, const sol::table &);
+    void createComponentsUsingLuaFunction(entt::entity, sol::optional<sol::table> arguments);
+
+  protected:
+
+    void runScript();
+
+    void luaTableToComponent(entt::entity, const std::string &componentName, const sol::table &);
+
+    const ComponentUtils &componentUtils(const std::string &componentName);
 
 };
 

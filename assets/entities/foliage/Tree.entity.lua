@@ -1,40 +1,68 @@
 
-arg("length", math.random(120, 220))
-arg("zIndex", -600 - math.random(200))
-arg("appleChance", math.random() * .1)
+function randomizeArgs()
+    defaultArgs({
+        zIndex = -600 - math.random(200),
+        length = math.random(120, 220),
+        appleChance = math.random() * .1
+    })
+end
 
-components = {
-    AABB = {
-        halfSize = {5, 5}
-    },
-    DrawPolyline = {
-        colors = {6},
-        repeatX = 3,
-        zIndexEnd = args.zIndex, zIndexBegin = args.zIndex
-    },
-    VerletRope = {
-        length = args.length,
-        gravity = {0, 100},
-        friction = .8,
-        nrOfPoints = 4,
-        moveByWind = 6
-    },
-    AsepriteView = {
-        sprite = "sprites/tree_leaves",
-        frame = 4,
-        zIndex = args.zIndex
+randomizeArgs()
+
+function create(tree, args)
+
+    treeComponents = {
+        AABB = {
+            halfSize = {5, 5}
+        },
+        DrawPolyline = {
+            colors = {6},
+            repeatX = 3,
+            zIndexEnd = args.zIndex, zIndexBegin = args.zIndex
+        },
+        VerletRope = {
+            length = args.length,
+            gravity = {0, 100},
+            friction = .8,
+            nrOfPoints = 4,
+            moveByWind = 6
+        },
+        AsepriteView = {
+            sprite = "sprites/tree_leaves",
+            frame = 4,
+            zIndex = args.zIndex
+        }
     }
-}
+    setComponents(tree, treeComponents)
 
-branchNr = 0
-leavesNr = 0
+    addBranches = function(side)
 
-addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, length, addLeaves, zIndex) -- side should be -1 or 1, posAlongParent should be between 0 and 1
+        x = .1 + math.random() * .4
 
-    branchNr = branchNr + 1
+        repeat
 
-    local branchName = "branch." .. branchNr
-    local branch = createChild(branchName)
+            length = treeComponents.VerletRope.length * (.2 + math.random() * .4)
+
+            xInv = 1. - x
+
+            length = length * .3 + length * .7 * xInv
+
+            addBranch(tree, treeComponents, side, x, length, true, args.zIndex - 16, args)
+
+            x = x + .1 + math.random() * .1
+
+        until x >= 1
+    end
+
+    addBranches(-1)
+    addBranches(1)
+
+    randomizeArgs()
+end
+
+addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, length, addLeaves, zIndex, args) -- side should be -1 or 1, posAlongParent should be between 0 and 1
+
+    local branch = createChild(parentBranch)
 
     ::begin::
 
@@ -65,7 +93,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
     local zIndexBegin = zIndex
     local zIndexEnd = zIndex + 32
 
-    childComponents[branchName] = {
+    local branchComponents = {
         AABB = {},
         DrawPolyline = {
             colors = {6},
@@ -85,6 +113,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
             x = posAlongParent
         }
     }
+    setComponents(branch, branchComponents)
 
     -- BIG LEAVES:
     if addLeaves then
@@ -93,12 +122,9 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
 
         repeat
 
-            leavesNr = leavesNr + 1
+            local leaves = createChild(branch)
 
-            local leavesName = "leaves." .. leavesNr
-            createChild(leavesName)
-
-            childComponents[leavesName] = {
+            setComponents(leaves, {
                 AABB = {
                     halfSize = {3, 3}
                 },
@@ -118,7 +144,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
                     minQuantity = 1,
                     maxQuantity = 1
                 },
-            }
+            })
 
             local minStep = 5 / length
             local maxStep = minStep * 3
@@ -133,12 +159,9 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
     local leavePosAlongBranch = math.min(64 / length, 1)
     repeat
 
-        leavesNr = leavesNr + 1
+        local leave = createChild(branch)
 
-        local leavesName = "leave_small." .. leavesNr
-        createChild(leavesName)
-
-        childComponents[leavesName] = {
+        setComponents(leave, {
             AABB = {},
             AttachToRope = {
                 ropeEntity = branch,
@@ -151,7 +174,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
                 flipHorizontal = gravity[1] < 0 and true or false,
                 flipVertical = gravity[2] < 0 and true or false
             }
-        }
+        })
 
         local minStep = 4 / length
         local maxStep = minStep * 2
@@ -163,9 +186,11 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
 
     -- APPLE:
     if math.random() < args.appleChance then
-        local appleName = "apple." .. branchNr
-        applyTemplate(createChild(appleName), "Apple")
-        childComponents[appleName] = {
+
+        local apple = createChild(branch)
+
+        applyTemplate(apple, "Apple")
+        setComponents(apple, {
             AttachToRope = {
                 ropeEntity = branch,
                 x = math.random(),
@@ -180,7 +205,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
             AsepriteView = {
                 zIndex = zIndexEnd + 32
             }
-        }
+        })
     end
     -- END APPLE
 
@@ -192,35 +217,14 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
         local _
         for _ = 1, nrOfNewBranches do
 
-            local newLength = childComponents[branchName].VerletRope.length * (.2 + math.random() * .3)
+            local newLength = branchComponents.VerletRope.length * (.2 + math.random() * .3)
             local newPosAlongParent = math.random() * .5 + .4
             local newZIndex = zIndexBegin + newPosAlongParent * (zIndexEnd - zIndexBegin)
 
-            addBranch(branch, childComponents[branchName], math.random() > .5 and -1 or 1, newPosAlongParent, newLength, false, newZIndex)
+            addBranch(branch, branchComponents, math.random() > .5 and -1 or 1, newPosAlongParent, newLength, false, newZIndex, args)
         end
     end
     -- END SUB BRANCHES
 
 end
 
-addBranches = function(side)
-
-    x = .1 + math.random() * .4
-
-    repeat
-
-        length = components.VerletRope.length * (.2 + math.random() * .4)
-
-        xInv = 1. - x
-
-        length = length * .3 + length * .7 * xInv
-
-        addBranch(entity, components, side, x, length, true, args.zIndex - 16)
-
-        x = x + .1 + math.random() * .1
-
-    until x >= 1
-end
-
-addBranches(-1)
-addBranches(1)

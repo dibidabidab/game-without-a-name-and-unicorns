@@ -1,51 +1,60 @@
 
-arg("width", 200)
-arg("depth", 100)
+description("a pool of water")
+
+defaultArgs({
+    width = 200,
+    depth = 100
+})
 
 WAVE_MARGIN = 20
 PIXELS_PER_LINE = 8
 
-nrOfPoints = math.ceil(args.width / PIXELS_PER_LINE) + 1
+function create(water, args)
 
-points = {}
+    nrOfPoints = math.ceil(args.width / PIXELS_PER_LINE) + 1
 
-for i = 0, nrOfPoints - 1 do
-    table.insert(points, {
-        args.width * -.5 + i * PIXELS_PER_LINE,
-        args.depth * .5 - WAVE_MARGIN
-    })
-end
+    points = {}
 
-components = {
-    AABB = {
-        halfSize = {args.width * .5, (args.depth + WAVE_MARGIN) * .5}
-    },
-    Polyline = {
-        points = points
-    },
-    DrawPolyline = {
-        addAABBOffset = true,
-        colors = {19},
-        zIndexBegin = -512, zIndexEnd = -512
-    },
-    Fluid = {
-        friction = 2.83, -- this value gives a funny walk animation underwater
-        reduceGravity = 900,
+    for i = 0, nrOfPoints - 1 do
+        table.insert(points, {
+            args.width * -.5 + i * PIXELS_PER_LINE,
+            args.depth * .5 - WAVE_MARGIN
+        })
+    end
 
-        enterSound = "sounds/jump_in_water",
-        leaveSound = "sounds/jump_out_water",
+    components = {
+        AABB = {
+            halfSize = {args.width * .5, (args.depth + WAVE_MARGIN) * .5}
+        },
+        Polyline = {
+            points = points
+        },
+        DrawPolyline = {
+            addAABBOffset = true,
+            colors = {19},
+            zIndexBegin = -512, zIndexEnd = -512
+        },
+        Fluid = {
+            friction = 2.83, -- this value gives a funny walk animation underwater
+            reduceGravity = 900,
 
-        color = 18,
-        splatterAmount = 4.,
-        splatterDropSize = 1.1,
-        splatterVelocity = .8,
+            enterSound = "sounds/jump_in_water",
+            leaveSound = "sounds/jump_out_water",
 
-        bubbleSprite = "sprites/bubble",
-        bubblesAmount = 1.
-    },
-    PolylineWaves = {
-        moveByWind = 1.,
-        impactMultiplier = 2.,
-        spread = 60
+            color = 18,
+            splatterAmount = 4.,
+            splatterDropSize = 1.1,
+            splatterVelocity = .8,
+
+            bubbleSprite = "sprites/bubble",
+            bubblesAmount = 1.
+        },
+        PolylineWaves = {
+            moveByWind = 1.,
+            impactMultiplier = 2.,
+            spread = 60
+        }
     }
-}
+
+    setComponents(water, components)
+end

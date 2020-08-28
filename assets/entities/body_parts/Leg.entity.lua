@@ -1,43 +1,50 @@
 
-arg("length", 15)
-arg("oppositeLeg", nil)
-arg("body", nil)
-arg("hipAnchor", { 0, 0 })
-arg("idleXPos", 0)
-arg("spriteSliceName", "leg")
-arg("color", 5)
-
--- HIP:
-applyTemplate(createChild("hip"), "SpriteAnchor", {
-    spriteEntity = args.body,
-    sliceName = args.spriteSliceName,
-    ignoreSpriteFlipping = true
+defaultArgs({
+    length = 15,
+    oppositeLeg = nil,
+    body = nil,
+    hipAnchor = {0, 0},
+    idleXPos = 0,
+    spriteSliceName = "leg",
+    color = 5
 })
 
--- KNEE:
-createChild("knee")
-childComponents.knee = {
-    AABB = {},
-    LimbJoint = {
-        hipJointEntity = hip,
-        footEntity = entity
-    }
-}
+function create(leg, args)
 
--- FOOT/LEG:
-components = {
-    Leg = {
-        length = args.length,
-        body = args.body,
-        anchor = args.hipAnchor,
-        idleXPos = args.idleXPos,
-        oppositeLeg = args.oppositeLeg
-    },
-    AABB = {},
-    BezierCurve = {
-        points = {hip, knee, entity}
-    },
-    DrawPolyline = {
-        colors = {args.color}
+    -- HIP:
+    hip = createChild(leg, "hip")
+    applyTemplate(hip, "SpriteAnchor", {
+        spriteEntity = args.body,
+        sliceName = args.spriteSliceName,
+        ignoreSpriteFlipping = true
+    })
+
+    -- KNEE:
+    knee = createChild(leg, "knee")
+    setComponents(knee, {
+        AABB = {},
+        LimbJoint = {
+            hipJointEntity = hip,
+            footEntity = leg
+        }
+    })
+
+    -- FOOT/LEG:
+    components = {
+        Leg = {
+            length = args.length,
+            body = args.body,
+            anchor = args.hipAnchor,
+            idleXPos = args.idleXPos,
+            oppositeLeg = args.oppositeLeg
+        },
+        AABB = {},
+        BezierCurve = {
+            points = {hip, knee, leg}
+        },
+        DrawPolyline = {
+            colors = {args.color}
+        }
     }
-}
+    setComponents(leg, components)
+end

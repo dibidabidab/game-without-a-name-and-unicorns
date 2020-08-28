@@ -7,6 +7,8 @@
 #include <graphics/3d/debug_line_renderer.h>
 #include "../../../../external/entt/src/entt/entity/registry.hpp"
 #include "../../../macro_magic/component.h"
+#include "../Room.h"
+#include "entity_templates/LuaEntityTemplate.h"
 
 struct InspectPathState
 {
@@ -38,7 +40,11 @@ END_COMPONENT(Inspecting)
 
 class EntityInspector
 {
+    Room &room;
     entt::registry &reg;
+
+    LuaEntityTemplate *creatingTempl = NULL;
+    json creatingTemplArgs;
 
   public:
 
@@ -51,11 +57,17 @@ class EntityInspector
     std::vector<std::string> entityTemplates;
     std::string templateToCreate = "", templateToEdit = "";
 
-    EntityInspector(entt::registry &reg);
+    EntityInspector(Room &);
 
     void drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
 
   private:
+    void createEntityGUI();
+
+    void createEntity(const std::string &templateName);
+
+    void templateArgsGUI();
+
     void pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
 
     void moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer);

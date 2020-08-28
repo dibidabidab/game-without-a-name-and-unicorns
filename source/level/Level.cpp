@@ -175,7 +175,7 @@ void Level::save(const char *path) const
 
 
     std::vector<uint8> compressedData(12 + data.size() * 1.1);
-    ulong compressedDataSize = compressedData.size();
+    unsigned long compressedDataSize = compressedData.size();
 
     int zResult = compress(&compressedData[0], &compressedDataSize, &data[0], data.size());
 
@@ -196,10 +196,10 @@ Level::Level(const char *loadFromFile) : loadedFromFile(loadFromFile)
     {
         auto compressedData = File::readBinary(loadFromFile);
 
-        ulong compressedDataSize = compressedData.size() - sizeof(int);
+        unsigned long compressedDataSize = compressedData.size() - sizeof(int);
 
-        ulong originalDataSize = *((int *) &compressedData[compressedDataSize]);
-        ulong originalDataSize_ = originalDataSize;
+        unsigned long originalDataSize = *((int *) &compressedData[compressedDataSize]);
+        unsigned long originalDataSize_ = originalDataSize;
 
         std::vector<uint8> uncompressedData(originalDataSize);
 

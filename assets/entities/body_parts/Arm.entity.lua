@@ -1,39 +1,46 @@
 
-arg("length", 15)
-arg("body", nil)
-arg("shoulderAnchor", { 0, 0 })
-arg("spriteSliceName", "arm")
-arg("color", 5)
-
--- SHOULDER:
-applyTemplate(createChild("shoulder"), "SpriteAnchor", {
-    spriteEntity = args.body,
-    sliceName = args.spriteSliceName,
-    ignoreSpriteFlipping = true
+defaultArgs({
+    length = 15,
+    body = nil,
+    shoulderAnchor = {0, 0},
+    spriteSliceName = "arm",
+    color = 5
 })
 
--- ELBOW:
-createChild("elbow")
-childComponents.elbow = {
-    AABB = {},
-    LimbJoint = {
-        hipJointEntity = shoulder,
-        footEntity = entity
-    }
-}
+function create(arm, args)
 
--- HAND/ARM:
-components = {
-    Arm = {
-        length = args.length,
-        body = args.body,
-        anchor = args.shoulderAnchor,
-    },
-    AABB = {},
-    BezierCurve = {
-        points = {shoulder, elbow, entity}
-    },
-    DrawPolyline = {
-        colors = {args.color}
+    -- SHOULDER:
+    shoulder = createChild(arm, "shoulder")
+    applyTemplate(shoulder, "SpriteAnchor", {
+        spriteEntity = args.body,
+        sliceName = args.spriteSliceName,
+        ignoreSpriteFlipping = true
+    })
+
+    -- ELBOW:
+    elbow = createChild(arm, "elbow")
+    setComponents(elbow, {
+        AABB = {},
+        LimbJoint = {
+            hipJointEntity = shoulder,
+            footEntity = arm
+        }
+    })
+
+    -- HAND/ARM:
+    components = {
+        Arm = {
+            length = args.length,
+            body = args.body,
+            anchor = args.shoulderAnchor,
+        },
+        AABB = {},
+        BezierCurve = {
+            points = {shoulder, elbow, arm}
+        },
+        DrawPolyline = {
+            colors = {args.color}
+        }
     }
-}
+    setComponents(arm, components)
+end

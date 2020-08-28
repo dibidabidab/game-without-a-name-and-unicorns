@@ -6,12 +6,15 @@
 #include "EntityInspector.h"
 #include "components/physics/Physics.h"
 #include "../../../Game.h"
+#include "entity_templates/LuaEntityTemplate.h"
 
 
-EntityInspector::EntityInspector(entt::registry &reg) : reg(reg)
+EntityInspector::EntityInspector(Room &room) : room(room), reg(room.entities)
 {
 
 }
+
+static bool createEntityGUIJustOpened = false;
 
 void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
 {
@@ -33,6 +36,9 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     pickEntity = KeyInput::justPressed(Game::settings.keyInput.inspectEntity);
     moveEntity = KeyInput::justPressed(Game::settings.keyInput.moveEntity);
 
+    if (creatingTempl)
+        templateArgsGUI();
+
     reg.view<Inspecting>().each([&](auto e, Inspecting &ins) {
         drawEntityInspectorGUI(e, ins);
     });
@@ -46,26 +52,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
 
         if (ImGui::BeginMenu("Create entity"))
         {
-            if (ImGui::MenuItem("Empty entity"))
-                reg.assign<Inspecting>(reg.create());
-
-            ImGui::Separator();
-            ImGui::MenuItem("From template:                     ", "", false, false);
-
-            ImGui::Columns(2, NULL, false);
-            ImGui::SetColumnOffset(1, 140);
-
-            for (auto &name : entityTemplates)
-            {
-                if (ImGui::MenuItem(name.c_str()))
-                    templateToCreate = name;
-                ImGui::NextColumn();
-                if (ImGui::Button(("Edit###" + name).c_str()))
-                    templateToEdit = name;
-                ImGui::NextColumn();
-            }
-            ImGui::Columns(1);
-
+            createEntityGUI();
             ImGui::EndMenu();
         }
 
@@ -76,6 +63,17 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
     }
     ImGui::EndMainMenuBar();
 
+    if (KeyInput::justPressed(Game::settings.keyInput.createEntity))
+    {
+        ImGui::OpenPopup("Create entity");
+        createEntityGUIJustOpened = true;
+    }
+
+    if (ImGui::BeginPopup("Create entity"))
+    {
+        createEntityGUI();
+        ImGui::EndPopup();
+    }
 }
 
 void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
@@ -167,7 +165,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
     ImGui::SetNextWindowSize(ImVec2(500, 680), ImGuiCond_Once);
 
     std::string title("Entity #" + std::to_string(int(e)));
-    if (!ImGui::Begin(title.c_str(), &ins.show, 0))
+    if (!ImGui::Begin(title.c_str(), &ins.show, ImGuiWindowFlags_NoSavedSettings))
     {
         // Early out if the window is collapsed, as an optimization.
         ImGui::End();
@@ -543,7 +541,7 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
 
     std::string title = "Adding " + ins.addingComponentTypeName + " to entity #" + std::to_string(int(e));
     bool open = true;
-    ImGui::Begin(title.c_str(), &open);
+    ImGui::Begin(title.c_str(), &open, ImGuiWindowFlags_NoSavedSettings);
 
     ImGui::Text("[Warning]:\nadding components (with wrong values) could crash the game!");
     ImGui::Columns(2);
@@ -569,4 +567,132 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
     ImGui::End();
     if (!open)
         ins.addingComponentTypeName.clear();
+}
+
+void EntityInspector::createEntityGUI()
+{
+    if (ImGui::MenuItem("Empty entity"))
+        reg.assign<Inspecting>(reg.create());
+
+    ImGui::Separator();
+    ImGui::MenuItem("From template:", NULL, false, false);
+
+    static ImGuiTextFilter filter;
+    static bool _ = false;
+    if (_)
+    {
+        ImGui::SetKeyboardFocusHere();
+        _ = false;
+    }
+    if (createEntityGUIJustOpened)
+    {
+        _ = true;
+        createEntityGUIJustOpened = false;
+    }
+    filter.Draw("Filter", 150);
+    ImGui::NewLine();
+
+    for (auto &templateName : room.getTemplateNames())
+    {
+        if (!filter.PassFilter(templateName.c_str()))
+            continue;
+
+        auto name = templateName;
+        const char *description = NULL;
+
+        auto templ = &room.getTemplate(templateName);
+        if (dynamic_cast<LuaEntityTemplate *>(templ))
+        {
+            auto luaTempl = (LuaEntityTemplate *) templ;
+            name = splitString(luaTempl->script.getLoadedAsset().shortPath, "entities/").back();
+            if (!luaTempl->getDescription().empty())
+                description = luaTempl->getDescription().c_str();
+        }
+
+        bool show = true;
+
+        auto dirSplitted = splitString(name, "/");
+
+        int subMenusOpened = 0;
+        for (subMenusOpened = 0; subMenusOpened < dirSplitted.size() - 1; subMenusOpened++)
+        {
+            ImGui::SetNextWindowContentSize(ImVec2(200, 0));
+            if (!ImGui::BeginMenu(dirSplitted[subMenusOpened].c_str()))
+            {
+                show = false;
+                break;
+            }
+        }
+
+        if (show)
+        {
+            ImGui::Columns(2, NULL, false);
+            ImGui::SetColumnWidth(0, 150);
+            ImGui::SetColumnWidth(1, 50);
+
+            if (ImGui::MenuItem(dirSplitted.back().c_str(), NULL))
+                createEntity(dirSplitted.back());
+
+            if (description && ImGui::IsItemHovered())
+                ImGui::SetTooltip("%s", description);
+
+            ImGui::NextColumn();
+            if (ImGui::Button(("Edit###" + name).c_str()))
+                templateToEdit = dirSplitted.back();
+
+            ImGui::Columns(1);
+        }
+
+        for (int i = 0; i < subMenusOpened; i++)
+            ImGui::EndMenu();
+    }
+}
+
+void EntityInspector::createEntity(const std::string &templateName)
+{
+    auto templ = &room.getTemplate(templateName);
+
+    LuaEntityTemplate *luaTempl = dynamic_cast<LuaEntityTemplate *>(templ);
+
+    if (luaTempl && !luaTempl->getDefaultArgs().empty())
+    {
+        creatingTempl = luaTempl;
+        creatingTemplArgs = luaTempl->getDefaultArgs();
+    }
+    else
+    {
+        moveEntity = true;
+        movingEntity = templ->create();
+    }
+}
+
+void EntityInspector::templateArgsGUI()
+{
+    ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX - 200, MouseInput::mouseY - 15), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
+
+    std::string title = "Creating " + creatingTempl->script.getLoadedAsset().shortPath;
+    bool open = true;
+    ImGui::Begin(title.c_str(), &open, ImGuiWindowFlags_NoSavedSettings);
+
+    ImGui::Columns(2);
+    ImGui::Separator();
+
+    static Inspecting ins;
+    drawJsonTree(creatingTemplArgs, ins, false);
+
+    ImGui::Columns(1);
+    ImGui::Separator();
+
+    if (ImGui::Button("Create"))
+    {
+        open = false;
+        creatingTempl->createComponentsUsingLuaFunction(reg.create(), creatingTemplArgs);
+    }
+    ImGui::End();
+    if (!open)
+    {
+        creatingTempl = NULL;
+        creatingTemplArgs.clear();
+    }
 }
