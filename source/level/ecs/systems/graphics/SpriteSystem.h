@@ -21,7 +21,7 @@ class SpriteSystem : public EntitySystem
 
     void update(double deltaTime, Room *room) override;
 
-    void updateAnchors();
+    void updateAnchor(const SpriteAnchor &, AABB &);
 
     void updateFeetBobbing(double deltaTime);
 

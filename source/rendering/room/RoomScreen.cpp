@@ -205,10 +205,24 @@ void RoomScreen::renderDebugStuff()
 
     if (ImGui::BeginMenu("Room"))
     {
+        if (ImGui::BeginMenu("Systems"))
+        {
+            for (auto sys : room->getSystems())
+                ImGui::MenuItem(sys->name.c_str(), NULL, &sys->enabled);
+
+            ImGui::EndMenu();
+        }
+
         ImGui::Separator();
 
         if (ImGui::MenuItem("Edit TileMap"))
             roomEditor.show = true;
+
+        int ll = room->baseLightLevel;
+        ImGui::PushItemWidth(100);
+        ImGui::SliderInt("Light level", &ll, 0, 2);
+        ImGui::PopItemWidth();
+        room->baseLightLevel = ll;
 
         ImGui::Separator();
         ImGui::MenuItem("Visualize stuff:", "", false, false);

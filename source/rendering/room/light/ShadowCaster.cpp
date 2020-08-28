@@ -152,6 +152,9 @@ void ShadowCaster::updateMesh(const PointLight &light, const vec2 &lightPos)
 
 void ShadowCaster::updateShadowTexture(const SharedTexture &tileMapTexture, bool tileMapChanged)
 {
+    if (room->baseLightLevel == 2u)
+        return;
+
     gu::profiler::Zone z("shadow casting");
     fbo.bind();
     shader.use();

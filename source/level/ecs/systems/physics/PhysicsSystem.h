@@ -32,6 +32,8 @@ class PhysicsSystem : public EntitySystem
 
     using EntitySystem::EntitySystem;
   protected:
+    void init(Room *room) override;
+
     void update(double deltaTime, Room *) override;
 
   private:
@@ -40,6 +42,7 @@ class PhysicsSystem : public EntitySystem
 
     void preventFallingThroughPolyPlatform(Physics &, AABB &);
 
+    void onDistanceConstraintCreated(entt::registry &, entt::entity);
     void updateDistanceConstraint(AABB &, const DistanceConstraint &);
 
     void repositionAfterCollision(const AABB &staticAABB, AABB &dynAABB, entt::entity dynEntity);

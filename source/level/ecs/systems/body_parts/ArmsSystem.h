@@ -26,7 +26,7 @@ class ArmsSystem : public EntitySystem
 
             if (grabTarget)
             {
-                // the hand is grabbig something -> set position of hand to the grabben entity:
+                // the hand is grabbig something -> set position of hand to the grabbed entity:
                 handAABB.center = grabTarget->center;
             }
             else
@@ -52,8 +52,8 @@ class ArmsSystem : public EntitySystem
                     arm.moveAccumulator -= movePixels;
                     handAABB.center += movePixels;
                 }
-                room->entities.get_or_assign<DistanceConstraint>(e, arm.length, arm.body, arm.anchor);
             }
+            room->entities.get_or_assign<DistanceConstraint>(e, arm.length, arm.body, arm.anchor);
 
         });
     }

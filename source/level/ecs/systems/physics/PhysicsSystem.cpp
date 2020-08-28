@@ -415,3 +415,18 @@ void PhysicsSystem::updateWind(Physics &physics, AABB &body, double deltaTime)
 
     room->getMap().wind.getAtPixelCoordinates(body.center.x, body.center.y) += physics.velocity * vec2(deltaTime * physics.createWind);
 }
+
+void PhysicsSystem::init(Room *room)
+{
+    this->room = room;
+
+    room->entities.on_construct<DistanceConstraint>().connect<&PhysicsSystem::onDistanceConstraintCreated>(this);
+}
+
+void PhysicsSystem::onDistanceConstraintCreated(entt::registry &reg, entt::entity entity)
+{
+    AABB *aabb = reg.try_get<AABB>(entity);
+    if (!aabb)
+        return;
+    updateDistanceConstraint(*aabb, reg.get<DistanceConstraint>(entity));
+}

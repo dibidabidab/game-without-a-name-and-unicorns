@@ -158,6 +158,7 @@ void LevelEditor::render()
 
             ImGui::Text("Size: (%d, %d)", r.getMap().width, r.getMap().height);
             ImGui::Text("Position: (%d, %d)", r.positionInLevel.x, r.positionInLevel.y);
+            ImGui::Text("Entities: %d", r.nrOfPersistentEntities());
 
             if (importPreviewTexture == NULL)
                 importPreviewTexture = MiniMapTextureGenerator::generate(*loadRoomFromLvl);
@@ -325,10 +326,12 @@ void LevelEditor::roomProperties()
     ImGui::Separator();
     ImGui::Text("Resize:");
 
+    ImGui::PushItemWidth(128);
     ImGui::InputInt("Move right border", &moveRightBorder, 1, 10);
     ImGui::InputInt("Move top border", &moveTopBorder, 1, 10);
     ImGui::InputInt("Move left border", &moveLeftBorder, 1, 10);
     ImGui::InputInt("Move bottom border", &moveBottomBorder, 1, 10);
+    ImGui::PopItemWidth();
 
     if (ImGui::Button("Resize"))
     {

@@ -17,14 +17,14 @@ class EntitySystem
   public:
     const std::string name;
 
+    bool enabled = true;
+
     EntitySystem(std::string name) : name(std::move(name)) {}
 
   protected:
 
     int updateFrequency = 0; // update this system n times per second. if n = 0 then update(deltaTime) is called, else update(1/n)
     float updateAccumulator = 0;
-
-    bool disabled = false;
 
     virtual void init(Room *room) {};
 

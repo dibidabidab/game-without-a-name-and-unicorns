@@ -50,12 +50,14 @@ void LightMapRenderer::render(const Camera &cam, const SharedTexture &shadowText
 
     fbo->bind();
     glEnable(GL_DEPTH_TEST);
-    uint zero = 0;
-    glClearBufferuiv(GL_COLOR, 0, &zero);
+    glClearBufferuiv(GL_COLOR, 0, &room->baseLightLevel);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    renderDirectionalLights(cam);
-    renderPointLights(cam, shadowTexture);
+    if (room->baseLightLevel < 2u)
+    {
+        renderDirectionalLights(cam);
+        renderPointLights(cam, shadowTexture);
+    }
 
     glDisable(GL_DEPTH_TEST);
     fbo->unbind();

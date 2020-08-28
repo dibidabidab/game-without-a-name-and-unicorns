@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "Level.h"
+#include "ecs/components/PlayerControlled.h"
 
 void Level::initialize()
 {
@@ -33,8 +34,29 @@ void Level::update(double deltaTime)
         float roomDeltaTime = min(updateAccumulator, MAX_DELTA_TIME);
         time += roomDeltaTime;
 
-        for (auto room : rooms)
-            room->update(roomDeltaTime);
+        {
+            /*
+             * This piece of code will update rooms that have a player in them.
+             * Rooms are checked twice for a player in them, because a Player might have been spawned during another Room's update
+             */
+
+            std::vector<bool> skippedRoom(rooms.size(), true);
+
+            for (int repeat = 0; repeat < 2; repeat++)
+            {
+                for (int i = 0; i < rooms.size(); i++)
+                {
+                    auto room = rooms[i];
+                    if (!skippedRoom[i] || room->entities.empty<PlayerControlled>())
+                    {
+                        skippedRoom[i] = true;
+                        continue;
+                    }
+                    skippedRoom[i] = false;
+                    room->update(roomDeltaTime);
+                }
+            }
+        }
 
         updateAccumulator -= roomDeltaTime;
     }

@@ -73,9 +73,9 @@ void Room::initialize(Level *lvl)
     systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
     systems.push_front(new PlayerControlSystem("player control"));
     systems.push_front(new ChildrenSystem("children"));
-    systems.push_front(new SpawningSystem("(de)spawning"));
     systems.push_front(new TransRoomerSystem("transroomer"));
     systems.push_front(new DamageSystem());
+    systems.push_front(new SpawningSystem("(de)spawning")); // SPAWN ENTITIES FIRST, so they get a chance to be updated before being rendered
 
     for (auto sys : systems) sys->init(this);
 
@@ -89,14 +89,11 @@ void Room::update(double deltaTime)
     if (!initialized)
         throw gu_err("Cannot update non-initialized Room!");
 
-    if (entities.empty<PlayerControlled>()) // no player is here, skip update.
-        return;
-
     gu::profiler::Zone roomZone("room " + std::to_string(getIndexInLevel()));
 
     for (auto sys : systems)
     {
-        if (sys->disabled) continue;
+        if (!sys->enabled) continue;
         gu::profiler::Zone sysZone(sys->name);
 
         if (sys->updateFrequency == .0) sys->update(deltaTime, this);
@@ -139,6 +136,7 @@ void to_json(json &j, const Room &r)
     std::string tileMapBase64 = base64::encode(&tileMapBinary[0], tileMapBinary.size());
     j = json{
             {"name", r.name},
+            {"lightLevel", r.baseLightLevel},
             {"position", r.positionInLevel},
             {"width", r.getMap().width},
             {"height", r.getMap().height},
@@ -168,6 +166,7 @@ void to_json(json &j, const Room &r)
 void from_json(const json &j, Room &r)
 {
     r.name = j.at("name");
+    r.baseLightLevel = j.at("lightLevel");
     r.persistentEntities = j.at("entities");
     r.positionInLevel = j.at("position");
     r.tileMap = new TileMap(ivec2(j.at("width"), j.at("height")));
@@ -201,6 +200,7 @@ void Room::loadPersistentEntities()
             std::cerr << "Error while loading entity from JSON: \n" << e.what() << std::endl;
         }
     }
+    persistentEntities.clear();
 }
 
 void Room::addSystem(EntitySystem *sys)
@@ -287,4 +287,9 @@ void Room::resize(int moveLeftBorder, int moveRightBorder, int moveTopBorder, in
 
     positionInLevel.x = max<int>(0, positionInLevel.x - moveLeftBorder);
     positionInLevel.y = max<int>(0, positionInLevel.y - moveBottomBorder);
+}
+
+int Room::nrOfPersistentEntities() const
+{
+    return persistentEntities.is_array() ? persistentEntities.size() : 0;
 }

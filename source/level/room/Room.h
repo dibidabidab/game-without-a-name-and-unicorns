@@ -50,6 +50,7 @@ class Room
   public:
 
     std::string name;
+    uint baseLightLevel = 0u;
 
     uvec2 positionInLevel = uvec2(0);
 
@@ -71,9 +72,13 @@ class Room
 
     int getIndexInLevel() const { return roomI; };
 
+    int nrOfPersistentEntities() const;
+
     void update(double deltaTime);
 
     void addSystem(EntitySystem *sys);
+
+    std::list<EntitySystem *> getSystems() { return systems; }
 
     template <class EntityTemplate_>
     EntityTemplate &getTemplate()
