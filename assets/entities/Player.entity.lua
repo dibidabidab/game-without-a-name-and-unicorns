@@ -122,11 +122,16 @@ function create(player)
     components.TransRoomable.archiveChildComponents = { bow = {"Bow"} } -- archive the Bow component of the bow child
 
     setComponents(player, components)
-    setUpdateFunction(player, update, 1)
+    --setUpdateFunction(player, update, 1)
+    setOnDestroyCallback(player, onDestroy)
 end
 
 function update(player, deltaTime)
 
     print(player, deltaTime)
 
+end
+
+function onDestroy(player)
+    print("rip player", player)
 end

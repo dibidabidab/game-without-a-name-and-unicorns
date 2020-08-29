@@ -58,7 +58,6 @@ class RoomScreen : public Screen
     BloodSplatterRenderer *bloodSplatterRenderer = NULL;
 
     ShaderAsset applyPaletteShader, horizontalGaussianShader, postProcessingShader;
-    Palettes3D palettes;
     PaletteEditor paletteEditor;
 
     ShadowCaster shadowCaster;

@@ -3,7 +3,7 @@ function create(lamp)
     rope = createChild(lamp, "rope")
     applyTemplate(rope, "Rope", {
       draw = true,
-      color = 6,
+      color = colors.wood,
       endPointEntity = lamp,
       length = math.random(20, 40),
       moveByWind = 1

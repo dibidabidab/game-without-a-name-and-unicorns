@@ -89,7 +89,7 @@ void RoomScreen::render(double deltaTime)
 
         glUniform2i(applyPaletteShader.location("realResolution"), gu::widthPixels, gu::heightPixels);
 
-        auto palettesTexture = palettes.get3DTexture();
+        auto palettesTexture = Game::palettes->get3DTexture();
         palettesTexture->bind(0);
         glUniform1i(applyPaletteShader.location("palettes"), 0);
         glUniform1ui(applyPaletteShader.location("paletteEffect"), currentPaletteEffect);
@@ -134,7 +134,7 @@ void RoomScreen::setPaletteEffect(float deltaTime)
         if (p.priority > highestPriority)
         {
             highestPriority = p.priority;
-            int index = palettes.effectIndex(p.paletteName);
+            int index = Game::palettes->effectIndex(p.paletteName);
             if (index != currentPaletteEffect && index != -1)
             {
                 prevPaletteEffect = currentPaletteEffect;
@@ -316,7 +316,7 @@ void RoomScreen::renderDebugStuff()
             lineRenderer.line(aim.target, aabb.center, mu::X);
         });
 
-    paletteEditor.drawGUI(palettes, currentPaletteEffect);
+    paletteEditor.drawGUI(Game::palettes.get(), currentPaletteEffect);
 
     if (debugLights)
     {

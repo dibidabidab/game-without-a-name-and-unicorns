@@ -13,7 +13,14 @@ function create(rainbow)
         },
         DrawPolyline = {
             -- each rainbow color twice:
-            repeatColors = {10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15},
+            repeatColors = {
+                colors.rainbow_red, colors.rainbow_red,
+                colors.rainbow_orange, colors.rainbow_orange,
+                colors.rainbow_yellow, colors.rainbow_yellow,
+                colors.rainbow_green, colors.rainbow_green,
+                colors.rainbow_blue, colors.rainbow_blue,
+                colors.rainbow_pink, colors.rainbow_pink
+            },
             repeatY = 11,
             addAABBOffset = true,
             zIndexEnd = -64, zIndexBegin = -64

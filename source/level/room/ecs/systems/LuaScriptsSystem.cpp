@@ -1,6 +1,11 @@
 
 #include "LuaScriptsSystem.h"
 
+void LuaScriptsSystem::init(Room *room)
+{
+    room->entities.on_destroy<LuaScripted>().connect<&LuaScriptsSystem::onDestroyed>(this);
+}
+
 void LuaScriptsSystem::update(double deltaTime, Room *room)
 {
     room->entities.view<LuaScripted>().each([&](auto e, LuaScripted &scripted) {
@@ -17,6 +22,8 @@ void LuaScriptsSystem::update(double deltaTime, Room *room)
             {
                 scripted.updateAccumulator -= scripted.updateFrequency;
                 callUpdateFunc(e, scripted, scripted.updateFrequency);
+                if (!room->entities.valid(e))
+                    return; // entity was destroyed.
             }
         }
     });
@@ -34,6 +41,26 @@ void LuaScriptsSystem::callUpdateFunc(entt::entity e, LuaScripted &scripted, flo
     {
         assert(scripted.updateFuncScript.isSet());
         std::cerr << "Error while calling Lua update function for entity#" << int(e) << " (" << scripted.updateFuncScript.getLoadedAsset().fullPath << "):" << std::endl;
+        std::cerr << exc.what() << std::endl;
+    }
+}
+
+void LuaScriptsSystem::onDestroyed(entt::registry &reg, entt::entity e)
+{
+    LuaScripted &scripted = reg.get<LuaScripted>(e);
+    if (!scripted.onDestroyFunc.valid())
+        return;
+
+    try
+    {
+        sol::protected_function_result result = scripted.onDestroyFunc(e);
+        if (!result.valid())
+            throw gu_err(result.get<sol::error>().what());
+    }
+    catch (std::exception &exc)
+    {
+        assert(scripted.onDestroyFuncScript.isSet());
+        std::cerr << "Error while calling Lua onDestroy callback for entity#" << int(e) << " (" << scripted.onDestroyFuncScript.getLoadedAsset().fullPath << "):" << std::endl;
         std::cerr << exc.what() << std::endl;
     }
 }

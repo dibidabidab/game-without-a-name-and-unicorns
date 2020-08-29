@@ -274,11 +274,11 @@ int main(int argc, char *argv[])
         mpSession->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .03 : deltaTime);
 
         if (KeyInput::justPressed(Game::settings.keyInput.reloadAssets))
-            AssetManager::load("assets");
+            AssetManager::load("assets", true);
 
         assetToReloadMutex.lock();
         if (!assetToReload.empty())
-            AssetManager::loadFile(assetToReload, "assets/");
+            AssetManager::loadFile(assetToReload, "assets/", true);
         assetToReload.clear();
         assetToReloadMutex.unlock();
 

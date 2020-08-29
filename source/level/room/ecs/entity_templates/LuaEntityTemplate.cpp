@@ -2,6 +2,7 @@
 #include "LuaEntityTemplate.h"
 #include "../../../../macro_magic/component.h"
 #include "../components/LuaScript.h"
+#include "../../../../Game.h"
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Room *r)
     : script(assetName),
@@ -70,6 +71,12 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
         scripted.updateFunc = func;
         scripted.updateFuncScript = script;
     };
+    env["setOnDestroyCallback"] = [&](int entity, const sol::function &func) {
+
+        LuaScripted &scripted = room->entities.get_or_assign<LuaScripted>(entt::entity(entity));
+        scripted.onDestroyFunc = func;
+        scripted.onDestroyFuncScript = script;
+    };
 
     env["createEntity"] = [&]() -> int {
 
@@ -112,6 +119,21 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
         table[1] = result.x;
         table[2] = result.y;
         return table;
+    };
+
+    // colors:
+    auto colorTable = sol::table::create(env.lua_state());
+    Palette &palette = Game::palettes->effects.at(0).lightLevels[0].get();
+    int i = 0;
+    for (auto &[name, color] : palette.colors)
+        colorTable[name] = i++;
+    env["colors"] = colorTable;
+
+    env["printTableAsJson"] = [&] (const sol::table &table, sol::optional<int> indent)
+    {
+        json j;
+        lua_converter<json>::getFrom(table, j);
+        std::cout << j.dump(indent.has_value() ? indent.value() : -1) << std::endl;
     };
 
     runScript();

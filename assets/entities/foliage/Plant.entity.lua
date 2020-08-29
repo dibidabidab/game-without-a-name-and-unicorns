@@ -15,7 +15,7 @@ function create(plant)
     plantStem = createChild(plant, "plantStem")
     applyTemplate(plantStem, "Rope", {
         draw = true,
-        color = 4,
+        color = colors.grass_dark,
         moveByWind = 10
     })
 

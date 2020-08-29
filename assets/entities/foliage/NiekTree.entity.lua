@@ -46,7 +46,7 @@ function create(boomstam, args)
         },
 
         DrawPolyline = { -- om de VerletRope te tekenen.
-            colors = {6}, -- gebruik de 7e kleur van het palet, kan je in de Palette editor zien.
+            colors = {colors.wood}, -- zie Palette editor in de game
 
             repeatX = 3, -- we willen dat de boomstam 4 pixels dik is, dus tekenen we de rope gwn 3 keer extra, elke keer 1 pixel horizontaal verder
 

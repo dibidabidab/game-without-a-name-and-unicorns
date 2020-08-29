@@ -31,7 +31,7 @@ function create(water, args)
         },
         DrawPolyline = {
             addAABBOffset = true,
-            colors = {19},
+            colors = {colors.water1},
             zIndexBegin = -512, zIndexEnd = -512
         },
         Fluid = {
@@ -41,7 +41,7 @@ function create(water, args)
             enterSound = "sounds/jump_in_water",
             leaveSound = "sounds/jump_out_water",
 
-            color = 18,
+            color = colors.water0,
             splatterAmount = 4.,
             splatterDropSize = 1.1,
             splatterVelocity = .8,

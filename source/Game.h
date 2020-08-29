@@ -2,8 +2,11 @@
 #ifndef GAME_GAME_H
 #define GAME_GAME_H
 
+#include <utils/cofu.h>
+
 #include "macro_magic/serializable.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
+#include "rendering/Palette.h"
 
 #ifdef EMSCRIPTEN
 #define V_SYNC_ENABLED_BY_DEFAULT false
@@ -75,6 +78,7 @@ namespace Game
     void saveSettings();
 
     extern MegaSpriteSheet spriteSheet;
+    extern cofu<Palettes3D> palettes;
 
 };
 

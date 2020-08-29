@@ -31,3 +31,4 @@ void Game::saveSettings()
 }
 
 MegaSpriteSheet Game::spriteSheet;
+cofu<Palettes3D> Game::palettes;

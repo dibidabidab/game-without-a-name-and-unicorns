@@ -16,7 +16,7 @@ function create(tree, args)
             halfSize = {5, 5}
         },
         DrawPolyline = {
-            colors = {6},
+            colors = {colors.wood},
             repeatX = 3,
             zIndexEnd = args.zIndex, zIndexBegin = args.zIndex
         },
@@ -96,7 +96,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
     local branchComponents = {
         AABB = {},
         DrawPolyline = {
-            colors = {6},
+            colors = {colors.wood},
             repeatX = xThickness - 1,
             repeatY = yThickness - 1,
             zIndexBegin = zIndexBegin, zIndexEnd = zIndexEnd
