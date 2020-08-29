@@ -27,6 +27,7 @@
 #include "ecs/systems/physics/FluidsSystem.h"
 #include "ecs/systems/TransRoomerSystem.h"
 #include "ecs/components/Saving.h"
+#include "ecs/systems/LuaScriptsSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -55,6 +56,7 @@ void Room::initialize(Level *lvl)
     for (auto &el : AssetManager::getLoadedAssetsForType<LuaEntityScript>())
         registerLuaEntityTemplate(el.second->shortPath.c_str());
 
+    systems.push_front(new LuaScriptsSystem("lua functions"));
     systems.push_front(new AudioSystem("audio"));
     systems.push_front(new LimbJointSystem("knee/elbow joints"));
     systems.push_front(new LightSystem("lights"));

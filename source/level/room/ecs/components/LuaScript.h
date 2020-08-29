@@ -5,13 +5,18 @@
 #include "../../../../macro_magic/component.h"
 #include "../entity_templates/LuaEntityTemplate.h"
 
-//COMPONENT(
-//    LuaScript,
-//    HASH(0),
-//    FIELD_DEF_VAL(float, updateFrequency, 1.),
-//    FIELD(sol::table, customData)
-//)
-//END_COMPONENT(LuaScript)
+COMPONENT(
+    LuaScripted,
+    HASH(0),
+    FIELD_DEF_VAL(float, updateFrequency, 1.)
+)
+
+    float updateAccumulator = 0.;
+
+    sol::function updateFunc, onDestroyFunc;
+    asset<LuaEntityScript> updateFuncScript, onDestroyFuncScript;
+
+END_COMPONENT(LuaScripted)
 
 
 #endif //GAME_LUASCRIPT_H

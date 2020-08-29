@@ -1,6 +1,7 @@
 
 #include "LuaEntityTemplate.h"
 #include "../../../../macro_magic/component.h"
+#include "../components/LuaScript.h"
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Room *r)
     : script(assetName),
@@ -10,7 +11,7 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
 
     env["TEMPLATE_NAME"] = name;
 
-    env["defaultArgs"] = [&](sol::table table) {
+    env["defaultArgs"] = [&](const sol::table &table) {
         defaultArgs = table;
     };
     env["description"] = [&](const char *d) {
@@ -45,10 +46,10 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
     env["removeComponent"] = [&](int entity, const std::string &componentName) {
         componentUtils(componentName).removeComponent(entt::entity(entity), room->entities);
     };
-    env["setComponent"] = [&](int entity, const std::string &componentName, sol::table component) {
+    env["setComponent"] = [&](int entity, const std::string &componentName, const sol::table &component) {
         luaTableToComponent(entt::entity(entity), componentName, component);
     };
-    env["setComponents"] = [&](int entity, sol::table componentsTable) {
+    env["setComponents"] = [&](int entity, const sol::table &componentsTable) {
 
         for (const auto &[componentName, comp] : componentsTable)
         {
@@ -61,6 +62,13 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
                 throw gu_err("Expected a table for " + nameStr);
             luaTableToComponent(entt::entity(entity), nameStr, comp);
         }
+    };
+    env["setUpdateFunction"] = [&](int entity, const sol::function &func, float updateFrequency) {
+
+        LuaScripted &scripted = room->entities.get_or_assign<LuaScripted>(entt::entity(entity));
+        scripted.updateFrequency = updateFrequency;
+        scripted.updateFunc = func;
+        scripted.updateFuncScript = script;
     };
 
     env["createEntity"] = [&]() -> int {
@@ -148,12 +156,10 @@ void LuaEntityTemplate::createComponentsUsingLuaFunction(entt::entity e, sol::op
         sol::protected_function_result result = createFunc(e, arguments);
         if (!result.valid())
         {
-            sol::error err = result;
+            sol::error err = result.get<sol::error>();
             std::string what = err.what();
             throw gu_err(sol::error(result).what());
         }
-
-        // todo, do things
     }
     catch (std::exception &e)
     {
