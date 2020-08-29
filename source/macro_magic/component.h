@@ -17,6 +17,7 @@ struct ComponentUtils
     std::function<json()> getDefaultJsonComponent;
 
     std::function<void(const sol::table &, entt::entity, entt::registry &)> setFromLuaTable;
+    std::function<void(sol::table &, entt::entity, const entt::registry &)> getToLuaTable;
 
     template <class Component>
     const static ComponentUtils *create()
@@ -61,6 +62,9 @@ struct ComponentUtils
 
         u->setFromLuaTable = [] (const sol::table &table, entt::entity e, entt::registry &reg) {
             reg.get_or_assign<Component>(e).fromLuaTable(table);
+        };
+        u->getToLuaTable = [] (sol::table &table, entt::entity e, const entt::registry &reg) {
+            reg.get<Component>(e).toLuaTable(table);
         };
 
         return u;

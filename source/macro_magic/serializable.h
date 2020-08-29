@@ -3,7 +3,7 @@
 #define GAME_SERIALIZABLE_H
 
 #include "SerializableStructInfo.h"
-#include "serializable_from_lua_table.h"
+#include "lua_converters.h"
 #include "macro_helpers.h"
 #include "json_converters.h"
 #include <json.hpp>
@@ -101,6 +101,11 @@ bool isStructFieldFixedSize()
         {\
             FROM_LUA_TABLE(__VA_ARGS__)\
         }\
+        void toLuaTable(sol::table &table) const\
+        {\
+            TO_LUA_TABLE(__VA_ARGS__)\
+        }\
+        \
         inline static const SerializableStructInfo STRUCT_INFO = SerializableStructInfo(#className, {\
             DOFOREACH(PUT_FIELD_NAME_IN_VEC, __VA_ARGS__)\
         }, {\
@@ -146,7 +151,7 @@ bool isStructFieldFixedSize()
     \
     static void from_json(const json& j, className& v) {\
         v.fromJsonArray(j);\
-    }\
+    }
 
 #define END_SERIALIZABLE_FULL_JSON(className)\
     };\
@@ -156,6 +161,6 @@ bool isStructFieldFixedSize()
     \
     static void from_json(const json& j, className& v) {\
         v.fromJson(j);\
-    }\
+    }
 
 #endif //GAME_SERIALIZABLE_H

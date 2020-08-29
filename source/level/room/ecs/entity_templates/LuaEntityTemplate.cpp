@@ -36,12 +36,8 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
         if (!utils.entityHasComponent(entt::entity(entity), room->entities))
             return sol::optional<sol::table>();
 
-        json j;
-        // todo: add utils->componentToLuaTable()
-        utils.getJsonComponentWithKeys(j, entt::entity(entity), room->entities);
         auto table = sol::table::create(env.lua_state());
-        luau::jsonToLuaTable(j, table);
-
+        utils.getToLuaTable(table, entt::entity(entity), room->entities);
         return table;
     };
     env["removeComponent"] = [&](int entity, const std::string &componentName) {
@@ -129,10 +125,10 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
         colorTable[name] = i++;
     env["colors"] = colorTable;
 
-    env["printTableAsJson"] = [&] (const sol::table &table, sol::optional<int> indent)
+    env["printTableAsJson"] = [&] (const sol::table &table, sol::optional<int> indent) // todo: this doest work properly
     {
         json j;
-        lua_converter<json>::getFrom(table, j);
+        lua_converter<json>::fromLua(table, j);
         std::cout << j.dump(indent.has_value() ? indent.value() : -1) << std::endl;
     };
 
@@ -210,14 +206,14 @@ json LuaEntityTemplate::getDefaultArgs()
     if (script.hasReloaded())
         runScript();
     json j;
-    lua_converter<json>::getFrom(defaultArgs, j);
+    lua_converter<json>::fromLua(defaultArgs, j);
     return j;
 }
 
 void LuaEntityTemplate::createComponentsUsingLuaFunction(entt::entity e, const json &arguments)
 {
     auto table = sol::table::create(env.lua_state());
-    luau::jsonToLuaTable(arguments, table);
+    lua_converter<json>::toLuaTable(table, arguments);
     createComponentsUsingLuaFunction(e, table);
 }
 
