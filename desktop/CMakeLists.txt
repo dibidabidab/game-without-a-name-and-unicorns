@@ -42,7 +42,7 @@ add_subdirectory(../external/lua ./bin/lua)
 target_link_libraries(game lua)
 
 if (MSVC)
-    set(CMAKE_CXX_FLAGS  "/Ox /EHsc")
+    set(CMAKE_CXX_FLAGS  "/Ox /EHsc /bigobj")
 
 else()
     # -no-pie is used to get 'application/x-application' as mime type instead of 'application/x-sharedlib'

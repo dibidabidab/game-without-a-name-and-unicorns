@@ -120,6 +120,8 @@ void LightMapRenderer::renderDirectionalLights(const Camera &cam)
 
         i++;
     });
+    if (i == 0)
+        return;
 
     directionalLightShader.use();
     asset<Texture>("light_shafts")->bind(0, directionalLightShader, "lightShaftsTexture");

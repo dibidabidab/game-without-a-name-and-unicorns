@@ -155,11 +155,7 @@ void LuaEntityTemplate::createComponentsUsingLuaFunction(entt::entity e, sol::op
 
         sol::protected_function_result result = createFunc(e, arguments);
         if (!result.valid())
-        {
-            sol::error err = result.get<sol::error>();
-            std::string what = err.what();
-            throw gu_err(sol::error(result).what());
-        }
+            throw gu_err(result.get<sol::error>().what());
     }
     catch (std::exception &e)
     {
