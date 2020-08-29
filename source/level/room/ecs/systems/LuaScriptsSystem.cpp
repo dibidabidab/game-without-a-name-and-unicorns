@@ -33,7 +33,7 @@ void LuaScriptsSystem::callUpdateFunc(entt::entity e, LuaScripted &scripted, flo
 {
     try
     {
-        sol::protected_function_result result = scripted.updateFunc(e, deltaTime);
+        sol::protected_function_result result = scripted.updateFunc(deltaTime, e);
         if (!result.valid())
             throw gu_err(result.get<sol::error>().what());
     }

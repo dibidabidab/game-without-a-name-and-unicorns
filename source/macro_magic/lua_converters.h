@@ -12,7 +12,8 @@
 #include <utils/math_utils.h>
 #include <asset_manager/asset.h>
 
-HAS_MEM_FUNC(toLuaTable, has_toLuaTable)
+HAS_MEM_FUNC(toLuaTable, has_toLuaTable_function)
+HAS_MEM_FUNC(fromLuaTable, has_fromLuaTable_function)
 
 template<typename type>
 struct lua_converter
@@ -22,28 +23,37 @@ struct lua_converter
         if (!v.valid())
             return;
 
-        auto optional = v.as<sol::optional<type>>();
-        if (optional.has_value())
-            field = optional.value();
-        else
+        if constexpr (has_fromLuaTable_function<type>::value)
         {
-            auto info = SerializableStructInfo::getFor<type>();
-
-            if (!info)
-                throw gu_err("Unable to convert to " + getTypeName<type>());
-
             auto optionalTable = v.as<sol::optional<sol::table>>();
             if (!optionalTable.has_value())
-                throw gu_err("Unable to convert to " + getTypeName<type>() + " as it is not a table!");
+                throw gu_err("Unable to convert to " + getTypeName<type>() + " because the given Lua value is not a table!");
 
-            info->fromLuaTableFunction(&field, optionalTable.value());
+            field.fromLuaTable(optionalTable.value());
+        }
+        else
+        {
+            auto optional = v.as<sol::optional<type>>();
+            if (optional.has_value())
+                field = optional.value();
+            else
+                throw gu_err("Unable to convert to " + getTypeName<type>());
+
+            /**
+             * if this ever fails then this might work:
+             *
+             * if constexpr (has_fromJson_function<type>::value)
+             * {
+             *      convert lua value to json, then call fromJson<type>(json, type())
+             * }
+             */
         }
     }
 
     template<typename luaRef>
     static void toLua(luaRef &luaVal, const type &val)
     {
-        if constexpr (has_toLuaTable<type>::value)
+        if constexpr (has_toLuaTable_function<type>::value)
         {
             auto table = luaVal.template get_or_create<sol::table>();
             val.toLuaTable(table);
@@ -68,8 +78,7 @@ struct lua_converter<vec<len, type, something>>
                          std::to_string(len) + " numbers!");
 
         for (int i = 0; i < len; i++)
-            vec[i] = vecTable.value()[i +
-                                      1].get<float>(); // get<float>() because get<int>() might cause error when value is a float
+            vec[i] = vecTable.value()[i + 1].get<float>(); // get<float>() because get<int>() might cause error when value is a float
     }
 
     template<typename luaRef>
@@ -124,7 +133,7 @@ struct lua_converter<std::vector<type>>
 
         int i = 0;
         for (auto &[_, val] : listTable.value())
-            lua_converter<type>::fromLua(val, vec[i++]);    // todo only do this if type is NOT a primitive type
+            lua_converter<type>::fromLua(val, vec[i++]);
     }
 
     template<typename luaRef>
@@ -179,6 +188,40 @@ struct lua_converter<std::list<type>>
 template<>
 struct lua_converter<json>
 {
+    static void fromLuaTable(const sol::table &table, json &jsonOut)
+    {
+        jsonOut = json::object(); // assume its an object (keys are strings).
+        for (auto &[key, val] : table)
+        {
+            if (jsonOut.is_object() && key.get_type() == sol::type::number)
+                jsonOut = json::array();
+
+            json jsonVal;
+
+            switch (val.get_type())
+            {
+                case sol::type::number:
+                    jsonVal = val.as<double>();
+                    break;
+                case sol::type::boolean:
+                    jsonVal = val.as<bool>();
+                    break;
+                case sol::type::string:
+                    jsonVal = val.as<std::string>();
+                    break;
+                case sol::type::table:
+                    fromLuaTable(val.as<sol::table>(), jsonVal);
+                    break;
+                default:
+                    break;
+            }
+            if (jsonOut.is_object())
+                jsonOut[key.as<std::string>()] = jsonVal;
+            else
+                jsonOut.push_back(jsonVal);
+        }
+    }
+
     static void fromLua(sol::object v, json &jsonOut)
     {
         if (!v.valid())
@@ -186,38 +229,7 @@ struct lua_converter<json>
 
         auto listTable = v.as<sol::optional<sol::table>>();
         if (listTable.has_value())
-        {
-            jsonOut = json::object(); // assume its an object (keys are strings).
-            for (auto &[key, val] : listTable.value())
-            {
-                if (jsonOut.is_object() && key.get_type() == sol::type::number)
-                    jsonOut = json::array();
-
-                json jsonVal;
-
-                switch (val.get_type())
-                {
-                    case sol::type::number:
-                        jsonVal = val.as<double>();
-                        break;
-                    case sol::type::boolean:
-                        jsonVal = val.as<bool>();
-                        break;
-                    case sol::type::string:
-                        jsonVal = val.as<std::string>();
-                        break;
-                    case sol::type::table:
-                        fromLua(val, jsonVal);
-                        break;
-                    default:
-                        break;
-                }
-                if (jsonOut.is_object())
-                    jsonOut[key.as<std::string>()] = jsonVal;
-                else
-                    jsonOut.push_back(jsonVal);
-            }
-        }
+            fromLuaTable(listTable.value(), jsonOut);
     }
 
     static void toLuaTable(sol::table &table, const json &json)

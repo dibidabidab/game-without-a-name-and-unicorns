@@ -23,25 +23,18 @@ struct SerializableStructInfo
 
     const int nrOfFields;
 
-    typedef std::function<void(void *, const sol::table &table)> fromLuaFunc;
-
-    fromLuaFunc fromLuaTableFunction;
-
     SerializableStructInfo(
             const char *name, const str_vec &fieldNames, const str_vec &fieldTypeNames,
             const bool_vec &fieldIsStructured,
             const bool_vec &structFieldIsFixedSize,
 
-            fromLuaFunc fromLuaTableFunction,
             std::size_t typeHash
     )
 
             : name(name), fieldNames(fieldNames), fieldTypeNames(fieldTypeNames),
               fieldIsPrimitive(fieldIsStructured),
               structFieldIsFixedSize(structFieldIsFixedSize),
-              nrOfFields(fieldNames.size()),
-
-              fromLuaTableFunction(fromLuaTableFunction)
+              nrOfFields(fieldNames.size())
     {
         if (infos == NULL)
             infos = new std::map<std::string, SerializableStructInfo *>();
@@ -61,12 +54,6 @@ struct SerializableStructInfo
     static const SerializableStructInfo *getFor()
     {
         return infosByType->operator[](typeid(type).hash_code());
-    }
-
-    template<typename StructType>
-    static fromLuaFunc createFromLuaFunc()
-    {
-        return [](void *ptr, auto &tbl) { ((StructType *) ptr)->fromLuaTable(tbl); };
     }
 
     template<typename StructType>

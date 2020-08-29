@@ -122,25 +122,14 @@ function create(player)
     components.TransRoomable.archiveChildComponents = { bow = {"Bow"} } -- archive the Bow component of the bow child
 
     setComponents(player, components)
-    --setUpdateFunction(player, update, 0)
-    setOnDestroyCallback(player, onDestroy)
-end
 
-function update(player, deltaTime)
-    local i = 0
-    repeat
+    local t = 0
 
-        physics = getComponent(player, "Physics")
-        --print(physics.velocity[2])
-        getComponent(player, "AsepriteView")
+    setUpdateFunction(player, 1., function(deltaTime)
+        t = t + deltaTime
+    end)
 
-        i = i + 1
-    until i > 400
-
-    -- todo: support voor getComponent(player, "AABB").set("center", {}) of .get("center") of .getTable()
-
-end
-
-function onDestroy(player)
-    print("rip player", player)
+    setOnDestroyCallback(player, function()
+        print("Player", player, "was alive for", t, "seconds. RIP")
+    end)
 end

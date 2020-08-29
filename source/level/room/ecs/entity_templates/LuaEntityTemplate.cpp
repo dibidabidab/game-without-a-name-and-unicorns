@@ -21,6 +21,7 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
     env["getTile"] = [&](int x, int y) -> int {
         return int(room->getMap().getTile(x, y));
     };
+    // todo: setTile() etc.
     env["getTileMaterial"] = [&](int x, int y) -> int {
         return int(room->getMap().getMaterial(x, y));
     };
@@ -60,7 +61,7 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
             luaTableToComponent(entt::entity(entity), nameStr, comp);
         }
     };
-    env["setUpdateFunction"] = [&](int entity, const sol::function &func, float updateFrequency) {
+    env["setUpdateFunction"] = [&](int entity, float updateFrequency, const sol::function &func) {
 
         LuaScripted &scripted = room->entities.get_or_assign<LuaScripted>(entt::entity(entity));
         scripted.updateFrequency = updateFrequency;
