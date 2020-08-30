@@ -151,13 +151,18 @@ void to_json(json &j, const Room &r)
         json &entityJson = j["entities"].back();
 
         entityJson["template"] = persistent.applyTemplateOnLoad;
+        entityJson["data"] = persistent.data;
+        if (persistent.savePosition)
+        {
+            const AABB *aabb = r.entities.try_get<AABB>(e);
+            if (aabb)
+                entityJson["position"] = aabb->center;
+        }
+
         json &componentsJson = entityJson["components"] = json::object();
 
-        for (auto &componentTypeName : ComponentUtils::getAllComponentTypeNames())
+        for (auto &componentTypeName : persistent.saveAllComponents ? ComponentUtils::getAllComponentTypeNames() : persistent.saveComponents)
         {
-            if (!persistent.saveAllComponents && persistent.saveComponents.find(componentTypeName) == persistent.saveComponents.end())
-                continue;
-
             auto utils = ComponentUtils::getFor(componentTypeName);
             if (utils->entityHasComponent(e, r.entities))
                 utils->getJsonComponentWithKeys(componentsJson[componentTypeName], e, r.entities);
@@ -169,7 +174,7 @@ void from_json(const json &j, Room &r)
 {
     r.name = j.at("name");
     r.baseLightLevel = j.at("lightLevel");
-    r.persistentEntities = j.at("entities");
+    r.persistentEntitiesToLoad = j.at("entities");
     r.positionInLevel = j.at("position");
     r.tileMap = new TileMap(ivec2(j.at("width"), j.at("height")));
     std::string tileMapBase64 = j.at("tileMapBase64");
@@ -179,15 +184,18 @@ void from_json(const json &j, Room &r)
 
 void Room::loadPersistentEntities()
 {
-    for (json &jsonEntity : persistentEntities)
+    for (json &jsonEntity : persistentEntitiesToLoad)
     {
+        auto e = entities.create();
         try
         {
-            auto e = entities.create();
-
-            std::string applyTemplate = jsonEntity.at("template");
-            if (!applyTemplate.empty())
-                getTemplate(applyTemplate).createComponents(e);
+            auto &p = entities.assign<Persistent>(e);
+            p.data = jsonEntity.at("data");
+            if (jsonEntity.contains("position"))
+            {
+                auto &aabb = entities.assign<AABB>(e);
+                aabb.center = jsonEntity.at("position");
+            }
 
             for (auto &[componentName, componentJson] : jsonEntity.at("components").items())
             {
@@ -197,12 +205,18 @@ void Room::loadPersistentEntities()
 
                 utils->setJsonComponentWithKeys(componentJson, e, entities);
             }
-        } catch (std::exception &e)
+
+            std::string applyTemplate = jsonEntity.at("template");
+            if (!applyTemplate.empty())
+                getTemplate(applyTemplate).createComponents(e, true);
+
+        } catch (std::exception &exc)
         {
-            std::cerr << "Error while loading entity from JSON: \n" << e.what() << std::endl;
+            std::cerr << "Error while loading entity from JSON: \n" << exc.what() << std::endl;
+            entities.destroy(e);
         }
     }
-    persistentEntities.clear();
+    persistentEntitiesToLoad.clear();
 }
 
 void Room::addSystem(EntitySystem *sys)
@@ -293,5 +307,5 @@ void Room::resize(int moveLeftBorder, int moveRightBorder, int moveTopBorder, in
 
 int Room::nrOfPersistentEntities() const
 {
-    return persistentEntities.is_array() ? persistentEntities.size() : 0;
+    return persistentEntitiesToLoad.is_array() ? persistentEntitiesToLoad.size() : 0;
 }

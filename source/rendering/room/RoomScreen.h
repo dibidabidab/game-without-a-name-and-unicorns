@@ -58,7 +58,6 @@ class RoomScreen : public Screen
     BloodSplatterRenderer *bloodSplatterRenderer = NULL;
 
     ShaderAsset applyPaletteShader, horizontalGaussianShader, postProcessingShader;
-    PaletteEditor paletteEditor;
 
     ShadowCaster shadowCaster;
     LightMapRenderer lightMapRenderer;
@@ -72,7 +71,7 @@ class RoomScreen : public Screen
 
   public:
 
-    uint currentPaletteEffect = 0, prevPaletteEffect = 0;
+    static inline uint currentPaletteEffect = 0, prevPaletteEffect = 0;
     float timeSinceNewPaletteEffect = 0;
     CameraMovement camMovement;
 
@@ -87,8 +86,6 @@ class RoomScreen : public Screen
     void onResize() override;
 
     void renderDebugStuff();
-
-    void editLuaTemplateCode();
 
     void renderDebugBackground();
 

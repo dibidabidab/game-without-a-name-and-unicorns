@@ -1,4 +1,6 @@
 
+persistenceMode(ALL_COMPONENTS)
+
 function create(light)
     setComponents(light, {
         AABB = {

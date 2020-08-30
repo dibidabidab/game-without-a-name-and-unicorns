@@ -1,7 +1,7 @@
 
 description("Simple rope using verlet physics")
 defaultArgs({
-    draw = false,
+    draw = true,
     color = colors.wood,
     endPointEntity = nil,
     length = 16,

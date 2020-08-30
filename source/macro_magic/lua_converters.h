@@ -63,6 +63,24 @@ struct lua_converter
     }
 };
 
+
+template<>
+struct lua_converter<uint8>
+{
+    static void fromLua(sol::object v, uint8 &c)
+    {
+        if (!v.valid())
+            return;
+        c = v.as<sol::optional<uint8>>().value_or(v.as<sol::optional<float>>().value_or(-123));
+    }
+
+    template<typename luaRef>
+    static void toLua(luaRef &luaVal, const uint8 &c)
+    {
+        luaVal = c;
+    }
+};
+
 template<int len, typename type, qualifier something>
 struct lua_converter<vec<len, type, something>>
 {

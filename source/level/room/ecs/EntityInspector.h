@@ -21,9 +21,6 @@ COMPONENT(Inspecting, HASH(0),
 
     FIELD(json, addingComponentJson)
 )
-    std::map<const char *, bool> freezeComponent;
-    std::map<const char *, json> frozenComponentContents;
-
     std::string addingComponentTypeName;
 
     std::vector<std::string> currentPath;
@@ -54,9 +51,6 @@ class EntityInspector
 
     entt::entity movingEntity = entt::null;
 
-    std::vector<std::string> entityTemplates;
-    std::string templateToCreate = "", templateToEdit = "";
-
     EntityInspector(Room &);
 
     void drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
@@ -67,6 +61,8 @@ class EntityInspector
     void createEntity(const std::string &templateName);
 
     void templateArgsGUI();
+
+    void editLuaScript(LuaEntityTemplate *);
 
     void pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
 

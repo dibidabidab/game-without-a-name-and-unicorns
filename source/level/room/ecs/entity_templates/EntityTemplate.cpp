@@ -3,16 +3,16 @@
 #include "../components/Networked.h"
 #include "../components/Children.h"
 
-entt::entity EntityTemplate::create()
+entt::entity EntityTemplate::create(bool persistent)
 {
     entt::entity e = room->entities.create();
-    createComponents(e);
+    createComponents(e, persistent);
     return e;
 }
 
-entt::entity EntityTemplate::createNetworked(int networkID, bool serverSide)
+entt::entity EntityTemplate::createNetworked(int networkID, bool serverSide, bool persistent)
 {
-    auto e = create();
+    auto e = create(persistent);
     room->entities.assign<Networked>(e, networkID, templateHash);
 
     Networked &n = room->entities.get<Networked>(e);

@@ -8,6 +8,7 @@
 #include "../../Room.h"
 #include "../../../../luau.h"
 #include "../../../../macro_magic/component.h"
+#include "../components/Saving.h"
 
 struct LuaEntityScript
 {
@@ -28,6 +29,9 @@ class LuaEntityTemplate : public EntityTemplate
     std::string description;
     sol::table defaultArgs;
 
+    Persistent persistency;
+    bool persistentArgs = false;
+
   public:
     asset<LuaEntityScript> script;
 
@@ -39,11 +43,11 @@ class LuaEntityTemplate : public EntityTemplate
 
     json getDefaultArgs();
 
-    void createComponents(entt::entity entity) override;
+    void createComponents(entt::entity, bool persistent) override;
 
-    void createComponentsUsingLuaFunction(entt::entity, const json &arguments);
+    void createComponentsWithJsonArguments(entt::entity, const json &arguments, bool persistent);
 
-    void createComponentsUsingLuaFunction(entt::entity, sol::optional<sol::table> arguments);
+    void createComponentsWithLuaArguments(entt::entity, sol::optional<sol::table> arguments, bool persistent);
 
   protected:
 

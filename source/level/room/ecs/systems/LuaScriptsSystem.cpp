@@ -10,9 +10,6 @@ void LuaScriptsSystem::update(double deltaTime, Room *room)
 {
     room->entities.view<LuaScripted>().each([&](auto e, LuaScripted &scripted) {
 
-        if (!scripted.updateFunc.valid())
-            return;
-
         if (scripted.updateFrequency <= 0)
             callUpdateFunc(e, scripted, deltaTime);
         else
@@ -22,8 +19,8 @@ void LuaScriptsSystem::update(double deltaTime, Room *room)
             {
                 scripted.updateAccumulator -= scripted.updateFrequency;
                 callUpdateFunc(e, scripted, scripted.updateFrequency);
-                if (!room->entities.valid(e))
-                    return; // entity was destroyed.
+                if (!room->entities.valid(e) || scripted.updateFrequency <= 0)
+                    return;
             }
         }
     });
@@ -31,6 +28,9 @@ void LuaScriptsSystem::update(double deltaTime, Room *room)
 
 void LuaScriptsSystem::callUpdateFunc(entt::entity e, LuaScripted &scripted, float deltaTime)
 {
+    if (!scripted.updateFunc.valid() || scripted.updateFunc.is<sol::nil_t>())
+        return;
+
     try
     {
         sol::protected_function_result result = scripted.updateFunc(deltaTime, e);
@@ -48,7 +48,7 @@ void LuaScriptsSystem::callUpdateFunc(entt::entity e, LuaScripted &scripted, flo
 void LuaScriptsSystem::onDestroyed(entt::registry &reg, entt::entity e)
 {
     LuaScripted &scripted = reg.get<LuaScripted>(e);
-    if (!scripted.onDestroyFunc.valid())
+    if (!scripted.onDestroyFunc.valid() || scripted.onDestroyFunc.is<sol::nil_t>())
         return;
 
     try

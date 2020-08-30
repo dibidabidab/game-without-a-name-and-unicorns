@@ -177,13 +177,8 @@ void RoomScreen::renderDebugStuff()
     gu::profiler::Zone z("debug");
     lineRenderer.projection = cam.combined;
 
-    {
-        inspector.drawGUI(&cam, lineRenderer);
-        if (!inspector.templateToCreate.empty())
-            room->getTemplate(inspector.templateToCreate).create();
-        if (!inspector.templateToEdit.empty())
-            editLuaTemplateCode();
-    }
+    inspector.drawGUI(&cam, lineRenderer);
+
     static RoomEditor roomEditor;
 
     static bool
@@ -195,12 +190,6 @@ void RoomScreen::renderDebugStuff()
             debugAimTargets = renderHitboxes;
 
     ImGui::BeginMainMenuBar();
-
-    if (ImGui::BeginMenu("Graphics"))
-    {
-        paletteEditor.show |= ImGui::MenuItem("Palette editor");
-        ImGui::EndMenu();
-    }
 
     if (ImGui::BeginMenu("Room"))
     {
@@ -316,8 +305,6 @@ void RoomScreen::renderDebugStuff()
             lineRenderer.line(aim.target, aabb.center, mu::X);
         });
 
-    paletteEditor.drawGUI(Game::palettes.get(), currentPaletteEffect);
-
     if (debugLights)
     {
         static vec3 lightColor(1, 1, 0);
@@ -340,33 +327,6 @@ void RoomScreen::renderDebugStuff()
         });
         shadowCaster.drawDebugLines(cam);
     }
-}
-
-void RoomScreen::editLuaTemplateCode()
-{
-    auto &entityTemplate = room->getTemplate(inspector.templateToEdit);
-    if (!dynamic_cast<LuaEntityTemplate *>(&entityTemplate))
-        return;
-
-    auto script = ((LuaEntityTemplate *) &entityTemplate)->script;
-
-    for (auto &t : CodeEditor::tabs)
-        if (t.title == script.getLoadedAsset().fullPath)
-            return;
-
-    auto &tab = CodeEditor::tabs.emplace_back();
-    tab.title = script.getLoadedAsset().fullPath;
-    tab.code = script->source;
-    tab.languageDefinition = TextEditor::LanguageDefinition::C(); // the lua definition is pretty broken
-    tab.save = [script] (auto &tab) {
-
-        File::writeBinary(script.getLoadedAsset().fullPath.c_str(), tab.code); // todo: why is this called writeBINARY? lol
-
-        AssetManager::loadFile(script.getLoadedAsset().fullPath, "assets/");
-    };
-    tab.revert = [script] (auto &tab) {
-        tab.code = script->source;
-    };
 }
 
 void RoomScreen::renderDebugBackground()

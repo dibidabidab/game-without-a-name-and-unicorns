@@ -1,6 +1,7 @@
-function create(lamp)
+function create(rope)
 
-    rope = createChild(lamp, "rope")
+    lamp = createChild(rope, "lamp")
+
     applyTemplate(rope, "Rope", {
       draw = true,
       color = colors.wood,

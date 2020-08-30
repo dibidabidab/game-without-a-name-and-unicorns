@@ -28,11 +28,11 @@ class EntityTemplate
 
   public:
 
-    entt::entity create();
+    entt::entity create(bool persistent=false);
 
-    entt::entity createNetworked(int networkID=rand(), bool serverSide=true);
+    entt::entity createNetworked(int networkID=rand(), bool serverSide=true, bool persistent=false);
 
-    virtual void createComponents(entt::entity) = 0;
+    virtual void createComponents(entt::entity, bool persistent=false) = 0;
 
   protected:
 

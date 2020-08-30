@@ -1,8 +1,9 @@
 
 #include "LuaEntityTemplate.h"
-#include "../../../../macro_magic/component.h"
 #include "../components/LuaScript.h"
 #include "../../../../Game.h"
+
+
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Room *r)
     : script(assetName),
@@ -11,6 +12,34 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
     room = r;
 
     env["TEMPLATE_NAME"] = name;
+
+    int
+        TEMPLATE = env["TEMPLATE"] = 1 << 0,
+        ARGS = env["ARGS"] = 1 << 1,
+        POS = env["POS"] = 1 << 2,
+        ALL_COMPONENTS = env["ALL_COMPONENTS"] = 1 << 3,
+        REVIVE = env["REVIVE"] = 1 << 4;
+
+    auto setPersistentMode = [&, name](int mode, sol::optional<std::vector<std::string>> componentsToSave) {
+
+        persistency = Persistent();
+        if (mode & TEMPLATE)
+            persistency.applyTemplateOnLoad = name;
+
+        persistentArgs = mode & ARGS;
+
+        persistency.savePosition = mode & POS;
+        persistency.saveAllComponents = mode & ALL_COMPONENTS;
+        persistency.revive = mode & REVIVE;
+        if (componentsToSave.has_value())
+        {
+            persistency.saveComponents = componentsToSave.value();
+            for (auto &c : persistency.saveComponents)
+                componentUtils(c);  // will throw error if that type of component does not exist.
+        }
+    };
+    env["persistenceMode"] = setPersistentMode;
+    setPersistentMode(TEMPLATE | ARGS | POS, sol::optional<std::vector<std::string>>());
 
     env["defaultArgs"] = [&](const sol::table &table) {
         defaultArgs = table;
@@ -61,10 +90,16 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
             luaTableToComponent(entt::entity(entity), nameStr, comp);
         }
     };
-    env["setUpdateFunction"] = [&](int entity, float updateFrequency, const sol::function &func) {
+    env["setUpdateFunction"] = [&](int entity, float updateFrequency, const sol::function &func, sol::optional<bool> randomAcummulationDelay) {
 
         LuaScripted &scripted = room->entities.get_or_assign<LuaScripted>(entt::entity(entity));
         scripted.updateFrequency = updateFrequency;
+
+        if (randomAcummulationDelay.value_or(true))
+            scripted.updateAccumulator = scripted.updateFrequency * mu::random();
+        else
+            scripted.updateAccumulator = 0;
+
         scripted.updateFunc = func;
         scripted.updateFuncScript = script;
     };
@@ -95,17 +130,19 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
             return sol::optional<int>(); // nil
         return int(childEntity);
     };
-    env["applyTemplate"] = [&](int extendE, const char *templateName, sol::optional<sol::table> extendArgs) {
+    env["applyTemplate"] = [&](int extendE, const char *templateName, const sol::optional<sol::table> &extendArgs, sol::optional<bool> persistent) {
 
         auto entityTemplate = &room->getTemplate(templateName); // could throw error :)
+
+        bool makePersistent = persistent.value_or(false);
 
         if (dynamic_cast<LuaEntityTemplate *>(entityTemplate))
         {
             ((LuaEntityTemplate *) entityTemplate)->
-                    createComponentsUsingLuaFunction(entt::entity(extendE), extendArgs);
+                    createComponentsWithLuaArguments(entt::entity(extendE), extendArgs, makePersistent);
         }
         else
-            entityTemplate->createComponents(entt::entity(extendE));
+            entityTemplate->createComponents(entt::entity(extendE), makePersistent);
     };
 
     // math utils lol:
@@ -151,25 +188,36 @@ void LuaEntityTemplate::runScript()
     }
 }
 
-void LuaEntityTemplate::createComponents(entt::entity e)
+void LuaEntityTemplate::createComponents(entt::entity e, bool persistent)
 {
-    createComponentsUsingLuaFunction(e, sol::optional<sol::table>());
+    auto *p = persistent ? room->entities.try_get<Persistent>(e) : NULL;
+    if (p)
+        createComponentsWithJsonArguments(e, p->data, true);
+    else
+        createComponentsWithLuaArguments(e, sol::optional<sol::table>(), persistent);
 }
 
-void LuaEntityTemplate::createComponentsUsingLuaFunction(entt::entity e, sol::optional<sol::table> arguments)
+void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::optional<sol::table> arguments, bool persistent)
 {
     if (script.hasReloaded())
         runScript();
 
     try
     {
-        if (arguments.has_value() && !defaultArgs.empty())
+        if (arguments.has_value() && defaultArgs.valid())
         {
             for (auto &[key, defaultVal] : defaultArgs)
             {
                 if (!arguments.value()[key].valid())
                     arguments.value()[key] = defaultVal;
             }
+        } else arguments = defaultArgs;
+
+        if (persistent)
+        {
+            auto &p = room->entities.assign_or_replace<Persistent>(e, persistency);
+            if (persistentArgs && arguments.has_value() && arguments.value().valid())
+                lua_converter<json>::fromLuaTable(arguments.value(), p.data);
         }
 
         sol::protected_function_result result = createFunc(e, arguments);
@@ -211,11 +259,12 @@ json LuaEntityTemplate::getDefaultArgs()
     return j;
 }
 
-void LuaEntityTemplate::createComponentsUsingLuaFunction(entt::entity e, const json &arguments)
+void LuaEntityTemplate::createComponentsWithJsonArguments(entt::entity e, const json &arguments, bool persistent)
 {
     auto table = sol::table::create(env.lua_state());
-    lua_converter<json>::toLuaTable(table, arguments);
-    createComponentsUsingLuaFunction(e, table);
+    if (arguments.is_structured())
+        lua_converter<json>::toLuaTable(table, arguments);
+    createComponentsWithLuaArguments(e, table, persistent);
 }
 
 void LuaEntityTemplate::luaTableToComponent(entt::entity e, const std::string &componentName, const sol::table &component)

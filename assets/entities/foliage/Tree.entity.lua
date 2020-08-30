@@ -3,13 +3,17 @@ function randomizeArgs()
     defaultArgs({
         zIndex = -600 - math.random(200),
         length = math.random(120, 220),
-        appleChance = math.random() * .1
+        appleChance = math.random() * .1,
+        seed = getLevelTime(),
+        growAnimation = false
     })
 end
 
 randomizeArgs()
 
 function create(tree, args)
+
+    math.randomseed(math.floor(args.seed))
 
     treeComponents = {
         AABB = {
@@ -21,7 +25,7 @@ function create(tree, args)
             zIndexEnd = args.zIndex, zIndexBegin = args.zIndex
         },
         VerletRope = {
-            length = args.length,
+            length = args.growAnimation and 0 or args.length,
             gravity = {0, 100},
             friction = .8,
             nrOfPoints = 4,
@@ -34,6 +38,24 @@ function create(tree, args)
         }
     }
     setComponents(tree, treeComponents)
+
+    if args.growAnimation then
+
+        local growthRate = 1
+        setUpdateFunction(tree, .1, function()
+
+            local rope = getComponent(tree, "VerletRope")
+            local newLength = math.min(args.length, rope.length + growthRate)
+            setComponent(tree, "VerletRope", {
+                length = newLength
+            })
+            if newLength >= args.length then
+                setUpdateFunction(tree, 0, nil)
+            end
+        end)
+
+        treeComponents.VerletRope.length = args.length -- only read by addBranch()
+    end
 
     addBranches = function(side)
 

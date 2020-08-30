@@ -4,14 +4,15 @@
 
 #include "../../../../macro_magic/component.h"
 
-#include <set>
-
 COMPONENT(
     Persistent,
     HASH(0),
     FIELD(std::string, applyTemplateOnLoad),
+    FIELD(json, data),
+    FIELD_DEF_VAL(bool, savePosition, false),
+    FIELD_DEF_VAL(bool, revive, false),
     FIELD_DEF_VAL(bool, saveAllComponents, false),
-    FIELD(std::set<std::string>, saveComponents)
+    FIELD(std::vector<std::string>, saveComponents)
 )
 END_COMPONENT(Persistent)
 

@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <input/mouse_input.h>
 #include <input/key_input.h>
+#include <utils/code_editor/CodeEditor.h>
 #include "EntityInspector.h"
 #include "components/physics/Physics.h"
 #include "../../../Game.h"
@@ -19,9 +20,6 @@ static bool createEntityGUIJustOpened = false;
 void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
 {
     gu::profiler::Zone z("entity inspector");
-
-    templateToCreate.clear();
-    templateToEdit.clear();
 
     if (pickEntity)
     {
@@ -191,11 +189,6 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
         ImGui::OpenPopup(addComponentPopupName.c_str());
     drawAddComponent(e, ins, addComponentPopupName.c_str());
 
-    ImGui::SameLine();
-    bool freezeAll = ImGui::Button("Freeze all");
-    ImGui::SameLine();
-    bool unfreezeAll = ImGui::Button("Unfreeze all");
-
     ImGui::NextColumn();
 
     for (auto componentName : ComponentUtils::getAllComponentTypeNames())
@@ -215,28 +208,9 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
         }
         ImGui::NextColumn();
 
-        bool &freeze = ins.freezeComponent[componentName.c_str()];
-
-        if (freeze)
-            componentUtils->setJsonComponent(
-                    ins.frozenComponentContents[componentName.c_str()], e, reg
-            );
-
-        if (freezeAll) freeze = true;
-        else if (unfreezeAll) freeze = false;
-
-        ImGui::Checkbox("freeze", &freeze);
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("Prevent game from updating this component while inspecting");
-
         ImGui::NextColumn();
         if (component_open)
             drawComponentFieldsTree(e, ins, componentName.c_str(), componentUtils);
-
-        if (freeze)
-            componentUtils->getJsonComponent(
-                 ins.frozenComponentContents[componentName.c_str()], e, reg
-            );
 
         ImGui::PopID();
     }
@@ -569,15 +543,30 @@ void EntityInspector::drawAddComponent(entt::entity e, Inspecting &ins, const ch
         ins.addingComponentTypeName.clear();
 }
 
+bool createPersistent = false;
+
+#define HOVERED_AND_PRESSED_ENTER (ImGui::IsItemHovered() && ImGui::IsKeyPressed(GLFW_KEY_ENTER))
+
 void EntityInspector::createEntityGUI()
 {
+    static ImGuiTextFilter filter;
+    if (ImGui::IsKeyPressed(GLFW_KEY_ESCAPE))
+    {
+        bool close = !filter.IsActive();
+        filter = ImGuiTextFilter();
+        if (close)
+        {
+            ImGui::CloseCurrentPopup();
+            return;
+        }
+    }
+
     if (ImGui::MenuItem("Empty entity"))
         reg.assign<Inspecting>(reg.create());
 
     ImGui::Separator();
     ImGui::MenuItem("From template:", NULL, false, false);
 
-    static ImGuiTextFilter filter;
     static bool _ = false;
     if (_)
     {
@@ -589,7 +578,7 @@ void EntityInspector::createEntityGUI()
         _ = true;
         createEntityGUIJustOpened = false;
     }
-    filter.Draw("Filter", 150);
+    filter.Draw("Filter", 200);
     ImGui::NewLine();
 
     for (auto &templateName : room.getTemplateNames())
@@ -601,9 +590,9 @@ void EntityInspector::createEntityGUI()
         const char *description = NULL;
 
         auto templ = &room.getTemplate(templateName);
-        if (dynamic_cast<LuaEntityTemplate *>(templ))
+        auto luaTempl = dynamic_cast<LuaEntityTemplate *>(templ);
+        if (luaTempl)
         {
-            auto luaTempl = (LuaEntityTemplate *) templ;
             name = splitString(luaTempl->script.getLoadedAsset().shortPath, "entities/").back();
             if (!luaTempl->getDescription().empty())
                 description = luaTempl->getDescription().c_str();
@@ -614,9 +603,9 @@ void EntityInspector::createEntityGUI()
         auto dirSplitted = splitString(name, "/");
 
         int subMenusOpened = 0;
-        for (subMenusOpened = 0; subMenusOpened < dirSplitted.size() - 1; subMenusOpened++)
+        if (filter.Filters.empty()) for (subMenusOpened = 0; subMenusOpened < dirSplitted.size() - 1; subMenusOpened++)
         {
-            ImGui::SetNextWindowContentSize(ImVec2(200, 0));
+            ImGui::SetNextWindowContentSize(ImVec2(240, 0));
             if (!ImGui::BeginMenu(dirSplitted[subMenusOpened].c_str()))
             {
                 show = false;
@@ -627,20 +616,38 @@ void EntityInspector::createEntityGUI()
         if (show)
         {
             ImGui::Columns(2, NULL, false);
-            ImGui::SetColumnWidth(0, 150);
-            ImGui::SetColumnWidth(1, 50);
+            ImGui::SetColumnWidth(0, 120);
+            ImGui::SetColumnWidth(1, 120);
 
-            if (ImGui::MenuItem(dirSplitted.back().c_str(), NULL))
-                createEntity(dirSplitted.back());
+            bool create = ImGui::MenuItem(dirSplitted.back().c_str(), NULL) || HOVERED_AND_PRESSED_ENTER;
 
             if (description && ImGui::IsItemHovered())
                 ImGui::SetTooltip("%s", description);
 
             ImGui::NextColumn();
-            if (ImGui::Button(("Edit###" + name).c_str()))
-                templateToEdit = dirSplitted.back();
+            createPersistent = false;
+            if (ImGui::Button(("Persistent###pers_" + name).c_str()) || HOVERED_AND_PRESSED_ENTER)
+            {
+                create = true;
+                createPersistent = true;
+            }
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("Save the created entity to level file");
+
+            if (luaTempl)
+            {
+                ImGui::SameLine();
+                auto str = "Edit###edit_" + name;
+                if (ImGui::Button(str.c_str()) || HOVERED_AND_PRESSED_ENTER)
+                    editLuaScript(luaTempl);
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Edit the Lua script for this entity");
+            }
 
             ImGui::Columns(1);
+
+            if (create)
+                createEntity(dirSplitted.back());
         }
 
         for (int i = 0; i < subMenusOpened; i++)
@@ -652,7 +659,7 @@ void EntityInspector::createEntity(const std::string &templateName)
 {
     auto templ = &room.getTemplate(templateName);
 
-    LuaEntityTemplate *luaTempl = dynamic_cast<LuaEntityTemplate *>(templ);
+    auto *luaTempl = dynamic_cast<LuaEntityTemplate *>(templ);
 
     if (luaTempl && !luaTempl->getDefaultArgs().empty())
     {
@@ -662,7 +669,7 @@ void EntityInspector::createEntity(const std::string &templateName)
     else
     {
         moveEntity = true;
-        movingEntity = templ->create();
+        movingEntity = templ->create(createPersistent);
     }
 }
 
@@ -671,8 +678,9 @@ void EntityInspector::templateArgsGUI()
     ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX - 200, MouseInput::mouseY - 15), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
 
-    std::string title = "Creating " + creatingTempl->script.getLoadedAsset().shortPath;
-    bool open = true;
+    const std::string &name = creatingTempl->script.getLoadedAsset().shortPath;
+    std::string title = "Creating " + name;
+    bool open = !ImGui::IsKeyPressed(GLFW_KEY_ESCAPE);
     ImGui::Begin(title.c_str(), &open, ImGuiWindowFlags_NoSavedSettings);
 
     ImGui::Columns(2);
@@ -684,15 +692,46 @@ void EntityInspector::templateArgsGUI()
     ImGui::Columns(1);
     ImGui::Separator();
 
-    if (ImGui::Button("Create"))
+    ImGui::Checkbox("Persistent", &createPersistent);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Save the created entity to level file");
+
+    if (ImGui::Button("Create") || HOVERED_AND_PRESSED_ENTER)
     {
         open = false;
-        creatingTempl->createComponentsUsingLuaFunction(reg.create(), creatingTemplArgs);
+        auto e = reg.create();
+        creatingTempl->createComponentsWithJsonArguments(e, creatingTemplArgs, createPersistent);
+        moveEntity = true;
+        movingEntity = e;
     }
+    ImGui::SetItemDefaultFocus();
+
     ImGui::End();
     if (!open)
     {
         creatingTempl = NULL;
         creatingTemplArgs.clear();
     }
+}
+
+void EntityInspector::editLuaScript(LuaEntityTemplate *luaTemplate)
+{
+    auto script = luaTemplate->script;
+    for (auto &t : CodeEditor::tabs)
+        if (t.title == script.getLoadedAsset().fullPath)
+            return;
+
+    auto &tab = CodeEditor::tabs.emplace_back();
+    tab.title = script.getLoadedAsset().fullPath;
+    tab.code = script->source;
+    tab.languageDefinition = TextEditor::LanguageDefinition::C(); // the lua definition is pretty broken
+    tab.save = [script] (auto &tab) {
+
+        File::writeBinary(script.getLoadedAsset().fullPath.c_str(), tab.code); // todo: why is this called writeBINARY? lol
+
+        AssetManager::loadFile(script.getLoadedAsset().fullPath, "assets/");
+    };
+    tab.revert = [script] (auto &tab) {
+        tab.code = script->source;
+    };
 }

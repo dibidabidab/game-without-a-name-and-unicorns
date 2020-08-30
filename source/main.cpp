@@ -113,6 +113,7 @@ void showDeveloperOptionsMenuBar()
         ImGui::EndMenu();
     }
 
+    static PaletteEditor paletteEditor;
     if (ImGui::BeginMenu("Graphics"))
     {
         static bool vsync = gu::config.vsync;
@@ -147,12 +148,16 @@ void showDeveloperOptionsMenuBar()
             }
             ImGui::EndMenu();
         }
+        paletteEditor.show |= ImGui::MenuItem("Palette editor");
 
+        ImGui::Separator();
 
+        ImGui::MenuItem(reinterpret_cast<const char *>(glGetString(GL_VERSION)), NULL, false, false);
+        ImGui::MenuItem(reinterpret_cast<const char *>(glGetString(GL_RENDERER)), NULL, false, false);
         ImGui::EndMenu();
     }
-
     ImGui::EndMainMenuBar();
+    paletteEditor.drawGUI(Game::palettes.get(), RoomScreen::currentPaletteEffect);
 }
 
 int main(int argc, char *argv[])
@@ -187,7 +192,7 @@ int main(int argc, char *argv[])
     if (!gu::init(config))
         return -1;
     au::init();
-    setImGuiStyle();
+    setImGuiStyleAndConfig();
 
     std::cout << "Running game with\n - GL_VERSION: " << glGetString(GL_VERSION) << "\n";
     std::cout << " - GL_RENDERER: " << glGetString(GL_RENDERER) << "\n";

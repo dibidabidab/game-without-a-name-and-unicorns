@@ -4,8 +4,10 @@
 
 #include <imgui.h>
 
-inline void setImGuiStyle()
+inline void setImGuiStyleAndConfig()
 {
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard;
     /**
      * Color scheme taken from https://github.com/ocornut/imgui/issues/707#issuecomment-512669512
      */
