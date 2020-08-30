@@ -4,6 +4,21 @@
 
 #include <imgui.h>
 
+namespace
+{
+    static u8vec3 Black(0), White(255);
+
+    static ImVec4 GetColor(u8vec3 rgb) { return ImVec4(rgb.r / 255.f, rgb.g / 255.f, rgb.b / 255.f, 1.f); }
+
+    static ImVec4 Darken(ImVec4 c, float p)			{ return ImVec4(fmax(0.f, c.x - 1.0f * p), fmax(0.f, c.y - 1.0f * p), fmax(0.f, c.z - 1.0f *p), c.w); }
+    static ImVec4 Lighten(ImVec4 c, float p)		{ return ImVec4(fmax(0.f, c.x + 1.0f * p), fmax(0.f, c.y + 1.0f * p), fmax(0.f, c.z + 1.0f *p), c.w); }
+
+    static ImVec4 Disabled(ImVec4 c)	{	return Darken(c, 0.4f); 	}
+    static ImVec4 Hovered(ImVec4 c)		{	return Lighten(c, 0.2f);	}
+    static ImVec4 Active(ImVec4 c)		{	return Lighten(ImVec4(c.x, c.y, c.z, 1.0f),0.1f); }
+    static ImVec4 Collapsed(ImVec4 c)	{	return Darken(c, 0.2f);		}
+}
+
 inline void setImGuiStyleAndConfig()
 {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -11,63 +26,70 @@ inline void setImGuiStyleAndConfig()
     /**
      * Color scheme taken from https://github.com/ocornut/imgui/issues/707#issuecomment-512669512
      */
-    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/ruda/Ruda-Bold.ttf", 15.0f);
+    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/ruda/Ruda-Bold.ttf", 15.5f);
     ImGui::GetIO().Fonts->AddFontDefault();
-    ImGui::GetStyle().FrameRounding = 4.0f;
-    ImGui::GetStyle().GrabRounding = 4.0f;
+    auto &style = ImGui::GetStyle();
+    style.FrameRounding = style.GrabRounding = style.ChildRounding = style.PopupRounding = 4.0f;
 
-    ImGui::GetStyle().WindowTitleAlign.x = .5f;
+    style.WindowTitleAlign.x = .5f;
 
-    ImVec4* colors = ImGui::GetStyle().Colors;
-    colors[ImGuiCol_Text] = ImVec4(0.95f, 0.96f, 0.98f, 1.00f);
-    colors[ImGuiCol_TextDisabled] = ImVec4(0.36f, 0.42f, 0.47f, 1.00f);
-    colors[ImGuiCol_WindowBg] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
-    colors[ImGuiCol_ChildBg] = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);
-    colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-    colors[ImGuiCol_Border] = ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
-    colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
-    colors[ImGuiCol_FrameBgHovered] = ImVec4(0.12f, 0.20f, 0.28f, 1.00f);
-    colors[ImGuiCol_FrameBgActive] = ImVec4(0.09f, 0.12f, 0.14f, 1.00f);
-    colors[ImGuiCol_TitleBg] = ImVec4(0.09f, 0.12f, 0.14f, 0.65f);
-    colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
-    colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
-    colors[ImGuiCol_MenuBarBg] = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);
-    colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.39f);
-    colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.18f, 0.22f, 0.25f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.09f, 0.21f, 0.31f, 1.00f);
-    colors[ImGuiCol_CheckMark] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
-    colors[ImGuiCol_SliderGrab] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
-    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.37f, 0.61f, 1.00f, 1.00f);
-    colors[ImGuiCol_Button] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
-    colors[ImGuiCol_ButtonHovered] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
-    colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
-    colors[ImGuiCol_Header] = ImVec4(0.20f, 0.25f, 0.29f, 0.55f);
-    colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-    colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    colors[ImGuiCol_Separator] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
-    colors[ImGuiCol_SeparatorHovered] = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
-    colors[ImGuiCol_SeparatorActive] = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
-    colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.25f);
-    colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-    colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-    colors[ImGuiCol_Tab] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
-    colors[ImGuiCol_TabHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-    colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
-    colors[ImGuiCol_TabUnfocused] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
-    colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
-    colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-    colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-    colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-    colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-    colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-    colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-    colors[ImGuiCol_NavHighlight] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-    colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-    colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+    ImVec4* colors = style.Colors;
 
+    auto
+        TextColor = Game::settings.graphics.imGuiThemeColor_text,
+        BackGroundColor = Game::settings.graphics.imGuiThemeColor_background,
+        MainColor = Game::settings.graphics.imGuiThemeColor_main,
+        MainAccentColor = Game::settings.graphics.imGuiThemeColor_mainAccent,
+        HighlightColor = Game::settings.graphics.imGuiThemeColor_highLight;
+
+    colors[ImGuiCol_Text]					= GetColor(TextColor);
+    colors[ImGuiCol_TextDisabled]			= Disabled(colors[ImGuiCol_Text]);
+    colors[ImGuiCol_WindowBg]				= GetColor(BackGroundColor);
+    colors[ImGuiCol_ChildBg]				= ImVec4(0, 0, 0, .3);
+    colors[ImGuiCol_PopupBg]				= GetColor(BackGroundColor);
+    colors[ImGuiCol_Border]					= Lighten(GetColor(BackGroundColor),0.1f);
+    colors[ImGuiCol_BorderShadow]			= GetColor(Black);
+    colors[ImGuiCol_FrameBg]				= GetColor(MainAccentColor);
+    colors[ImGuiCol_FrameBgHovered]			= Hovered(colors[ImGuiCol_FrameBg]);
+    colors[ImGuiCol_FrameBgActive]			= Active(colors[ImGuiCol_FrameBg]);
+    colors[ImGuiCol_TitleBg]				= GetColor(BackGroundColor);
+    colors[ImGuiCol_TitleBgActive]			= Active(colors[ImGuiCol_TitleBg]);
+    colors[ImGuiCol_TitleBgCollapsed]		= Collapsed(colors[ImGuiCol_TitleBg]);
+    colors[ImGuiCol_MenuBarBg]				= Darken(GetColor(BackGroundColor), 0.2f);
+    colors[ImGuiCol_ScrollbarBg]			= Lighten(GetColor(BackGroundColor), 0.1f);
+    colors[ImGuiCol_ScrollbarGrab]			= Lighten(GetColor(BackGroundColor), 0.3f);
+    colors[ImGuiCol_ScrollbarGrabHovered]	= Hovered(colors[ImGuiCol_ScrollbarGrab]);
+    colors[ImGuiCol_ScrollbarGrabActive]	= Active(colors[ImGuiCol_ScrollbarGrab]);
+    colors[ImGuiCol_CheckMark]				= GetColor(HighlightColor);
+    colors[ImGuiCol_SliderGrab]				= GetColor(HighlightColor);
+    colors[ImGuiCol_SliderGrabActive]		= Active(colors[ImGuiCol_SliderGrab]);
+    colors[ImGuiCol_Button]					= GetColor(MainColor);
+    colors[ImGuiCol_ButtonHovered]			= Hovered(colors[ImGuiCol_Button]);
+    colors[ImGuiCol_ButtonActive]			= Active(colors[ImGuiCol_Button]);
+    colors[ImGuiCol_Header]					= GetColor(MainAccentColor);
+    colors[ImGuiCol_HeaderHovered]			= Hovered(colors[ImGuiCol_Header]);
+    colors[ImGuiCol_HeaderActive]			= Active(colors[ImGuiCol_Header]);
+    colors[ImGuiCol_Separator]				= colors[ImGuiCol_Border];
+    colors[ImGuiCol_SeparatorHovered]		= Hovered(colors[ImGuiCol_Separator]);
+    colors[ImGuiCol_SeparatorActive]		= Active(colors[ImGuiCol_Separator]);
+    colors[ImGuiCol_ResizeGrip]				= GetColor(MainColor);
+    colors[ImGuiCol_ResizeGripHovered]		= Hovered(colors[ImGuiCol_ResizeGrip]);
+    colors[ImGuiCol_ResizeGripActive]		= Active(colors[ImGuiCol_ResizeGrip]);
+    colors[ImGuiCol_Tab]					= GetColor(MainColor);
+    colors[ImGuiCol_TabHovered]				= Hovered(colors[ImGuiCol_Tab]);
+    colors[ImGuiCol_TabActive]				= Active(colors[ImGuiCol_Tab]);
+    colors[ImGuiCol_TabUnfocused]			= colors[ImGuiCol_Tab];
+    colors[ImGuiCol_TabUnfocusedActive]		= colors[ImGuiCol_TabActive];
+    colors[ImGuiCol_PlotLines]				= GetColor(HighlightColor);
+    colors[ImGuiCol_PlotLinesHovered]		= Hovered(colors[ImGuiCol_PlotLines]);
+    colors[ImGuiCol_PlotHistogram]			= GetColor(HighlightColor);
+    colors[ImGuiCol_PlotHistogramHovered]	= Hovered(colors[ImGuiCol_PlotHistogram]);
+    colors[ImGuiCol_TextSelectedBg]			= GetColor(HighlightColor);
+    colors[ImGuiCol_DragDropTarget]			= GetColor(HighlightColor);
+    colors[ImGuiCol_NavHighlight]			= GetColor(White);
+    colors[ImGuiCol_NavWindowingHighlight]	= GetColor(White);
+    colors[ImGuiCol_NavWindowingDimBg]		= GetColor(White);
+    colors[ImGuiCol_ModalWindowDimBg]		= ImVec4(0, 0, 0, .3);
 }
 
 #endif //GAME_IMGUISTYLE_H

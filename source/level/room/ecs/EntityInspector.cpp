@@ -619,13 +619,18 @@ void EntityInspector::createEntityGUI()
             ImGui::SetColumnWidth(0, 120);
             ImGui::SetColumnWidth(1, 120);
 
-            bool create = ImGui::MenuItem(dirSplitted.back().c_str(), NULL) || HOVERED_AND_PRESSED_ENTER;
+            bool create = false;
+
+            if (ImGui::MenuItem(dirSplitted.back().c_str(), NULL) || HOVERED_AND_PRESSED_ENTER)
+            {
+                create = true;
+                createPersistent = false;
+            }
 
             if (description && ImGui::IsItemHovered())
                 ImGui::SetTooltip("%s", description);
 
             ImGui::NextColumn();
-            createPersistent = false;
             if (ImGui::Button(("Persistent###pers_" + name).c_str()) || HOVERED_AND_PRESSED_ENTER)
             {
                 create = true;

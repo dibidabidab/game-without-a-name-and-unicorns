@@ -110,6 +110,12 @@ void showDeveloperOptionsMenuBar()
 
         ImGui::SliderFloat("Master volume", &Game::settings.audio.masterVolume, 0.0f, 3.0f);
 
+
+        ImGui::Separator();
+        ImGui::TextDisabled("Latest git commit:");
+        ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive), GIT_COMMIT_HASH);
+        ImGui::TextWrapped(GIT_COMMIT_MESSAGE);
+
         ImGui::EndMenu();
     }
 

@@ -29,7 +29,13 @@ namespace Game
         FIELD_DEF_VAL(bool, bloom, true),
         FIELD_DEF_VAL(bool, vignette, true),
 
-        FIELD_DEF_VAL(bool, roomTransitionAnimation, true)
+        FIELD_DEF_VAL(bool, roomTransitionAnimation, true),
+
+        FIELD_DEF_VAL(u8vec3, imGuiThemeColor_background, vec3(37, 33, 49)),
+        FIELD_DEF_VAL(u8vec3, imGuiThemeColor_text, vec3(244, 241, 222)),
+        FIELD_DEF_VAL(u8vec3, imGuiThemeColor_main, vec3(218, 17, 94)),
+        FIELD_DEF_VAL(u8vec3, imGuiThemeColor_mainAccent, vec3(121, 35, 89)),
+        FIELD_DEF_VAL(u8vec3, imGuiThemeColor_highLight, vec3(199, 239, 0))
     )
     END_SERIALIZABLE_FULL_JSON(GraphicsSettings)
 

@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.0)
 
 project(game)
 
+execute_process(COMMAND git log -1 --pretty=%h OUTPUT_VARIABLE GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND git log -1 --pretty=%s OUTPUT_VARIABLE GIT_COMMIT_MESSAGE OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+add_compile_definitions(GIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
+add_compile_definitions(GIT_COMMIT_MESSAGE="${GIT_COMMIT_MESSAGE}")
+
 add_compile_definitions(PUT_A_SOCK_IN_IT)
 set(EXECUTABLE_OUTPUT_PATH "out")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
