@@ -55,8 +55,9 @@ void Room::initialize(Level *lvl)
 
     entities.on_destroy<Persistent>().connect<&Room::tryToSaveRevivableEntity>(this);
 
-    for (auto &el : AssetManager::getLoadedAssetsForType<LuaEntityScript>())
-        registerLuaEntityTemplate(el.second->shortPath.c_str());
+    for (auto &el : AssetManager::getLoadedAssetsForType<luau::Script>())
+        if (stringEndsWith(el.first, ".entity.lua"))
+            registerLuaEntityTemplate(el.second->shortPath.c_str());
 
     systems.push_front(new LuaScriptsSystem("lua functions"));
     systems.push_front(new AudioSystem("audio"));

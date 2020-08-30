@@ -1,16 +1,14 @@
 
 #include "LuaEntityTemplate.h"
 #include "../components/LuaScript.h"
-#include "../../../../Game.h"
 #include "../components/physics/Physics.h"
 
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Room *r)
     : script(assetName),
-      env(getLuaState(), sol::create, getLuaState().globals())
+      env(luau::getLuaState(), sol::create, luau::getLuaState().globals())
 {
     room = r;
-
     env["TEMPLATE_NAME"] = name;
 
     int
@@ -145,32 +143,6 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
         else
             entityTemplate->createComponents(entt::entity(extendE), makePersistent);
     };
-
-    // math utils lol:
-    env["rotate2d"] = [&](float x, float y, float degrees) -> sol::table {
-        auto table = sol::table::create(env.lua_state());
-
-        auto result = rotate(vec2(x, y), degrees * mu::DEGREES_TO_RAD);
-        table[1] = result.x;
-        table[2] = result.y;
-        return table;
-    };
-
-    // colors:
-    auto colorTable = sol::table::create(env.lua_state());
-    Palette &palette = Game::palettes->effects.at(0).lightLevels[0].get();
-    int i = 0;
-    for (auto &[name, color] : palette.colors)
-        colorTable[name] = i++;
-    env["colors"] = colorTable;
-
-    env["printTableAsJson"] = [&] (const sol::table &table, sol::optional<int> indent) // todo: this doest work properly
-    {
-        json j;
-        lua_converter<json>::fromLua(table, j);
-        std::cout << j.dump(indent.has_value() ? indent.value() : -1) << std::endl;
-    };
-
     runScript();
 }
 
@@ -178,7 +150,7 @@ void LuaEntityTemplate::runScript()
 {
     try
     {
-        getLuaState().script(script->bytecode.as_string_view(), env);
+        luau::getLuaState().script(script->getByteCode().as_string_view(), env);
         createFunc = env["create"];
         onDestroyFunc = env["onDestroy"];
     }
@@ -240,18 +212,6 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
     }
 }
 
-sol::state &LuaEntityTemplate::getLuaState()
-{
-    static sol::state *lua = NULL;
-
-    if (lua == NULL)
-    {
-        lua = new sol::state;
-        lua->open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table);
-    }
-    return *lua;
-}
-
 const std::string &LuaEntityTemplate::getDescription()
 {
     if (script.hasReloaded())
@@ -287,13 +247,4 @@ const ComponentUtils &LuaEntityTemplate::componentUtils(const std::string &compo
     if (!utils)
         throw gu_err("Component-type named '" + componentName + "' does not exist!");
     return *utils;
-}
-
-
-LuaEntityScript::LuaEntityScript(std::string s) : source(std::move(s))
-{
-    sol::load_result lr = LuaEntityTemplate::getLuaState().load(source);
-    if (!lr.valid())
-        throw gu_err("Lua code invalid!");
-    bytecode = sol::protected_function(lr).dump();
 }

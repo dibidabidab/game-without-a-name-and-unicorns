@@ -18,7 +18,7 @@
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
 #include "level/room/ecs/entity_templates/LuaEntityTemplate.h"
-#include "Game.h"
+#include "game/Game.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {
@@ -91,9 +91,9 @@ void addAssetLoaders()
         au::OggLoader::load(path.c_str(), *sound);
         return sound;
     });
-    AssetManager::addAssetLoader<LuaEntityScript>(".entity.lua", [](auto path) {
+    AssetManager::addAssetLoader<luau::Script>(".entity.lua|.lua", [](auto path) {
 
-        return new LuaEntityScript(File::readString(path.c_str()));
+        return new luau::Script(path);
     });
 }
 
@@ -213,6 +213,9 @@ int main(int argc, char *argv[])
 
     addAssetLoaders();
     AssetManager::load("assets");
+
+    File::createDir("./saves");
+    Game::loadOrCreateSaveGame("./saves/fist_save.dibdab"); // todo use command line arguments
 
     Screen *lvlScreen = NULL;
 
@@ -338,10 +341,10 @@ int main(int argc, char *argv[])
     delete lvlScreen;
     delete mpSession->getLevel(); // trigger tilemap save, todo: remove this
     delete mpSession;
+    Game::saveSaveGame();
+    Game::saveSettings();
 
     au::terminate();
-
-    Game::saveSettings();
 
     #ifdef EMSCRIPTEN
     return 0;

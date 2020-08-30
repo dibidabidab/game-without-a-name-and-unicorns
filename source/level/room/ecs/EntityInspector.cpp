@@ -6,7 +6,7 @@
 #include <utils/code_editor/CodeEditor.h>
 #include "EntityInspector.h"
 #include "components/physics/Physics.h"
-#include "../../../Game.h"
+#include "../../../game/Game.h"
 #include "entity_templates/LuaEntityTemplate.h"
 
 
@@ -751,7 +751,7 @@ void EntityInspector::editLuaScript(LuaEntityTemplate *luaTemplate)
 
     auto &tab = CodeEditor::tabs.emplace_back();
     tab.title = script.getLoadedAsset().fullPath;
-    tab.code = script->source;
+    tab.code = File::readString(script.getLoadedAsset().fullPath.c_str());
     tab.languageDefinition = TextEditor::LanguageDefinition::C(); // the lua definition is pretty broken
     tab.save = [script] (auto &tab) {
 
@@ -760,6 +760,6 @@ void EntityInspector::editLuaScript(LuaEntityTemplate *luaTemplate)
         AssetManager::loadFile(script.getLoadedAsset().fullPath, "assets/");
     };
     tab.revert = [script] (auto &tab) {
-        tab.code = script->source;
+        tab.code = File::readString(script.getLoadedAsset().fullPath.c_str());
     };
 }

@@ -13,7 +13,7 @@
 #include "../components/graphics/AsepriteView.h"
 #include "../components/Spawning.h"
 #include "../components/SoundSpeaker.h"
-#include "../../../../Game.h"
+#include "../../../../game/Game.h"
 
 /**
  * Responsible for:

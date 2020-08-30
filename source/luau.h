@@ -11,4 +11,21 @@ extern "C" {
 
 #include "../external/lua/sol2/single/include/sol/sol.hpp"
 
+namespace luau
+{
+    sol::state &getLuaState();
+
+    struct Script
+    {
+        Script(const std::string &path);
+
+        const sol::bytecode &getByteCode();
+
+      private:
+        std::string path;
+        sol::bytecode bytecode;
+    };
+
+}
+
 #endif //GAME_LUAU_H

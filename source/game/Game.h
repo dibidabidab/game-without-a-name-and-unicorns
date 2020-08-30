@@ -4,9 +4,10 @@
 
 #include <utils/cofu.h>
 
-#include "macro_magic/serializable.h"
-#include "rendering/sprites/MegaSpriteSheet.h"
-#include "rendering/Palette.h"
+#include "../macro_magic/serializable.h"
+#include "../rendering/sprites/MegaSpriteSheet.h"
+#include "../rendering/Palette.h"
+#include "SaveGame.h"
 
 #ifdef EMSCRIPTEN
 #define V_SYNC_ENABLED_BY_DEFAULT false
@@ -86,6 +87,14 @@ namespace Game
 
     extern MegaSpriteSheet spriteSheet;
     extern cofu<Palettes3D> palettes;
+
+    SaveGame &getSaveGame();
+    SaveGame *tryGetSaveGame();
+
+    void loadOrCreateSaveGame(const char *path);
+    void saveSaveGame(const char *path=NULL); // when no path is provided, the path given in loadOrCreateSaveGame() is used.
+
+    void unloadSaveGame();
 
 };
 

@@ -10,17 +10,6 @@
 #include "../../../../macro_magic/component.h"
 #include "../components/Saving.h"
 
-struct LuaEntityScript
-{
-    std::string source;
-
-    LuaEntityScript(std::string source);
-
-  private:
-    sol::bytecode bytecode;
-    friend class LuaEntityTemplate;
-};
-
 class LuaEntityTemplate : public EntityTemplate
 {
     sol::environment env;
@@ -33,11 +22,9 @@ class LuaEntityTemplate : public EntityTemplate
     bool persistentArgs = false;
 
   public:
-    asset<LuaEntityScript> script;
+    asset<luau::Script> script;
 
     LuaEntityTemplate(const char *assetName, const char *name, Room *room);
-
-    static sol::state &getLuaState();
 
     const std::string &getDescription();
 

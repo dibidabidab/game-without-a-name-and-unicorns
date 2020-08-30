@@ -14,7 +14,7 @@ COMPONENT(
     float updateAccumulator = 0.;
 
     sol::function updateFunc, onDestroyFunc;
-    asset<LuaEntityScript> updateFuncScript, onDestroyFuncScript;
+    asset<luau::Script> updateFuncScript, onDestroyFuncScript;
 
 END_COMPONENT(LuaScripted)
 

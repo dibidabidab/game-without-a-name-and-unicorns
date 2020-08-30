@@ -4,6 +4,7 @@
 *.cbp
 imgui.ini
 settings.json
+saves/*
 
 desktop/out/*
 html/out/*

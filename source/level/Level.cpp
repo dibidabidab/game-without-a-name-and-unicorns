@@ -173,10 +173,7 @@ void Level::createRoom(int width, int height, const Room *duplicate)
 void Level::save(const char *path) const
 {
     std::vector<unsigned char> data;
-    json j;
-    to_json(j, *this);
-    json::to_cbor(j, data);
-
+    json::to_cbor(*this, data);
 
     std::vector<uint8> compressedData(12 + data.size() * 1.1);
     unsigned long compressedDataSize = compressedData.size();

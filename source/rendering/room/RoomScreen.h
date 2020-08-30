@@ -34,7 +34,7 @@
 #include "../../level/room/ecs/components/Polyline.h"
 #include "../../level/room/ecs/components/physics/PolyPlatform.h"
 #include "../../level/room/ecs/entity_templates/LuaEntityTemplate.h"
-#include "../../Game.h"
+#include "../../game/Game.h"
 #include "../../level/room/ecs/components/graphics/PaletteSetter.h"
 #include "blood_splatter/BloodSplatterRenderer.h"
 #include "FluidRenderer.h"
