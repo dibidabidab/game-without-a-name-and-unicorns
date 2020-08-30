@@ -215,59 +215,16 @@ int main(int argc, char *argv[])
     AssetManager::load("assets");
 
     File::createDir("./saves");
-    Game::loadOrCreateSaveGame("./saves/fist_save.dibdab"); // todo use command line arguments
+    std::string loadSaveGamePath = "saves/first_save.dibdab";
+    if (argc == 3 && strcmp(argv[1], "--load-save-game") == 0)
+        loadSaveGamePath = argv[2];
+    Game::loadOrCreateSaveGame(loadSaveGamePath.c_str());
 
     Screen *lvlScreen = NULL;
 
-    bool server = false;
-    int serverPort = 0;
-    if (argc == 3 && strcmp(argv[1], "--server") == 0)
-    {
-        server = true;
-        serverPort = atoi(argv[2]);
-    }
     std::function<void()> afterInit;
     MultiplayerSession *mpSession;
-
-    #ifndef EMSCRIPTEN
-    if (server)
-    {
-        auto ss = new MultiplayerServerSession(new WebSocketServer(serverPort));
-        mpSession = ss;
-
-        afterInit = [=] {
-            ss->setLevel(Level::testLevel());
-            ss->join("mikey maws");
-        };
-    }
-    #endif
-
-    if (!server && argc == 3 && strcmp(argv[1], "--join") == 0)
-    {
-        SharedSocket ws = SharedSocket(new WebSocket(std::string(argv[2])));
-        mpSession = new MultiplayerClientSession(ws);
-
-        ws->onOpen = [&]() {
-            #ifdef EMSCRIPTEN
-            mpSession->join(prompt("Enter your name"));
-            #else
-            mpSession->join("Dolan duk");
-            #endif
-        };
-        ws->onConnectionFailed = []() {
-            std::cout << "connection failed :C" << std::endl;
-
-        #ifdef EMSCRIPTEN
-            EM_ASM(
-                alert("Websocket connection failed");
-            );
-        #endif
-        };
-        afterInit = [=] () mutable {
-            ws->open();
-        };
-    }
-    else
+    // todo: I removed the code for creating multiplayer sessions. Code was removed after commit 483e6f39d93855644f087ecceebecc5cf5922a12
     {
         // offline session:
         mpSession = new OfflineMultiplayerSession(Level::testLevel());
@@ -275,7 +232,6 @@ int main(int argc, char *argv[])
             mpSession->join("poopoo");
         };
     }
-
     mpSession->onNewLevel = [&](Level *lvl)
     {
         std::cout << "New level!\n";
@@ -283,6 +239,13 @@ int main(int argc, char *argv[])
         lvlScreen = new LevelScreen(lvl, mpSession->getLocalPlayer() == NULL ? -1 : mpSession->getLocalPlayer()->id);
         gu::setScreen(lvlScreen);
     };
+    mpSession->onJoinRequestDeclined = [&](auto reason) {
+        #ifdef EMSCRIPTEN
+        alertJS(reason.c_str());
+        #endif
+        mpSession->join(prompt("Try again. Enter your name"));
+    };
+    afterInit();
 
     gu::beforeRender = [&](double deltaTime) {
         mpSession->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .03 : deltaTime);
@@ -319,14 +282,6 @@ int main(int argc, char *argv[])
             showDeveloperOptionsMenuBar();
         gu::profiler::showGUI = Game::settings.showDeveloperOptions;
     };
-
-    mpSession->onJoinRequestDeclined = [&](auto reason) {
-        #ifdef EMSCRIPTEN
-        alertJS(reason.c_str());
-        #endif
-        mpSession->join(prompt("Try again. Enter your name"));
-    };
-    afterInit();
 
     { // todo: move this to a better place:
         if (Game::settings.graphics.vignette)

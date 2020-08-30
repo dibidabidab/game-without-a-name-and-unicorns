@@ -75,6 +75,7 @@ namespace Game
         FIELD(GraphicsSettings, graphics),
         FIELD(AudioSettings, audio),
         FIELD(KeyInputSettings, keyInput),
+        FIELD_DEF_VAL(json, customSettings, json::object()), // (will be) used by lua scripts
 
         FIELD_DEF_VAL(bool, showDeveloperOptions, true)
     )

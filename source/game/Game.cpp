@@ -48,6 +48,9 @@ static std::string saveGamePath;
 
 void Game::loadOrCreateSaveGame(const char *path)
 {
+    if (saveGame)
+        throw gu_err("Please call unloadSaveGame() first. (and probably saveSaveGame() before that)");
+
     saveGamePath = path;
     saveGame = new SaveGame();
 

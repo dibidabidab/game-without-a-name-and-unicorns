@@ -85,7 +85,6 @@ jobs:
     - name: Build html
       run: |
         python initialize_project.py
-        ls gu/
         cd html
         emconfigure cmake .
         emconfigure cmake .

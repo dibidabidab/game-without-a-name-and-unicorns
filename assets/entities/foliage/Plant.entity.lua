@@ -1,8 +1,9 @@
 
+function create(stem)
 
-function create(plant)
+    flower = createChild(stem)
 
-    setComponents(plant, {
+    setComponents(flower, {
         AABB = {
             halfSize = {3, 3}
         },
@@ -12,8 +13,7 @@ function create(plant)
         }
     })
 
-    plantStem = createChild(plant, "plantStem")
-    applyTemplate(plantStem, "Rope", {
+    applyTemplate(stem, "Rope", {
         draw = true,
         color = colors.grass_dark,
         moveByWind = 10
@@ -21,12 +21,12 @@ function create(plant)
 
     length = math.random(5, 25)
 
-    setComponent(plantStem, "VerletRope", {
-        endPointEntity = plant,
+    setComponent(stem, "VerletRope", {
+        endPointEntity = flower,
         length = length,
         gravity = {math.random(-3, 3), math.random(10, 30)},
         friction = math.random(77, 99) / 100,
-        nrOfPoints = 5
+        nrOfPoints = 4
     })
 
     leavesI = length
@@ -35,10 +35,10 @@ function create(plant)
 
         leavesI = leavesI - math.random(7, 10)
 
-        setComponents(createChild(plant), {
+        setComponents(createChild(stem), {
             AABB = {},
             AttachToRope = {
-                ropeEntity = plantStem,
+                ropeEntity = stem,
                 x = .8 - (leavesI / length)
             },
             AsepriteView = {

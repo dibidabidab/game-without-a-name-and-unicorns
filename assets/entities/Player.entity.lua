@@ -130,6 +130,6 @@ function create(player)
     end)
 
     setOnDestroyCallback(player, function()
-        print("Player", player, "was alive for", t, "seconds. RIP")
+        print("Player entity #", player, "was alive for", t, "seconds. RIP")
     end)
 end
