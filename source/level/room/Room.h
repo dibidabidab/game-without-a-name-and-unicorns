@@ -8,6 +8,7 @@
 #include "../../../external/entt/src/entt/entity/registry.hpp"
 #include "TileMap.h"
 #include "../Level.h"
+#include "ecs/components/Saving.h"
 #include <json.hpp>
 #include <map>
 #include <utils/base64.h>
@@ -38,10 +39,11 @@ class Room
     int roomI = -1;
 
     friend void from_json(const json& j, Room& r);
+    friend void to_json(json& j, const Room& r);
     friend void from_json(const json& j, Level& lvl);
     friend Level;
 
-    json persistentEntitiesToLoad;
+    json persistentEntitiesToLoad, revivableEntitiesToSave;
 
     void initialize(Level *lvl);
 
@@ -121,6 +123,9 @@ class Room
 
     void addEntityTemplate(const std::string &name, EntityTemplate *);
 
+    void persistentEntityToJson(entt::entity, const Persistent &, json &j) const;
+
+    void tryToSaveRevivableEntity(entt::registry &, entt::entity);
 };
 
 void to_json(json& j, const Room& r);

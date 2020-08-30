@@ -1,5 +1,5 @@
 
-persistenceMode(TEMPLATE | ARGS | SPAWN_POS)
+persistenceMode(TEMPLATE | ARGS | SPAWN_POS | REVIVE)
 
 function create(enemy)
     setComponents(enemy, {

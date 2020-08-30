@@ -53,6 +53,8 @@ void Room::initialize(Level *lvl)
 
     level = lvl;
 
+    entities.on_destroy<Persistent>().connect<&Room::tryToSaveRevivableEntity>(this);
+
     for (auto &el : AssetManager::getLoadedAssetsForType<LuaEntityScript>())
         registerLuaEntityTemplate(el.second->shortPath.c_str());
 
@@ -144,31 +146,11 @@ void to_json(json &j, const Room &r)
             {"height", r.getMap().height},
             {"tileMapBase64", tileMapBase64}
     };
-    j["entities"] = json::array();
+    j["entities"] = r.revivableEntitiesToSave;
     r.entities.view<const Persistent>().each([&](auto e, const Persistent &persistent) {
 
         j["entities"].push_back(json::object());
-        json &entityJson = j["entities"].back();
-
-        entityJson["template"] = persistent.applyTemplateOnLoad;
-        entityJson["data"] = persistent.data;
-        if (persistent.saveFinalPosition)
-        {
-            const AABB *aabb = r.entities.try_get<AABB>(e);
-            if (aabb)
-                entityJson["position"] = aabb->center;
-        }
-        else if (persistent.saveSpawnPosition)
-            entityJson["position"] = persistent.spawnPosition;
-
-        json &componentsJson = entityJson["components"] = json::object();
-
-        for (auto &componentTypeName : persistent.saveAllComponents ? ComponentUtils::getAllComponentTypeNames() : persistent.saveComponents)
-        {
-            auto utils = ComponentUtils::getFor(componentTypeName);
-            if (utils->entityHasComponent(e, r.entities))
-                utils->getJsonComponentWithKeys(componentsJson[componentTypeName], e, r.entities);
-        }
+        r.persistentEntityToJson(e, persistent, j["entities"].back());
     });
 }
 
@@ -310,4 +292,37 @@ void Room::resize(int moveLeftBorder, int moveRightBorder, int moveTopBorder, in
 int Room::nrOfPersistentEntities() const
 {
     return persistentEntitiesToLoad.is_array() ? persistentEntitiesToLoad.size() : 0;
+}
+
+void Room::persistentEntityToJson(entt::entity e, const Persistent &persistent, json &j) const
+{
+    j["template"] = persistent.applyTemplateOnLoad;
+    j["data"] = persistent.data;
+    if (persistent.saveFinalPosition)
+    {
+        const AABB *aabb = entities.try_get<AABB>(e);
+        if (aabb)
+            j["position"] = aabb->center;
+    }
+    else if (persistent.saveSpawnPosition)
+        j["position"] = persistent.spawnPosition;
+
+    json &componentsJson = j["components"] = json::object();
+
+    for (auto &componentTypeName : persistent.saveAllComponents ? ComponentUtils::getAllComponentTypeNames() : persistent.saveComponents)
+    {
+        auto utils = ComponentUtils::getFor(componentTypeName);
+        if (utils->entityHasComponent(e, entities))
+            utils->getJsonComponentWithKeys(componentsJson[componentTypeName], e, entities);
+    }
+}
+
+void Room::tryToSaveRevivableEntity(entt::registry &, entt::entity entity)
+{
+    Persistent &p = entities.get<Persistent>(entity);
+    if (!p.revive)
+        return;
+
+    revivableEntitiesToSave.push_back(json::object());
+    persistentEntityToJson(entity, p, revivableEntitiesToSave.back());
 }
