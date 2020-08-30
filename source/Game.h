@@ -64,6 +64,7 @@ namespace Game
 
         FIELD_DEF_VAL(Key, inspectEntity, GLFW_KEY_I),
         FIELD_DEF_VAL(Key, moveEntity, GLFW_KEY_M),
+        FIELD_DEF_VAL(Key, moveEntityAndSpawnPoint, GLFW_KEY_LEFT_ALT),
         FIELD_DEF_VAL(Key, createEntity, GLFW_KEY_INSERT)
     )
     END_SERIALIZABLE_FULL_JSON(KeyInputSettings)

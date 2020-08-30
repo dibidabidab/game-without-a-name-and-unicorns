@@ -1,4 +1,6 @@
 
+persistenceMode(TEMPLATE | ARGS | SPAWN_POS)
+
 function create(enemy)
     setComponents(enemy, {
         AABB = {

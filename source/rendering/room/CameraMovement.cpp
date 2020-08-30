@@ -72,16 +72,17 @@ void CameraMovement::update(double deltaTime)
     cam->position = vec3(vec2(bottomLeft) + halfSize + offsetAnim, cam->position.z);
 
     {
-        float moveOffset = deltaTime * 120;
-
-        if (offsetAnim.x > 0)
-            offsetAnim.x = max<float>(0, offsetAnim.x - moveOffset);
-        if (offsetAnim.x < 0)
-            offsetAnim.x = min<float>(0, offsetAnim.x + moveOffset);
-        if (offsetAnim.y > 0)
-            offsetAnim.y = max<float>(0, offsetAnim.y - moveOffset);
-        if (offsetAnim.y < 0)
-            offsetAnim.y = min<float>(0, offsetAnim.y + moveOffset);
+        offsetAnim *= 1. - deltaTime * 6.;
+//        float moveOffset = deltaTime * 120;
+//
+//        if (offsetAnim.x > 0)
+//            offsetAnim.x = max<float>(0, offsetAnim.x - moveOffset);
+//        if (offsetAnim.x < 0)
+//            offsetAnim.x = min<float>(0, offsetAnim.x + moveOffset);
+//        if (offsetAnim.y > 0)
+//            offsetAnim.y = max<float>(0, offsetAnim.y - moveOffset);
+//        if (offsetAnim.y < 0)
+//            offsetAnim.y = min<float>(0, offsetAnim.y + moveOffset);
     }
 
     cam->update();

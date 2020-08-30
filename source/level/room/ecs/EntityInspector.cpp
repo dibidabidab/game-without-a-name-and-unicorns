@@ -113,6 +113,12 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     vec2 p = cam->getCursorRayDirection() + cam->position;
     bool breakk = false;
 
+    auto drawSpawnPoint = [&] (auto currPos, auto spawnPos) {
+        lineRenderer.axes(spawnPos, 10, mu::Y);
+        lineRenderer.circle(spawnPos, 10, 10, mu::Y);
+        lineRenderer.line(spawnPos, currPos, mu::Y);
+    };
+
     if (movingEntity == entt::null)
     {
         lineRenderer.arrows(p, 10, vec3(1, 0, 1));
@@ -125,6 +131,9 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
                 breakk = true;
 
                 box.draw(lineRenderer, mu::Y);
+                auto *persistent = reg.try_get<Persistent>(e);
+                if (persistent && persistent->saveSpawnPosition)
+                    drawSpawnPoint(p, persistent->spawnPosition);
 
                 ImGui::SetTooltip("hold LMB to move #%d", int(e));
 
@@ -140,7 +149,7 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
     {
         MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10, 5);
         lineRenderer.arrows(p, 5, vec3(0, 1, 0));
-        AABB *aabb = reg.try_get<AABB>(movingEntity);
+        auto *aabb = reg.try_get<AABB>(movingEntity);
 
         if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_LEFT, 10) || aabb == NULL)
         {
@@ -148,6 +157,20 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
             moveEntity = false;
             return;
         }
+        auto *persistent = reg.try_get<Persistent>(movingEntity);
+        if (persistent && persistent->saveSpawnPosition)
+        {
+            drawSpawnPoint(p, persistent->spawnPosition);
+            if (KeyInput::pressed(Game::settings.keyInput.moveEntityAndSpawnPoint))
+                persistent->spawnPosition = p;
+            else
+                ImGui::SetTooltip("Move SpawnPoint by holding %s", KeyInput::getKeyName(Game::settings.keyInput.moveEntityAndSpawnPoint));
+        }
+
+        auto *physics = reg.try_get<Physics>(movingEntity);
+        if (physics && physics->gravity != 0)
+            physics->velocity.y = 0;
+
         aabb->center = p;
     }
 }

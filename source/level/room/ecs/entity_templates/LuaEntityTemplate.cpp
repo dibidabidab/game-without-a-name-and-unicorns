@@ -2,7 +2,7 @@
 #include "LuaEntityTemplate.h"
 #include "../components/LuaScript.h"
 #include "../../../../Game.h"
-
+#include "../components/physics/Physics.h"
 
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Room *r)
@@ -16,9 +16,10 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
     int
         TEMPLATE = env["TEMPLATE"] = 1 << 0,
         ARGS = env["ARGS"] = 1 << 1,
-        POS = env["POS"] = 1 << 2,
-        ALL_COMPONENTS = env["ALL_COMPONENTS"] = 1 << 3,
-        REVIVE = env["REVIVE"] = 1 << 4;
+        FINAL_POS = env["FINAL_POS"] = 1 << 2,
+        SPAWN_POS = env["SPAWN_POS"] = 1 << 3,
+        ALL_COMPONENTS = env["ALL_COMPONENTS"] = 1 << 4,
+        REVIVE = env["REVIVE"] = 1 << 5;
 
     auto setPersistentMode = [&, name](int mode, sol::optional<std::vector<std::string>> componentsToSave) {
 
@@ -27,8 +28,8 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
             persistency.applyTemplateOnLoad = name;
 
         persistentArgs = mode & ARGS;
-
-        persistency.savePosition = mode & POS;
+        persistency.saveFinalPosition = mode & FINAL_POS;
+        persistency.saveSpawnPosition = mode & SPAWN_POS;
         persistency.saveAllComponents = mode & ALL_COMPONENTS;
         persistency.revive = mode & REVIVE;
         if (componentsToSave.has_value())
@@ -39,7 +40,7 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, Ro
         }
     };
     env["persistenceMode"] = setPersistentMode;
-    setPersistentMode(TEMPLATE | ARGS | POS, sol::optional<std::vector<std::string>>());
+    setPersistentMode(TEMPLATE | ARGS | FINAL_POS, sol::optional<std::vector<std::string>>());
 
     env["defaultArgs"] = [&](const sol::table &table) {
         defaultArgs = table;
@@ -223,6 +224,14 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
         sol::protected_function_result result = createFunc(e, arguments);
         if (!result.valid())
             throw gu_err(result.get<sol::error>().what());
+
+        if (persistent)
+        {
+            auto *p = room->entities.try_get<Persistent>(e);
+            auto *aabb = p && p->saveSpawnPosition ? room->entities.try_get<AABB>(e) : NULL;
+            if (aabb)
+                p->spawnPosition = aabb->center;
+        }
     }
     catch (std::exception &e)
     {

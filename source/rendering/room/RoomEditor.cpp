@@ -10,7 +10,7 @@ void RoomEditor::update(OrthographicCamera &cam, TileMap *room, DebugLineRendere
     ImGui::SetNextWindowPos(ImVec2(200, 200), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin("Room editor", &show))
+    if (!ImGui::Begin("Room editor", &show, ImGuiWindowFlags_NoNav))
     {
         ImGui::End();
         return;

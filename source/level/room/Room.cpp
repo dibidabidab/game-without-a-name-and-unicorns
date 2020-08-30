@@ -152,12 +152,14 @@ void to_json(json &j, const Room &r)
 
         entityJson["template"] = persistent.applyTemplateOnLoad;
         entityJson["data"] = persistent.data;
-        if (persistent.savePosition)
+        if (persistent.saveFinalPosition)
         {
             const AABB *aabb = r.entities.try_get<AABB>(e);
             if (aabb)
                 entityJson["position"] = aabb->center;
         }
+        else if (persistent.saveSpawnPosition)
+            entityJson["position"] = persistent.spawnPosition;
 
         json &componentsJson = entityJson["components"] = json::object();
 

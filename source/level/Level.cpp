@@ -147,12 +147,6 @@ void Level::createRoom(int width, int height, const Room *duplicate)
 {
     auto r = rooms.emplace_back(new Room(ivec2(width, height)));
 
-    if (initialized)
-    {
-        r->roomI = rooms.size() - 1;
-        r->initialize(this);
-    }
-
     if (duplicate)
     {
         assert(width == duplicate->getMap().width);
@@ -163,6 +157,16 @@ void Level::createRoom(int width, int height, const Room *duplicate)
         from_json(j, *r);
         r->positionInLevel.x += width;
         r->positionInLevel.y += height;
+        int copyN = 1;
+        do
+            r->name = duplicate->name + "_copy" + std::to_string(copyN++);
+        while (getRoomByName(r->name.c_str()) != r);
+    }
+
+    if (initialized)
+    {
+        r->roomI = rooms.size() - 1;
+        r->initialize(this);
     }
 }
 
