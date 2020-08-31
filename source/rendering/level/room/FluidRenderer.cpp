@@ -1,7 +1,7 @@
 
 #include "FluidRenderer.h"
-#include "../../ecs/components/physics/Physics.h"
-#include "../../ecs/components/Polyline.h"
+#include "../../../ecs/components/physics/Physics.h"
+#include "../../../ecs/components/Polyline.h"
 #include <graphics/3d/vert_buffer.h>
 
 FluidRenderer::FluidRenderer()

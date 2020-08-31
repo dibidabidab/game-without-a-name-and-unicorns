@@ -6,7 +6,7 @@
 #include <graphics/shader_asset.h>
 #include <graphics/camera.h>
 #include <graphics/frame_buffer.h>
-#include "../../../external/entt/src/entt/entity/registry.hpp"
+#include "../../../../external/entt/src/entt/entity/registry.hpp"
 
 class FluidRenderer
 {

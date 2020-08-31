@@ -1,0 +1,3 @@
+
+print(getSettings().graphics.fullscreen)
+

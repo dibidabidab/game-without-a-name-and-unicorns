@@ -14,7 +14,7 @@
 #include "multiplayer/session/MultiplayerClientSession.h"
 #include "multiplayer/session/MultiplayerServerSession.h"
 #include "multiplayer/session/OfflineMultiplayerSession.h"
-#include "ImGuiStyle.h"
+#include "rendering/ImGuiStyle.h"
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
 #include "ecs/entity_templates/LuaEntityTemplate.h"
@@ -91,7 +91,7 @@ void addAssetLoaders()
         au::OggLoader::load(path.c_str(), *sound);
         return sound;
     });
-    AssetManager::addAssetLoader<luau::Script>(".entity.lua|.lua", [](auto path) {
+    AssetManager::addAssetLoader<luau::Script>(".lua", [](auto path) {
 
         return new luau::Script(path);
     });

@@ -3,7 +3,7 @@
 #include <utils/aseprite/AsepriteLoader.h>
 #include <utils/aseprite/AsepriteTextureGenerator.h>
 #include <utils/string.h>
-#include "../../../level/room/TileMap.h"
+#include "../../../../level/room/TileMap.h"
 
 TileSet::TileSet(const char *filePath)
 {

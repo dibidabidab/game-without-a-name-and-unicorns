@@ -50,9 +50,7 @@ sol::state &luau::getLuaState()
         env["saveSaveGame"] = [] (sol::optional<std::string> path) { // no path means the path the saveGame was loaded from
             Game::saveSaveGame(path.has_value() ? path.value().c_str() : NULL);
         };
-        env["loadOrCreateSaveGame"] = [] (const char *path) {
-            Game::loadOrCreateSaveGame(path);
-        };
+        env["loadOrCreateSaveGame"] = Game::loadOrCreateSaveGame;
 
         env["getSettings"] = [] () -> sol::table {
             auto table = sol::table::create(getLuaState().lua_state());

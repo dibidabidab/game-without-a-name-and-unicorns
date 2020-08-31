@@ -6,9 +6,9 @@
 #include <graphics/3d/debug_line_renderer.h>
 #include <graphics/shader_asset.h>
 #include <graphics/camera.h>
-#include "../../../level/room/Room.h"
-#include "../../../ecs/components/graphics/Light.h"
-#include "../../../ecs/components/physics/Physics.h"
+#include "../../../../level/room/Room.h"
+#include "../../../../ecs/components/graphics/Light.h"
+#include "../../../../ecs/components/physics/Physics.h"
 
 class ShadowCaster
 {

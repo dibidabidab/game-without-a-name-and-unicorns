@@ -8,7 +8,7 @@
 #include <graphics/shader_asset.h>
 #include <graphics/3d/mesh.h>
 #include <graphics/3d/vert_buffer.h>
-#include "../../../level/room/Room.h"
+#include "../../../../level/room/Room.h"
 
 class LightMapRenderer
 {

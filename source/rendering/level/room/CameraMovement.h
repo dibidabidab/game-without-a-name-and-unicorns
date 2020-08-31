@@ -3,7 +3,7 @@
 #define GAME_CAMERAMOVEMENT_H
 
 #include <graphics/orthographic_camera.h>
-#include "../../level/room/Room.h"
+#include "../../../level/room/Room.h"
 
 class CameraMovement
 {

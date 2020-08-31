@@ -616,7 +616,7 @@ void EntityInspector::createEntityGUI()
         auto luaTempl = dynamic_cast<LuaEntityTemplate *>(templ);
         if (luaTempl)
         {
-            name = splitString(luaTempl->script.getLoadedAsset().shortPath, "entities/").back();
+            name = splitString(luaTempl->script.getLoadedAsset().shortPath, "scripts/entities/").back();
             if (!luaTempl->getDescription().empty())
                 description = luaTempl->getDescription().c_str();
         }

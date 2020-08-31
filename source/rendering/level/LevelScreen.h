@@ -4,7 +4,7 @@
 
 #include <gu/screen.h>
 #include "../../level/Level.h"
-#include "../room/RoomScreen.h"
+#include "room/RoomScreen.h"
 #include "LevelEditor.h"
 
 class LevelScreen : public Screen
