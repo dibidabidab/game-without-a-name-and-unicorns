@@ -2,10 +2,10 @@
 #ifndef GAME_PACKETS_H
 #define GAME_PACKETS_H
 
-#include "../macro_magic/serializable.h"
+#include "../../../macro_magic/serializable.h"
 
-#include "session/Player.h"
-#include "../level/Level.h"
+#include "../Player.h"
+#include "../../../level/Level.h"
 
 namespace Packet::from_player
 {

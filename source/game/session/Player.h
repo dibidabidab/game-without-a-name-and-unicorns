@@ -3,8 +3,8 @@
 #define GAME_PLAYER_H
 
 #include "../../macro_magic/serializable.h"
-#include "../io/SocketServer.h"
-#include "../io/MultiplayerIO.h"
+#include "../../game/session/multiplayer/io/SocketServer.h"
+#include "../../game/session/multiplayer/io/MultiplayerIO.h"
 
 SERIALIZABLE(
     Player,

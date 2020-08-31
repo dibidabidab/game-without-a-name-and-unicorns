@@ -41,7 +41,7 @@ target_link_libraries(game sol2_single)
 set(CMAKE_CXX_FLAGS  "-O3 -lwebsocket.js")
 
 set_target_properties(game PROPERTIES SUFFIX ".html")
-set_target_properties(game PROPERTIES LINK_FLAGS "-s DISABLE_EXCEPTION_CATCHING=0 -s WASM=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s BINARYEN_METHOD='native-wasm' --preload-file ../assets --shell-file index.html")
+set_target_properties(game PROPERTIES LINK_FLAGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s WASM=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s BINARYEN_METHOD='native-wasm' --preload-file ../assets --shell-file index.html")
 
 # creates the "out" directory:
 add_custom_command(

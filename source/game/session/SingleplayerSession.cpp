@@ -1,8 +1,8 @@
 
-#include "OfflineMultiplayerSession.h"
+#include "SingleplayerSession.h"
 #include "../../ecs/components/PlayerControlled.h"
 
-void OfflineMultiplayerSession::join(std::string username)
+void SingleplayerSession::join(std::string username)
 {
     std::string declineReason;
     validateUsername(username, declineReason);
@@ -20,7 +20,7 @@ void OfflineMultiplayerSession::join(std::string username)
     players.push_back(localPlayer);
 }
 
-void OfflineMultiplayerSession::update(double deltaTime)
+void SingleplayerSession::update(double deltaTime)
 {
     if (firstUpdate)
     {
@@ -42,7 +42,7 @@ void OfflineMultiplayerSession::update(double deltaTime)
     level->update(deltaTime);
 }
 
-OfflineMultiplayerSession::OfflineMultiplayerSession(Level *lvl) {
+SingleplayerSession::SingleplayerSession(Level *lvl) {
     assert(lvl != NULL);
     level = lvl;
 }

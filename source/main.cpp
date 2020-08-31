@@ -8,16 +8,10 @@
 #include <utils/aseprite/AsepriteLoader.h>
 
 #include "rendering/level/LevelScreen.h"
-#include "multiplayer/io/web/WebSocket.h"
-#include "multiplayer/io/web/WebSocketServer.h"
-#include "multiplayer/io/MultiplayerIO.h"
-#include "multiplayer/session/MultiplayerClientSession.h"
-#include "multiplayer/session/MultiplayerServerSession.h"
-#include "multiplayer/session/OfflineMultiplayerSession.h"
+#include "game/session/SingleplayerSession.h"
 #include "rendering/ImGuiStyle.h"
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
-#include "ecs/entity_templates/LuaEntityTemplate.h"
 #include "game/Game.h"
 
 #ifdef EMSCRIPTEN
@@ -163,7 +157,12 @@ void showDeveloperOptionsMenuBar()
         ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
+
     paletteEditor.drawGUI(Game::palettes.get(), RoomScreen::currentPaletteEffect);
+
+    CodeEditor::drawGUI(
+            ImGui::GetIO().Fonts->Fonts.back()  // default monospace font (added by setImGuiStyle())
+    );
 }
 
 int main(int argc, char *argv[])
@@ -223,32 +222,32 @@ int main(int argc, char *argv[])
     Screen *lvlScreen = NULL;
 
     std::function<void()> afterInit;
-    MultiplayerSession *mpSession;
+    Session *session;
     // todo: I removed the code for creating multiplayer sessions. Code was removed after commit 483e6f39d93855644f087ecceebecc5cf5922a12
     {
         // offline session:
-        mpSession = new OfflineMultiplayerSession(Level::testLevel());
+        session = new SingleplayerSession(Level::testLevel());
         afterInit = [=] {
-            mpSession->join("poopoo");
+            session->join("poopoo");
         };
     }
-    mpSession->onNewLevel = [&](Level *lvl)
+    session->onNewLevel = [&](Level *lvl)
     {
         std::cout << "New level!\n";
         delete lvlScreen;
-        lvlScreen = new LevelScreen(lvl, mpSession->getLocalPlayer() == NULL ? -1 : mpSession->getLocalPlayer()->id);
+        lvlScreen = new LevelScreen(lvl, session->getLocalPlayer() == NULL ? -1 : session->getLocalPlayer()->id);
         gu::setScreen(lvlScreen);
     };
-    mpSession->onJoinRequestDeclined = [&](auto reason) {
+    session->onJoinRequestDeclined = [&](auto reason) {
         #ifdef EMSCRIPTEN
         alertJS(reason.c_str());
         #endif
-        mpSession->join(prompt("Try again. Enter your name"));
+        session->join(prompt("Try again. Enter your name"));
     };
     afterInit();
 
     gu::beforeRender = [&](double deltaTime) {
-        mpSession->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .03 : deltaTime);
+        session->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .03 : deltaTime);
 
         if (KeyInput::justPressed(Game::settings.keyInput.reloadAssets))
             AssetManager::load("assets", true);
@@ -258,10 +257,6 @@ int main(int argc, char *argv[])
             AssetManager::loadFile(assetToReload, "assets/", true);
         assetToReload.clear();
         assetToReloadMutex.unlock();
-
-        CodeEditor::drawGUI(
-            ImGui::GetIO().Fonts->Fonts.back()  // default monospace font (added by setImGuiStyle())
-        );
 
         {
             if (!gu::fullscreen) // dont save fullscreen-resolution
@@ -294,8 +289,8 @@ int main(int argc, char *argv[])
 
     gu::run();
     delete lvlScreen;
-    delete mpSession->getLevel(); // trigger tilemap save, todo: remove this
-    delete mpSession;
+    delete session->getLevel(); // trigger tilemap save, todo: remove this
+    delete session;
     Game::saveSaveGame();
     Game::saveSettings();
 

@@ -5,8 +5,8 @@
 
 #include "../EntitySystem.h"
 #include "../../components/Networked.h"
-#include "../../../multiplayer/session/Player.h"
-#include "../../../multiplayer/packets.h"
+#include "../../../game/session/Player.h"
+#include "../../../game/session/multiplayer/packets.h"
 
 class MultiplayerSession;
 
