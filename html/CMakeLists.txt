@@ -33,6 +33,9 @@ target_include_directories(game PUBLIC ../external/asio/asio/include)
 add_subdirectory(../external/lua ./bin/lua)
 target_link_libraries(game lua)
 
+add_subdirectory(../external/lua/sol2/single ./bin/lua/sol2)
+target_link_libraries(game sol2_single)
+
 
 # for debugging: set(CMAKE_CXX_FLAGS  "-O3 -g4 -lwebsocket.js -s ASSERTIONS=2 -s DEMANGLE_SUPPORT=1")
 set(CMAKE_CXX_FLAGS  "-O3 -lwebsocket.js")
