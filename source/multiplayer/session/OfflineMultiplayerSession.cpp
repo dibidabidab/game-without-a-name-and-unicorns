@@ -1,6 +1,6 @@
 
 #include "OfflineMultiplayerSession.h"
-#include "../../level/room/ecs/components/PlayerControlled.h"
+#include "../../ecs/components/PlayerControlled.h"
 
 void OfflineMultiplayerSession::join(std::string username)
 {

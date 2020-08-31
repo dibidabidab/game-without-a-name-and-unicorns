@@ -2,32 +2,31 @@
 #include <gu/profiler.h>
 #include "Room.h"
 
-#include "ecs/systems/physics/PhysicsSystem.h"
-#include "ecs/systems/PlatformerMovementSystem.h"
-#include "ecs/systems/networking/NetworkingSystem.h"
-#include "ecs/systems/PlayerControlSystem.h"
-#include "ecs/systems/physics/VerletPhysicsSystem.h"
-#include "ecs/systems/body_parts/LegsSystem.h"
-#include "ecs/systems/graphics/SpriteSystem.h"
-#include "ecs/systems/body_parts/LimbJointSystem.h"
-#include "ecs/systems/body_parts/ArmsSystem.h"
-#include "ecs/systems/combat/BowWeaponSystem.h"
-#include "ecs/systems/ChildrenSystem.h"
-#include "ecs/systems/body_parts/HeadsSystem.h"
-#include "ecs/systems/combat/ArrowSystem.h"
-#include "ecs/systems/AudioSystem.h"
-#include "ecs/systems/physics/WavesSystem.h"
+#include "../../ecs/systems/physics/PhysicsSystem.h"
+#include "../../ecs/systems/PlatformerMovementSystem.h"
+#include "../../ecs/systems/networking/NetworkingSystem.h"
+#include "../../ecs/systems/PlayerControlSystem.h"
+#include "../../ecs/systems/physics/VerletPhysicsSystem.h"
+#include "../../ecs/systems/body_parts/LegsSystem.h"
+#include "../../ecs/systems/graphics/SpriteSystem.h"
+#include "../../ecs/systems/body_parts/LimbJointSystem.h"
+#include "../../ecs/systems/body_parts/ArmsSystem.h"
+#include "../../ecs/systems/combat/BowWeaponSystem.h"
+#include "../../ecs/systems/ChildrenSystem.h"
+#include "../../ecs/systems/body_parts/HeadsSystem.h"
+#include "../../ecs/systems/combat/ArrowSystem.h"
+#include "../../ecs/systems/AudioSystem.h"
+#include "../../ecs/systems/physics/WavesSystem.h"
 
-#include "ecs/entity_templates/LuaEntityTemplate.h"
-#include "ecs/systems/RainbowSystem.h"
-#include "ecs/systems/SpawningSystem.h"
-#include "ecs/systems/combat/DamageSystem.h"
-#include "ecs/systems/graphics/SpriteSlicerSystem.h"
-#include "ecs/systems/graphics/LightSystem.h"
-#include "ecs/systems/physics/FluidsSystem.h"
-#include "ecs/systems/TransRoomerSystem.h"
-#include "ecs/components/Saving.h"
-#include "ecs/systems/LuaScriptsSystem.h"
+#include "../../ecs/systems/RainbowSystem.h"
+#include "../../ecs/systems/SpawningSystem.h"
+#include "../../ecs/systems/combat/DamageSystem.h"
+#include "../../ecs/systems/graphics/SpriteSlicerSystem.h"
+#include "../../ecs/systems/graphics/LightSystem.h"
+#include "../../ecs/systems/physics/FluidsSystem.h"
+#include "../../ecs/systems/TransRoomerSystem.h"
+#include "../../ecs/components/Saving.h"
+#include "../../ecs/systems/LuaScriptsSystem.h"
 
 Room::Room(ivec2 size)
 {
@@ -47,7 +46,6 @@ Room::Room(ivec2 size)
 
 void Room::initialize(Level *lvl)
 {
-    assert(!initialized);
     assert(lvl != NULL);
     assert(tileMap != NULL);
 
@@ -55,44 +53,38 @@ void Room::initialize(Level *lvl)
 
     entities.on_destroy<Persistent>().connect<&Room::tryToSaveRevivableEntity>(this);
 
-    for (auto &el : AssetManager::getLoadedAssetsForType<luau::Script>())
-        if (stringEndsWith(el.first, ".entity.lua"))
-            registerLuaEntityTemplate(el.second->shortPath.c_str());
+    addSystem(new SpawningSystem("(de)spawning")); // SPAWN ENTITIES FIRST, so they get a chance to be updated before being rendered
+    addSystem(new DamageSystem());
+    addSystem(new TransRoomerSystem("transroomer"));
+    addSystem(new ChildrenSystem("children"));
+    addSystem(new PlayerControlSystem("player control"));
+    addSystem(new PlatformerMovementSystem("pltf movmnt"));
+    addSystem(new BowWeaponSystem("bow weapons"));
+    addSystem(new ArrowSystem("bow arrows"));
+    addSystem(new RainbowSystem("rainbows"));
+    addSystem(new PhysicsSystem("physics"));
+    addSystem(new FluidsSystem("fluids"));
+    addSystem(new VerletPhysicsSystem("verlet physics"));
+    addSystem(new WavesSystem("polyline waves"));
+    addSystem(new HeadsSystem("heads"));
+    addSystem(new ArmsSystem("arms"));
+    addSystem(new LegsSystem("legs"));
+    addSystem(new SpriteSlicerSystem("sprite slicer"));
+    addSystem(new SpriteSystem("(animated) sprites"));
+    addSystem(new LightSystem("lights"));
+    addSystem(new LimbJointSystem("knee/elbow joints"));
+    addSystem(new AudioSystem("audio"));
+    addSystem(new LuaScriptsSystem("lua functions"));
 
-    systems.push_front(new LuaScriptsSystem("lua functions"));
-    systems.push_front(new AudioSystem("audio"));
-    systems.push_front(new LimbJointSystem("knee/elbow joints"));
-    systems.push_front(new LightSystem("lights"));
-    systems.push_front(new SpriteSystem("(animated) sprites"));
-    systems.push_front(new SpriteSlicerSystem("sprite slicer"));
-    systems.push_front(new LegsSystem("legs"));
-    systems.push_front(new ArmsSystem("arms"));
-    systems.push_front(new HeadsSystem("heads"));
-    systems.push_front(new WavesSystem("polyline waves"));
-    systems.push_front(new VerletPhysicsSystem("verlet physics"));
-    systems.push_front(new FluidsSystem("fluids"));
-    systems.push_front(new PhysicsSystem("physics"));
-    systems.push_front(new RainbowSystem("rainbows"));
-    systems.push_front(new ArrowSystem("bow arrows"));
-    systems.push_front(new BowWeaponSystem("bow weapons"));
-    systems.push_front(new PlatformerMovementSystem("pltf movmnt"));
-    systems.push_front(new PlayerControlSystem("player control"));
-    systems.push_front(new ChildrenSystem("children"));
-    systems.push_front(new TransRoomerSystem("transroomer"));
-    systems.push_front(new DamageSystem());
-    systems.push_front(new SpawningSystem("(de)spawning")); // SPAWN ENTITIES FIRST, so they get a chance to be updated before being rendered
-
-    for (auto sys : systems) sys->init(this);
+    EntityEngine::initialize();
 
     loadPersistentEntities();
-
-    initialized = true;
 }
 
 void Room::update(double deltaTime)
 {
-    if (!initialized)
-        throw gu_err("Cannot update non-initialized Room!");
+//    if (!initialized) // todo
+//        throw gu_err("Cannot update non-initialized Room!");
 
     gu::profiler::Zone roomZone("room " + std::to_string(getIndexInLevel()));
 
@@ -120,10 +112,6 @@ void Room::update(double deltaTime)
 
 Room::~Room()
 {
-    for (auto sys : systems)
-        delete sys;
-    for (auto &entry : entityTemplates)
-        delete entry.second;
     delete tileMap;
 }
 
@@ -172,6 +160,7 @@ void Room::loadPersistentEntities()
     for (json &jsonEntity : persistentEntitiesToLoad)
     {
         auto e = entities.create();
+        assert(entities.valid(e));
         try
         {
             auto &p = entities.assign<Persistent>(e);
@@ -202,69 +191,6 @@ void Room::loadPersistentEntities()
         }
     }
     persistentEntitiesToLoad.clear();
-}
-
-void Room::addSystem(EntitySystem *sys)
-{
-    assert(!initialized);
-    systems.push_back(sys);
-}
-
-EntityTemplate &Room::getTemplate(std::string name)
-{
-    try {
-        return getTemplate(hashStringCrossPlatform(name));
-    }
-    catch (_gu_err &)
-    {
-        throw gu_err("No EntityTemplate named " + name + " found");
-    }
-}
-
-EntityTemplate &Room::getTemplate(int templateHash)
-{
-    auto t = entityTemplates[templateHash];
-    if (!t)
-        throw gu_err("No EntityTemplate found for hash " + std::to_string(templateHash));
-    return *t;
-}
-
-const std::vector<std::string> &Room::getTemplateNames() const
-{
-    return entityTemplateNames;
-}
-
-entt::entity Room::getChildByName(entt::entity parent, const char *childName)
-{
-    const Parent *p = entities.try_get<Parent>(parent);
-    if (!p)
-        return entt::null;
-    auto it = p->childrenByName.find(childName);
-    if (it == p->childrenByName.end())
-        return entt::null;
-    return it->second;
-}
-
-void Room::registerLuaEntityTemplate(const char *assetPath)
-{
-    auto name = splitString(assetPath, "/").back();
-
-    addEntityTemplate(name, new LuaEntityTemplate(assetPath, name.c_str(), this));
-}
-
-void Room::addEntityTemplate(const std::string &name, EntityTemplate *t)
-{
-    int hash = hashStringCrossPlatform(name);
-
-    bool replace = entityTemplates[hash] != NULL;
-
-    delete entityTemplates[hash];
-    auto et = entityTemplates[hash] = t;
-    et->room = this;
-    et->templateHash = hash;
-
-    if (!replace)
-        entityTemplateNames.push_back(name);
 }
 
 void Room::resize(int moveLeftBorder, int moveRightBorder, int moveTopBorder, int moveBottomBorder)
@@ -326,4 +252,22 @@ void Room::tryToSaveRevivableEntity(entt::registry &, entt::entity entity)
 
     revivableEntitiesToSave.push_back(json::object());
     persistentEntityToJson(entity, p, revivableEntitiesToSave.back());
+}
+
+void Room::initializeLuaEnvironment()
+{
+    EntityEngine::initializeLuaEnvironment();
+
+    luaEnvironment["getTile"] = [&](int x, int y) -> int {
+        return int(getMap().getTile(x, y));
+    };
+    // todo: setTile() etc.
+    luaEnvironment["getTileMaterial"] = [&](int x, int y) -> int {
+        return int(getMap().getMaterial(x, y));
+    };
+    luaEnvironment["getLevelTime"] = [&]() -> double {
+        return getLevel().getTime();
+    };
+    luaEnvironment["roomWidth"] = getMap().width;
+    luaEnvironment["roomHeight"] = getMap().height;
 }

@@ -43,7 +43,7 @@ void RoomScreen::render(double deltaTime)
     }
 
     camMovement.update(deltaTime);
-    room->cursorPositionInRoom = cam.getCursorRayDirection() + cam.position;
+    room->cursorPosition = cam.getCursorRayDirection() + cam.position;
 
     {   // render indexed stuff:
         gu::profiler::Zone z("indexed image");

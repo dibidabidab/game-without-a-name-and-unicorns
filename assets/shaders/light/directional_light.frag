@@ -2,7 +2,7 @@ precision mediump float;
 
 layout(location = 0) out uint lightLevel;
 
-sampler2D lightShaftsTexture;
+uniform sampler2D lightShaftsTexture;
 
 in vec2 uv;
 

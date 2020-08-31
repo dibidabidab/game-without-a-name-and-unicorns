@@ -8,7 +8,7 @@
 #include <graphics/shader_asset.h>
 #include "MegaSpriteSheet.h"
 #include "../../../external/entt/src/entt/entity/registry.hpp"
-#include "../../level/room/ecs/components/graphics/AsepriteView.h"
+#include "../../ecs/components/graphics/AsepriteView.h"
 
 /**
  * Used to render all entities with a AsepriteView component.

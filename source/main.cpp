@@ -17,7 +17,7 @@
 #include "ImGuiStyle.h"
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
-#include "level/room/ecs/entity_templates/LuaEntityTemplate.h"
+#include "ecs/entity_templates/LuaEntityTemplate.h"
 #include "game/Game.h"
 
 #ifdef EMSCRIPTEN
