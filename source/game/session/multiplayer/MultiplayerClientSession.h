@@ -15,7 +15,7 @@ class MultiplayerClientSession : public MultiplayerSession
     /**
      * NOTE: does not open the socket, so open the socket before or after constructing.
      */
-    MultiplayerClientSession(SharedSocket);
+    MultiplayerClientSession(SharedSocket, const char *saveGamePath);
 
     void join(std::string username) override;
 

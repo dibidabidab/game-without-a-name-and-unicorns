@@ -22,27 +22,17 @@ void SingleplayerSession::join(std::string username)
 
 void SingleplayerSession::update(double deltaTime)
 {
-    if (firstUpdate)
-    {
-        firstUpdate = false;
-        level->initialize();
-        onNewLevel(level);
-
-        if (level->getNrOfRooms() >= 1)
-        {
-            Room *spawnRoom = level->getRoomByName(level->spawnRoom.c_str());
-            if (!spawnRoom)
-                spawnRoom = &level->getRoom(0);
-
-            auto e = spawnRoom->getTemplate("Player").create();
-            spawnRoom->entities.assign<PlayerControlled>(e, localPlayer->id);
-            spawnRoom->entities.assign<LocalPlayer>(e);
-        }
-    }
-    level->update(deltaTime);
+    if (level)
+        level->update(deltaTime);
 }
 
-SingleplayerSession::SingleplayerSession(Level *lvl) {
-    assert(lvl != NULL);
-    level = lvl;
+void SingleplayerSession::setLevel(Level *newLevel)
+{
+    if (level && level->isUpdating())
+        throw gu_err("cant set a level while updating");
+    delete level;
+    level = newLevel;
+    level->initialize();
+    onNewLevel(level);
+    spawnPlayerEntities();
 }

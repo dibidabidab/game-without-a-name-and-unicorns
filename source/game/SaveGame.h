@@ -7,12 +7,14 @@
 
 struct SaveGame
 {
-    SaveGame();
+    SaveGame(const char *path);
 
     sol::table luaTable;
-};
 
-void to_json(json &, const SaveGame &);
-void from_json(const json &, SaveGame &);
+    void save(const char *path=NULL); // if path == NULL then same path from constructor is used.
+
+  private:
+    std::string loadedFromPath;
+};
 
 #endif

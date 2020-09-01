@@ -4,25 +4,18 @@
 #include "../../ecs/components/PlayerControlled.h"
 #include "../../ecs/components/TransRoomable.h"
 
-LevelScreen::LevelScreen(Level *lvl, int localPlayerID) : lvl(lvl), localPlayerID(localPlayerID), lvlEditor(lvl)
+LevelScreen::LevelScreen(Level *lvl) : lvl(lvl), lvlEditor(lvl)
 {
-    lvl->onPlayerLeftRoom = [this](Room *room, int playerId)
+    onPlayerEnteredRoom = lvl->onPlayerEnteredRoom += [this](Room *room, int playerId)
     {
-        if (this->localPlayerID != playerId || (roomScreen && roomScreen->room != room))
-            return;
-        delete roomScreen;
-        roomScreen = NULL;
-    };
-
-    lvl->onPlayerEnteredRoom = [this](Room *room, int playerId)
-    {
-        if (this->localPlayerID != playerId)
+        auto localPlayer = Game::getCurrentSession().getLocalPlayer();
+        if (!localPlayer || localPlayer->id != playerId)
             return;
         std::cout << "Local player entered room. Show RoomScreen\n";
         showRoom(room);
     };
 
-    lvl->beforeRoomDeletion = [this](Room *r)
+    onRoomDeletion = lvl->beforeRoomDeletion += [this](Room *r)
     {
         if (roomScreen && r == roomScreen->room)
         {

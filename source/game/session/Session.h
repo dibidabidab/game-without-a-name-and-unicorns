@@ -5,6 +5,7 @@
 
 #include "../../level/Level.h"
 #include "Player.h"
+#include "../SaveGame.h"
 
 class Session
 {
@@ -14,16 +15,20 @@ class Session
     std::list<Player_ptr> players;
     Player_ptr localPlayer;
 
+    SaveGame saveGame;
+
   public:
 
-    virtual ~Session() = default;
+    Session(const char *saveGamePath);
+
+    virtual ~Session();
 
     std::function<void(const std::string &reason)> onJoinRequestDeclined = [](auto){};
 
     virtual void join(std::string username) = 0;
 
 
-    std::function<void(Level *)> onNewLevel;
+    delegate<void(Level *)> onNewLevel;
 
     Level *getLevel() const { return level; }
 
@@ -51,6 +56,11 @@ class Session
 
     Player_ptr deletePlayer(int id) { return deletePlayer(id, players); }
 
+    void spawnPlayerEntities(bool networked=false);
+
+    void spawnPlayerEntity(Player_ptr &, bool networked);
+
+    void removePlayerEntities(int playerId);
 };
 
 

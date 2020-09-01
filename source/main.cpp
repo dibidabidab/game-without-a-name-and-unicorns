@@ -6,13 +6,15 @@
 #include <audio/OggLoader.h>
 #include <utils/code_editor/CodeEditor.h>
 #include <utils/aseprite/AsepriteLoader.h>
+#include <utils/startup_args.h>
 
-#include "rendering/level/LevelScreen.h"
-#include "game/session/SingleplayerSession.h"
 #include "rendering/ImGuiStyle.h"
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
 #include "game/Game.h"
+#include "rendering/GameScreen.h"
+#include "rendering/PaletteEditor.h"
+#include "rendering/level/room/RoomScreen.h"
 
 #ifdef EMSCRIPTEN
 EM_JS(const char *, promptJS, (const char *text), {
@@ -158,7 +160,7 @@ void showDeveloperOptionsMenuBar()
     }
     ImGui::EndMainMenuBar();
 
-    paletteEditor.drawGUI(Game::palettes.get(), RoomScreen::currentPaletteEffect);
+    paletteEditor.drawGUI(RoomScreen::currentPaletteEffect);
 
     CodeEditor::drawGUI(
             ImGui::GetIO().Fonts->Fonts.back()  // default monospace font (added by setImGuiStyle())
@@ -167,6 +169,7 @@ void showDeveloperOptionsMenuBar()
 
 int main(int argc, char *argv[])
 {
+    startupArgsToMap(argc, argv, Game::startupArgs);
     Game::loadSettings();
 
     std::mutex assetToReloadMutex;
@@ -214,53 +217,29 @@ int main(int argc, char *argv[])
     AssetManager::load("assets");
 
     File::createDir("./saves");
-    std::string loadSaveGamePath = "saves/first_save.dibdab";
-    if (argc == 3 && strcmp(argv[1], "--load-save-game") == 0)
-        loadSaveGamePath = argv[2];
-    Game::loadOrCreateSaveGame(loadSaveGamePath.c_str());
+    gu::setScreen(new GameScreen);
 
-    Screen *lvlScreen = NULL;
-
-    std::function<void()> afterInit;
-    Session *session;
-    // todo: I removed the code for creating multiplayer sessions. Code was removed after commit 483e6f39d93855644f087ecceebecc5cf5922a12
-    {
-        // offline session:
-        session = new SingleplayerSession(Level::testLevel());
-        afterInit = [=] {
-            session->join("poopoo");
-        };
-    }
-    session->onNewLevel = [&](Level *lvl)
-    {
-        std::cout << "New level!\n";
-        delete lvlScreen;
-        lvlScreen = new LevelScreen(lvl, session->getLocalPlayer() == NULL ? -1 : session->getLocalPlayer()->id);
-        gu::setScreen(lvlScreen);
-    };
-    session->onJoinRequestDeclined = [&](auto reason) {
-        #ifdef EMSCRIPTEN
-        alertJS(reason.c_str());
-        #endif
-        session->join(prompt("Try again. Enter your name"));
-    };
-    afterInit();
+    Game::uiScreenManager->openScreen(asset<luau::Script>("scripts/ui_screens/StartupScreen"));
 
     gu::beforeRender = [&](double deltaTime) {
-        session->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .03 : deltaTime);
+        auto *session = Game::tryGetCurrentSession();
+        if (session)
+            session->update(KeyInput::pressed(GLFW_KEY_KP_SUBTRACT) ? deltaTime * .03 : deltaTime);
 
         if (KeyInput::justPressed(Game::settings.keyInput.reloadAssets))
             AssetManager::load("assets", true);
 
-        assetToReloadMutex.lock();
-        if (!assetToReload.empty())
-            AssetManager::loadFile(assetToReload, "assets/", true);
-        assetToReload.clear();
-        assetToReloadMutex.unlock();
+        {
+            assetToReloadMutex.lock();
+            if (!assetToReload.empty())
+                AssetManager::loadFile(assetToReload, "assets/", true);
+            assetToReload.clear();
+            assetToReloadMutex.unlock();
+        }
 
         {
             if (!gu::fullscreen) // dont save fullscreen-resolution
-                Game::settings.graphics.windowSize = ivec2(
+                Game::settings.graphics.windowSize = ivec2( // todo: this could be moved to the onResize delegate
                         gu::width, gu::height
                 );
             Game::settings.graphics.vsync = gu::config.vsync;
@@ -278,20 +257,8 @@ int main(int argc, char *argv[])
         gu::profiler::showGUI = Game::settings.showDeveloperOptions;
     };
 
-    { // todo: move this to a better place:
-        if (Game::settings.graphics.vignette)
-            ShaderDefinitions::define("VIGNETTE");
-        if (Game::settings.graphics.bloom)
-            ShaderDefinitions::define("BLOOM");
-        if (Game::settings.graphics.waterReflections)
-            ShaderDefinitions::define("WATER_REFLECTIONS");
-    }
-
     gu::run();
-    delete lvlScreen;
-    delete session->getLevel(); // trigger tilemap save, todo: remove this
-    delete session;
-    Game::saveSaveGame();
+    Game::setCurrentSession(NULL);
     Game::saveSettings();
 
     au::terminate();

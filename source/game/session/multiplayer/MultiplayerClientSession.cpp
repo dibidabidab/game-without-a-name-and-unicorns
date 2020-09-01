@@ -11,7 +11,8 @@ using namespace Packet;
 using namespace Packet::from_player;
 using namespace Packet::from_server;
 
-MultiplayerClientSession::MultiplayerClientSession(SharedSocket socket) : io(socket)
+MultiplayerClientSession::MultiplayerClientSession(SharedSocket socket, const char *saveGamePath)
+    : MultiplayerSession(saveGamePath), io(socket)
 {
     io.addJsonPacketType<join_request>();
 

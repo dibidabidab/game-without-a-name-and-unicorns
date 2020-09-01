@@ -17,7 +17,8 @@ class MultiplayerServerSession : public MultiplayerSession
 
   public:
 
-    MultiplayerServerSession(SocketServer *);
+    // todo: is SocketServer deleted?
+    MultiplayerServerSession(SocketServer *, const char *saveGamePath);
 
     bool isServer() const override { return true; }
 
@@ -27,17 +28,11 @@ class MultiplayerServerSession : public MultiplayerSession
 
     void join(std::string username) override;
 
-    ~MultiplayerServerSession() override;
-
   private:
 
     bool handleJoinRequest(Player_ptr &player, Packet::from_player::join_request *, std::string &declineReason);
 
     void handleLeavingPlayers();
-
-    void createPlayerEntity(Player_ptr &player);
-
-    void removePlayerEntities(int playerId);
 
 };
 

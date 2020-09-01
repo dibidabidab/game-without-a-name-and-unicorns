@@ -94,6 +94,8 @@ void EntityEngine::initialize()
 
 void EntityEngine::initializeLuaEnvironment()
 {
+    // todo: functions might be called after EntityEngine is destructed
+
     luaEnvironment = sol::environment(luau::getLuaState(), sol::create, luau::getLuaState().globals());
     auto &env = luaEnvironment;
 

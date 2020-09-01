@@ -12,6 +12,8 @@ class MultiplayerSession : public Session
 {
   public:
 
+    MultiplayerSession(const char *saveGamePath) : Session(saveGamePath) {}
+
     virtual bool isServer() const = 0;
 
     template <class PacketType>

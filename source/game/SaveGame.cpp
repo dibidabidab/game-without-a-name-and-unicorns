@@ -2,18 +2,22 @@
 #include "SaveGame.h"
 #include "../macro_magic/lua_converters.h"
 
-SaveGame::SaveGame()
+SaveGame::SaveGame(const char *path) : loadedFromPath(path)
 {
     luaTable = sol::table::create(luau::getLuaState().lua_state());
+
+    if (File::exists(path))
+    {
+        json jsonData = json::from_cbor(File::readBinary(path));
+        lua_converter<json>::toLuaTable(luaTable, jsonData.at("luaTable"));
+    }
 }
 
-void to_json(json &j, const SaveGame &s)
+void SaveGame::save(const char *path)
 {
-    j = json::object();
-    lua_converter<json>::fromLuaTable(s.luaTable, j["luaTable"]);
-}
-
-void from_json(const json &j, SaveGame &s)
-{
-    lua_converter<json>::toLuaTable(s.luaTable, j.at("luaTable"));
+    json j = json::object();
+    lua_converter<json>::fromLuaTable(luaTable, j["luaTable"]);
+    std::vector<uint8> data;
+    json::to_cbor(j, data);
+    File::writeBinary(path == NULL ? loadedFromPath.c_str() : path, data);
 }

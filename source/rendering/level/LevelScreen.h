@@ -11,15 +11,16 @@ class LevelScreen : public Screen
 {
 
     Level *lvl;
-    int localPlayerID;
 
     RoomScreen *roomScreen = NULL;
 
     LevelEditor lvlEditor;
 
+    delegate_method onPlayerEnteredRoom, onRoomDeletion;
+
   public:
 
-    LevelScreen(Level *, int localPlayerID);
+    LevelScreen(Level *);
 
     void render(double deltaTime) override;
 

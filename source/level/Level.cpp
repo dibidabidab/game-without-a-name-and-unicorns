@@ -115,20 +115,6 @@ void from_json(const json &j, Level &lvl)
     }
 }
 
-Level *Level::testLevel()
-{
-    Level *lvl;
-
-    if (File::exists(DEFAULT_LEVEL_PATH))
-        lvl = new Level(DEFAULT_LEVEL_PATH);
-    else
-    {
-        lvl = new Level;
-        lvl->createRoom(48, 32);
-    }
-    return lvl;
-}
-
 void Level::deleteRoom(int i)
 {
     assert(i < rooms.size());
@@ -191,11 +177,16 @@ void Level::save(const char *path) const
     File::writeBinary(path, compressedData);
 }
 
-Level::Level(const char *loadFromFile) : loadedFromFile(loadFromFile)
+Level::Level(const char *filePath) : loadedFromFile(filePath)
 {
+    if (!File::exists(filePath))
+    {
+        createRoom(32, 24);
+        return;
+    }
     try
     {
-        auto compressedData = File::readBinary(loadFromFile);
+        auto compressedData = File::readBinary(filePath);
 
         unsigned long compressedDataSize = compressedData.size() - sizeof(int);
 

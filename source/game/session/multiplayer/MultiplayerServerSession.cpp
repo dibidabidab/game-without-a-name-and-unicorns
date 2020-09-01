@@ -10,7 +10,8 @@ using namespace Packet;
 using namespace Packet::from_player;
 using namespace Packet::from_server;
 
-MultiplayerServerSession::MultiplayerServerSession(SocketServer *server) : server(server)
+MultiplayerServerSession::MultiplayerServerSession(SocketServer *server, const char *saveGamePath)
+    : MultiplayerSession(saveGamePath), server(server)
 {
     server->onNewSocket = [&] (SharedSocket sock) mutable
     {
@@ -109,7 +110,7 @@ bool MultiplayerServerSession::handleJoinRequest(Player_ptr &player, join_reques
     {
         if (player->io)
             player->io->send(*level);
-        createPlayerEntity(player);
+        spawnPlayerEntity(player, true);
     }
     return true;
 }
@@ -176,27 +177,7 @@ void MultiplayerServerSession::setLevel(Level *newLevel)
     sendPacketToAllPlayers(*newLevel);
     onNewLevel(level);
 
-    for (auto &p : players)
-        createPlayerEntity(p);
-}
-
-void MultiplayerServerSession::createPlayerEntity(Player_ptr &player)
-{
-    Room &room = level->getRoom(0);
-    auto e = room.getTemplate("Player").createNetworked();
-    room.entities.assign<PlayerControlled>(e, player->id);
-}
-
-void MultiplayerServerSession::removePlayerEntities(int playerId)
-{
-    for (int i = 0; i < level->getNrOfRooms(); i++)
-    {
-        Room &r = level->getRoom(i);
-        r.entities.view<PlayerControlled>().each([&] (entt::entity e, PlayerControlled &pC) {
-            if (pC.playerId == playerId)
-                r.entities.destroy(e);
-        });
-    }
+    spawnPlayerEntities(true);
 }
 
 void MultiplayerServerSession::join(std::string username)
@@ -208,9 +189,4 @@ void MultiplayerServerSession::join(std::string username)
     std::string declineReason;
     if (!handleJoinRequest(p, new join_request { username }, declineReason))
         onJoinRequestDeclined(declineReason);
-}
-
-MultiplayerServerSession::~MultiplayerServerSession()
-{
-    delete level;
 }

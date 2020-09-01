@@ -1,11 +1,41 @@
 
 #include "PaletteEditor.h"
+#include "../game/Game.h"
 
 #include <gu/profiler.h>
 #include <imgui.h>
 
-void PaletteEditor::drawGUI(Palettes3D &palettes, uint currentlyRendered)
+static bool saved = true;
+
+void PaletteEditor::drawGUI(uint currentlyRendered)
 {
+    static auto allowClose = gu::canClose += [] {
+        return saved;
+    };
+
+    const char *unsavedModalTitle = "Palette Editor: closing unsaved";
+    if (gu::shouldClose())
+        ImGui::OpenPopup(unsavedModalTitle);
+
+    if (ImGui::BeginPopupModal(unsavedModalTitle, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("You've made unsaved changes in the Palette Editor!");
+        ImGui::Separator();
+
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+            saved = true; // kinda dirty hack
+
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        {
+            gu::setShouldClose(false);
+            show = true;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SetItemDefaultFocus();
+        ImGui::EndPopup();
+    }
+
     if (!show) return;
     gu::profiler::Zone z("palette editor");
 
@@ -13,7 +43,7 @@ void PaletteEditor::drawGUI(Palettes3D &palettes, uint currentlyRendered)
     ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
 
     bool open = true;
-    if (!ImGui::Begin("Palette Editor", &open, 0))
+    if (!ImGui::Begin("Palette Editor", &open, !saved ? ImGuiWindowFlags_UnsavedDocument : 0))
     {
         // Early out if the window is collapsed, as an optimization.
         ImGui::End();
@@ -22,11 +52,11 @@ void PaletteEditor::drawGUI(Palettes3D &palettes, uint currentlyRendered)
     if (!open) show = false;
 
     if (selectedEffect.empty())
-        selectedEffect = palettes.effects.at(0).name;
+        selectedEffect = Game::palettes->effects.at(0).name;
 
     ImGui::TextDisabled("Currently rendered effect:");
     ImGui::SameLine();
-    auto currentlyRenderedStr = palettes.effects.at(currentlyRendered).name;
+    auto currentlyRenderedStr = Game::palettes->effects.at(currentlyRendered).name;
     auto c = selectedEffect == currentlyRenderedStr ? ImVec4(1, 1, 1, 1) : ImVec4(1, 0, .1, 1);
     ImGui::TextColored(c, "%s", currentlyRenderedStr.c_str());
 
@@ -34,7 +64,7 @@ void PaletteEditor::drawGUI(Palettes3D &palettes, uint currentlyRendered)
 
     if (ImGui::BeginCombo("Edit effect", selectedEffect.c_str()))
     {
-        for (auto &effect : palettes.effects)
+        for (auto &effect : Game::palettes->effects)
         {
             bool is_selected = (selectedEffect == effect.name);
             if (ImGui::Selectable(effect.name.c_str(), is_selected))
@@ -45,8 +75,11 @@ void PaletteEditor::drawGUI(Palettes3D &palettes, uint currentlyRendered)
         ImGui::EndCombo();
     }
 
-    if (drawPalettes(palettes.effects.at(palettes.effectIndex(selectedEffect))))
-        palettes.changedByEditor = true;
+    if (drawPalettes(Game::palettes->effects.at(Game::palettes->effectIndex(selectedEffect))))
+    {
+        saved = false;
+        Game::palettes->changedByEditor = true;
+    }
 
     ImGui::End();
 }
@@ -58,6 +91,7 @@ bool PaletteEditor::drawPalettes(Palettes3D::Effect &effect)
     {
         for (auto &p : effect.lightLevels)
             p->save(p.getLoadedAsset().fullPath.c_str());
+        saved = true;
     }
     ImGui::SameLine();
     if (ImGui::Button("Revert"))
@@ -65,6 +99,7 @@ bool PaletteEditor::drawPalettes(Palettes3D::Effect &effect)
         for (auto &p : effect.lightLevels)
             revert(p);
         changed = true;
+        saved = true;
     }
     ImGui::Separator();
 

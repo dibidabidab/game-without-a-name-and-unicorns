@@ -5,6 +5,22 @@ Game::Settings Game::settings;
 
 #define SETTINGS_FILE_PATH "./settings.json"
 
+void setShaderDefinitions()
+{
+    if (Game::settings.graphics.vignette)
+        ShaderDefinitions::define("VIGNETTE");
+    else
+        ShaderDefinitions::undef("VIGNETTE");
+    if (Game::settings.graphics.bloom)
+        ShaderDefinitions::define("BLOOM");
+    else
+        ShaderDefinitions::undef("BLOOM");
+    if (Game::settings.graphics.waterReflections)
+        ShaderDefinitions::define("WATER_REFLECTIONS");
+    else
+        ShaderDefinitions::undef("WATER_REFLECTIONS");
+}
+
 void Game::loadSettings()
 {
     if (!File::exists(SETTINGS_FILE_PATH))
@@ -21,60 +37,43 @@ void Game::loadSettings()
         settings = Settings();
         std::cerr << "Error while loading settings:\n" << e.what() << std::endl;
     }
+    setShaderDefinitions();
 }
 
 void Game::saveSettings()
 {
+    setShaderDefinitions();
     json j = settings;
 
     File::writeBinary(SETTINGS_FILE_PATH, j.dump(4));
 }
 
-static SaveGame *saveGame = NULL;
+std::map<std::string, std::string> Game::startupArgs;
 
-SaveGame *Game::tryGetSaveGame()
+Session &Game::getCurrentSession()
 {
-    return saveGame;
+    auto *s = tryGetCurrentSession();
+    if (s == NULL)
+        throw gu_err("There's no Session active at the moment");
+    return *s;
 }
 
-SaveGame &Game::getSaveGame()
+delegate<void()> Game::onSessionChange;
+Session *currSession = NULL;
+
+Session *Game::tryGetCurrentSession()
 {
-    if (saveGame == NULL)
-        throw gu_err("There's currently no SaveGame active!");
-    return *saveGame;
+    return currSession;
 }
 
-static std::string saveGamePath;
-
-void Game::loadOrCreateSaveGame(const char *path)
+void Game::setCurrentSession(Session *s)
 {
-    if (saveGame)
-        throw gu_err("Please call unloadSaveGame() first. (and probably saveSaveGame() before that)");
-
-    saveGamePath = path;
-    saveGame = new SaveGame();
-
-    if (File::exists(path))
-    {
-        json jsonData = json::from_cbor(File::readBinary(path));
-        from_json(jsonData, *saveGame);
-    }
-}
-
-void Game::saveSaveGame(const char *path)
-{
-    getSaveGame(); // can throw error :)
-
-    std::vector<uint8> data;
-    json::to_cbor(*saveGame, data);
-    File::writeBinary(path == NULL ? saveGamePath.c_str() : path, data);
-}
-
-void Game::unloadSaveGame()
-{
-    delete saveGame;
-    saveGame = NULL;
+    delete currSession;
+    currSession = s;
+    onSessionChange();
 }
 
 MegaSpriteSheet Game::spriteSheet;
 cofu<Palettes3D> Game::palettes;
+
+cofu<UIScreenManager> Game::uiScreenManager;

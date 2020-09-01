@@ -7,7 +7,8 @@
 #include "../macro_magic/serializable.h"
 #include "../rendering/sprites/MegaSpriteSheet.h"
 #include "../rendering/Palette.h"
-#include "SaveGame.h"
+#include "session/Session.h"
+#include "../rendering/ui/UIScreenManager.h"
 
 #ifdef EMSCRIPTEN
 #define V_SYNC_ENABLED_BY_DEFAULT false
@@ -86,16 +87,18 @@ namespace Game
     void loadSettings();
     void saveSettings();
 
+    extern std::map<std::string, std::string> startupArgs;
+
     extern MegaSpriteSheet spriteSheet;
     extern cofu<Palettes3D> palettes;
 
-    SaveGame &getSaveGame();
-    SaveGame *tryGetSaveGame();
+    extern cofu<UIScreenManager> uiScreenManager;
 
-    void loadOrCreateSaveGame(const char *path);
-    void saveSaveGame(const char *path=NULL); // when no path is provided, the path given in loadOrCreateSaveGame() is used.
+    extern delegate<void()> onSessionChange;
 
-    void unloadSaveGame();
+    Session &getCurrentSession();
+    Session *tryGetCurrentSession();
+    void setCurrentSession(Session *);
 
 };
 

@@ -31,10 +31,10 @@ class Level
 
     Level() = default;
 
-    Level(const char *loadFromFile);
+    Level(const char *filePath);
 
-    std::function<void(Room *, int playerId)> onPlayerEnteredRoom, onPlayerLeftRoom;
-    std::function<void(Room *)> beforeRoomDeletion = [](auto) {};
+    delegate<void(Room *, int playerId)> onPlayerEnteredRoom, onPlayerLeftRoom;
+    delegate<void(Room *)> beforeRoomDeletion;
 
     int getNrOfRooms() const { return rooms.size(); }
 
@@ -62,8 +62,6 @@ class Level
      * @param deltaTime Time passed since previous update
      */
     void update(double deltaTime);
-
-    static Level *testLevel();
 
     void save(const char *path) const;
 

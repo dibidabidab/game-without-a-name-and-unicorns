@@ -3,6 +3,7 @@
 #define GAME_IMGUISTYLE_H
 
 #include <imgui.h>
+#include "../game/Game.h"
 
 namespace
 {

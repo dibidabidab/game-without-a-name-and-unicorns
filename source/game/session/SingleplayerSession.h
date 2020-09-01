@@ -12,11 +12,13 @@ class SingleplayerSession : public Session
 
   public:
 
-    SingleplayerSession(Level *lvl);
+    SingleplayerSession(const char *saveGamePath) : Session(saveGamePath) {};
 
     void join(std::string username) override;
 
     void update(double deltaTime) override;
+
+    void setLevel(Level *);
 
 };
 

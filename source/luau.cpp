@@ -38,20 +38,6 @@ sol::state &luau::getLuaState()
             std::cout << j.dump(indent.has_value() ? indent.value() : -1) << std::endl;
         };
 
-        env["getSaveGame"] = [] () -> sol::table {
-            return Game::getSaveGame().luaTable;
-        };
-        env["tryGetSaveGame"] = [] () -> sol::optional<sol::table> {
-            auto sg = Game::tryGetSaveGame();
-            if (sg)
-                return sg->luaTable;
-            else return sol::optional<sol::table>();
-        };
-        env["saveSaveGame"] = [] (sol::optional<std::string> path) { // no path means the path the saveGame was loaded from
-            Game::saveSaveGame(path.has_value() ? path.value().c_str() : NULL);
-        };
-        env["loadOrCreateSaveGame"] = Game::loadOrCreateSaveGame;
-
         env["getSettings"] = [] () -> sol::table {
             auto table = sol::table::create(getLuaState().lua_state());
             lua_converter<json>::toLuaTable(table, Game::settings);
@@ -61,6 +47,14 @@ sol::state &luau::getLuaState()
             json j;
             lua_converter<json>::fromLuaTable(settingsTable, j);
             Game::settings = j;
+        };
+        env["getGameStartupArgs"] = [] () -> sol::table {
+            auto table = sol::table::create(getLuaState().lua_state());
+            lua_converter<json>::toLuaTable(table, Game::startupArgs);
+            return table;
+        };
+        env["tryCloseGame"] = [] {
+            gu::setShouldClose(true);
         };
     }
     return *lua;

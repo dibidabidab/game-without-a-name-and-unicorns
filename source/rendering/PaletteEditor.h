@@ -14,7 +14,7 @@ class PaletteEditor
   public:
     bool show = false;
 
-    void drawGUI(Palettes3D &palettes, uint currentlyRendered=0);
+    void drawGUI(uint currentlyRendered=0);
 
   private:
 

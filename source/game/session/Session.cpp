@@ -1,5 +1,6 @@
 
 #include "Session.h"
+#include "../../ecs/components/PlayerControlled.h"
 
 const Player_ptr &Session::getPlayerById(int id) const
 {
@@ -40,4 +41,52 @@ Player_ptr Session::getPlayer(int id) const
 {
     for (auto &p : players) if (p->id == id) return p;
     return NULL;
+}
+
+Session::Session(const char *saveGamePath) : saveGame(saveGamePath)
+{
+
+}
+
+void Session::spawnPlayerEntities(bool networked)
+{
+    assert(level != NULL);
+    for (auto &player : players)
+        spawnPlayerEntity(player, networked);
+}
+
+void Session::spawnPlayerEntity(Player_ptr &p, bool networked)
+{
+    if (level->getNrOfRooms() >= 1)
+    {
+        Room *spawnRoom = level->getRoomByName(level->spawnRoom.c_str());
+        if (!spawnRoom)
+            spawnRoom = &level->getRoom(0);
+
+        auto &templ = spawnRoom->getTemplate("Player");
+        auto e = networked ? templ.createNetworked() : templ.create();
+        spawnRoom->entities.assign<PlayerControlled>(e, p->id);
+        if (p == localPlayer)
+            spawnRoom->entities.assign<LocalPlayer>(e);
+    }
+    else throw gu_err("Cant spawn Player entity in an empty Level!");
+}
+
+
+void Session::removePlayerEntities(int playerId)
+{
+    for (int i = 0; i < level->getNrOfRooms(); i++)
+    {
+        Room &r = level->getRoom(i);
+        r.entities.view<PlayerControlled>().each([&] (entt::entity e, PlayerControlled &pC) {
+            if (pC.playerId == playerId)
+                r.entities.destroy(e);
+        });
+    }
+}
+
+Session::~Session()
+{
+    delete level;
+    saveGame.save();
 }
