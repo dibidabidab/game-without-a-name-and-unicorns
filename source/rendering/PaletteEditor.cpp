@@ -14,11 +14,10 @@ void PaletteEditor::drawGUI(uint currentlyRendered)
     };
 
     const char *unsavedModalTitle = "Palette Editor: closing unsaved";
-    if (gu::shouldClose())
-        ImGui::OpenPopup(unsavedModalTitle);
 
-    if (ImGui::BeginPopupModal(unsavedModalTitle, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    if (gu::shouldClose() && !saved)
     {
+        ImGui::Begin(unsavedModalTitle, NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings);
         ImGui::Text("You've made unsaved changes in the Palette Editor!");
         ImGui::Separator();
 
@@ -33,7 +32,7 @@ void PaletteEditor::drawGUI(uint currentlyRendered)
             ImGui::CloseCurrentPopup();
         }
         ImGui::SetItemDefaultFocus();
-        ImGui::EndPopup();
+        ImGui::End();
     }
 
     if (!show) return;

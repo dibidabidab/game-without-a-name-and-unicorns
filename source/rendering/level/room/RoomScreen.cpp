@@ -18,7 +18,7 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
         ),
         shadowCaster(room),
         lightMapRenderer(room),
-        inspector(*room),
+        inspector(*room, "Room"),
         spriteRenderer(&Game::spriteSheet),
         tileMap(&room->getMap())
 {
@@ -28,6 +28,8 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
 
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);
+
+    inspector.createEntity_showSubFolder = "level_room";
 }
 
 void RoomScreen::render(double deltaTime)

@@ -10,10 +10,13 @@
 #include "entity_templates/LuaEntityTemplate.h"
 
 
-EntityInspector::EntityInspector(Room &room) : room(room), reg(room.entities)
+EntityInspector::EntityInspector(EntityEngine &engine, const std::string &name) : engine(engine), reg(engine.entities), inspectorName(name)
 {
 
 }
+
+std::vector<std::string> inspectors;
+std::string activeInspector;
 
 static bool createEntityGUIJustOpened = false;
 
@@ -21,6 +24,7 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
 {
     gu::profiler::Zone z("entity inspector");
 
+    inspectors.push_back(inspectorName);
     if (pickEntity)
     {
         pickEntityGUI(cam, lineRenderer);
@@ -31,19 +35,33 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
         moveEntityGUI(cam, lineRenderer);
         return;
     }
-    pickEntity = KeyInput::justPressed(Game::settings.keyInput.inspectEntity);
-    moveEntity = KeyInput::justPressed(Game::settings.keyInput.moveEntity);
+    if (activeInspector == inspectorName)
+    {
+        pickEntity = KeyInput::justPressed(Game::settings.keyInput.inspectEntity);
+        moveEntity = KeyInput::justPressed(Game::settings.keyInput.moveEntity);
 
-    if (creatingTempl)
-        templateArgsGUI();
+        if (KeyInput::justPressed(Game::settings.keyInput.createEntity))
+        {
+            ImGui::OpenPopup("Create entity");
+            createEntityGUIJustOpened = true;
+        }
 
+        if (ImGui::BeginPopup("Create entity"))
+        {
+            createEntityGUI();
+            ImGui::EndPopup();
+        }
+    }
     reg.view<Inspecting>().each([&](auto e, Inspecting &ins) {
         drawEntityInspectorGUI(e, ins);
     });
 
+    if (creatingTempl)
+        templateArgsGUI();
+
     ImGui::BeginMainMenuBar();
 
-    if (ImGui::BeginMenu("Room"))
+    if (ImGui::BeginMenu(inspectorName.c_str()))
     {
         auto str = std::to_string(reg.alive()) + " entities active";
         ImGui::MenuItem(str.c_str(), "", false, false);
@@ -60,18 +78,6 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
         ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
-
-    if (KeyInput::justPressed(Game::settings.keyInput.createEntity))
-    {
-        ImGui::OpenPopup("Create entity");
-        createEntityGUIJustOpened = true;
-    }
-
-    if (ImGui::BeginPopup("Create entity"))
-    {
-        createEntityGUI();
-        ImGui::EndPopup();
-    }
 }
 
 void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
@@ -185,7 +191,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
     ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX, MouseInput::mouseY), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(500, 680), ImGuiCond_Once);
 
-    std::string title("Entity #" + std::to_string(int(e)));
+    std::string title(inspectorName + " Entity #" + std::to_string(int(e)));
     if (!ImGui::Begin(title.c_str(), &ins.show, ImGuiWindowFlags_NoSavedSettings))
     {
         // Early out if the window is collapsed, as an optimization.
@@ -604,7 +610,7 @@ void EntityInspector::createEntityGUI()
     filter.Draw("Filter", 200);
     ImGui::NewLine();
 
-    for (auto &templateName : room.getTemplateNames())
+    for (auto &templateName : engine.getTemplateNames())
     {
         if (!filter.PassFilter(templateName.c_str()))
             continue;
@@ -612,7 +618,7 @@ void EntityInspector::createEntityGUI()
         auto name = templateName;
         const char *description = NULL;
 
-        auto templ = &room.getTemplate(templateName);
+        auto templ = &engine.getTemplate(templateName);
         auto luaTempl = dynamic_cast<LuaEntityTemplate *>(templ);
         if (luaTempl)
         {
@@ -626,14 +632,18 @@ void EntityInspector::createEntityGUI()
         auto dirSplitted = splitString(name, "/");
 
         int subMenusOpened = 0;
-        if (filter.Filters.empty()) for (subMenusOpened = 0; subMenusOpened < dirSplitted.size() - 1; subMenusOpened++)
+        if (filter.Filters.empty()) for (int i = 0; i < dirSplitted.size() - 1; i++)
         {
+            if (i == 0 && dirSplitted[0] == createEntity_showSubFolder)
+                continue;
+
             ImGui::SetNextWindowContentSize(ImVec2(240, 0));
-            if (!ImGui::BeginMenu(dirSplitted[subMenusOpened].c_str()))
+            if (!ImGui::BeginMenu(dirSplitted[i].c_str()))
             {
                 show = false;
                 break;
             }
+            else subMenusOpened++;
         }
 
         if (show)
@@ -685,7 +695,7 @@ void EntityInspector::createEntityGUI()
 
 void EntityInspector::createEntity(const std::string &templateName)
 {
-    auto templ = &room.getTemplate(templateName);
+    auto templ = &engine.getTemplate(templateName);
 
     auto *luaTempl = dynamic_cast<LuaEntityTemplate *>(templ);
 
@@ -762,4 +772,34 @@ void EntityInspector::editLuaScript(LuaEntityTemplate *luaTemplate)
     tab.revert = [script] (auto &tab) {
         tab.code = File::readString(script.getLoadedAsset().fullPath.c_str());
     };
+}
+
+void EntityInspector::drawInspectingDropDown()
+{
+    if (inspectors.empty())
+        return;
+
+    ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_Button), "    Inspecting:");
+    ImGui::SetNextItemWidth(120);
+
+    auto prevInspector = activeInspector;
+    activeInspector.clear();
+
+    bool draw = ImGui::BeginCombo("    ", prevInspector.c_str());
+    for (auto &name : inspectors)
+    {
+        if (activeInspector.empty() || prevInspector == name)
+            activeInspector = name;
+
+        if (draw && ImGui::Selectable(name.c_str()))
+        {
+            activeInspector = name;
+            break;
+        }
+    }
+
+    if (draw)
+        ImGui::EndCombo();
+
+    inspectors.clear();
 }

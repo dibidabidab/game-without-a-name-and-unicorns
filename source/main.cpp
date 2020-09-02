@@ -96,6 +96,7 @@ void addAssetLoaders()
 void showDeveloperOptionsMenuBar()
 {
     ImGui::BeginMainMenuBar();
+    static PaletteEditor paletteEditor;
 
     if (ImGui::BeginMenu("Game"))
     {
@@ -104,7 +105,51 @@ void showDeveloperOptionsMenuBar()
             KeyInput::getKeyName(Game::settings.keyInput.toggleDeveloperOptions),
             &Game::settings.showDeveloperOptions);
 
+        ImGui::SetNextItemWidth(120);
         ImGui::SliderFloat("Master volume", &Game::settings.audio.masterVolume, 0.0f, 3.0f);
+
+        if (ImGui::BeginMenu("Graphics"))
+        {
+            static bool vsync = gu::config.vsync;
+            ImGui::MenuItem("VSync", "", &vsync);
+            gu::setVSync(vsync);
+
+            ImGui::MenuItem("Fullscreen", KeyInput::getKeyName(Game::settings.keyInput.toggleFullscreen), &gu::fullscreen);
+
+            if (ImGui::BeginMenu("Edit shader"))
+            {
+                for (auto &[name, asset] : AssetManager::getLoadedAssetsForType<std::string>())
+                {
+                    if (!stringEndsWith(name, ".frag") && !stringEndsWith(name, ".vert"))
+                        continue;
+                    if (ImGui::MenuItem(name.c_str()))
+                    {
+                        auto &tab = CodeEditor::tabs.emplace_back();
+                        tab.title = asset->fullPath;
+
+                        tab.code = *((std::string *)asset->obj);
+                        tab.languageDefinition = TextEditor::LanguageDefinition::C();
+                        tab.save = [] (auto &tab) {
+
+                            File::writeBinary(tab.title.c_str(), tab.code);
+
+                            AssetManager::loadFile(tab.title, "assets/");
+                        };
+                        tab.revert = [] (auto &tab) {
+                            tab.code = File::readString(tab.title.c_str());
+                        };
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            paletteEditor.show |= ImGui::MenuItem("Palette editor");
+
+            ImGui::Separator();
+
+            ImGui::MenuItem(reinterpret_cast<const char *>(glGetString(GL_VERSION)), NULL, false, false);
+            ImGui::MenuItem(reinterpret_cast<const char *>(glGetString(GL_RENDERER)), NULL, false, false);
+            ImGui::EndMenu();
+        }
 
 
         ImGui::Separator();
@@ -115,49 +160,8 @@ void showDeveloperOptionsMenuBar()
         ImGui::EndMenu();
     }
 
-    static PaletteEditor paletteEditor;
-    if (ImGui::BeginMenu("Graphics"))
-    {
-        static bool vsync = gu::config.vsync;
-        ImGui::MenuItem("VSync", "", &vsync);
-        gu::setVSync(vsync);
+    EntityInspector::drawInspectingDropDown();
 
-        ImGui::MenuItem("Fullscreen", KeyInput::getKeyName(Game::settings.keyInput.toggleFullscreen), &gu::fullscreen);
-
-        if (ImGui::BeginMenu("Edit shader"))
-        {
-            for (auto &[name, asset] : AssetManager::getLoadedAssetsForType<std::string>())
-            {
-                if (!stringEndsWith(name, ".frag") && !stringEndsWith(name, ".vert"))
-                    continue;
-                if (ImGui::MenuItem(name.c_str()))
-                {
-                    auto &tab = CodeEditor::tabs.emplace_back();
-                    tab.title = asset->fullPath;
-
-                    tab.code = *((std::string *)asset->obj);
-                    tab.languageDefinition = TextEditor::LanguageDefinition::C();
-                    tab.save = [] (auto &tab) {
-
-                        File::writeBinary(tab.title.c_str(), tab.code);
-
-                        AssetManager::loadFile(tab.title, "assets/");
-                    };
-                    tab.revert = [] (auto &tab) {
-                        tab.code = File::readString(tab.title.c_str());
-                    };
-                }
-            }
-            ImGui::EndMenu();
-        }
-        paletteEditor.show |= ImGui::MenuItem("Palette editor");
-
-        ImGui::Separator();
-
-        ImGui::MenuItem(reinterpret_cast<const char *>(glGetString(GL_VERSION)), NULL, false, false);
-        ImGui::MenuItem(reinterpret_cast<const char *>(glGetString(GL_RENDERER)), NULL, false, false);
-        ImGui::EndMenu();
-    }
     ImGui::EndMainMenuBar();
 
     paletteEditor.drawGUI(RoomScreen::currentPaletteEffect);

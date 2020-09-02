@@ -37,7 +37,8 @@ END_COMPONENT(Inspecting)
 
 class EntityInspector
 {
-    Room &room;
+    std::string inspectorName;
+    EntityEngine &engine;
     entt::registry &reg;
 
     LuaEntityTemplate *creatingTempl = NULL;
@@ -45,15 +46,19 @@ class EntityInspector
 
   public:
 
+    std::string createEntity_showSubFolder = "";
+
     bool
         pickEntity = false,
         moveEntity = false;
 
     entt::entity movingEntity = entt::null;
 
-    EntityInspector(Room &);
+    EntityInspector(EntityEngine &, const std::string &name);
 
     void drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer);
+
+    static void drawInspectingDropDown();
 
   private:
     void createEntityGUI();
