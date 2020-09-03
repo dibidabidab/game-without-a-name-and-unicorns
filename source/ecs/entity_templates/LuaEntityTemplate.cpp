@@ -1,15 +1,18 @@
 
 #include "LuaEntityTemplate.h"
-#include "../components/LuaScript.h"
+#include "../components/LuaScripted.h"
 #include "../components/physics/Physics.h"
+#include "../../game/Game.h"
 
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, EntityEngine *engine_)
-    : script(assetName),
+    : script(assetName), name(name),
       env(engine_->luaEnvironment.lua_state(), sol::create, engine_->luaEnvironment)
 {
     this->engine = engine_; // DONT RENAME engine_ to engine!!!, lambdas should use this->engine.
     env["TEMPLATE_NAME"] = name;
+
+    defaultArgs = sol::table::create(env.lua_state());
 
     int
         TEMPLATE = env["TEMPLATE"] = 1 << 0,
@@ -109,14 +112,22 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
             }
         } else arguments = defaultArgs;
 
+        LuaScripted& luaScripted = engine->entities.get_or_assign<LuaScripted>(e);
+
+        std::string id = arguments.value()["saveGameEntityID"].get_or<std::string, std::string>(getUniqueID());
+        luaScripted.saveData = Game::getCurrentSession().saveGame.getSaveDataForEntity(id, !persistent);
+
         if (persistent)
         {
             auto &p = engine->entities.assign_or_replace<Persistent>(e, persistency);
             if (persistentArgs && arguments.has_value() && arguments.value().valid())
                 lua_converter<json>::fromLuaTable(arguments.value(), p.data);
+
+            assert(p.data.is_object());
+            p.data["saveGameEntityID"] = id;
         }
 
-        sol::protected_function_result result = createFunc(e, arguments);
+        sol::protected_function_result result = createFunc(e, arguments, luaScripted.saveData);
         if (!result.valid())
             throw gu_err(result.get<sol::error>().what());
 
@@ -157,4 +168,9 @@ void LuaEntityTemplate::createComponentsWithJsonArguments(entt::entity e, const 
     if (arguments.is_structured())
         lua_converter<json>::toLuaTable(table, arguments);
     createComponentsWithLuaArguments(e, table, persistent);
+}
+
+std::string LuaEntityTemplate::getUniqueID()
+{
+    return name + "_" + randomString(24);
 }

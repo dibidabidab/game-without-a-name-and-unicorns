@@ -1,6 +1,6 @@
 
-#ifndef GAME_LUASCRIPT_H
-#define GAME_LUASCRIPT_H
+#ifndef GAME_LUASCRIPTED_H
+#define GAME_LUASCRIPTED_H
 
 #include "../../macro_magic/component.h"
 #include "../entity_templates/LuaEntityTemplate.h"
@@ -16,7 +16,9 @@ COMPONENT(
     sol::function updateFunc, onDestroyFunc;
     asset<luau::Script> updateFuncScript, onDestroyFuncScript;
 
+    sol::table saveData;
+
 END_COMPONENT(LuaScripted)
 
 
-#endif //GAME_LUASCRIPT_H
+#endif //GAME_LUASCRIPTED_H

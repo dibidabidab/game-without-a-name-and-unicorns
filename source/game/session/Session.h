@@ -15,9 +15,9 @@ class Session
     std::list<Player_ptr> players;
     Player_ptr localPlayer;
 
-    SaveGame saveGame;
-
   public:
+
+    SaveGame saveGame;
 
     Session(const char *saveGamePath);
 

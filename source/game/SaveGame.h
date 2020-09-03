@@ -13,6 +13,8 @@ struct SaveGame
 
     void save(const char *path=NULL); // if path == NULL then same path from constructor is used.
 
+    sol::table getSaveDataForEntity(const std::string &entitySaveGameID, bool temporary);
+
   private:
     std::string loadedFromPath;
 };

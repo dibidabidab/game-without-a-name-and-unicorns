@@ -22,6 +22,8 @@ class LuaEntityTemplate : public EntityTemplate
     bool persistentArgs = false;
 
   public:
+    const std::string name;
+
     asset<luau::Script> script;
 
     LuaEntityTemplate(const char *assetName, const char *name, EntityEngine *);
@@ -39,6 +41,8 @@ class LuaEntityTemplate : public EntityTemplate
   protected:
 
     void runScript();
+
+    std::string getUniqueID();
 
 };
 
