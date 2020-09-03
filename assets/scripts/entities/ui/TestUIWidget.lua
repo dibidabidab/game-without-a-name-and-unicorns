@@ -1,6 +1,15 @@
 
 function create(widget)
 
-    print("lol")
+    setComponents(widget, {
+        NineSlicePlane = {
+            sprite = "sprites/ui/default_nine_slice_plane"
+        },
+        AABB = {
+            halfSize = {
+                50, 30
+            }
+        }
+    })
 
 end
