@@ -26,6 +26,6 @@ command("python -m glad --generator=c --extensions=GL_EXT_texture_compression_s3
 
 zip("https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.zip", "external/gu/external")
 zip("https://github.com/g-truc/glm/releases/download/0.9.9.5/glm-0.9.9.5.zip", "external/gu/external/glm-0.9.9.5")
-file("https://github.com/nlohmann/json/releases/download/v3.6.1/json.hpp", "external/gu/external/json.hpp")
+file("https://github.com/nlohmann/json/releases/download/v3.9.1/json.hpp", "external/gu/external/json.hpp")
 
 # todo: probably all of this can be replaced by cmake code and just using submodules instead of downloading zips
