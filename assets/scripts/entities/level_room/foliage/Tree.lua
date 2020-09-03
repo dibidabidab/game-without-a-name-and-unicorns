@@ -11,9 +11,12 @@ end
 
 randomizeArgs()
 
-function create(tree, args)
+function create(tree, args, saveData)
 
     math.randomseed(math.floor(args.seed))
+
+    saveData.finalLength = args.length
+    saveData.currLength = saveData.currLength or 0
 
     treeComponents = {
         AABB = {
@@ -25,7 +28,7 @@ function create(tree, args)
             zIndexEnd = args.zIndex, zIndexBegin = args.zIndex
         },
         VerletRope = {
-            length = args.growAnimation and 0 or args.length,
+            length = args.growAnimation and saveData.currLength or args.length,
             gravity = {0, 100},
             friction = .8,
             nrOfPoints = 4,
@@ -41,18 +44,7 @@ function create(tree, args)
 
     if args.growAnimation then
 
-        local growthRate = 1
-        setUpdateFunction(tree, .1, function()
-
-            local rope = getComponent(tree, "VerletRope")
-            local newLength = math.min(args.length, rope.length + growthRate)
-            setComponent(tree, "VerletRope", {
-                length = newLength
-            })
-            if newLength >= args.length then
-                setUpdateFunction(tree, 0, nil)
-            end
-        end)
+        setUpdateFunction(tree, .1, updateTree)
 
         treeComponents.VerletRope.length = args.length -- only read by addBranch()
     end
@@ -80,6 +72,19 @@ function create(tree, args)
     addBranches(1)
 
     randomizeArgs()
+end
+
+function updateTree(deltaTime, tree, saveData)
+
+    local growthRate = .3
+
+    saveData.currLength = math.min(saveData.finalLength, saveData.currLength + growthRate)
+    setComponent(tree, "VerletRope", {
+        length = saveData.currLength
+    })
+    if saveData.currLength >= saveData.finalLength then
+        setUpdateFunction(tree, 0, nil)
+    end
 end
 
 addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, length, addLeaves, zIndex, args) -- side should be -1 or 1, posAlongParent should be between 0 and 1

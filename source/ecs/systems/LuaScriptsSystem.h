@@ -4,7 +4,7 @@
 
 #include "EntitySystem.h"
 #include "../../level/room/Room.h"
-#include "../components/LuaScript.h"
+#include "../components/LuaScripted.h"
 
 class LuaScriptsSystem : public EntitySystem
 {

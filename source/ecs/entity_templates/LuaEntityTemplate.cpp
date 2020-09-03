@@ -1,7 +1,8 @@
 
 #include "LuaEntityTemplate.h"
-#include "../components/LuaScript.h"
+#include "../components/LuaScripted.h"
 #include "../components/physics/Physics.h"
+#include "../../game/Game.h"
 
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, EntityEngine *engine_)
@@ -10,6 +11,8 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, En
 {
     this->engine = engine_; // DONT RENAME engine_ to engine!!!, lambdas should use this->engine.
     env["TEMPLATE_NAME"] = name;
+
+    defaultArgs = sol::table::create(env.lua_state());
 
     int
         TEMPLATE = env["TEMPLATE"] = 1 << 0,
@@ -100,6 +103,10 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
 
     try
     {
+        LuaScripted& luaScripted = engine->entities.get_or_assign<LuaScripted>(e);
+        luaScripted.saveGameEntityID = std::to_string(persistent ? mu::randomInt(1, std::numeric_limits<int>::max()) : 0); // wil be overridden if found in arguments (that are possibly saved in .lvl)
+
+
         if (arguments.has_value() && defaultArgs.valid())
         {
             for (auto &[key, defaultVal] : defaultArgs)
@@ -111,12 +118,17 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
 
         if (persistent)
         {
+            if (arguments.value()["saveGameEntityID"].valid())
+                luaScripted.saveGameEntityID = arguments.value()["saveGameEntityID"];
+            else
+                arguments.value()["saveGameEntityID"] = luaScripted.saveGameEntityID;
+
             auto &p = engine->entities.assign_or_replace<Persistent>(e, persistency);
             if (persistentArgs && arguments.has_value() && arguments.value().valid())
                 lua_converter<json>::fromLuaTable(arguments.value(), p.data);
         }
 
-        sol::protected_function_result result = createFunc(e, arguments);
+        sol::protected_function_result result = createFunc(e, arguments, getEntitySaveGameData(luaScripted.saveGameEntityID));
         if (!result.valid())
             throw gu_err(result.get<sol::error>().what());
 
