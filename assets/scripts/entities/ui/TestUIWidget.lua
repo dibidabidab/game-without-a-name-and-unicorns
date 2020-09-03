@@ -2,8 +2,8 @@
 function create(widget)
 
     setComponents(widget, {
-        NineSlicePlane = {
-            sprite = "sprites/ui/default_nine_slice_plane"
+        TextView = {
+            text = "lorem ipsum\nPIZZA! !@!@#SDFXDF$%^&*&*^%$@#$^$?>>><<<<}{}.,.,"
         },
         AABB = {
             halfSize = {
