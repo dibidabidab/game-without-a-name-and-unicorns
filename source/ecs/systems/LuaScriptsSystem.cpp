@@ -34,7 +34,7 @@ void LuaScriptsSystem::callUpdateFunc(entt::entity e, LuaScripted &scripted, flo
 
     try
     {
-        sol::protected_function_result result = scripted.updateFunc(deltaTime, e, getEntitySaveGameData(scripted.saveGameEntityID));
+        sol::protected_function_result result = scripted.updateFunc(deltaTime, e, scripted.saveData);
         if (!result.valid())
             throw gu_err(result.get<sol::error>().what());
     }
@@ -54,7 +54,7 @@ void LuaScriptsSystem::onDestroyed(entt::registry &reg, entt::entity e)
 
     try
     {
-        sol::protected_function_result result = scripted.onDestroyFunc(e, getEntitySaveGameData(scripted.saveGameEntityID));
+        sol::protected_function_result result = scripted.onDestroyFunc(e, scripted.saveData);
         if (!result.valid())
             throw gu_err(result.get<sol::error>().what());
     }

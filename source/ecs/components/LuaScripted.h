@@ -8,14 +8,15 @@
 COMPONENT(
     LuaScripted,
     HASH(0),
-    FIELD_DEF_VAL(float, updateFrequency, 1.),
-    FIELD(final<std::string>, saveGameEntityID)
+    FIELD_DEF_VAL(float, updateFrequency, 1.)
 )
 
     float updateAccumulator = 0.;
 
     sol::function updateFunc, onDestroyFunc;
     asset<luau::Script> updateFuncScript, onDestroyFuncScript;
+
+    sol::table saveData;
 
 END_COMPONENT(LuaScripted)
 

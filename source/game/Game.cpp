@@ -72,9 +72,7 @@ void Game::setCurrentSession(Session *s)
     currSession = s;
 
     if (s)
-    {
         luau::getLuaState()["saveGame"] = s->saveGame.luaTable;
-    }
 
     onSessionChange();
 }

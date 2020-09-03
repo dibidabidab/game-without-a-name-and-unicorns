@@ -11,9 +11,6 @@ extern "C" {
 
 #include <sol/sol.hpp>
 
-// todo: maaaaybe move this to a better place:
-#define getEntitySaveGameData(id) Game::getCurrentSession().saveGame.luaTable["saveGameEntities"].get_or_create<sol::table>()[id].get_or_create<sol::table>()
-
 namespace luau
 {
     sol::state &getLuaState();
