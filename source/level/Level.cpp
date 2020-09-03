@@ -203,7 +203,7 @@ Level::Level(const char *filePath) : loadedFromFile(filePath)
         if (zResult != Z_OK)
             throw gu_err("Error while UNcompressing");
 
-        json j = json::from_cbor(uncompressedData);
+        json j = json::from_cbor(uncompressedData.begin(), uncompressedData.end());
         from_json(j, *this);
     }
     catch (std::exception &e)

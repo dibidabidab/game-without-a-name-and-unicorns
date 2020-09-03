@@ -8,7 +8,8 @@ SaveGame::SaveGame(const char *path) : loadedFromPath(path)
 
     if (File::exists(path))
     {
-        json jsonData = json::from_cbor(File::readBinary(path));
+        auto data = File::readBinary(path);
+        json jsonData = json::from_cbor(data.begin(), data.end());
         lua_converter<json>::toLuaTable(luaTable, jsonData.at("luaTable"));
     }
 }

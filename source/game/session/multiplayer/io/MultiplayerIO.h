@@ -154,7 +154,7 @@ class MultiplayerIO
 
             auto packet = new Type;
 
-            json::from_cbor(data, size).get_to(*packet);
+            json::from_cbor(data, data + size).get_to(*packet);
 
             return packet;
         });
