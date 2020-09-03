@@ -195,14 +195,6 @@ void RoomScreen::renderDebugStuff()
 
     if (ImGui::BeginMenu("Room"))
     {
-        if (ImGui::BeginMenu("Systems"))
-        {
-            for (auto sys : room->getSystems())
-                ImGui::MenuItem(sys->name.c_str(), NULL, &sys->enabled);
-
-            ImGui::EndMenu();
-        }
-
         ImGui::Separator();
 
         if (ImGui::MenuItem("Edit TileMap"))

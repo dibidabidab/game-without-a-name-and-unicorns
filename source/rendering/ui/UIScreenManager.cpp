@@ -3,7 +3,8 @@
 
 UIScreen &UIScreenManager::getActiveScreen()
 {
-    assert(!noScreens());
+    if (noScreens())
+        throw gu_err("There's no Active Screen!\n(If you're getting this error while opening a screen: a screen becomes active AFTER the script has run)");
     return *screens.back();
 }
 
@@ -17,9 +18,18 @@ void UIScreenManager::openScreen(const asset<luau::Script> &s)
     screens.push_back(new UIScreen(s));
 }
 
+static UIScreen *deleteLater = NULL;
+
 void UIScreenManager::closeActiveScreen()
 {
-    delete &getActiveScreen();
+    delete deleteLater;
+    deleteLater = NULL;
+
+    if (getActiveScreen().isUpdating())
+        deleteLater = &getActiveScreen();
+    else
+        delete &getActiveScreen();
+
     screens.pop_back();
 }
 
@@ -29,4 +39,10 @@ UIScreenManager::UIScreenManager()
         for (auto &s : screens)
             s->onResize();
     };
+}
+
+UIScreenManager::~UIScreenManager()
+{
+    while (!noScreens())
+        closeActiveScreen();
 }

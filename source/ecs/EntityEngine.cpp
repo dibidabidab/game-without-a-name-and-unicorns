@@ -193,3 +193,30 @@ entt::entity EntityEngine::createChild(entt::entity parent, const char *childNam
     return e;
 }
 
+void EntityEngine::update(double deltaTime)
+{
+    if (!initialized)
+        throw gu_err("Cannot update non-initialized EntityEngine!");
+
+    updating = true;
+
+    for (auto sys : systems)
+    {
+        if (!sys->enabled) continue;
+        gu::profiler::Zone sysZone(sys->name);
+
+        if (sys->updateFrequency == .0) sys->update(deltaTime, this);
+        else
+        {
+            float customDeltaTime = 1. / sys->updateFrequency;
+            sys->updateAccumulator += deltaTime;
+            while (sys->updateAccumulator > customDeltaTime)
+            {
+                sys->update(customDeltaTime, this);
+                sys->updateAccumulator -= customDeltaTime;
+            }
+        }
+    }
+    updating = false;
+}
+

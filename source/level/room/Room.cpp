@@ -83,28 +83,10 @@ void Room::initialize(Level *lvl)
 
 void Room::update(double deltaTime)
 {
-//    if (!initialized) // todo
-//        throw gu_err("Cannot update non-initialized Room!");
-
     gu::profiler::Zone roomZone("room " + std::to_string(getIndexInLevel()));
 
-    for (auto sys : systems)
-    {
-        if (!sys->enabled) continue;
-        gu::profiler::Zone sysZone(sys->name);
+    EntityEngine::update(deltaTime);
 
-        if (sys->updateFrequency == .0) sys->update(deltaTime, this);
-        else
-        {
-            float customDeltaTime = 1. / sys->updateFrequency;
-            sys->updateAccumulator += deltaTime;
-            while (sys->updateAccumulator > customDeltaTime)
-            {
-                sys->update(customDeltaTime, this);
-                sys->updateAccumulator -= customDeltaTime;
-            }
-        }
-    }
     tileMap->tileUpdatesPrevUpdate = tileMap->tileUpdatesSinceLastUpdate;
     tileMap->tileUpdatesSinceLastUpdate.clear();
     tileMap->wind.update(deltaTime);

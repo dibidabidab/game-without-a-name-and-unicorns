@@ -4,6 +4,9 @@
 #include "UIScreen.h"
 #include "../../game/Game.h"
 #include "../../game/session/SingleplayerSession.h"
+#include "../../ecs/systems/graphics/SpriteSystem.h"
+#include "../../ecs/systems/LuaScriptsSystem.h"
+#include "../../ecs/systems/AudioSystem.h"
 
 UIScreen::UIScreen(const asset<luau::Script> &s)
     :
@@ -11,6 +14,11 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     cam(.1, 1000, 0, 0),
     inspector(*this, "UI")
 {
+
+    addSystem(new SpriteSystem("(animated) sprites"));
+    addSystem(new AudioSystem("audio"));
+    addSystem(new LuaScriptsSystem("lua functions"));
+
     initialize();
     UIScreen::onResize();
 
@@ -28,6 +36,7 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     cam.lookAt(mu::ZERO_3);
 
     inspector.createEntity_showSubFolder = "ui";
+    inspector.createEntity_persistentOption = false;
 }
 
 void UIScreen::initializeLuaEnvironment()
@@ -67,6 +76,10 @@ void UIScreen::initializeLuaEnvironment()
 
 void UIScreen::render(double deltaTime)
 {
+    gu::profiler::Zone z("UI");
+
+    update(deltaTime); // todo: move this? Update ALL UIScreens? or only the active one?
+
     cursorPosition = cam.getCursorRayDirection() + cam.position;
 
     renderDebugStuff();

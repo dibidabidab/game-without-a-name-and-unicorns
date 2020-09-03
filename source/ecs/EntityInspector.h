@@ -47,6 +47,7 @@ class EntityInspector
   public:
 
     std::string createEntity_showSubFolder = "";
+    bool createEntity_persistentOption = true;
 
     bool
         pickEntity = false,

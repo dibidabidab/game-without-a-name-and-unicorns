@@ -23,6 +23,8 @@ class UIScreenManager
 
     void closeActiveScreen();
 
+    ~UIScreenManager();
+
 };
 
 

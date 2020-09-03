@@ -63,7 +63,7 @@ class Room : public EntityEngine
 
     int nrOfPersistentEntities() const;
 
-    void update(double deltaTime);
+    void update(double deltaTime) override;
 
   private:
 

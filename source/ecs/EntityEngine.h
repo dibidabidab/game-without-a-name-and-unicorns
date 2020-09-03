@@ -14,7 +14,7 @@
 
 class EntityEngine
 {
-    bool initialized = false;
+    bool initialized = false, updating = false;
   protected:
 
     std::list<EntitySystem *> systems;
@@ -72,6 +72,10 @@ class EntityEngine
     void setParent(entt::entity child, entt::entity parent, const char *childName="");
 
     virtual ~EntityEngine();
+
+    virtual void update(double deltaTime);
+
+    bool isUpdating() const { return updating; };
 
   protected:
 

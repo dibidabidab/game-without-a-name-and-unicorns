@@ -4,6 +4,7 @@
 #include <input/mouse_input.h>
 #include <input/key_input.h>
 #include <utils/code_editor/CodeEditor.h>
+#include <imgui_internal.h>
 #include "EntityInspector.h"
 #include "components/physics/Physics.h"
 #include "../game/Game.h"
@@ -74,6 +75,14 @@ void EntityInspector::drawGUI(const Camera *cam, DebugLineRenderer &lineRenderer
 
         pickEntity |= ImGui::MenuItem("Inspect entity", KeyInput::getKeyName(Game::settings.keyInput.inspectEntity));
         moveEntity |= ImGui::MenuItem("Move entity", KeyInput::getKeyName(Game::settings.keyInput.moveEntity));
+
+        if (ImGui::BeginMenu("Systems"))
+        {
+            for (auto sys : engine.getSystems())
+                ImGui::MenuItem(sys->name.c_str(), NULL, &sys->enabled);
+
+            ImGui::EndMenu();
+        }
 
         ImGui::EndMenu();
     }
@@ -664,10 +673,20 @@ void EntityInspector::createEntityGUI()
                 ImGui::SetTooltip("%s", description);
 
             ImGui::NextColumn();
+            if (!createEntity_persistentOption)
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            }
             if (ImGui::Button(("Persistent###pers_" + name).c_str()) || HOVERED_AND_PRESSED_ENTER)
             {
                 create = true;
                 createPersistent = true;
+            }
+            if (!createEntity_persistentOption)
+            {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleVar();
             }
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Save the created entity to level file");
@@ -730,9 +749,12 @@ void EntityInspector::templateArgsGUI()
     ImGui::Columns(1);
     ImGui::Separator();
 
-    ImGui::Checkbox("Persistent", &createPersistent);
-    if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("Save the created entity to level file");
+    if (createEntity_persistentOption)
+    {
+        ImGui::Checkbox("Persistent", &createPersistent);
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("Save the created entity to level file");
+    }
 
     if (ImGui::Button("Create") || HOVERED_AND_PRESSED_ENTER)
     {

@@ -56,6 +56,13 @@ sol::state &luau::getLuaState()
         env["tryCloseGame"] = [] {
             gu::setShouldClose(true);
         };
+
+        env["openScreen"] = [] (const char *script) {
+            Game::uiScreenManager->openScreen(asset<Script>(script));
+        };
+        env["closeActiveScreen"] = [] {
+            Game::uiScreenManager->closeActiveScreen();
+        };
     }
     return *lua;
 }
