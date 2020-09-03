@@ -1,3 +1,5 @@
+#! python3
+
 import subprocess
 import urllib.request
 import zipfile
