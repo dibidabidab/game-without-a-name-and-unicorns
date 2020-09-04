@@ -6,6 +6,8 @@
 #include <graphics/orthographic_camera.h>
 #include "../../ecs/EntityEngine.h"
 #include "../../ecs/EntityInspector.h"
+#include "TextRenderer.h"
+#include "../../ecs/components/Children.h"
 
 class UIScreen : public EntityEngine, public Screen
 {
@@ -16,6 +18,8 @@ class UIScreen : public EntityEngine, public Screen
     DebugLineRenderer lineRenderer;
 
     OrthographicCamera cam;
+
+    TextRenderer textRenderer;
 
   protected:
     void initializeLuaEnvironment() override;
@@ -29,6 +33,11 @@ class UIScreen : public EntityEngine, public Screen
     void onResize() override;
 
     void renderDebugStuff();
+
+  private:
+    void renderFamily(const Parent &, double deltaTime);
+
+    void renderChild(entt::entity childEntity, double deltaTime);
 };
 
 

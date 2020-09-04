@@ -1,6 +1,7 @@
 
 #include <imgui.h>
 #include <utils/code_editor/CodeEditor.h>
+#include <utils/quad_renderer.h>
 #include "UIScreen.h"
 #include "../../game/Game.h"
 #include "../../game/session/SingleplayerSession.h"
@@ -74,13 +75,37 @@ void UIScreen::initializeLuaEnvironment()
     };
 }
 
+static ivec2 textCursor = ivec2(0);
+static int currLineHeight = 0;
+
 void UIScreen::render(double deltaTime)
 {
     gu::profiler::Zone z("UI");
+    textCursor = ivec2(0);
+    currLineHeight = 0;
+
+    lineRenderer.projection = cam.combined;
 
     update(deltaTime); // todo: move this? Update ALL UIScreens? or only the active one?
 
     cursorPosition = cam.getCursorRayDirection() + cam.position;
+
+    {   // start of render tree:
+
+        // orphan parent UIElements:
+        auto startingPoints = entities.view<Parent, UIElement>(entt::exclude<Child>);
+
+        startingPoints.each([&] (const Parent &parent, UIElement &) {
+            renderFamily(parent, deltaTime);
+        });
+
+        // orphan AND childless UIElements:
+        entities.view<UIElement>(entt::exclude<Child, Parent>).each([&] (auto e, UIElement &) {
+            renderChild(e, deltaTime);
+        });
+    }
+
+    textRenderer.render(cam);
 
     renderDebugStuff();
 }
@@ -112,4 +137,22 @@ void UIScreen::renderDebugStuff()
         ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
+}
+
+void UIScreen::renderFamily(const Parent &parent, double deltaTime)
+{
+    for (auto &child : parent.children)
+    {
+        renderChild(child, deltaTime);
+        Parent *childParent = entities.try_get<Parent>(child);
+        if (childParent)    // render grandchildren of `parent`
+            renderFamily(*childParent, deltaTime);
+    }
+}
+
+void UIScreen::renderChild(entt::entity childEntity, double deltaTime)
+{
+    auto *textView = entities.try_get<TextView>(childEntity);
+    if (textView)
+        textRenderer.add(*textView, 0, textCursor, currLineHeight);
 }

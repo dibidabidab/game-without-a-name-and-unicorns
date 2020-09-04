@@ -3,13 +3,10 @@ function create(widget)
 
     setComponents(widget, {
         TextView = {
-            text = "lorem ipsum\nPIZZA! !@!@#SDFXDF$%^&*&*^%$@#$^$?>>><<<<}{}.,.,"
+            text = "Lorem Ipsum!!gggpP\nPizza dibidabab!\n@!@$$%^&43",
+            fontSprite = "sprites/ui/default_font"
         },
-        AABB = {
-            halfSize = {
-                50, 30
-            }
-        }
+        UIElement = {}
     })
 
 end

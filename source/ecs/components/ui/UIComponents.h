@@ -6,6 +6,16 @@
 #include "../../../macro_magic/component.h"
 
 COMPONENT(
+    UIElement,
+    HASH(0),
+    FIELD_DEF_VAL(ivec2, topLeftPos, ivec2(0)),
+    FIELD_DEF_VAL(ivec2, size, ivec2(4))
+)
+END_COMPONENT(UIElement)
+
+
+
+COMPONENT(
     NineSlicePlane,
     HASH(0),
     FIELD(asset<aseprite::Sprite>, sprite)
@@ -17,7 +27,11 @@ COMPONENT(
     TextView,
     HASH(0),
     FIELD(std::string, text),
-    FIELD_DEF_VAL(bool, wrapInAABB, false)
+    FIELD(asset<aseprite::Sprite>, fontSprite),
+    FIELD_DEF_VAL(uint8, mapColorFrom, 0u),
+    FIELD_DEF_VAL(uint8, mapColorTo, 0u),
+    FIELD_DEF_VAL(int, lineSpacing, 3),
+    FIELD_DEF_VAL(int, letterSpacing, 1)
 )
 END_COMPONENT(TextView)
 
