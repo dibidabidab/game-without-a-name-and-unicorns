@@ -8,12 +8,14 @@
 #include "../../ecs/systems/graphics/SpriteSystem.h"
 #include "../../ecs/systems/LuaScriptsSystem.h"
 #include "../../ecs/systems/AudioSystem.h"
+#include "../level/room/RoomScreen.h"
 
 UIScreen::UIScreen(const asset<luau::Script> &s)
     :
     script(s),
     cam(.1, 1000, 0, 0),
-    inspector(*this, "UI")
+    inspector(*this, "UI"),
+    applyPaletteUIShader("Apply palette UI shader", "shaders/fullscreen_quad", "shaders/ui/apply_palette")
 {
 
     addSystem(new SpriteSystem("(animated) sprites"));
@@ -80,6 +82,7 @@ static int currLineHeight = 0;
 
 void UIScreen::render(double deltaTime)
 {
+    assert(indexedFbo != NULL);
     gu::profiler::Zone z("UI");
     textCursor = ivec2(0);
     currLineHeight = 0;
@@ -105,7 +108,39 @@ void UIScreen::render(double deltaTime)
         });
     }
 
-    textRenderer.render(cam);
+    {   // indexed image:
+        indexedFbo->bind();
+
+        uint zero = 0;
+        glClearBufferuiv(GL_COLOR, 0, &zero);
+
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+
+        textRenderer.render(cam);
+
+        glDisable(GL_DEPTH_TEST);
+        indexedFbo->unbind();
+    }
+
+    {   // indexed fbo -> rgb
+        applyPaletteUIShader.use();
+
+
+        glUniform2i(applyPaletteUIShader.location("realResolution"), gu::widthPixels, gu::heightPixels);
+
+        auto palettesTexture = Game::palettes->get3DTexture();
+        palettesTexture->bind(0);
+        glUniform1i(applyPaletteUIShader.location("palettes"), 0);
+        glUniform1ui(applyPaletteUIShader.location("paletteEffect"), RoomScreen::currentPaletteEffect);
+        glUniform1ui(applyPaletteUIShader.location("prevPaletteEffect"), RoomScreen::prevPaletteEffect);
+        glUniform1f(applyPaletteUIShader.location("timeSinceNewPaletteEffect"), RoomScreen::timeSinceNewPaletteEffect);
+
+        indexedFbo->colorTexture->bind(1, applyPaletteUIShader, "indexedImage");
+
+        Mesh::getQuad()->render();
+    }
 
     renderDebugStuff();
 }
@@ -115,6 +150,12 @@ void UIScreen::onResize()
     cam.viewportWidth = ceil(gu::widthPixels / 3.);
     cam.viewportHeight = ceil(gu::heightPixels / 3.);
     cam.update();
+
+    // create a new framebuffer to render the pixelated UIScreen to:
+    delete indexedFbo;
+    indexedFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
+    indexedFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+    indexedFbo->addDepthTexture(GL_NEAREST, GL_NEAREST);
 }
 
 void UIScreen::renderDebugStuff()

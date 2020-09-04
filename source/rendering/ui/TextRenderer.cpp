@@ -70,6 +70,13 @@ void TextRenderer::add(const TextView &textView, int lineX, ivec2 &cursor, int &
         int attrOffset = 0;
 
         int yOffset = slice->pivot.has_value() ? -slice->pivot.value().y : 0;
+
+        if (textView.waving)
+        {
+            float y = sin(cursor.x * textView.wavingFrequency + glfwGetTime() * textView.wavingSpeed) * textView.wavingAmplitude;
+            yOffset += y;
+        }
+
         instancedData.set(posType(cursor.x, cursor.y + yOffset + currLineHeight, 0), vertI, attrOffset);
         attrOffset += sizeof(posType);
 

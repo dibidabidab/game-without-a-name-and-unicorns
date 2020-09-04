@@ -31,7 +31,12 @@ COMPONENT(
     FIELD_DEF_VAL(uint8, mapColorFrom, 0u),
     FIELD_DEF_VAL(uint8, mapColorTo, 0u),
     FIELD_DEF_VAL(int, lineSpacing, 3),
-    FIELD_DEF_VAL(int, letterSpacing, 1)
+    FIELD_DEF_VAL(int, letterSpacing, 1),
+
+    FIELD_DEF_VAL(bool, waving, false),
+    FIELD_DEF_VAL(float, wavingFrequency, 1.),
+    FIELD_DEF_VAL(float, wavingSpeed, 1.),
+    FIELD_DEF_VAL(float, wavingAmplitude, 8.)
 )
 END_COMPONENT(TextView)
 

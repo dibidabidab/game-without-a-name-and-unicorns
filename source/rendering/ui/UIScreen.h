@@ -4,6 +4,7 @@
 
 
 #include <graphics/orthographic_camera.h>
+#include <graphics/frame_buffer.h>
 #include "../../ecs/EntityEngine.h"
 #include "../../ecs/EntityInspector.h"
 #include "TextRenderer.h"
@@ -20,6 +21,9 @@ class UIScreen : public EntityEngine, public Screen
     OrthographicCamera cam;
 
     TextRenderer textRenderer;
+
+    FrameBuffer *indexedFbo = NULL;
+    ShaderAsset applyPaletteUIShader;
 
   protected:
     void initializeLuaEnvironment() override;
