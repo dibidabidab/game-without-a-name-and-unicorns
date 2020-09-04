@@ -27,9 +27,8 @@ arg("type", "oak")
     crownAngle              degreeRange Angle of branches at the crown
     crownMinAngle           degrees     Minimum angle between branches at the crown
 
+    tendency                enum        "up", "out", "down", "random"
 
-
-    branchChance            factor      Chance of branches splitting off main branch
 
 
 
