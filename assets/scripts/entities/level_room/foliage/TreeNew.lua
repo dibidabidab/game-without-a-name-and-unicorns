@@ -1,7 +1,6 @@
-
-arg("age", math.random(10, 100))
-arg("zIndex", -600 - math.random(200))
-arg("type", "oak")
+arg("ageArg", math.random(10, 100))
+arg("zIndexArg", -600 - math.random(200))
+arg("typeArg", "oak")
 
 --[[ types in tree config
     length          Length in pixels
@@ -13,112 +12,88 @@ arg("type", "oak")
 ]]--
 
 --[[ TreeConfig
-    length                  length      Max length of the stem at full age. Length at age 0 is 0
-    branchlessStart         factorRange Amount of branch from the start that cannot have any branches split off of it
-    width                   factorRange Stem width factor. 1 is normal width. Width depends on size and weight
+    length                  length      200     Max length of the stem at full age. Length at age 0 is 0
+    branchlessStart         factorRange .3      Amount of branch from the start that cannot have any branches split off of it
+    width                   factorRange 1       Stem width factor. 1 is normal width. Width depends on size and weight
 
-    pieceLength             lengthRange Length of tree pieces
-    pieceAmount             amountRange Amount of tree pieces
+    pieceLength             lengthRange 10      Length of tree pieces
+    pieceAmount             amountRange         Amount of tree pieces
 
-    branchChance            factorRange Chance of branches splitting off
-    branchAngle             degreeRange Angle of branches splitting off
+    branchChance            factorRange         Chance of branches splitting off
+    branchAngle             degreeRange         Angle of branches splitting off
 
-    crownBranches           amountRange Amount of branches coming out of the crown of a branch
-    crownAngle              degreeRange Angle of branches at the crown
-    crownMinAngle           degrees     Minimum angle between branches at the crown
+    crownBranches           amountRange         Amount of branches coming out of the crown of a branch
+    crownAngle              degreeRange         Angle of branches at the crown
+    crownMinAngle           degrees             Minimum angle between branches at the crown
 
-    tendency                enum        "up", "out", "down", "random"
+    tendency                enum                "up", "out", "down", "none": tendency for the tree to grow towards
+    tendencyStrength        factor              Strenght of tendency: 1 is medium tendency, above 1 will ignore some limits
 
+    branchLengthFct         factor              Each branch should have a reduced length (0-.9) or not (1)
+    branchPiecesFct         factor              Each branch should have a reduced nr of pieces (0-.9) or not (1)
+    pieceLengthFct          factor              Each branch piece should have a reduced length (0-.9) or not (1)
 
-
-
-
-    stemBranchable{Min/Max}     factor      Percentage of the top part of the stem that can contain branches
-    branchLength                length      Total length of the branches
-    branchLengthRnd             factor      Maximum percentage of length that a branch can (randomly) be reduced
-    branchLengthStemRdc         factor      Percentage of branch length reduction at the top of the stem. Extends
-                                            Linearly to the lowest point where branches can exist. 
-
-    branchPiecesMax             amount      Max number of consecutive branch pieces in a tree
-    branchPiecesMaxAgeZero      amount      Max number of consecutive branch pieces at age 0 (will be scaled linearly)
-    branchPieceLength{Min/Max}  length      Minimum/maximum length of a branch piece
-    branchPieceLengthRdcf       factor      Reduction of min/max length of each consecutive branch piece
-
-    branchAngle{Min/Max}        degrees     Minimum/maximum angle of a branch splitting off of another branch or the stem
-    branchAngleCnt{Min/Max}     degrees     Minimum/maximum angle of a branch continuing from another branch
-
-    branchAmountStem{Min/Max}   amount      Minimum/maximum amount of a branches splitting off of the stem
-    branchAmountSplit{Min/Max}  amount      Minimum/maximum amount of a branches splitting off of another branch
-
-    branchLimitingMode          enum        "limitPieces" | "limitLength"
-    branchConstructingMode      enum        "fromPieceNr" | "fromLength"
+    limitLength             length              Limit the total length of recursive branches
+    limitBranches           amount              Limit the depth of recursive branches
+    limitPieces             amount              Limit the depth of recursive branch pieces
 ]]--
 
 treeConfigs = {
-    pine = {
-        stemSize = 300,
-        stemBranchableMin = .15,
-        stemBranchableMax = .9,
-        branchLength = 40,
-        branchLengthRnd = .15,
-        branchLengthStemRdc = .1
+    default = {
     },
 }
 
-treeConfig = 
+age = ageArg
+zIndex = zIndexArg
+type = typeArg
+rootConfig = treeConfigs[type]
+
+lib = {
+    random = function(range)
+        return math.random(range[1], range[2])
+    end,
+    cap = function(range, value)
+        if value < range[1] then
+            return range[1]
+        end
+        if value > range[2] then
+            return range[2]
+        end
+        return value
+    end,
+    interpolate = function(from, to, value)
+        value = value - from[1] / (from[2] - from[1])
+        return value * (to[2] - to[1]) + to[1]
+    end,
+    interpolateCap = function(from, to, value)
+        return lib.interpolate(from, to, lib.cap(from, value))
+    end
+}
 
 -- Component functions
 
-stemCmp = function(treeConfig, age)
+rootState = {
+    rotation = { 0, 100 },
+    zIndex = zIndex,
+    zDelta = 0,
+    length = 0,
+    depth = 0,
 
-    local stemHeight = treeConfig.stemHeight * age
-    local stemWidth  = (treeConfig.stemWidth - 1) * age + 1
-          stemWidth  = math.floor(stemWidth * math.random(1, 1 + treeConfig.stemWidthRnd))
+    pieceLength = rootConfig.pieceLength,
+    pieceAmount = rootConfig.pieceAmount,
+    branchLength = rootConfig.branchLength
+}
 
-    return {
-        AABB = { halfSize = {8, 8}}, 
-        DrawPolyline = {
-            colors = { 6 },
-            repeatX = stemWidth,
-            zIndexEnd = args.zIndex,
-            zIndexBegin = args.zIndex
-        },
-        VerletRope = {
-            length = stemHeight,
-            gravity = {0, 100},
-            friction = .8,
-            nrOfPoints = 4,
-            moveByWind = 6
-        },
-        AsepriteView = {
-            sprite = "sprites/tree_leaves",
-            frame = 4,
-            zIndex = args.zIndex
-        }
-    }
-            
-end
+branch = function(parent, treeConfig, stateTable, entity)
+    entity = entity or createChild(parent, "branch")
 
-branchCmp = function(treeConfig, age)
+    length = treeConfig
 
-
+    width = branches(entity, treeConfig, stateTable)
 
 end
 
-tree = function(treeConfig, age)
-
-	components = stem(treeConfig);
-    
-    local branchableStemSize = stemSize * math.random(treeConfig.stemBranchableMin, treeconfig.stemBranchableMax)
-
-    for _=0, random(treeConfig.branchAmountStemMin, treeConfig.branchAmountStemMax) do
-        branch (treeConfig, age, )
-    end
-
-end
-
-branches = function (treeConfig, age, parent, length, depth)
-
+branches = function(treeConfig, age, parent, length, depth)
 
 
 end
