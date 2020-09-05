@@ -46,6 +46,7 @@ arg("typeArg", "oak")
 
 treeConfigs = {
     default = {
+
     },
 }
 
@@ -102,6 +103,18 @@ end
 
 function branch(parent, treeConfig, treeState)
     local angle        = lib.random(treeConfig.branchAngle)
+    doBranch(parent, treeConfig, treeState, angle)
+end
+
+function crown(parent, treeConfig, treeState)
+    local amount  = lib.random(treeConfig.crownBranches)
+    local angles = randomDistrMin(treeConfig.crownAngle, treeConfig.crownMinAngle, amount)
+    for _, angle in pairs(angles) do
+        doBranch(parent, treeConfig, treeState, angle)
+    end
+end
+
+function doBranch(parent, treeConfig, treeState, angle)
     local bRotation    = treeState.rotation
     treeState.rotation = lib.rotate(treeState.rotation, angle)
     treeState.depth    = treeState.depth + 1
@@ -110,20 +123,6 @@ function branch(parent, treeConfig, treeState)
 
     treeState.rotation = bRotation
     treeState.depth    = treeState.depth - 1
-end
-
-function crown(parent, treeConfig, treeState)
-    local amount  = lib.random(treeConfig.crownBranches)
-    local angles = randomDistrMin(treeConfig.crownAngle, treeConfig.crownMinAngle, amount)
-    for _, angle in pairs(angles) do
-        treeState.rotation = lib.rotate(treeState.rotation, angle)
-        treeState.depth    = treeState.depth + 1
-
-        piece(parent, treeConfig, treeState)
-
-        treeState.rotation = bRotation
-        treeState.depth    = treeState.depth - 1
-    end
 end
 
 function treePieces     (parent, treeConfig, treeState)
