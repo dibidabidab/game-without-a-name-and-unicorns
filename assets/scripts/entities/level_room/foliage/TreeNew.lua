@@ -1,3 +1,5 @@
+lib = include("scripts/lib")
+
 arg("ageArg", math.random(10, 100))
 arg("zIndexArg", -600 - math.random(200))
 arg("typeArg", "oak")
@@ -8,9 +10,10 @@ arg("typeArg", "oak")
     amount          An integer amount
     degrees         rotation
     enum            See description
-    xRange          lib.range(min, max) for a range of x, where x is length, factor, amount or degrees
-                    lib.sqrange(min, max) similar to range(min, max), but when getting a random value in this range,
-                        the values get squared. They are still guaranteed to stay between min and max though.
+    xRange          lib.range(min, max) or lib.range(max): range of length/factor/amount/degrees
+                    lib.sqRange(min, max) or lib.sqRange(max) similar to range, but when getting a random value in this range,
+                        the values get squared. They are still guaranteed to stay between min and max.
+                    lib.[sq]rangeDev(dev) [sq]range from -dev to dev
 ]]--
 
 --[[ TreeConfig
@@ -41,82 +44,19 @@ arg("typeArg", "oak")
     limitPieces             amount              Limit the depth of recursive branch pieces
 ]]--
 
-treeConfigs    = {
+treeConfigs = {
     default = {
     },
 }
 
-age            = ageArg
-zIndex         = zIndexArg
-type           = typeArg
-rootConfig     = treeConfigs[type]
-
-lib            = {
-    range          = function(min, max)
-        return {
-            min = min,
-            max = max,
-            fn  = lib.id
-        }
-    end,
-    sqRange        = function(min, max)
-        return {
-            min = min,
-            max = lib.psSqrt(max),
-            fn  = lib.psSquare,
-        }
-    end,
-    random         = function(range)
-        return range.fn(math.random(range.min, range.max))
-    end,
-    cap            = function(range, value)
-        if range.max < range.min then
-            return lib.cap({ min = range.max, max = range.min, fn = range.fn })
-        end
-        if value < range.min then
-            return range.min
-        end
-        if value > range.max then
-            return range.max
-        end
-        return value
-    end,
-    interpolate    = function(from, to, value)
-        value = (value - from.min) / (from.max - from.min)
-        return value * (to.max - to.min) + to.min
-    end,
-    interpolateCap = function(from, to, value)
-        return lib.interpolate(from, to, lib.cap(from, value))
-    end,
-    rotate         = function(rotation, angle)
-        return rotate2d(rotation[1], rotation[2], angle)
-    end,
-    upperLimit     = function(value, threshold)
-        if value == nil then return false end
-        return value >= threshold
-    end,
-    lowerLimit     = function(value, threshold)
-        if value == nil then return false end
-        return value <= threshold
-    end,
-    psSquare       = function(value)
-        return value * value * lib.sign(value)
-    end,
-    psSqrt         = function(value)
-        return lib.sign(value) * math.sqrt(value * lib.sign(value))
-    end,
-    sign           = function(value)
-        return select(value < 0, -1, 1)
-    end,
-    select         = function(selector, tt, ff)
-        if selector then return tt else return ff end
-    end,
-    id             = function(v) return v end,
-}
+age         = ageArg
+zIndex      = zIndexArg
+type        = typeArg
+rootConfig  = treeConfigs[type]
 
 -- Component functions
 
-rootState      = function(treeType)
+function rootState      (treeType)
     local treeConfig = treeConfigs[treeType]
     return {
         name         = "tree." + treeType,
@@ -134,7 +74,7 @@ rootState      = function(treeType)
     }
 end
 
-piece          = function(parent, treeConfig, treeState, entity)
+function piece          (parent, treeConfig, treeState, entity)
     entity                = entity or createChild(parent, "branch")
 
     local length          = lib.random(treeState.pieceLength)
@@ -150,11 +90,43 @@ piece          = function(parent, treeConfig, treeState, entity)
     treeState.totalPieces = treeState.totalPieces - 1
 end
 
-continueBranch = function(parent, treeConfig, treeState)
+function continueBranch (parent, treeConfig, treeState)
+    local angle        = lib.random(treeConfig.pieceAngle)
+    local bRotation    = treeState.rotation
+    treeState.rotation = lib.rotate(treeState.rotation, angle)
 
+    piece(parent, treeConfig, treeState)
+
+    treeState.rotation = bRotation
 end
 
-treePieces     = function(parent, treeConfig, treeState)
+function branch(parent, treeConfig, treeState)
+    local angle        = lib.random(treeConfig.branchAngle)
+    local bRotation    = treeState.rotation
+    treeState.rotation = lib.rotate(treeState.rotation, angle)
+    treeState.depth    = treeState.depth + 1
+
+    piece(parent, treeConfig, treeState)
+
+    treeState.rotation = bRotation
+    treeState.depth    = treeState.depth - 1
+end
+
+function crown(parent, treeConfig, treeState)
+    local amount  = lib.random(treeConfig.crownBranches)
+    local angles = randomDistrMin(treeConfig.crownAngle, treeConfig.crownMinAngle, amount)
+    for _, angle in pairs(angles) do
+        treeState.rotation = lib.rotate(treeState.rotation, angle)
+        treeState.depth    = treeState.depth + 1
+
+        piece(parent, treeConfig, treeState)
+
+        treeState.rotation = bRotation
+        treeState.depth    = treeState.depth - 1
+    end
+end
+
+function treePieces     (parent, treeConfig, treeState)
     -- Check if branch piece limits have been reached.
     if lib.upperLimit(treeConfig.limitLength, treeState.length) or
             lib.upperLimit(treeConfig.limitPieces, treeState.totalPieces) then
