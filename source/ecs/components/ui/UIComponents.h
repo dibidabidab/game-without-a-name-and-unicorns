@@ -16,11 +16,15 @@ END_COMPONENT(UIElement)
 
 
 COMPONENT(
-    NineSlicePlane,
+    UIContainer,
     HASH(0),
-    FIELD(asset<aseprite::Sprite>, sprite)
+    FIELD(asset<aseprite::Sprite>, nineSliceSprite),
+    FIELD_DEF_VAL(bool, autoWidth, false),
+    FIELD_DEF_VAL(bool, autoHeight, false),
+    FIELD_DEF_VAL(int, fixedWidth, 128),
+    FIELD_DEF_VAL(int, fixedHeight, 64)
 )
-END_COMPONENT(NineSlicePlane)
+END_COMPONENT(UIContainer)
 
 
 COMPONENT(

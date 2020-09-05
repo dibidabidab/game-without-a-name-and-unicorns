@@ -63,6 +63,11 @@ sol::state &luau::getLuaState()
         env["closeActiveScreen"] = [] {
             Game::uiScreenManager->closeActiveScreen();
         };
+
+        env["include"] = [&] (const char *scriptPath, const sol::this_environment &currentEnv) {
+            asset<Script> toBeIncluded(scriptPath);
+            getLuaState().unsafe_script(toBeIncluded->getByteCode().as_string_view(), currentEnv.env.value_or(env));
+        };
     }
     return *lua;
 }
