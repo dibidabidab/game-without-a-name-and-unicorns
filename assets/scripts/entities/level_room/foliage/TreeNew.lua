@@ -1,6 +1,4 @@
-arg("ageArg", math.random(10, 100))
-arg("zIndexArg", -600 - math.random(200))
-arg("typeArg", "oak")
+lib         = include("scripts/lib")
 
 --[[ types in tree config
     length          Length in pixels
@@ -8,317 +6,233 @@ arg("typeArg", "oak")
     amount          An integer amount
     degrees         rotation
     enum            See description
-    xRange          [min, max], with x length, factor, amount, degrees
+    xRange          lib.range(min, max) or lib.range(max): range of length/factor/amount/degrees
+                    lib.sqRange(min, max) or lib.sqRange(max) similar to range, but when getting a random value in this range,
+                        the values get squared. They are still guaranteed to stay between min and max.
+                    lib.[sq]rangeDev(dev) [sq]range from -dev to dev
 ]]--
 
 --[[ TreeConfig
-    length                  length      200     Max length of the stem at full age. Length at age 0 is 0
-    branchlessStart         factorRange .3      Amount of branch from the start that cannot have any branches split off of it
-    width                   factorRange 1       Stem width factor. 1 is normal width. Width depends on size and weight
+    length                  length      Max length of the stem at full age. Length at age 0 is 0
+    branchlessStart         factorRange Amount of branch from the start that cannot have any branches split off of it
+    width                   factorRange Stem width factor. 1 is normal width. Width depends on size and weight
+    widthIncrease           factor      Increase of width for each branch piece
 
-    pieceLength             lengthRange 10      Length of tree pieces
-    pieceAmount             amountRange         Amount of tree pieces
+    pieceLength             lengthRange Length of tree pieces
+    pieceAmount             amountRange Amount of tree pieces in branch
+    pieceAngle              degreeRange Angle of a branch continuation piece
 
-    branchChance            factorRange         Chance of branches splitting off
-    branchAngle             degreeRange         Angle of branches splitting off
+    branchChance            factor      Chance of branches splitting off
+    branchAngle             degreeRange Angle of branches splitting off
 
-    crownBranches           amountRange         Amount of branches coming out of the crown of a branch
-    crownAngle              degreeRange         Angle of branches at the crown
-    crownMinAngle           degrees             Minimum angle between branches at the crown
+    crownBranches           amountRange Amount of branches coming out of the crown of a branch
+    crownAngle              degreeRange Angle of branches at the crown
+    crownMinAngle           degrees     Minimum angle between branches at the crown
 
-    tendency                enum                "up", "out", "down", "none": tendency for the tree to grow towards
-    tendencyStrength        factor              Strenght of tendency: 1 is medium tendency, above 1 will ignore some limits
+    tendency                enum        "up", "out", "down", "none": tendency for the tree to grow towards
+    tendencyStrength        factor      Strenght of tendency: 1 is medium tendency, above 1 will ignore some limits
 
-    branchLengthFct         factor              Each branch should have a reduced length (0-.9) or not (1)
-    branchPiecesFct         factor              Each branch should have a reduced nr of pieces (0-.9) or not (1)
-    pieceLengthFct          factor              Each branch piece should have a reduced length (0-.9) or not (1)
+    branchLengthFct         factor      Each branch should have a reduced length (0-.9) or not (1)
+    branchPiecesFct         factor      Each branch should have a reduced nr of pieces (0-.9) or not (1)
+    pieceLengthFct          factor      Each branch piece should have a reduced length (0-.9) or not (1)
 
-    limitLength             length              Limit the total length of recursive branches
-    limitBranches           amount              Limit the depth of recursive branches
-    limitPieces             amount              Limit the depth of recursive branch pieces
+    limitLength             length      Limit the total length of recursive branches
+    limitDepth              amount      Limit the depth of recursive branches
+    limitPieces             amount      Limit the depth of recursive branch pieces
 ]]--
 
 treeConfigs = {
-    default = {
+    oak = {
+        length          = 50,
+        branchlessStart = lib.range(.4, .6),
+        width           = lib.range(1, 1.4),
+        widthIncrease   = .3,
+
+        pieceLength     = lib.range(4, 16),
+        pieceAngle      = lib.sqRangeDev(40),
+
+        branchChance    = .40,
+        branchAngle     = lib.rangeDev(50),
+
+        crownBranches   = lib.range(1),
+        crownAngle      = lib.rangeDev(60),
+        crownMinAngle   = 25,
+
+        -- ...
+
+        pieceLengthFct  = .99,
+        pieceAmountFct  = .9,
+
+        limitLength     = 200
     },
 }
 
-age = ageArg
-zIndex = zIndexArg
-type = typeArg
-rootConfig = treeConfigs[type]
-
-lib = {
-    random = function(range)
-        return math.random(range[1], range[2])
-    end,
-    cap = function(range, value)
-        if value < range[1] then
-            return range[1]
-        end
-        if value > range[2] then
-            return range[2]
-        end
-        return value
-    end,
-    interpolate = function(from, to, value)
-        value = value - from[1] / (from[2] - from[1])
-        return value * (to[2] - to[1]) + to[1]
-    end,
-    interpolateCap = function(from, to, value)
-        return lib.interpolate(from, to, lib.cap(from, value))
-    end
-}
+defaultArgs({
+                zIndex = -600 - math.random(200), -- de zIndex van de boom, netzoals in CSS
+                age    = lib.random(lib.range(.1, 1)), -- de lengte van de boomstam
+                type   = "oak",
+            })
 
 -- Component functions
 
-rootState = {
-    rotation = { 0, 100 },
-    zIndex = zIndex,
-    zDelta = 0,
-    length = 0,
-    depth = 0,
+function rootState      (treeType, zIndex)
+    local treeConfig = treeConfigs[treeType]
+    return {
+        name         = treeType,
+        rotation     = { 0, 100 },
+        zIndex       = zIndex,
+        zDelta       = 0,
+        length       = 0,
+        totalLength  = 0,
+        depth        = 0,
+        pieces       = 0,
+        totalPieces  = 0,
 
-    pieceLength = rootConfig.pieceLength,
-    pieceAmount = rootConfig.pieceAmount,
-    branchLength = rootConfig.branchLength
-}
-
-branch = function(parent, treeConfig, stateTable, entity)
-    entity = entity or createChild(parent, "branch")
-
-    length = treeConfig
-
-    width = branches(entity, treeConfig, stateTable)
-
-end
-
-branches = function(treeConfig, age, parent, length, depth)
-
-
-end
-
---[[
-
-components = {
-    AABB = {
-        halfSize = {5, 5}
-    },
-    DrawPolyline = {
-        colors = {6},
-        repeatX = 3,
-        zIndexEnd = args.zIndex, zIndexBegin = args.zIndex
-    },
-    VerletRope = {
-        length = args.length,
-        gravity = {0, 100},
-        friction = .8,
-        nrOfPoints = 4,
-        moveByWind = 6
-    },
-    AsepriteView = {
-        sprite = "sprites/tree_leaves",
-        frame = 4,
-        zIndex = args.zIndex
+        pieceLength  = treeConfig.pieceLength,
+        pieceAmount  = treeConfig.pieceAmount,
     }
-}
+end
 
-branchNr = 0
-leavesNr = 0
+function pieceEntityTable(pieceEntity, parent, length, width, rotation, zIndex)
 
-addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, length, addLeaves, zIndex) -- side should be -1 or 1, posAlongParent should be between 0 and 1
+    setComponents(pieceEntity, {
+        AABB         = {},
 
-    branchNr = branchNr + 1
-
-    local branchName = "branch." .. branchNr
-    local branch = createChild(branchName)
-
-    ::begin::
-
-    local rotateDegrees = 45
-    if math.random() > .5 then
-        rotateDegrees = 90
-    end
-    --rotateDegrees = rotateDegrees + math.random(-20, 0)
-    rotateDegrees = rotateDegrees * side
-
-    local gravity = rotate2d(parentBranchComps.VerletRope.gravity[1], parentBranchComps.VerletRope.gravity[2], rotateDegrees)
-
-    local horizontal = math.abs(gravity[2]) < .1
-
-    if horizontal and length > 20 then
-        goto begin
-    end
-
-    local thickness = length > 64 and 3 or (length > 30 and 2 or 1)
-    local xThickness = 1
-    local yThickness = 1
-    if horizontal then
-        yThickness = thickness
-    else
-        xThickness = thickness
-    end
-
-    local zIndexBegin = zIndex
-    local zIndexEnd = zIndex + 32
-
-    childComponents[branchName] = {
-        AABB = {},
         DrawPolyline = {
-            colors = {6},
-            repeatX = xThickness - 1,
-            repeatY = yThickness - 1,
-            zIndexBegin = zIndexBegin, zIndexEnd = zIndexEnd
+            colors      = { colors.wood },
+            repeatX     = math.sqrt(width),
+            zIndexBegin = zIndex.min,
+            zIndexEnd   = zIndex.max,
         },
-        VerletRope = {
-            length = length,
-            gravity = gravity,
-            friction = .95,
+
+        VerletRope   = {
+            length     = length,
+            gravity    = rotation,
+
+            friction   = .95,
             nrOfPoints = 1,
-            moveByWind = 6
+            moveByWind = 6,
         },
+
         AttachToRope = {
-            ropeEntity = parentBranch,
-            x = posAlongParent
+            ropeEntity = parent,
+            x          = 1,
         }
-    }
+    })
+end
 
-    -- BIG LEAVES:
-    if addLeaves then
+function piece          (parent, treeConfig, treeState, entity)
+    entity                = entity or createChild(parent, "branch")
 
-        local leavePosAlongBranch = math.min(18 / length, 1)
+    local length          = lib.random(treeState.pieceLength)
 
-        repeat
+    treeState.length      = treeState.length + length
+    treeState.totalLength = treeState.totalLength + length
+    treeState.pieces      = treeState.pieces + 1
+    treeState.totalPieces = treeState.totalPieces + 1
+--     treeState.pieceLength = treeState.pieceLength * treeConfig.pieceLengthFct
 
-            leavesNr = leavesNr + 1
+    local width           = treePieces(entity, treeConfig, treeState)
+    pieceEntityTable(entity, parent, length, width, treeState.rotation, lib.range(treeState.zIndex, treeState.zIndex))
 
-            local leavesName = "leaves." .. leavesNr
-            createChild(leavesName)
+    treeState.length      = treeState.length + length
+    treeState.totalLength = treeState.totalLength - length
+    treeState.pieces      = treeState.pieces - 1
+    treeState.totalPieces = treeState.totalPieces - 1
+    -- treeState.pieceLength = treeState.pieceLength / treeConfig.pieceLengthFct
 
-            childComponents[leavesName] = {
-                AABB = {
-                    halfSize = {3, 3}
-                },
-                AttachToRope = {
-                    ropeEntity = branch,
-                    x = leavePosAlongBranch
-                },
-                AsepriteView = {
-                    sprite = "sprites/tree_leaves",
-                    zIndex = leavePosAlongBranch > .7 and zIndexBegin or zIndexEnd,
-                    frame = math.random(0, 2)
-                },
-                TemplateSpawner = {
-                    templateName = "TreeLeaveParticle",
-                    minDelay = 4,
-                    maxDelay = 100,
-                    minQuantity = 1,
-                    maxQuantity = 1
-                },
-            }
+    return width
+end
 
-            local minStep = 5 / length
-            local maxStep = minStep * 3
+function continueBranch (parent, treeConfig, treeState)
+    local angle        = lib.random(treeConfig.pieceAngle)
+    local bRotation    = treeState.rotation
+    treeState.rotation = lib.rotate(treeState.rotation, angle)
 
-            leavePosAlongBranch = leavePosAlongBranch + minStep + math.random() * (maxStep - minStep)
+    local width        = piece(parent, treeConfig, treeState)
 
-        until leavePosAlongBranch > .9
+    treeState.rotation = bRotation
+    return width + treeConfig.widthIncrease
+end
+
+function branch(parent, treeConfig, treeState)
+    if not lib.chance(treeConfig.branchChance) then return 0 end
+    local angle = lib.random(treeConfig.branchAngle)
+    local width = doBranch(parent, treeConfig, treeState, angle)
+    return width
+end
+
+function crown(parent, treeConfig, treeState)
+    local amount = lib.random(treeConfig.crownBranches)
+    local angles = lib.randomDistrMin(treeConfig.crownAngle, treeConfig.crownMinAngle, amount)
+    local width  = 0
+    for _, angle in pairs(angles) do
+        width = width + doBranch(parent, treeConfig, treeState, angle)
     end
-    -- END BIG LEAVES
+    return width
+end
 
-    -- SMALL LEAVES:
-    local leavePosAlongBranch = math.min(64 / length, 1)
-    repeat
+function doBranch(parent, treeConfig, treeState, angle)
+    local bRotation        = treeState.rotation
+    local bLength          = treeState.length
+    treeState.rotation     = lib.rotate(treeState.rotation, angle)
+    treeState.length       = 0
+    treeState.depth        = treeState.depth + 1
+    -- treeState.pieceAmount  = treeState.pieceAmount * treeConfig.branchPiecesFct
 
-        leavesNr = leavesNr + 1
+    local width            = piece(parent, treeConfig, treeState)
 
-        local leavesName = "leave_small." .. leavesNr
-        createChild(leavesName)
+    treeState.rotation     = bRotation
+    treeState.length       = bLength
+    treeState.depth        = treeState.depth - 1
+    -- treeState.pieceAmount  = treeState.pieceAmount / treeConfig.branchPiecesFct
+    return width
+end
 
-        childComponents[leavesName] = {
-            AABB = {},
-            AttachToRope = {
-                ropeEntity = branch,
-                x = leavePosAlongBranch
-            },
-            AsepriteView = {
-                sprite = "sprites/tree_leaves",
-                zIndex = zIndexBegin + leavePosAlongBranch * (zIndexEnd - zIndexBegin),
-                frame = 3,
-                flipHorizontal = gravity[1] < 0 and true or false,
-                flipVertical = gravity[2] < 0 and true or false
-            }
-        }
-
-        local minStep = 4 / length
-        local maxStep = minStep * 2
-
-        leavePosAlongBranch = leavePosAlongBranch + minStep + math.random() * (maxStep - minStep)
-
-    until leavePosAlongBranch >= .96
-    -- END SMALL LEAVES
-
-    -- APPLE:
-    if math.random() < args.appleChance then
-        local appleName = "apple." .. branchNr
-        applyTemplate(createChild(appleName), "Apple")
-        childComponents[appleName] = {
-            AttachToRope = {
-                ropeEntity = branch,
-                x = math.random(),
-                offset = {0, -4}
-            },
-            Physics = {
-                gravity = 0
-            },
-            Health = {
-                componentsToRemoveOnDeath = { "Physics" }
-            },
-            AsepriteView = {
-                zIndex = zIndexEnd + 32
-            }
-        }
+function treePieces     (parent, treeConfig, treeState)
+    -- Check if branch piece limits have been reached.
+    if lib.upperLimit(treeConfig.limitLength, treeState.totalLength) or
+            lib.upperLimit(treeConfig.limitPieces, treeState.totalPieces) then
+        return 0
     end
-    -- END APPLE
 
-    -- SUB BRANCHES:
-    if length > 20 then
+    local width = 0
 
-        local nrOfNewBranches = math.random(1, length > 32 and (length > 48 and 5 or 3) or 2)
-
-        local _
-        for _ = 1, nrOfNewBranches do
-
-            local newLength = childComponents[branchName].VerletRope.length * (.2 + math.random() * .3)
-            local newPosAlongParent = math.random() * .5 + .4
-            local newZIndex = zIndexBegin + newPosAlongParent * (zIndexEnd - zIndexBegin)
-
-            addBranch(branch, childComponents[branchName], math.random() > .5 and -1 or 1, newPosAlongParent, newLength, false, newZIndex)
+    -- Check if this branch has finished.
+    if not lib.upperLimit(treeState.pieceAmount, treeState.pieces) and
+            not lib.upperLimit(treeState.branchLength, treeState.length) then
+        -- Not finished, continue branch
+        width = width + continueBranch(parent, treeConfig, treeState)
+        if not lib.upperLimit(treeConfig.limitDepth, treeState.depth) then
+            -- Create new branch from this point, if depth limit has not been reached
+            width = width + branch(parent, treeConfig, treeState)
         end
+    else if not lib.upperLimit(treeConfig.limitDepth, treeState.depth) then
+        --Finished, create crown if depth limit has not been reached
+        width = width + crown(parent, treeConfig, treeState)
     end
-    -- END SUB BRANCHES
+    end
 
+    return width
 end
 
-addBranches = function(side)
+function create(entity, args)
+    treeState  = rootState(args.type, args.zIndex)
+    treeConfig = treeConfigs[args.type]
+    piece(nil, treeConfig, treeState, entity)
 
-    x = .1 + math.random() * .4
+    -- Tree root should not be attatched to a parent
+    removeComponent(entity, "AttachToRope")
 
-    repeat
+    -- Grass at the bottom of the tree
+    setComponent(entity, "AsepriteView", {
+        sprite = "sprites/tree_leaves",
+        frame  = 4,
+        zIndex = args.zIndex
+    })
 
-        length = components.VerletRope.length * (.2 + math.random() * .4)
-
-        xInv = 1. - x
-
-        length = length * .3 + length * .7 * xInv
-
-        addBranch(entity, components, side, x, length, true, args.zIndex - 16)
-
-        x = x + .1 + math.random() * .1
-
-    until x >= 1
+    -- Larger AABB, so we can pick it up easier
+    setComponent(entity, "AABB", {
+        halfSize = { 4, 4 }, -- vierkantje is 6x6 pixels
+    })
 end
-
-addBranches(-1)
-addBranches(1)
-]]--
