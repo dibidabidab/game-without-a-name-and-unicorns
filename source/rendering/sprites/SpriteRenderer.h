@@ -15,9 +15,6 @@
  */
 class SpriteRenderer
 {
-
-    const MegaSpriteSheet *megaSpriteSheet;
-
     SharedMesh quad;
     VertData instancedData;
     int instancedDataID = -1;
@@ -25,9 +22,13 @@ class SpriteRenderer
     ShaderAsset shader;
 
   public:
-    SpriteRenderer(const MegaSpriteSheet *);
+    SpriteRenderer();
 
-    void render(double deltaTime, const Camera &cam, entt::registry &reg);
+    void renderUsingAABBs(const Camera &, entt::registry &);
+
+    void add(const AsepriteView &, const ivec2 &position);
+
+    void render(const Camera &);
 
 };
 

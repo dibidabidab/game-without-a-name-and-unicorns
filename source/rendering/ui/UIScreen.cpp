@@ -9,6 +9,7 @@
 #include "../../ecs/systems/LuaScriptsSystem.h"
 #include "../../ecs/systems/AudioSystem.h"
 #include "../level/room/RoomScreen.h"
+#include "../../ecs/systems/ChildrenSystem.h"
 
 UIScreen::UIScreen(const asset<luau::Script> &s)
     :
@@ -18,6 +19,7 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     applyPaletteUIShader("Apply palette UI shader", "shaders/fullscreen_quad", "shaders/ui/apply_palette")
 {
 
+    addSystem(new ChildrenSystem("children"));
     addSystem(new SpriteSystem("(animated) sprites"));
     addSystem(new AudioSystem("audio"));
     addSystem(new LuaScriptsSystem("lua functions"));
@@ -95,16 +97,10 @@ void UIScreen::render(double deltaTime)
 
     {   // start of render tree:
 
-        // orphan parent UIElements:
-        auto startingPoints = entities.view<Parent, UIElement>(entt::exclude<Child>);
-
-        startingPoints.each([&] (const Parent &parent, UIElement &) {
-            renderFamily(parent, deltaTime);
-        });
-
-        // orphan AND childless UIElements:
-        entities.view<UIElement>(entt::exclude<Child, Parent>).each([&] (auto e, UIElement &) {
+        entities.view<UIElement>(entt::exclude<Child>).each([&] (auto e, UIElement &) {
             renderChild(e, deltaTime);
+            if (auto *parent = entities.try_get<Parent>(e))
+                renderFamily(*parent, deltaTime);
         });
     }
 
@@ -119,6 +115,7 @@ void UIScreen::render(double deltaTime)
         glDepthFunc(GL_LESS);
 
         textRenderer.render(cam);
+        spriteRenderer.render(cam);
 
         glDisable(GL_DEPTH_TEST);
         indexedFbo->unbind();
@@ -193,7 +190,14 @@ void UIScreen::renderFamily(const Parent &parent, double deltaTime)
 
 void UIScreen::renderChild(entt::entity childEntity, double deltaTime)
 {
-    auto *textView = entities.try_get<TextView>(childEntity);
-    if (textView)
+    if (auto *textView = entities.try_get<TextView>(childEntity))
         textRenderer.add(*textView, 0, textCursor, currLineHeight);
+
+    else if (auto *spriteView = entities.try_get<AsepriteView>(childEntity))
+    {
+        if (!spriteView->sprite.isSet())
+            return;
+        spriteRenderer.add(*spriteView, textCursor);
+        textCursor.x += spriteView->sprite->width;
+    }
 }

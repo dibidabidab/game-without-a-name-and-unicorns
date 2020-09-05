@@ -19,7 +19,6 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
         shadowCaster(room),
         lightMapRenderer(room),
         inspector(*room, "Room"),
-        spriteRenderer(&Game::spriteSheet),
         tileMap(&room->getMap())
 {
     assert(room != NULL);
@@ -63,7 +62,7 @@ void RoomScreen::render(double deltaTime)
         glDepthFunc(GL_LESS);
 
         tileMapRenderer->render(cam, bloodSplatterRenderer->fbo.colorTexture);
-        spriteRenderer.render(deltaTime, cam, room->entities);
+        spriteRenderer.renderUsingAABBs(cam, room->entities);
         bloodSplatterRenderer->render(cam);
         polylineRenderer.render(room->entities, cam);
         fluidRenderer.render(room->entities, cam);

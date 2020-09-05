@@ -9,6 +9,7 @@
 #include "../../ecs/EntityInspector.h"
 #include "TextRenderer.h"
 #include "../../ecs/components/Children.h"
+#include "../sprites/SpriteRenderer.h"
 
 class UIScreen : public EntityEngine, public Screen
 {
@@ -21,6 +22,7 @@ class UIScreen : public EntityEngine, public Screen
     OrthographicCamera cam;
 
     TextRenderer textRenderer;
+    SpriteRenderer spriteRenderer;
 
     FrameBuffer *indexedFbo = NULL;
     ShaderAsset applyPaletteUIShader;
