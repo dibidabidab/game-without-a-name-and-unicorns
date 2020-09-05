@@ -72,7 +72,7 @@ class RoomScreen : public Screen
   public:
 
     static inline uint currentPaletteEffect = 0, prevPaletteEffect = 0;
-    float timeSinceNewPaletteEffect = 0;
+    static inline float timeSinceNewPaletteEffect = 0;
     CameraMovement camMovement;
 
     Room *room;

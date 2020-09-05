@@ -2,14 +2,23 @@
 function create(widget)
 
     setComponents(widget, {
-        NineSlicePlane = {
-            sprite = "sprites/ui/default_nine_slice_plane"
-        },
-        AABB = {
-            halfSize = {
-                50, 30
-            }
+        UIElement = {}
+    })
+
+    applyTemplate(createChild(widget), "Text", {
+        text = "dibidabidab!",
+        color = colors.rainbow_red,
+        waving = true
+    })
+
+    setComponents(createChild(widget), {
+        UIElement = {},
+        AsepriteView = {
+            sprite = "sprites/enemy"
         }
+    })
+    applyTemplate(createChild(widget), "Text", {
+        text = "heheh"
     })
 
 end
