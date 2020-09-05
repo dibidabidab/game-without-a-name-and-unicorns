@@ -8,7 +8,9 @@ arg("typeArg", "oak")
     amount          An integer amount
     degrees         rotation
     enum            See description
-    xRange          [min, max], with x length, factor, amount, degrees
+    xRange          lib.range(min, max) for a range of x, where x is length, factor, amount or degrees
+                    lib.sqrange(min, max) similar to range(min, max), but when getting a random value in this range,
+                        the values get squared. They are still guaranteed to stay between min and max though.
 ]]--
 
 --[[ TreeConfig
@@ -17,7 +19,8 @@ arg("typeArg", "oak")
     width                   factorRange 1       Stem width factor. 1 is normal width. Width depends on size and weight
 
     pieceLength             lengthRange 10      Length of tree pieces
-    pieceAmount             amountRange         Amount of tree pieces
+    pieceAmount             amountRange         Amount of tree pieces in branch
+    pieceAngle              degreeRange         Angle of a branch continuation piece
 
     branchChance            factorRange         Chance of branches splitting off
     branchAngle             degreeRange         Angle of branches splitting off
@@ -34,291 +37,142 @@ arg("typeArg", "oak")
     pieceLengthFct          factor              Each branch piece should have a reduced length (0-.9) or not (1)
 
     limitLength             length              Limit the total length of recursive branches
-    limitBranches           amount              Limit the depth of recursive branches
+    limitDepth              amount              Limit the depth of recursive branches
     limitPieces             amount              Limit the depth of recursive branch pieces
 ]]--
 
-treeConfigs = {
+treeConfigs    = {
     default = {
     },
 }
 
-age = ageArg
-zIndex = zIndexArg
-type = typeArg
-rootConfig = treeConfigs[type]
+age            = ageArg
+zIndex         = zIndexArg
+type           = typeArg
+rootConfig     = treeConfigs[type]
 
-lib = {
-    random = function(range)
-        return math.random(range[1], range[2])
+lib            = {
+    range          = function(min, max)
+        return {
+            min = min,
+            max = max,
+            fn  = lib.id
+        }
     end,
-    cap = function(range, value)
-        if value < range[1] then
-            return range[1]
+    sqRange        = function(min, max)
+        return {
+            min = min,
+            max = lib.psSqrt(max),
+            fn  = lib.psSquare,
+        }
+    end,
+    random         = function(range)
+        return range.fn(math.random(range.min, range.max))
+    end,
+    cap            = function(range, value)
+        if range.max < range.min then
+            return lib.cap({ min = range.max, max = range.min, fn = range.fn })
         end
-        if value > range[2] then
-            return range[2]
+        if value < range.min then
+            return range.min
+        end
+        if value > range.max then
+            return range.max
         end
         return value
     end,
-    interpolate = function(from, to, value)
-        value = value - from[1] / (from[2] - from[1])
-        return value * (to[2] - to[1]) + to[1]
+    interpolate    = function(from, to, value)
+        value = (value - from.min) / (from.max - from.min)
+        return value * (to.max - to.min) + to.min
     end,
     interpolateCap = function(from, to, value)
         return lib.interpolate(from, to, lib.cap(from, value))
-    end
+    end,
+    rotate         = function(rotation, angle)
+        return rotate2d(rotation[1], rotation[2], angle)
+    end,
+    upperLimit     = function(value, threshold)
+        if value == nil then return false end
+        return value >= threshold
+    end,
+    lowerLimit     = function(value, threshold)
+        if value == nil then return false end
+        return value <= threshold
+    end,
+    psSquare       = function(value)
+        return value * value * lib.sign(value)
+    end,
+    psSqrt         = function(value)
+        return lib.sign(value) * math.sqrt(value * lib.sign(value))
+    end,
+    sign           = function(value)
+        return select(value < 0, -1, 1)
+    end,
+    select         = function(selector, tt, ff)
+        if selector then return tt else return ff end
+    end,
+    id             = function(v) return v end,
 }
 
 -- Component functions
 
-rootState = {
-    rotation = { 0, 100 },
-    zIndex = zIndex,
-    zDelta = 0,
-    length = 0,
-    depth = 0,
+rootState      = function(treeType)
+    local treeConfig = treeConfigs[treeType]
+    return {
+        name         = "tree." + treeType,
+        rotation     = { 0, 100 },
+        zIndex       = zIndex,
+        zDelta       = 0,
+        length       = 0,
+        depth        = 0,
+        pieces       = 0,
+        totalPieces  = 0,
 
-    pieceLength = rootConfig.pieceLength,
-    pieceAmount = rootConfig.pieceAmount,
-    branchLength = rootConfig.branchLength
-}
+        pieceLength  = treeConfig.pieceLength,
+        pieceAmount  = treeConfig.pieceAmount,
+        branchLength = treeConfig.branchLength
+    }
+end
 
-branch = function(parent, treeConfig, stateTable, entity)
-    entity = entity or createChild(parent, "branch")
+piece          = function(parent, treeConfig, treeState, entity)
+    entity                = entity or createChild(parent, "branch")
 
-    length = treeConfig
+    local length          = lib.random(treeState.pieceLength)
 
-    width = branches(entity, treeConfig, stateTable)
+    treeState.length      = treeState.length + length
+    treeState.pieces      = treeState.pieces + 1
+    treeState.totalPieces = treeState.totalPieces + 1
+
+    local width           = treePieces(entity, treeConfig, stateTable)
+
+    treeState.length      = treeState.length + length
+    treeState.pieces      = treeState.pieces - 1
+    treeState.totalPieces = treeState.totalPieces - 1
+end
+
+continueBranch = function(parent, treeConfig, treeState)
 
 end
 
-branches = function(treeConfig, age, parent, length, depth)
-
-
-end
-
---[[
-
-components = {
-    AABB = {
-        halfSize = {5, 5}
-    },
-    DrawPolyline = {
-        colors = {6},
-        repeatX = 3,
-        zIndexEnd = args.zIndex, zIndexBegin = args.zIndex
-    },
-    VerletRope = {
-        length = args.length,
-        gravity = {0, 100},
-        friction = .8,
-        nrOfPoints = 4,
-        moveByWind = 6
-    },
-    AsepriteView = {
-        sprite = "sprites/tree_leaves",
-        frame = 4,
-        zIndex = args.zIndex
-    }
-}
-
-branchNr = 0
-leavesNr = 0
-
-addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, length, addLeaves, zIndex) -- side should be -1 or 1, posAlongParent should be between 0 and 1
-
-    branchNr = branchNr + 1
-
-    local branchName = "branch." .. branchNr
-    local branch = createChild(branchName)
-
-    ::begin::
-
-    local rotateDegrees = 45
-    if math.random() > .5 then
-        rotateDegrees = 90
-    end
-    --rotateDegrees = rotateDegrees + math.random(-20, 0)
-    rotateDegrees = rotateDegrees * side
-
-    local gravity = rotate2d(parentBranchComps.VerletRope.gravity[1], parentBranchComps.VerletRope.gravity[2], rotateDegrees)
-
-    local horizontal = math.abs(gravity[2]) < .1
-
-    if horizontal and length > 20 then
-        goto begin
+treePieces     = function(parent, treeConfig, treeState)
+    -- Check if branch piece limits have been reached.
+    if lib.upperLimit(treeConfig.limitLength, treeState.length) or
+            lib.upperLimit(treeConfig.limitPieces, treeState.totalPieces) then
+        return 0
     end
 
-    local thickness = length > 64 and 3 or (length > 30 and 2 or 1)
-    local xThickness = 1
-    local yThickness = 1
-    if horizontal then
-        yThickness = thickness
-    else
-        xThickness = thickness
-    end
-
-    local zIndexBegin = zIndex
-    local zIndexEnd = zIndex + 32
-
-    childComponents[branchName] = {
-        AABB = {},
-        DrawPolyline = {
-            colors = {6},
-            repeatX = xThickness - 1,
-            repeatY = yThickness - 1,
-            zIndexBegin = zIndexBegin, zIndexEnd = zIndexEnd
-        },
-        VerletRope = {
-            length = length,
-            gravity = gravity,
-            friction = .95,
-            nrOfPoints = 1,
-            moveByWind = 6
-        },
-        AttachToRope = {
-            ropeEntity = parentBranch,
-            x = posAlongParent
-        }
-    }
-
-    -- BIG LEAVES:
-    if addLeaves then
-
-        local leavePosAlongBranch = math.min(18 / length, 1)
-
-        repeat
-
-            leavesNr = leavesNr + 1
-
-            local leavesName = "leaves." .. leavesNr
-            createChild(leavesName)
-
-            childComponents[leavesName] = {
-                AABB = {
-                    halfSize = {3, 3}
-                },
-                AttachToRope = {
-                    ropeEntity = branch,
-                    x = leavePosAlongBranch
-                },
-                AsepriteView = {
-                    sprite = "sprites/tree_leaves",
-                    zIndex = leavePosAlongBranch > .7 and zIndexBegin or zIndexEnd,
-                    frame = math.random(0, 2)
-                },
-                TemplateSpawner = {
-                    templateName = "TreeLeaveParticle",
-                    minDelay = 4,
-                    maxDelay = 100,
-                    minQuantity = 1,
-                    maxQuantity = 1
-                },
-            }
-
-            local minStep = 5 / length
-            local maxStep = minStep * 3
-
-            leavePosAlongBranch = leavePosAlongBranch + minStep + math.random() * (maxStep - minStep)
-
-        until leavePosAlongBranch > .9
-    end
-    -- END BIG LEAVES
-
-    -- SMALL LEAVES:
-    local leavePosAlongBranch = math.min(64 / length, 1)
-    repeat
-
-        leavesNr = leavesNr + 1
-
-        local leavesName = "leave_small." .. leavesNr
-        createChild(leavesName)
-
-        childComponents[leavesName] = {
-            AABB = {},
-            AttachToRope = {
-                ropeEntity = branch,
-                x = leavePosAlongBranch
-            },
-            AsepriteView = {
-                sprite = "sprites/tree_leaves",
-                zIndex = zIndexBegin + leavePosAlongBranch * (zIndexEnd - zIndexBegin),
-                frame = 3,
-                flipHorizontal = gravity[1] < 0 and true or false,
-                flipVertical = gravity[2] < 0 and true or false
-            }
-        }
-
-        local minStep = 4 / length
-        local maxStep = minStep * 2
-
-        leavePosAlongBranch = leavePosAlongBranch + minStep + math.random() * (maxStep - minStep)
-
-    until leavePosAlongBranch >= .96
-    -- END SMALL LEAVES
-
-    -- APPLE:
-    if math.random() < args.appleChance then
-        local appleName = "apple." .. branchNr
-        applyTemplate(createChild(appleName), "Apple")
-        childComponents[appleName] = {
-            AttachToRope = {
-                ropeEntity = branch,
-                x = math.random(),
-                offset = {0, -4}
-            },
-            Physics = {
-                gravity = 0
-            },
-            Health = {
-                componentsToRemoveOnDeath = { "Physics" }
-            },
-            AsepriteView = {
-                zIndex = zIndexEnd + 32
-            }
-        }
-    end
-    -- END APPLE
-
-    -- SUB BRANCHES:
-    if length > 20 then
-
-        local nrOfNewBranches = math.random(1, length > 32 and (length > 48 and 5 or 3) or 2)
-
-        local _
-        for _ = 1, nrOfNewBranches do
-
-            local newLength = childComponents[branchName].VerletRope.length * (.2 + math.random() * .3)
-            local newPosAlongParent = math.random() * .5 + .4
-            local newZIndex = zIndexBegin + newPosAlongParent * (zIndexEnd - zIndexBegin)
-
-            addBranch(branch, childComponents[branchName], math.random() > .5 and -1 or 1, newPosAlongParent, newLength, false, newZIndex)
+    -- Check if this branch has finished.
+    if not lib.upperLimit(treeConfig.pieceAmount, treeState.pieces) then
+        -- Not finished, continue branch
+        continueBranch(parent, treeConfig, treeState)
+        if not lib.upperLimit(treeConfig.limitDepth, treeState.depth) then
+            -- Create new branch from this point, if depth limit has not been reached
+            branch(parent, treeConfig, treeState)
         end
+    else if not lib.upperLimit(treeConfig.limitDepth, treeState.depth) then
+        --Finished, create crown if depth limit has not been reached
+        crown(parent, treeConfig, treeState)
     end
-    -- END SUB BRANCHES
-
+    end
 end
 
-addBranches = function(side)
-
-    x = .1 + math.random() * .4
-
-    repeat
-
-        length = components.VerletRope.length * (.2 + math.random() * .4)
-
-        xInv = 1. - x
-
-        length = length * .3 + length * .7 * xInv
-
-        addBranch(entity, components, side, x, length, true, args.zIndex - 16)
-
-        x = x + .1 + math.random() * .1
-
-    until x >= 1
-end
-
-addBranches(-1)
-addBranches(1)
-]]--
