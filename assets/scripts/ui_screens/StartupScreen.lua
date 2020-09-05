@@ -1,6 +1,6 @@
 
-include("scripts/fast_startup") -- .lua not needed
+fastStartup = include("scripts/fast_startup") -- .lua not needed
 
-fastStartup()
+fastStartup.fastStartup()
 
 applyTemplate(createEntity(), "TestUIWidget")
