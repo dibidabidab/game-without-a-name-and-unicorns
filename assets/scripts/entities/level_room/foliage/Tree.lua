@@ -4,7 +4,7 @@ function randomizeArgs()
         zIndex = -600 - math.random(200),
         length = math.random(120, 220),
         appleChance = math.random() * .1,
-        seed = getLevelTime(),
+        seed = getLevelTime and getLevelTime() or 0,
         growAnimation = false
     })
 end

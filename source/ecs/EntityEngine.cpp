@@ -141,7 +141,7 @@ void EntityEngine::initializeLuaEnvironment()
     };
     env["createChild"] = [&](int parentEntity, sol::optional<std::string> childName) -> int {
 
-        int child = int(createChild(entt::entity(parentEntity), childName.has_value() ? childName.value().c_str() : ""));
+        int child = int(createChild(entt::entity(parentEntity), childName.value_or("").c_str()));
         return child;
     };
     env["getChild"] = [&](int parentEntity, const char *childName) -> sol::optional<int> {

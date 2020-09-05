@@ -6,7 +6,6 @@
 #include <graphics/3d/mesh.h>
 #include <graphics/camera.h>
 #include <graphics/shader_asset.h>
-#include "MegaSpriteSheet.h"
 #include "../../../external/entt/src/entt/entity/registry.hpp"
 #include "../../ecs/components/graphics/AsepriteView.h"
 
@@ -15,9 +14,6 @@
  */
 class SpriteRenderer
 {
-
-    const MegaSpriteSheet *megaSpriteSheet;
-
     SharedMesh quad;
     VertData instancedData;
     int instancedDataID = -1;
@@ -25,9 +21,13 @@ class SpriteRenderer
     ShaderAsset shader;
 
   public:
-    SpriteRenderer(const MegaSpriteSheet *);
+    SpriteRenderer();
 
-    void render(double deltaTime, const Camera &cam, entt::registry &reg);
+    void renderUsingAABBs(const Camera &, entt::registry &);
+
+    void add(const AsepriteView &, const ivec2 &position);
+
+    void render(const Camera &);
 
 };
 
