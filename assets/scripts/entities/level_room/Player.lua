@@ -1,4 +1,3 @@
-
 function create(player)
 
     leftLeg = createChild(player, "leftLeg")
