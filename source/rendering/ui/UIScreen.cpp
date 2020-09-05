@@ -116,6 +116,7 @@ void UIScreen::render(double deltaTime)
 
         textRenderer.render(cam);
         spriteRenderer.render(cam);
+        nineSliceRenderer.render(cam);
 
         glDisable(GL_DEPTH_TEST);
         indexedFbo->unbind();
@@ -199,5 +200,15 @@ void UIScreen::renderChild(entt::entity childEntity, double deltaTime)
             return;
         spriteRenderer.add(*spriteView, textCursor);
         textCursor.x += spriteView->sprite->width;
+    }
+
+    else if (auto *container = entities.try_get<UIContainer>(childEntity))
+    {
+        if (container->nineSliceSprite.isSet())
+        {
+            ivec2 size(container->fixedWidth, container->fixedHeight); // todo
+
+            nineSliceRenderer.add(container->nineSliceSprite.get(), ivec3(textCursor, 0), size);
+        }
     }
 }

@@ -1,6 +1,5 @@
 
 #include "SpriteRenderer.h"
-#include "../../ecs/components/physics/Physics.h"
 #include "../../game/Game.h"
 #include <graphics/3d/vert_buffer.h>
 

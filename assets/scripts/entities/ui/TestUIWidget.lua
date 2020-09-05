@@ -2,7 +2,11 @@
 function create(widget)
 
     setComponents(widget, {
-        UIElement = {}
+        UIElement = {},
+        UIContainer = {
+            nineSliceSprite = "sprites/ui/default_9slice_plane"
+        },
+        Inspecting = {}
     })
 
     applyTemplate(createChild(widget), "Text", {
