@@ -18,6 +18,13 @@ function range(min, max)
     }
 end
 
+function seed(seed)
+    math.randomseed(seed)
+    math.random()
+    math.random()
+    math.random()
+end
+
 function sqRange(min, max)
     if (max == nil) then
         max = min
@@ -32,6 +39,18 @@ end
 
 function rangeSize(range)
     return range.max - range.min
+end
+
+function rangeMult(range, value)
+    if range == nil then return end
+    range.min = range.min * value
+    range.max = range.max * value
+end
+
+function rangeDiv (range, value)
+    if range == nil then return end
+    range.min = range.min / value
+    range.max = range.max / value
 end
 
 resolution = 1000000
@@ -71,7 +90,7 @@ function upperLimit     (threshold, value)
 end
 
 function lowerLimit     (value, threshold)
-    if value == nil then return false end
+    if threshold == nil or value == nil then return false end
     return value <= threshold
 end
 
@@ -96,7 +115,7 @@ function id             (v)
 end
 
 function chance         (chance)
-    return math.random(0, resolution)/resolution < chance
+    return math.random(0, resolution) / resolution < chance
 end
 
 function randomDistrMin(range, minDist, amount)
