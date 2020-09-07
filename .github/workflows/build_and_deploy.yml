@@ -24,6 +24,7 @@ jobs:
         python-version: '3.x'
     - name: Build linux # running 'cmake .' twice fixes tests being built
       run: |
+        sudo apt-get update
         sudo apt-get install xorg-dev -y
         sudo apt-get install freeglut3-dev -y
         python initialize_project.py
