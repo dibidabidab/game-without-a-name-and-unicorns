@@ -1,7 +1,7 @@
 mtlib       = include("scripts/util/math")
 treeConfigs = include("scripts/tmp/Tree.config")
 
-function entityTable(pieceEntity, parent, rotation, zIndex)
+function entityTable(pieceEntity, parent, angle, zIndex)
 
     setComponents(pieceEntity, {
         AABB         = {},
@@ -15,7 +15,7 @@ function entityTable(pieceEntity, parent, rotation, zIndex)
 
         VerletRope   = {
             length     = 1, -- TODO: make 0
-            gravity    = rotation,
+            gravity    = rotate2d(0, 100, angle),
 
             friction   = .95,
             nrOfPoints = 1,
@@ -37,8 +37,8 @@ function updateFunction(width, length, treeState)
         local growthStart = mtlib.interpolate(mtlib.range(treeState.baseWidth), treeConfigs.ageRange,
                                               math.sqrt(treeState.baseWidth) - math.sqrt(width))
         local growthRange = mtlib.range(growthStart, treeConfigs.ageRange.max)
-        currentLength = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
-        currentWidth  = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
+        currentLength     = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
+        currentWidth      = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
 
         -- TODO: remove in new physics
         if currentLength < 1 then currentLength = 1 end
@@ -66,14 +66,17 @@ function piece          (parent, treeConfig, treeState, entity)
 
     local length          = mtlib.random(treeState.pieceLength)
 
+    local bAngle          = treeState.angle
     treeState.length      = treeState.length + length
     treeState.totalLength = treeState.totalLength + length
     treeState.pieces      = treeState.pieces + 1
     treeState.totalPieces = treeState.totalPieces + 1
     mtlib.rangeMult(treeState.pieceLength, treeConfig.pieceLengthFct or 1)
+    treeState.tendencyStrength = treeState.tendencyStrength * (treeConfig.tendencyStrengthRdc or 1)
 
+    tendency(treeConfig, treeState)
     local width = treePieces(entity, treeConfig, treeState)
-    entityTable(entity, parent, treeState.rotation, mtlib.range(treeState.zIndex, treeState.zIndex))
+    entityTable(entity, parent, treeState.angle, mtlib.range(treeState.zIndex, treeState.zIndex))
     setUpdateFunction(entity, .1, updateFunction(width, length, treeState))
 
     treeState.length      = treeState.length + length
@@ -81,22 +84,37 @@ function piece          (parent, treeConfig, treeState, entity)
     treeState.pieces      = treeState.pieces - 1
     treeState.totalPieces = treeState.totalPieces - 1
     mtlib.rangeDiv(treeState.pieceLength, treeConfig.pieceLengthFct or 1)
+    treeState.tendencyStrength = treeState.tendencyStrength / (treeConfig.tendencyStrengthRdc or 1)
+    treeState.angle            = bAngle
 
     return width
 end
 
 function continueBranch (parent, treeConfig, treeState)
-    local angle        = mtlib.random(treeConfig.pieceAngle)
-    local bRotation    = treeState.rotation
-    treeState.rotation = mtlib.rotate(treeState.rotation, angle)
+    local angle     = mtlib.random(treeConfig.pieceAngle)
+    treeState.angle = treeState.angle + angle
 
-    local width        = piece(parent, treeConfig, treeState)
+    local width     = piece(parent, treeConfig, treeState)
 
-    treeState.rotation = bRotation
     return width
 end
 
+function tendency (treeConfig, treeState)
+    if treeConfig.tendency ~= "out" and treeConfig.tendency ~= "direction" then return end
+
+    while math.abs(treeState.angle - treeState.tendencyDirection) > 180 do
+        if treeState.angle < treeState.tendencyDirection then
+            treeState.angle = treeState.angle + 360 else
+            treeState.angle = treeState.angle - 360
+        end
+    end
+
+    treeState.angle = mtlib.linearSelect(mtlib.range(treeState.angle, treeState.tendencyDirection),
+                                         treeState.tendencyStrength)
+end
+
 function branch(parent, treeConfig, treeState)
+    if treeState.length < treeState.branchlessStart * treeConfig.branchLength then return 0 end
     if not mtlib.chance(treeConfig.branchChance) then return 0 end
     local angle = mtlib.random(treeConfig.branchAngle)
     local width = doBranch(parent, treeConfig, treeState, angle)
@@ -114,21 +132,22 @@ function crown(parent, treeConfig, treeState)
 end
 
 function doBranch(parent, treeConfig, treeState, angle)
-    local bRotation    = treeState.rotation
-    local bLength      = treeState.length
-    treeState.rotation = mtlib.rotate(treeState.rotation, angle)
-    treeState.length   = 0
-    treeState.depth    = treeState.depth + 1
+    local bLength          = treeState.length
+    local bBranchlessStart = treeState.branchlessStart
+    treeState.angle        = treeState.angle + angle
+    treeState.length       = 0
+    treeState.depth        = treeState.depth + 1
     mtlib.rangeMult(treeState.pieceAmount, treeState.pieceAmountFct or 1)
-    treeState.branchLength = treeState.branchLength * (treeConfig.branchLengthFct or 1)
+    treeState.branchLength    = treeState.branchLength * (treeConfig.branchLengthFct or 1)
+    treeState.branchlessStart = mtlib.random(treeConfig.branchlessStart)
 
-    local width            = piece(parent, treeConfig, treeState)
+    local width               = piece(parent, treeConfig, treeState)
 
-    treeState.rotation     = bRotation
-    treeState.length       = bLength
-    treeState.depth        = treeState.depth - 1
+    treeState.length          = bLength
+    treeState.depth           = treeState.depth - 1
     mtlib.rangeDiv(treeState.pieceAmount, treeState.pieceAmountFct or 1)
-    treeState.branchLength = treeState.branchLength / (treeConfig.branchLengthFct or 1)
+    treeState.branchLength    = treeState.branchLength / (treeConfig.branchLengthFct or 1)
+    treeState.branchlessStart = bBranchlessStart
     return width
 end
 

@@ -5,7 +5,7 @@ branchSystem = include("scripts/tmp/Tree.branches")
 
 defaultArgs({
                 zIndex = -600 - math.random(200),
-                age    = 1,
+                age    = 100, --mtlib.random(treeConfigs.ageRange),
                 seed   = math.random(math.random(1000000000)),
                 type   = "oak",
             })
@@ -14,23 +14,29 @@ defaultArgs({
 -- Component functions
 
 function rootState      (treeType, zIndex, age)
-    local treeConfig = treeConfigs[treeType]
+    local treeConfig        = treeConfigs[treeType]
+    local tendencyDirection = mtlib.select(treeConfig.tendency=="direction", treeConfig.tendencyDirection, 0)
     return {
-        name         = treeType,
-        age          = age,
-        rotation     = { 0, 100 },
-        zIndex       = zIndex,
-        zDelta       = 0,
-        length       = 0,
-        totalLength  = 0,
-        depth        = 0,
-        pieces       = 0,
-        totalPieces  = 0,
-        baseWidth    = 0,
+        name              = treeType,
+        age               = age,
+        angle             = 0,
+        zIndex            = zIndex,
+        zDelta            = 0,
+        length            = 0,
+        totalLength       = 0,
+        depth             = 0,
+        pieces            = 0,
+        totalPieces       = 0,
+        baseWidth         = 0,
 
-        pieceLength  = treeConfig.pieceLength,
-        pieceAmount  = treeConfig.pieceAmount,
-        branchLength = treeConfig.branchLength,
+        branchlessStart = mtlib.random(treeConfig.branchlessStart),
+
+        pieceLength       = treeConfig.pieceLength,
+        pieceAmount       = treeConfig.pieceAmount,
+        branchLength      = treeConfig.branchLength,
+
+        tendencyDirection = tendencyDirection,
+        tendencyStrength  = treeConfig.tendencyStrength,
     }
 end
 

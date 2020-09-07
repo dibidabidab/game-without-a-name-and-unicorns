@@ -1,4 +1,4 @@
-mtlib = include("scripts/util/math")
+mtlib    = include("scripts/util/math")
 
 ageRange = mtlib.range(100)
 
@@ -32,8 +32,11 @@ ageRange = mtlib.range(100)
     crownAngle              degreeRange Angle of branches at the crown
     crownMinAngle           degrees     Minimum angle between branches at the crown
 
-    tendency                enum        "up", "out", "down", "none": tendency for the tree to grow towards
-    tendencyStrength        factor      Strenght of tendency: 1 is medium tendency, above 1 will ignore some limits
+    tendency                enum        "out", "direction", "none": tendency for the tree to grow towards
+    tendencyDirection       degrees     Direction of the tendency when using "direction"
+    tendencyOutRange        degrees     Degrees of tendency "out" at the bottom of the branchable part of the stem
+    tendencyStrength        factor      Strength of tendency
+    tendencyStrengthRdc     factor      Each piece should have a reduced tendency (0-.9) or not (1)
 
     branchLengthFct         factor      Each branch should have a reduced length (0-.9) or not (1)
     pieceAmountFct          factor      Each branch should have a reduced nr of pieces (0-.9) or not (1)
@@ -44,27 +47,31 @@ ageRange = mtlib.range(100)
     limitPieces             amount      Limit the depth of recursive branch pieces
 ]]--
 
-oak   = {
-    branchlessStart = mtlib.range(.4, .6),
-    width           = mtlib.range(1, 1.4),
-    widthIncrease   = mtlib.range(.4),
+oak      = {
+    branchlessStart     = mtlib.range(.2, .4),
+    width               = mtlib.range(1, 1.4),
+    widthIncrease       = mtlib.range(.4),
 
-    pieceLength     = mtlib.range(12, 24),
-    pieceAngle      = mtlib.sqRangeDev(40),
+    pieceLength         = mtlib.range(4, 16),
+    pieceAngle          = mtlib.sqRangeDev(40),
 
-    branchChance    = 1,
-    branchAngle     = mtlib.rangeDev(50),
-    branchLength    = 50,
+    branchChance        = .4,
+    branchAngle         = mtlib.range(50),
+    branchLength        = 50,
 
-    crownBranches   = mtlib.range(1),
-    crownAngle      = mtlib.rangeDev(60),
-    crownMinAngle   = 25,
+    crownBranches       = mtlib.range(1, 2),
+    crownAngle          = mtlib.rangeDev(60),
+    crownMinAngle       = 25,
 
-    -- ...
+    tendency            = "direction",
+    tendencyDirection   = 60,
+    tendencyOutRange    = 100,
+    tendencyStrength    = .1,
+    tendencyStrengthRdc = .99,
 
-    pieceLengthFct  = .95,
-    pieceAmountFct  = .8,
-    branchLengthFct = .8,
+    pieceLengthFct      = .99,
+    pieceAmountFct      = .8,
+    branchLengthFct     = .8,
 
-    limitLength     = 200
+    limitLength         = 200
 }
