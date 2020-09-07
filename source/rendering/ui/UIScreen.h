@@ -10,6 +10,7 @@
 #include "TextRenderer.h"
 #include "../../ecs/components/Children.h"
 #include "../sprites/SpriteRenderer.h"
+#include "NineSliceRenderer.h"
 
 class UIScreen : public EntityEngine, public Screen
 {
@@ -17,12 +18,12 @@ class UIScreen : public EntityEngine, public Screen
 
     EntityInspector inspector;
 
-    DebugLineRenderer lineRenderer;
-
     OrthographicCamera cam;
 
+    DebugLineRenderer lineRenderer;
     TextRenderer textRenderer;
     SpriteRenderer spriteRenderer;
+    NineSliceRenderer nineSliceRenderer;
 
     FrameBuffer *indexedFbo = NULL;
     ShaderAsset applyPaletteUIShader;

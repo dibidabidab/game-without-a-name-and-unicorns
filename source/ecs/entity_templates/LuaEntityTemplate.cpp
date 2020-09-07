@@ -79,6 +79,8 @@ void LuaEntityTemplate::runScript()
         // todo: use same lua_state as 'env' is in
         luau::getLuaState().unsafe_script(script->getByteCode().as_string_view(), env);
         createFunc = env["create"];
+        if (!createFunc.valid())
+            throw gu_err("No create() function found!");
     }
     catch (std::exception &e)
     {
