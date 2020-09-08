@@ -2,7 +2,7 @@
 #ifndef GAME_ENTITYINSPECTOR_H
 #define GAME_ENTITYINSPECTOR_H
 
-
+#include <imgui.h>
 #include <graphics/camera.h>
 #include <graphics/3d/debug_line_renderer.h>
 #include "../../external/entt/src/entt/entity/registry.hpp"
@@ -25,6 +25,8 @@ COMPONENT(Inspecting, HASH(0),
 
     std::vector<std::string> currentPath;
     std::map<std::string, InspectPathState> state;
+
+    ImVec2 windowPos = ImVec2(-1, -1);
 
     InspectPathState &getState()
     {

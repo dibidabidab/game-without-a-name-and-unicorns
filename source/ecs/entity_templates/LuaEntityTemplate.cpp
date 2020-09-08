@@ -115,9 +115,14 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
         } else arguments = defaultArgs;
 
         LuaScripted& luaScripted = engine->entities.get_or_assign<LuaScripted>(e);
+        luaScripted.usedTemplate = this;
 
-        std::string id = arguments.value()["saveGameEntityID"].get_or<std::string, std::string>(getUniqueID());
-        luaScripted.saveData = Game::getCurrentSession().saveGame.getSaveDataForEntity(id, !persistent);
+        std::string id;
+        if (!luaScripted.saveData.valid())
+        {
+            id = arguments.value()["saveGameEntityID"].get_or<std::string, std::string>(getUniqueID());
+            luaScripted.saveData = Game::getCurrentSession().saveGame.getSaveDataForEntity(id, !persistent);
+        }
 
         if (persistent)
         {
@@ -126,7 +131,8 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
                 lua_converter<json>::fromLuaTable(arguments.value(), p.data);
 
             assert(p.data.is_object());
-            p.data["saveGameEntityID"] = id;
+            if (!id.empty())
+                p.data["saveGameEntityID"] = id;
         }
 
         sol::protected_function_result result = createFunc(e, arguments, luaScripted.saveData);
