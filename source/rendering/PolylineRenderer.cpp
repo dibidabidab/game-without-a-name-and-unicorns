@@ -8,18 +8,7 @@
 
 PolylineRenderer::PolylineRenderer()
     :
-    shader("PolyLine shader", "shaders/polyline.vert", "shaders/polyline.frag"),
-    lineSegments(
-        VertAttributes()
-                .add_({"POINT_A_X", 1, 2, GL_SHORT})
-                .add_({"POINT_A_Y", 1, 2, GL_SHORT})
-                .add_({"POINT_A_Z", 1, 2, GL_SHORT})
-                .add_({"POINT_B_X", 1, 2, GL_SHORT})
-                .add_({"POINT_B_Y", 1, 2, GL_SHORT})
-                .add_({"POINT_B_Z", 1, 2, GL_SHORT})
-                .add_({"SEGMENT_COLOR_INDEX", 1, 4, GL_UNSIGNED_INT}),
-        std::vector<u_char>()
-    )
+    shader("PolyLine shader", "shaders/polyline.vert", "shaders/polyline.frag")
 {
     VertAttributes attrs;
     attrs.add({"POINT_INDEX", 1, 1, GL_BYTE});
@@ -37,13 +26,11 @@ void PolylineRenderer::render(const entt::registry &reg, const Camera &cam)
 {
     gu::profiler::Zone z("polylines");
 
-    lineSegments.vertices.clear();
-
-    nrOfSegments = 0;
+    currentWidth = 0;
 
     reg.view<const Polyline, const DrawPolyline>().each([&](auto e, const Polyline &line, const DrawPolyline &draw) {
 
-        if (line.points.size() < 2)
+        if (line.points.size() < 2) // BIG OOFFF... todo: .size() on list is expensive
             return;
         setSegmentOffset(reg, e, draw);
 
@@ -107,13 +94,20 @@ void PolylineRenderer::render(const entt::registry &reg, const Camera &cam)
         }
     });
 
-    gu::profiler::Zone z2("draw calls");
-
-    lineSegmentsID = lineSegmentMesh->vertBuffer->uploadPerInstanceData(lineSegments, 1, lineSegmentsID);
-
     shader.use();
     glUniformMatrix4fv(shader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
-    lineSegmentMesh->renderInstances(nrOfSegments);
+
+    for (auto &[width, segments] : widthSegmentsMap)
+    {
+        int i = segments.lineSegments.nrOfVertices();
+        if (i == 0 || width == 0)
+            continue;
+        glLineWidth(width);
+        segments.lineSegmentsID = lineSegmentMesh->vertBuffer->uploadPerInstanceData(segments.lineSegments, 1, segments.lineSegmentsID);
+        lineSegmentMesh->renderInstances(i);
+        segments.lineSegments.vertices.clear();
+    }
+    glLineWidth(1.f);
 }
 
 void PolylineRenderer::addSegment(const DrawPolyline &draw, int i, int polylineSegments, ivec2 p0, ivec2 p1)
@@ -142,15 +136,15 @@ void PolylineRenderer::addSegment(const DrawPolyline &draw, int i, int polylineS
                 color = draw.repeatColors.at(repeatI % draw.repeatColors.size());
             }
 
-            lineSegments.addVertices(1);
-            lineSegments.set<int16>(p0.x, nrOfSegments, 0);
-            lineSegments.set<int16>(p0.y, nrOfSegments, 2);
-            lineSegments.set<int16>(zIndex0, nrOfSegments, 4);
-            lineSegments.set<int16>(p1.x, nrOfSegments, 6);
-            lineSegments.set<int16>(p1.y, nrOfSegments, 8);
-            lineSegments.set<int16>(zIndex1, nrOfSegments, 10);
+            lineSegments->addVertices(1);
+            lineSegments->set<int16>(p0.x, nrOfSegments, 0);
+            lineSegments->set<int16>(p0.y, nrOfSegments, 2);
+            lineSegments->set<int16>(zIndex0, nrOfSegments, 4);
+            lineSegments->set<int16>(p1.x, nrOfSegments, 6);
+            lineSegments->set<int16>(p1.y, nrOfSegments, 8);
+            lineSegments->set<int16>(zIndex1, nrOfSegments, 10);
 
-            lineSegments.set<uint32>(color, nrOfSegments, 12);
+            lineSegments->set<uint32>(color, nrOfSegments, 12);
 
             nrOfSegments++;
             if (draw.repeatY > 0)
@@ -167,6 +161,10 @@ void PolylineRenderer::addSegment(const DrawPolyline &draw, int i, int polylineS
 
 void PolylineRenderer::setSegmentOffset(const entt::registry &reg, entt::entity e, const DrawPolyline &draw)
 {
+    currentWidth = draw.lineWidth;
+    lineSegments = &(widthSegmentsMap[currentWidth].lineSegments);
+    nrOfSegments = lineSegments->nrOfVertices();
+
     segmentOffset = ivec2(0);
     if (draw.addAABBOffset)
     {
@@ -174,4 +172,21 @@ void PolylineRenderer::setSegmentOffset(const entt::registry &reg, entt::entity 
         if (aabb)
             segmentOffset += aabb->center;
     }
+}
+
+PolylineRenderer::Segments::Segments()
+    :
+    lineSegments(
+        VertAttributes()
+            .add_({"POINT_A_X", 1, 2, GL_SHORT})
+            .add_({"POINT_A_Y", 1, 2, GL_SHORT})
+            .add_({"POINT_A_Z", 1, 2, GL_SHORT})
+            .add_({"POINT_B_X", 1, 2, GL_SHORT})
+            .add_({"POINT_B_Y", 1, 2, GL_SHORT})
+            .add_({"POINT_B_Z", 1, 2, GL_SHORT})
+            .add_({"SEGMENT_COLOR_INDEX", 1, 4, GL_UNSIGNED_INT}),
+        std::vector<u_char>()
+    )
+{
+
 }

@@ -19,6 +19,7 @@ COMPONENT(
 
     FIELD_DEF_VAL(uint8, repeatX, 0),
     FIELD_DEF_VAL(uint8, repeatY, 0),
+    FIELD_DEF_VAL(uint8, lineWidth, 1),
     FIELD(std::vector<uint8>, repeatColors),
 
     FIELD_DEF_VAL(bool, addAABBOffset, false)

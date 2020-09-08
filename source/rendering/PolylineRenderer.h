@@ -15,8 +15,16 @@ class PolylineRenderer
     ShaderAsset shader;
 
     SharedMesh lineSegmentMesh;
-    VertData lineSegments;
-    int lineSegmentsID = -1;
+
+    struct Segments
+    {
+        Segments();
+
+        VertData lineSegments;
+        int lineSegmentsID = -1;
+    };
+
+    std::unordered_map<uint8, Segments> widthSegmentsMap;
 
   public:
 
@@ -26,6 +34,8 @@ class PolylineRenderer
 
   private:
 
+    uint8 currentWidth = 0;
+    VertData *lineSegments = NULL; // lineSegments of current width.
     int nrOfSegments = 0;
 
     ivec2 segmentOffset = ivec2(0);
