@@ -8,13 +8,13 @@ function entityTable(pieceEntity, parent, angle, zIndex)
 
         DrawPolyline = {
             colors      = { colors.wood },
-            repeatX     = 0,
+            lineWidth     = 0,
             zIndexBegin = zIndex.min,
             zIndexEnd   = zIndex.max,
         },
 
         VerletRope   = {
-            length     = 1, -- TODO: make 0
+            length     = 0,
             gravity    = rotate2d(0, 100, angle),
 
             friction   = .7,
@@ -41,14 +41,11 @@ function updateFunction(width, length, treeState)
             currentLength     = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
             currentWidth      = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
 
-            -- TODO: remove in new physics
-            if currentLength < 1 then currentLength = 1 end
-
             setComponent(entity, "VerletRope", {
                 length = currentLength
             })
             setComponent(entity, "DrawPolyline", {
-                repeatX = math.sqrt(currentWidth),
+                lineWidth = math.sqrt(currentWidth),
             })
 
             if treeState.age >= 100 then

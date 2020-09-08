@@ -5,7 +5,8 @@ defaultArgs({
     color = colors.wood,
     endPointEntity = nil,
     length = 16,
-    moveByWind = 0
+    moveByWind = 0,
+    updatePrecision = 1
 })
 
 function create(rope, args)
@@ -14,7 +15,8 @@ function create(rope, args)
         VerletRope = {
             endPointEntity = args.endPointEntity,
             length = args.length,
-            moveByWind = args.moveByWind
+            moveByWind = args.moveByWind,
+            updatePrecision = args.updatePrecision
         },
         AABB = {
             halfSize = {4, 4}

@@ -22,6 +22,8 @@ COMPONENT(
     FIELD_DEF_VAL(float, friction, 1),
     FIELD_DEF_VAL(float, moveByWind, 0),
 
+    FIELD_DEF_VAL(int, updatePrecision, 1),
+
     FIELD_DEF_VAL(entt::entity, endPointEntity, entt::null),
     FIELD_DEF_VAL(bool, fixedEndPoint, false)
 )
@@ -43,7 +45,7 @@ COMPONENT(
     FIELD_DEF_VAL(ivec2, offset, ivec2(0))
 )
 
-    bool registerAsChildRope = true;
+    bool registerAsChildRope = false;
 
 END_COMPONENT(AttachToRope)
 

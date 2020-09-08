@@ -1,6 +1,5 @@
 
 #include <gu/profiler.h>
-#include <imgui.h>
 #include <input/mouse_input.h>
 #include <input/key_input.h>
 #include <utils/code_editor/CodeEditor.h>
@@ -9,6 +8,7 @@
 #include "components/physics/Physics.h"
 #include "../game/Game.h"
 #include "entity_templates/LuaEntityTemplate.h"
+#include "components/LuaScripted.h"
 
 
 EntityInspector::EntityInspector(EntityEngine &engine, const std::string &name) : engine(engine), reg(engine.entities), inspectorName(name)
@@ -197,7 +197,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
         reg.remove<Inspecting>(e);
         return;
     }
-    ImGui::SetNextWindowPos(ImVec2(MouseInput::mouseX, MouseInput::mouseY), ImGuiCond_Once);
+    ImGui::SetNextWindowPos(ins.windowPos.x > 0 ? ins.windowPos : ImVec2(MouseInput::mouseX, MouseInput::mouseY), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(500, 680), ImGuiCond_Once);
 
     std::string title(inspectorName + " Entity #" + std::to_string(int(e)));
@@ -212,6 +212,33 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
         reg.destroy(e);
         ImGui::End();
         return;
+    }
+    if (auto *luaScripted = reg.try_get<LuaScripted>(e))
+    {
+        if (luaScripted->usedTemplate != NULL)
+        {
+            ImGui::SameLine();
+            if (ImGui::Button("Regenerate"))
+            {
+                auto *aabb = reg.try_get<AABB>(e);
+
+                bool persistent = reg.try_get<Persistent>(e) != NULL;
+
+                auto newE = luaScripted->usedTemplate->create(persistent);
+
+                reg.assign<Inspecting>(newE).windowPos = ImGui::GetWindowPos();
+
+                auto *newAABB = reg.try_get<AABB>(newE);
+                if (newAABB && aabb)
+                    newAABB->center = aabb->center;
+
+                reg.destroy(e);
+                ImGui::End();
+                return;
+            }
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("This will:\n- Destroy this entity\n- Create a new entity using the '%s' template\n- Copy the AABB's center from this entity", luaScripted->usedTemplate->name.c_str());
+        }
     }
 
     // ---- COMPONENTS TREE -------

@@ -1,5 +1,6 @@
 
 #include "VerletPhysicsSystem.h"
+#include <glm/gtx/fast_square_root.hpp>
 
 void VerletPhysicsSystem::init(EntityEngine *engine)
 {
@@ -15,7 +16,7 @@ void VerletPhysicsSystem::update(double deltaTime, EntityEngine *)
 {
     room->entities.view<AABB, VerletRope>().each([&] (AABB &aabb, VerletRope &rope) {
 
-        if (rope.isAttachedToRope)
+        if (rope.isAttachedToRope || rope.length == 0)
             return;
 
         updateRope(rope, aabb, deltaTime);
@@ -64,6 +65,9 @@ void VerletPhysicsSystem::onPotentionalChildRopeCreation(entt::registry &reg, en
 
 void VerletPhysicsSystem::updateAttachToRope(const VerletRope &rope, AttachToRope &attach, AABB &aabb)
 {
+    if (rope.length == 0)
+        return;
+
     attach.x = min<float>(1, max<float>(0, attach.x));
 
     float pointIndex = (rope.nrOfPoints - 1) * attach.x;
@@ -80,78 +84,84 @@ void VerletPhysicsSystem::updateAttachToRope(const VerletRope &rope, AttachToRop
     aabb.center += attach.offset;
 }
 
-void VerletPhysicsSystem::updateRope(VerletRope &rope, AABB &aabb, double deltaTime)
+void VerletPhysicsSystem::updateRope(VerletRope &rope, AABB &aabb, float deltaTime)
 {
     if (rope.nrOfPoints < 2) rope.nrOfPoints = 2;
 
     float segmentLength = rope.length / (rope.nrOfPoints - 1);
 
-    while (rope.points.size() > rope.nrOfPoints)
-        rope.points.pop_back();
-
-    bool addedPoints = false;
-    while (rope.points.size() < rope.nrOfPoints)
-    {
-        addedPoints = true;
-        rope.points.emplace_back();
-        auto &p = rope.points.back();
-        int size = rope.points.size();
-        if (size == 1)
-            p.currentPos = p.prevPos = aabb.center;
-        else
-            p.currentPos = p.prevPos = rope.points[size - 2].currentPos + normalize(rope.gravity) * segmentLength;
-    }
-
     AABB *endPointAABB = NULL;
     if (rope.endPointEntity != entt::null)
         endPointAABB = room->entities.try_get<AABB>(rope.endPointEntity);
-    if (endPointAABB && addedPoints)
-        endPointAABB->center = rope.points.back().currentPos;
 
-    for (int i = 0; i < rope.nrOfPoints; i++)
+    if (rope.points.size() != rope.nrOfPoints)
+    {
+        bool addedPoints = false;
+
+        while (rope.points.size() > rope.nrOfPoints)
+            rope.points.pop_back();
+
+        while (rope.points.size() < rope.nrOfPoints)
+        {
+            addedPoints = true;
+            rope.points.emplace_back();
+            auto &p = rope.points.back();
+            int size = rope.points.size();
+            if (size == 1)
+                p.currentPos = p.prevPos = aabb.center;
+            else
+                p.currentPos = p.prevPos = rope.points[size - 2].currentPos + normalize(rope.gravity) * segmentLength;
+        }
+
+        if (endPointAABB && addedPoints)
+            endPointAABB->center = rope.points.back().currentPos;
+    }
+
+    if (endPointAABB)
+    {
+        auto &endPoint = rope.points.back();
+        if (ivec2(endPoint.currentPos) != endPointAABB->center)
+            endPoint.currentPos = endPointAABB->center;
+    }
+
+    for (int i = 1; i < rope.nrOfPoints; i++)
     {
         auto &p = rope.points[i];
 
-        if (i == rope.nrOfPoints - 1 && endPointAABB)
-        {
-            if (ivec2(p.currentPos) != endPointAABB->center)
-                p.currentPos = endPointAABB->center;
-        }
-
-        vec2 velocity = (p.currentPos - p.prevPos) * vec2(rope.friction);
+        vec2 velocity = (p.currentPos - p.prevPos) * rope.friction;
         if (rope.moveByWind != 0)
-            velocity += room->getMap().wind.getAtPixelCoordinates(p.currentPos.x, p.currentPos.y) * vec2(deltaTime * rope.moveByWind);
+            velocity += room->getMap().wind.getAtPixelCoordinates(p.currentPos.x, p.currentPos.y) * deltaTime * rope.moveByWind;
 
         p.prevPos = p.currentPos;
         p.currentPos += velocity;
-        p.currentPos += rope.gravity * vec2(deltaTime);
+        p.currentPos += rope.gravity * deltaTime;
     }
 
     rope.points[0].currentPos = aabb.center; // todo: add possibility for offset
 
-    for (int j = 0; j < 1; j++) // todo
+    for (int j = 0; j < rope.updatePrecision; j++)
     {
         for (int i = 0; i < rope.nrOfPoints - 1; i++)
         {
             auto &p0 = rope.points[i], &p1 = rope.points[i + 1];
 
-            float dist = length(p0.currentPos - p1.currentPos);
+            float dist = fastLength(p0.currentPos - p1.currentPos);
             float error = abs(dist - segmentLength);
 
             vec2 changeDir;
             if (dist > segmentLength)
-                changeDir = normalize(p0.currentPos - p1.currentPos);
+                changeDir = fastNormalize(p0.currentPos - p1.currentPos);
             else
-                changeDir = normalize(p1.currentPos - p0.currentPos);
+                changeDir = fastNormalize(p1.currentPos - p0.currentPos);
 
-            vec2 change = changeDir * vec2(error);
+            vec2 change = changeDir * error;
 
             if (i == 0)
                 p1.currentPos += change;
             else
             {
-                p0.currentPos -= change * vec2(.5);
-                p1.currentPos += change * vec2(.5);
+                p0.currentPos -= change * .5f;
+                p1.currentPos += change * .5f;
             }
         }
 

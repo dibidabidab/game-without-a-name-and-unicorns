@@ -49,6 +49,8 @@ entt::entity EntityEngine::getChildByName(entt::entity parent, const char *child
 void EntityEngine::registerLuaEntityTemplate(const char *assetPath)
 {
     auto name = splitString(assetPath, "/").back();
+    if (stringStartsWith(name, "_"))
+        return;
 
     addEntityTemplate(name, new LuaEntityTemplate(assetPath, name.c_str(), this));
 }

@@ -18,6 +18,8 @@ COMPONENT(
 
     sol::table saveData;
 
+    LuaEntityTemplate *usedTemplate = NULL;
+
 END_COMPONENT(LuaScripted)
 
 

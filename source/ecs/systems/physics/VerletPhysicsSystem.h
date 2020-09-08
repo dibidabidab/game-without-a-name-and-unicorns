@@ -26,7 +26,7 @@ class VerletPhysicsSystem : public EntitySystem
 
     void updateAttachToRope(const VerletRope &, AttachToRope &, AABB &);
 
-    void updateRope(VerletRope &, AABB &, double deltaTime);
+    void updateRope(VerletRope &, AABB &, float deltaTime);
 
 };
 
