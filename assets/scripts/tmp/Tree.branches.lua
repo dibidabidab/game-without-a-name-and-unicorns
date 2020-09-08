@@ -14,7 +14,7 @@ function entityTable(pieceEntity, parent, rotation, zIndex)
         },
 
         VerletRope   = {
-            length     = 1, -- TODO: make 0
+            length     = 0,
             gravity    = rotation,
 
             friction   = .7,

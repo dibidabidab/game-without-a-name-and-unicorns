@@ -7,7 +7,8 @@ function create(rope)
       color = colors.wood,
       endPointEntity = lamp,
       length = math.random(20, 40),
-      moveByWind = 1
+      moveByWind = 1,
+      updatePrecision = 4
     })
 
     components = {
