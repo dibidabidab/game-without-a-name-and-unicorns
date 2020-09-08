@@ -30,34 +30,39 @@ function entityTable(pieceEntity, parent, angle, zIndex)
 end
 
 function updateFunction(width, length, treeState)
-    local lengthRange = mtlib.range(length)
-    local widthRange  = mtlib.range(width)
-
     return function(dTime, entity, _)
-        local growthStart = mtlib.interpolate(mtlib.range(treeState.baseWidth), treeConfigs.ageRange,
+        local lengthRange = mtlib.range(length)
+        local widthRange  = mtlib.range(width)
+        local growthStart = mtlib.interpolate(mtlib.range(treeState.baseWidth), treeConfigs.ageRangeDs,
                                               math.sqrt(treeState.baseWidth) - math.sqrt(width))
         local growthRange = mtlib.range(growthStart, treeConfigs.ageRange.max)
-        currentLength     = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
-        currentWidth      = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
 
-        -- TODO: remove in new physics
-        if currentLength < 1 then currentLength = 1 end
+        local updateFunction = function(dTime, entity, _)
+            currentLength     = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
+            currentWidth      = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
 
-        setComponent(entity, "VerletRope", {
-            length = currentLength
-        })
-        setComponent(entity, "DrawPolyline", {
-            repeatX = math.sqrt(currentWidth),
-        })
+            -- TODO: remove in new physics
+            if currentLength < 1 then currentLength = 1 end
 
-        if treeState.age >= 100 then
-            setUpdateFunction(entity, 0, nil)
-            return
+            setComponent(entity, "VerletRope", {
+                length = currentLength
+            })
+            setComponent(entity, "DrawPolyline", {
+                repeatX = math.sqrt(currentWidth),
+            })
+
+            if treeState.age >= 100 then
+                setUpdateFunction(entity, 0, nil)
+                return
+            end
+
+            if treeState.rootEntity == entity then
+                treeState.age = treeState.age + dTime * 10
+            end
         end
 
-        if treeState.rootEntity == entity then
-            treeState.age = treeState.age + dTime * 10
-        end
+        setUpdateFunction(entity, .1, updateFunction)
+        updateFunction(dTime, entity, nil)
     end
 end
 

@@ -1,6 +1,8 @@
-mtlib    = include("scripts/util/math")
+mtlib      = include("scripts/util/math")
 
-ageRange = mtlib.range(100)
+maxAge     = 100
+ageRange   = mtlib.range(maxAge)
+ageRangeDs = mtlib.range(maxAge - 1)
 
 --[[ types in tree config
     length          Length in pixels
@@ -15,7 +17,6 @@ ageRange = mtlib.range(100)
 ]]--
 
 --[[ TreeConfig
-    branchLength            length      Max length of the stem at full age. Length at age 0 is 0
     branchlessStart         factorRange Amount of branch from the start that cannot have any branches split off of it
     width                   factorRange Stem width factor. 1 is normal width. Width depends on size and weight
     widthIncrease           factor      Increase of width for each branch piece
@@ -47,7 +48,7 @@ ageRange = mtlib.range(100)
     limitPieces             amount      Limit the depth of recursive branch pieces
 ]]--
 
-oak      = {
+oak        = {
     branchlessStart     = mtlib.range(.2, .4),
     width               = mtlib.range(1, 1.4),
     widthIncrease       = mtlib.range(.4),
@@ -56,18 +57,18 @@ oak      = {
     pieceAngle          = mtlib.sqRangeDev(40),
 
     branchChance        = .4,
-    branchAngle         = mtlib.range(50),
+    branchAngle         = mtlib.rangeDev(40),
     branchLength        = 50,
 
     crownBranches       = mtlib.range(1, 2),
     crownAngle          = mtlib.rangeDev(60),
     crownMinAngle       = 25,
 
-    tendency            = "direction",
-    tendencyDirection   = 60,
-    tendencyOutRange    = 100,
-    tendencyStrength    = .1,
-    tendencyStrengthRdc = .99,
+    tendency            = "none",
+    tendencyDirection   = 0,
+    tendencyOutRange    = 0,
+    tendencyStrength    = 0,
+    tendencyStrengthRdc = 0,
 
     pieceLengthFct      = .99,
     pieceAmountFct      = .8,

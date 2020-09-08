@@ -3,12 +3,14 @@ treeConfigs  = include("scripts/tmp/Tree.config")
 
 branchSystem = include("scripts/tmp/Tree.branches")
 
-defaultArgs({
-                zIndex = -600 - math.random(200),
-                age    = 100, --mtlib.random(treeConfigs.ageRange),
-                seed   = math.random(math.random(1000000000)),
-                type   = "oak",
-            })
+function resetDefaults()
+    defaultArgs({
+                    zIndex = -600 - math.random(200),
+                    age    = 1, --mtlib.random(treeConfigs.ageRange),
+                    seed   = math.random(math.random(1000000000)),
+                    type   = "oak",
+                })
+end
 
 
 -- Component functions
@@ -61,4 +63,7 @@ function create(entity, args)
     setComponent(entity, "AABB", {
         halfSize = { 4, 4 }, -- vierkantje is 6x6 pixels
     })
+    resetDefaults()
 end
+
+resetDefaults()
