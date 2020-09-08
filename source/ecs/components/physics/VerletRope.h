@@ -28,6 +28,10 @@ COMPONENT(
 
     std::vector<RopePoint> points;
 
+    std::vector<entt::entity> attachedRopes; // ropes that are attached to this rope.
+
+    bool isAttachedToRope = false;
+
 END_COMPONENT(VerletRope)
 
 COMPONENT(
@@ -38,6 +42,9 @@ COMPONENT(
     FIELD_DEF_VAL(float, x, 1), // where along the rope the entity should stick to. 0 = start, 1 = end
     FIELD_DEF_VAL(ivec2, offset, ivec2(0))
 )
+
+    bool registerAsChildRope = true;
+
 END_COMPONENT(AttachToRope)
 
 #endif //GAME_VERLETROPE_H

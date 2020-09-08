@@ -17,7 +17,7 @@ function entityTable(pieceEntity, parent, angle, zIndex)
             length     = 1, -- TODO: make 0
             gravity    = rotate2d(0, 100, angle),
 
-            friction   = .95,
+            friction   = .7,
             nrOfPoints = 1,
             moveByWind = 6,
         },
