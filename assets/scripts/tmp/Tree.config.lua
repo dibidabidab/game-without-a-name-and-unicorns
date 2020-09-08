@@ -64,11 +64,11 @@ oak        = {
     crownAngle          = mtlib.rangeDev(60),
     crownMinAngle       = 25,
 
-    tendency            = "none",
+    tendency            = "direction",
     tendencyDirection   = 0,
     tendencyOutRange    = 0,
-    tendencyStrength    = 0,
-    tendencyStrengthRdc = 0,
+    tendencyStrength    = .05,
+    tendencyStrengthRdc = .99,
 
     pieceLengthFct      = .99,
     pieceAmountFct      = .8,
