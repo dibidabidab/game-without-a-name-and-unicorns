@@ -22,8 +22,23 @@ COMPONENT(
     FIELD_DEF_VAL(bool, autoWidth, false),
     FIELD_DEF_VAL(bool, autoHeight, false),
     FIELD_DEF_VAL(int, fixedWidth, 128),
-    FIELD_DEF_VAL(int, fixedHeight, 64)
+    FIELD_DEF_VAL(int, fixedHeight, 64),
+
+    FIELD_DEF_VAL(ivec2, padding, ivec2(0))
 )
+
+    ivec2 textCursor = ivec2(0), topLeft = ivec2(0);
+    int currentLineHeight = 0, minX = 0, maxX = 0;
+
+    const aseprite::Slice *spriteSlice = NULL;
+    const aseprite::Slice::NineSlice *nineSlice = NULL;
+
+    void goToNewLine()
+    {
+        textCursor.x = minX;
+        textCursor.y -= currentLineHeight;
+    }
+
 END_COMPONENT(UIContainer)
 
 

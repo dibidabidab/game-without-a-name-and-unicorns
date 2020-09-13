@@ -22,7 +22,7 @@ TextRenderer::TextRenderer()
 }
 
 
-void TextRenderer::add(const TextView &textView, int lineX, ivec2 &cursor, int &currLineHeight)
+void TextRenderer::add(const TextView &textView, int minX, int maxX, ivec2 &cursor, int &currLineHeight)
 {
     auto &fontData = fontDatas[textView.fontSprite.getLoadedAsset().shortPath];
     if (fontData.charSlices.empty() || fontData.sprite.hasReloaded())
@@ -45,12 +45,13 @@ void TextRenderer::add(const TextView &textView, int lineX, ivec2 &cursor, int &
     }
     currLineHeight = max(fontData.minLineHeight, currLineHeight);
 
+    bool doNewLine = false;
+
     for (char c : textView.text)
     {
         if (c == '\n')
         {
-            cursor.x = lineX;
-            cursor.y -= fontData.minLineHeight + textView.lineSpacing;
+            doNewLine = true;
             continue;
         }
 
@@ -59,6 +60,16 @@ void TextRenderer::add(const TextView &textView, int lineX, ivec2 &cursor, int &
             throw gu_err("Tried to render character: '" + std::string(1, c) + "'");
 
         auto slice = fontData.charSlices.at(sliceIndex);
+
+        if (cursor.x + slice->width > maxX)
+            doNewLine = true;
+
+        if (doNewLine)
+        {
+            cursor.x = minX;
+            cursor.y -= fontData.minLineHeight + textView.lineSpacing;
+            doNewLine = false;
+        }
 
         int vertI = instancedData.nrOfVertices();
         instancedData.addVertices(1);
@@ -77,7 +88,7 @@ void TextRenderer::add(const TextView &textView, int lineX, ivec2 &cursor, int &
             yOffset += y;
         }
 
-        instancedData.set(posType(cursor.x, cursor.y + yOffset + currLineHeight, 0), vertI, attrOffset);
+        instancedData.set(posType(cursor.x, cursor.y + yOffset - currLineHeight, 0), vertI, attrOffset);
         attrOffset += sizeof(posType);
 
         spriteOffsetType spriteOffset(fontData.spriteOffsetOnMegaSpriteSheet);

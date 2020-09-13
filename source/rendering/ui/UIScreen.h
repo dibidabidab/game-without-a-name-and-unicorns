@@ -42,9 +42,7 @@ class UIScreen : public EntityEngine, public Screen
     void renderDebugStuff();
 
   private:
-    void renderFamily(const Parent &, double deltaTime);
-
-    void renderChild(entt::entity childEntity, double deltaTime);
+    void renderUIElement(entt::entity, UIContainer &, double deltaTime);
 };
 
 

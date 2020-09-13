@@ -4,14 +4,15 @@ function create(widget)
     setComponents(widget, {
         UIElement = {},
         UIContainer = {
-            nineSliceSprite = "sprites/ui/default_9slice_plane"
+            nineSliceSprite = "sprites/ui/default_9slice_plane",
+            autoHeight = true
         },
         Inspecting = {}
     })
 
     applyTemplate(createChild(widget), "Text", {
-        text = "dibidabidab!",
-        color = colors.rainbow_red,
+        text = "dibidabidab!!!\n\n\nlol",
+        color = colors.brick,
         waving = true
     })
 
@@ -22,7 +23,7 @@ function create(widget)
         }
     })
     applyTemplate(createChild(widget), "Text", {
-        text = "heheh"
+        text = "HP: 24/30"
     })
 
 end

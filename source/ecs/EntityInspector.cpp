@@ -226,7 +226,7 @@ void EntityInspector::drawEntityInspectorGUI(entt::entity e, Inspecting &ins)
 
                 auto newE = luaScripted->usedTemplate->create(persistent);
 
-                reg.assign<Inspecting>(newE).windowPos = ImGui::GetWindowPos();
+                reg.get_or_assign<Inspecting>(newE).windowPos = ImGui::GetWindowPos();
 
                 auto *newAABB = reg.try_get<AABB>(newE);
                 if (newAABB && aabb)

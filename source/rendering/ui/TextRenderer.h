@@ -31,7 +31,7 @@ class TextRenderer
 
     TextRenderer();
 
-    void add(const TextView &, int lineX, ivec2 &cursor, int &currLineHeight);
+    void add(const TextView &, int minX, int maxX, ivec2 &cursor, int &currLineHeight);
 
     void render(const Camera &);
 
