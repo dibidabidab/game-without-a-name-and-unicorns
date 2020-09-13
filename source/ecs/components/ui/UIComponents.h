@@ -5,11 +5,15 @@
 #include <utils/aseprite/Aseprite.h>
 #include "../../../macro_magic/component.h"
 
+ENUM(HorizontalAlignment, left, center, right)
+ENUM(VerticalAlignment, top, center, bottom)
+
 COMPONENT(
     UIElement,
     HASH(0),
-    FIELD_DEF_VAL(ivec2, topLeftPos, ivec2(0)),
-    FIELD_DEF_VAL(ivec2, size, ivec2(4))
+    FIELD_DEF_VAL(ivec2, margin, ivec2(0)),
+    FIELD_DEF_VAL(HorizontalAlignment, horizontalAlign, HorizontalAlignment::left),
+    FIELD_DEF_VAL(VerticalAlignment, verticalAlign, VerticalAlignment::top)
 )
 END_COMPONENT(UIElement)
 
@@ -33,10 +37,21 @@ COMPONENT(
     const aseprite::Slice *spriteSlice = NULL;
     const aseprite::Slice::NineSlice *nineSlice = NULL;
 
-    void goToNewLine()
+    void goToNewLine(int spacing = 0)
     {
         textCursor.x = minX;
-        textCursor.y -= currentLineHeight;
+        textCursor.y -= currentLineHeight + spacing;
+    }
+
+    void resizeOrNewLine(int requireWidth, int lineSpacing = 0)
+    {
+        int maxXNeeded = textCursor.x + requireWidth;
+        if (maxXNeeded <= maxX)
+            return;
+        if (autoWidth)
+            maxX = maxXNeeded;
+        else
+            goToNewLine(lineSpacing);
     }
 
 END_COMPONENT(UIContainer)

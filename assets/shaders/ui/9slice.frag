@@ -24,7 +24,7 @@ void main()
 {
     uvec2 coordsBL = uvec2(v_coords); // origin at BottomLeft
     uvec2 coordsTL = coordsBL;          // origin at TopLeft
-    coordsTL.y = v_size.y - coordsTL.y;
+    coordsTL.y = v_size.y - coordsTL.y - 1u;
 
     uvec2 textureCoords = uvec2(v_textureOffset);
 
@@ -129,4 +129,7 @@ void main()
     }
 
     indexedColor = texelFetch(spriteSheet, ivec2(textureCoords), 0).r;
+
+    if (indexedColor == 0u)
+        discard;
 }

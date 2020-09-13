@@ -5,6 +5,7 @@
 #include "SerializableStructInfo.h"
 #include "lua_converters.h"
 #include "macro_helpers.h"
+#include "enum.h"
 #include "json_converters.h"
 #include <json.hpp>
 #include <utils/gu_error.h>

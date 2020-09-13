@@ -22,7 +22,7 @@ TextRenderer::TextRenderer()
 }
 
 
-void TextRenderer::add(const TextView &textView, int minX, int maxX, ivec2 &cursor, int &currLineHeight)
+void TextRenderer::add(const TextView &textView, UIContainer &cont)
 {
     auto &fontData = fontDatas[textView.fontSprite.getLoadedAsset().shortPath];
     if (fontData.charSlices.empty() || fontData.sprite.hasReloaded())
@@ -43,15 +43,13 @@ void TextRenderer::add(const TextView &textView, int minX, int maxX, ivec2 &curs
             fontData.minLineHeight = max(fontData.minLineHeight, charHeight);
         }
     }
-    currLineHeight = max(fontData.minLineHeight, currLineHeight);
-
-    bool doNewLine = false;
+    cont.currentLineHeight = max(fontData.minLineHeight, cont.currentLineHeight);
 
     for (char c : textView.text)
     {
         if (c == '\n')
         {
-            doNewLine = true;
+            cont.goToNewLine(textView.lineSpacing);
             continue;
         }
 
@@ -61,15 +59,7 @@ void TextRenderer::add(const TextView &textView, int minX, int maxX, ivec2 &curs
 
         auto slice = fontData.charSlices.at(sliceIndex);
 
-        if (cursor.x + slice->width > maxX)
-            doNewLine = true;
-
-        if (doNewLine)
-        {
-            cursor.x = minX;
-            cursor.y -= fontData.minLineHeight + textView.lineSpacing;
-            doNewLine = false;
-        }
+        cont.resizeOrNewLine(slice->width, textView.lineSpacing);
 
         int vertI = instancedData.nrOfVertices();
         instancedData.addVertices(1);
@@ -84,11 +74,11 @@ void TextRenderer::add(const TextView &textView, int minX, int maxX, ivec2 &curs
 
         if (textView.waving)
         {
-            float y = sin(cursor.x * textView.wavingFrequency + glfwGetTime() * textView.wavingSpeed) * textView.wavingAmplitude;
+            float y = sin(cont.textCursor.x * textView.wavingFrequency + glfwGetTime() * textView.wavingSpeed) * textView.wavingAmplitude;
             yOffset += y;
         }
 
-        instancedData.set(posType(cursor.x, cursor.y + yOffset - currLineHeight, 0), vertI, attrOffset);
+        instancedData.set(posType(cont.textCursor.x, cont.textCursor.y + yOffset - cont.currentLineHeight, 0), vertI, attrOffset);
         attrOffset += sizeof(posType);
 
         spriteOffsetType spriteOffset(fontData.spriteOffsetOnMegaSpriteSheet);
@@ -102,7 +92,7 @@ void TextRenderer::add(const TextView &textView, int minX, int maxX, ivec2 &curs
         instancedData.set(u8vec2(textView.mapColorFrom, textView.mapColorTo), vertI, attrOffset);
 //        attrOffset += sizeof(u8vec2);
 
-        cursor.x += slice->width + textView.letterSpacing;
+        cont.textCursor.x += slice->width + textView.letterSpacing;
     }
 }
 

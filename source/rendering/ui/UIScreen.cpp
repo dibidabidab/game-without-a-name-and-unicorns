@@ -96,8 +96,8 @@ void UIScreen::render(double deltaTime)
         uiContainer.fixedHeight = cam.viewportHeight;
         uiContainer.fixedWidth = cam.viewportWidth;
 
-        entities.view<UIElement>(entt::exclude<Child>).each([&] (auto e, UIElement &) {
-            renderUIElement(e, uiContainer, deltaTime);
+        entities.view<UIElement>(entt::exclude<Child>).each([&] (auto e, UIElement &el) {
+            renderUIElement(e, el, uiContainer, deltaTime);
         });
     }
 
@@ -175,10 +175,10 @@ void UIScreen::renderDebugStuff()
     ImGui::EndMainMenuBar();
 }
 
-void UIScreen::renderUIElement(entt::entity e, UIContainer &container, double deltaTime)
+void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &container, double deltaTime)
 {
     if (auto *textView = entities.try_get<TextView>(e))
-        textRenderer.add(*textView, container.minX, container.maxX, container.textCursor, container.currentLineHeight);
+        textRenderer.add(*textView, container);
 
     else if (auto *spriteView = entities.try_get<AsepriteView>(e))
     {
@@ -187,8 +187,7 @@ void UIScreen::renderUIElement(entt::entity e, UIContainer &container, double de
 
         int width = spriteView->sprite->width, height = spriteView->sprite->height;
 
-        if (container.textCursor.x + width > container.maxX)
-            container.goToNewLine();
+        container.resizeOrNewLine(width);
 
         spriteRenderer.add(*spriteView, container.textCursor - ivec2(0, height));
         container.textCursor.x += width;
@@ -196,42 +195,50 @@ void UIScreen::renderUIElement(entt::entity e, UIContainer &container, double de
     }
 
     else if (auto *childContainer = entities.try_get<UIContainer>(e))
+        renderUIContainer(e, el, *childContainer, container, deltaTime);
+}
+
+void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &cont, UIContainer &parentCont, double deltaTime)
+{
+    cont.topLeft = (cont.padding) * ivec2(1, -1);
+
+    if (cont.nineSliceSprite.isSet())
     {
-        childContainer->topLeft = childContainer->padding * ivec2(1, -1);
-
-        if (childContainer->nineSliceSprite.isSet())
-        {
-            childContainer->spriteSlice = &childContainer->nineSliceSprite->getSliceByName("9slice", 0);
-            childContainer->nineSlice = childContainer->spriteSlice->nineSlice.has_value() ? &childContainer->spriteSlice->nineSlice.value() : NULL;
-        }
-
-        if (childContainer->nineSlice)
-            childContainer->topLeft += childContainer->nineSlice->topLeftOffset * ivec2(1, -1);
-
-        childContainer->textCursor = childContainer->topLeft;
-        childContainer->minX = childContainer->topLeft.x;
-        childContainer->maxX = childContainer->fixedWidth - childContainer->padding.x;
-
-        if (childContainer->nineSlice)
-            childContainer->maxX -= childContainer->spriteSlice->width - childContainer->nineSlice->innerSize.x - childContainer->nineSlice->topLeftOffset.x;
-
-        childContainer->currentLineHeight = 0;
-        if (auto *parent = entities.try_get<Parent>(e))
-            for (auto child : parent->children)
-                renderUIElement(child, *childContainer, deltaTime);
-
-        ivec2 size(childContainer->fixedWidth, childContainer->fixedHeight);
-
-        if (childContainer->autoHeight)
-        {
-            // todo: textCursor is global
-            size.y = -childContainer->textCursor.y + childContainer->currentLineHeight + childContainer->padding.y;
-
-            if (childContainer->nineSlice)
-                size.y += childContainer->spriteSlice->height - childContainer->nineSlice->innerSize.y - childContainer->nineSlice->topLeftOffset.y;
-        }
-
-        if (childContainer->nineSlice)
-            nineSliceRenderer.add(childContainer->nineSliceSprite.get(), ivec3(container.textCursor, 0), size);
+        cont.spriteSlice = &cont.nineSliceSprite->getSliceByName("9slice", 0);
+        cont.nineSlice = cont.spriteSlice->nineSlice.has_value() ? &cont.spriteSlice->nineSlice.value() : NULL;
     }
+
+    if (cont.nineSlice)
+        cont.topLeft += cont.nineSlice->topLeftOffset * ivec2(1, -1);
+
+    cont.textCursor = cont.topLeft;
+    cont.minX = cont.topLeft.x;
+    cont.maxX = cont.fixedWidth - cont.padding.x;
+
+    if (cont.nineSlice)
+        cont.maxX -= cont.spriteSlice->width - cont.nineSlice->innerSize.x - cont.nineSlice->topLeftOffset.x;
+
+    int originalMaxX = cont.maxX;
+
+    cont.currentLineHeight = 0;
+    if (auto *parent = entities.try_get<Parent>(e))
+        for (auto child : parent->children)
+            if (auto *childEl = entities.try_get<UIElement>(child))
+                renderUIElement(child, *childEl, cont, deltaTime);
+
+    ivec2 size(cont.fixedWidth, cont.fixedHeight);
+
+    if (cont.autoHeight)
+    {
+        // todo: textCursor is global
+        size.y = -cont.textCursor.y + cont.currentLineHeight + cont.padding.y;
+
+        if (cont.nineSlice)
+            size.y += cont.spriteSlice->height - cont.nineSlice->innerSize.y - cont.nineSlice->topLeftOffset.y;
+    }
+    if (cont.autoWidth)
+        size.x += cont.maxX - originalMaxX;
+
+    if (cont.nineSlice)
+        nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(parentCont.textCursor, 0), size);
 }
