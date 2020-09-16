@@ -1,6 +1,7 @@
 
 #include "SaveGame.h"
 #include "../macro_magic/lua_converters.h"
+#include "Game.h"
 
 SaveGame::SaveGame(const char *path) : loadedFromPath(path)
 {
@@ -36,5 +37,7 @@ sol::table SaveGame::getSaveDataForEntity(const std::string &entitySaveGameID, b
     if (temporary)
         return luau::getLuaState()["tempSaveGameEntities"].get_or_create<sol::table>()[entitySaveGameID].get_or_create<sol::table>();
 
-    return luaTable[SAVE_GAME_ENTITIES_TABLE_NAME].get_or_create<sol::table>()[entitySaveGameID].get_or_create<sol::table>();
+    auto &saveGameLuaTable = Game::tryGetCurrentSession()->saveGame.luaTable;
+
+    return saveGameLuaTable[SAVE_GAME_ENTITIES_TABLE_NAME].get_or_create<sol::table>()[entitySaveGameID].get_or_create<sol::table>();
 }

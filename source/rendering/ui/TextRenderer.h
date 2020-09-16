@@ -31,9 +31,13 @@ class TextRenderer
 
     TextRenderer();
 
-    void add(const TextView &, UIContainer &);
+    void add(const TextView &, UIContainer &, int lineSpacing);
 
     void render(const Camera &);
+
+  private:
+
+    void centerCurrentLineOfText();
 
 };
 

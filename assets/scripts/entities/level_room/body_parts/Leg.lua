@@ -6,7 +6,12 @@ defaultArgs({
     hipAnchor = {0, 0},
     idleXPos = 0,
     spriteSliceName = "leg",
-    color = 5
+    color = 5,
+
+    stepSize = 13,
+    stepArcAngle = 65,
+    idleStepSpeed = 65,
+    inAirStepSpeed = 40
 })
 
 function create(leg, args)
@@ -36,7 +41,12 @@ function create(leg, args)
             body = args.body,
             anchor = args.hipAnchor,
             idleXPos = args.idleXPos,
-            oppositeLeg = args.oppositeLeg
+            oppositeLeg = args.oppositeLeg,
+
+            stepSize = args.stepSize,
+            stepArcAngle = args.stepArcAngle,
+            idleStepSpeed = args.idleStepSpeed,
+            inAirStepSpeed = args.inAirStepSpeed
         },
         AABB = {},
         BezierCurve = {

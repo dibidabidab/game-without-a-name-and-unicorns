@@ -95,6 +95,8 @@ void UIScreen::render(double deltaTime)
         UIContainer uiContainer;
         uiContainer.fixedHeight = cam.viewportHeight;
         uiContainer.fixedWidth = cam.viewportWidth;
+        uiContainer.innerTopLeft = ivec2(cam.viewportWidth * -.5, cam.viewportHeight * .5);
+        uiContainer.textCursor = uiContainer.innerTopLeft;
 
         entities.view<UIElement>(entt::exclude<Child>).each([&] (auto e, UIElement &el) {
             renderUIElement(e, el, uiContainer, deltaTime);
@@ -177,8 +179,11 @@ void UIScreen::renderDebugStuff()
 
 void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &container, double deltaTime)
 {
+    if (el.startOnNewLine)
+        container.goToNewLine(el.lineSpacing);
+
     if (auto *textView = entities.try_get<TextView>(e))
-        textRenderer.add(*textView, container);
+        textRenderer.add(*textView, container, el.lineSpacing);
 
     else if (auto *spriteView = entities.try_get<AsepriteView>(e))
     {
@@ -187,11 +192,15 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
 
         int width = spriteView->sprite->width, height = spriteView->sprite->height;
 
-        container.resizeOrNewLine(width);
+        container.resizeOrNewLine(width, el.lineSpacing);
+
+        if (container.centerAlign)
+            container.textCursor.x -= width / 2;
 
         spriteRenderer.add(*spriteView, container.textCursor - ivec2(0, height));
         container.textCursor.x += width;
-        container.currentLineHeight = max(container.currentLineHeight, height);
+
+        container.resizeLineHeight(height);
     }
 
     else if (auto *childContainer = entities.try_get<UIContainer>(e))
@@ -200,7 +209,12 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
 
 void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &cont, UIContainer &parentCont, double deltaTime)
 {
-    cont.topLeft = (cont.padding) * ivec2(1, -1);
+    ivec2 outerTopLeft = parentCont.textCursor + ivec2(el.margin.x, -el.margin.y);
+
+    if (parentCont.centerAlign)
+        outerTopLeft.x -= cont.fixedWidth / 2;
+
+    cont.innerTopLeft = outerTopLeft + cont.padding * ivec2(1, -1);
 
     if (cont.nineSliceSprite.isSet())
     {
@@ -209,14 +223,15 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
     }
 
     if (cont.nineSlice)
-        cont.topLeft += cont.nineSlice->topLeftOffset * ivec2(1, -1);
+        cont.innerTopLeft += cont.nineSlice->topLeftOffset * ivec2(1, -1);
 
-    cont.textCursor = cont.topLeft;
-    cont.minX = cont.topLeft.x;
-    cont.maxX = cont.fixedWidth - cont.padding.x;
+    cont.textCursor = cont.innerTopLeft;
+    cont.resetCursorX();
+    cont.minX = cont.innerTopLeft.x;
+    cont.maxX = cont.minX + cont.fixedWidth - cont.padding.x * 2;
 
     if (cont.nineSlice)
-        cont.maxX -= cont.spriteSlice->width - cont.nineSlice->innerSize.x - cont.nineSlice->topLeftOffset.x;
+        cont.maxX -= (cont.spriteSlice->width - cont.nineSlice->innerSize.x - cont.nineSlice->topLeftOffset.x) * 2;
 
     int originalMaxX = cont.maxX;
 
@@ -230,8 +245,7 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
 
     if (cont.autoHeight)
     {
-        // todo: textCursor is global
-        size.y = -cont.textCursor.y + cont.currentLineHeight + cont.padding.y;
+        size.y = -(cont.textCursor.y - outerTopLeft.y) + cont.currentLineHeight + cont.padding.y;
 
         if (cont.nineSlice)
             size.y += cont.spriteSlice->height - cont.nineSlice->innerSize.y - cont.nineSlice->topLeftOffset.y;
@@ -240,5 +254,8 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
         size.x += cont.maxX - originalMaxX;
 
     if (cont.nineSlice)
-        nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(parentCont.textCursor, 0), size);
+        nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(outerTopLeft, 0), size);
+
+    parentCont.textCursor.x += size.x + el.margin.x * 2;
+    parentCont.resizeLineHeight(size.y + el.margin.y * 2);
 }

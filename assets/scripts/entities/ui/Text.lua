@@ -7,9 +7,9 @@ defaultArgs({
     letterSpacing = 1,
     font = "sprites/ui/default_font",
     waving = false,
-    wavingFrequency = 3,
-    wavingSpeed = 5,
-    wavingAmplitude = 4
+    wavingFrequency = .09,
+    wavingSpeed = 10,
+    wavingAmplitude = 3
 })
 
 function create(text, args)

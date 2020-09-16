@@ -21,9 +21,17 @@ TextRenderer::TextRenderer()
     quad->vertBuffer->vboUsage = GL_DYNAMIC_DRAW;
 }
 
+using posType = i16vec3;
+using spriteOffsetType = u16vec2;
+using sizeType = u8vec2;
 
-void TextRenderer::add(const TextView &textView, UIContainer &cont)
+static int lineWidth = 0, lineCharCount = 0;
+
+void TextRenderer::add(const TextView &textView, UIContainer &cont, int lineSpacing)
 {
+    lineWidth = lineCharCount = 0;  // todo: these should also be reset if cont.centerAlign is false
+    cont.resizeOrNewLine(0, lineSpacing);
+
     auto &fontData = fontDatas[textView.fontSprite.getLoadedAsset().shortPath];
     if (fontData.charSlices.empty() || fontData.sprite.hasReloaded())
     {
@@ -43,13 +51,16 @@ void TextRenderer::add(const TextView &textView, UIContainer &cont)
             fontData.minLineHeight = max(fontData.minLineHeight, charHeight);
         }
     }
-    cont.currentLineHeight = max(fontData.minLineHeight, cont.currentLineHeight);
+
+    bool jumpedToNewLine = false;
 
     for (char c : textView.text)
     {
+        cont.resizeLineHeight(fontData.minLineHeight);
         if (c == '\n')
         {
-            cont.goToNewLine(textView.lineSpacing);
+            cont.goToNewLine(lineSpacing);
+            jumpedToNewLine = true;
             continue;
         }
 
@@ -59,14 +70,26 @@ void TextRenderer::add(const TextView &textView, UIContainer &cont)
 
         auto slice = fontData.charSlices.at(sliceIndex);
 
-        cont.resizeOrNewLine(slice->width, textView.lineSpacing);
+        if (cont.centerAlign)
+        {
+            if (lineWidth + slice->width > cont.maxX - cont.minX)
+            {
+                jumpedToNewLine = true;
+                cont.goToNewLine(lineSpacing);
+            }
+        }
+        else jumpedToNewLine |= cont.resizeOrNewLine(slice->width, lineSpacing);
+
+        if (jumpedToNewLine && cont.centerAlign)
+        {
+            // move characters to the left so that the line of text is centered.
+
+            centerCurrentLineOfText();
+            jumpedToNewLine = false;
+        }
 
         int vertI = instancedData.nrOfVertices();
         instancedData.addVertices(1);
-
-        using posType = i16vec3;
-        using spriteOffsetType = u16vec2;
-        using sizeType = u8vec2;
 
         int attrOffset = 0;
 
@@ -78,6 +101,7 @@ void TextRenderer::add(const TextView &textView, UIContainer &cont)
             yOffset += y;
         }
 
+        cont.resizeLineHeight(fontData.minLineHeight);
         instancedData.set(posType(cont.textCursor.x, cont.textCursor.y + yOffset - cont.currentLineHeight, 0), vertI, attrOffset);
         attrOffset += sizeof(posType);
 
@@ -92,8 +116,13 @@ void TextRenderer::add(const TextView &textView, UIContainer &cont)
         instancedData.set(u8vec2(textView.mapColorFrom, textView.mapColorTo), vertI, attrOffset);
 //        attrOffset += sizeof(u8vec2);
 
-        cont.textCursor.x += slice->width + textView.letterSpacing;
+        int w = slice->width + textView.letterSpacing;
+        cont.textCursor.x += w;
+        lineWidth += w;
+        lineCharCount++;
     }
+    if (cont.centerAlign)
+        centerCurrentLineOfText();
 }
 
 void TextRenderer::render(const Camera &cam)
@@ -110,4 +139,15 @@ void TextRenderer::render(const Camera &cam)
     quad->renderInstances(instancedData.nrOfVertices());
 
     instancedData.vertices.clear();
+}
+
+void TextRenderer::centerCurrentLineOfText()
+{
+    for (int vertI = instancedData.nrOfVertices() - 1; vertI >= instancedData.nrOfVertices() - lineCharCount; vertI--)
+    {
+        auto pos = instancedData.get<posType>(vertI, 0);
+        pos.x -= lineWidth / 2;
+        instancedData.set(pos, vertI, 0);
+    }
+    lineWidth = lineCharCount = 0;  // todo: these should also be reset if cont.centerAlign is false
 }
