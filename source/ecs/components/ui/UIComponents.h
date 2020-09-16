@@ -5,12 +5,21 @@
 #include <utils/aseprite/Aseprite.h>
 #include "../../../macro_magic/component.h"
 
+ENUM(HorizontalAlignment, left, center, right)
+ENUM(VerticalAlignment, top, center, bottom)
+
 COMPONENT(
     UIElement,
     HASH(0),
     FIELD_DEF_VAL(ivec2, margin, ivec2(0)),
     FIELD_DEF_VAL(bool, startOnNewLine, false),
-    FIELD_DEF_VAL(int, lineSpacing, 3)
+    FIELD_DEF_VAL(int, lineSpacing, 3),
+
+    FIELD_DEF_VAL(ivec2, renderOffset, ivec2(0)),
+
+    FIELD_DEF_VAL(bool, absolutePositioning, false),
+    FIELD_DEF_VAL(HorizontalAlignment, absoluteHorizontalAlign, HorizontalAlignment::left),
+    FIELD_DEF_VAL(VerticalAlignment, absoluteVerticalAlign, VerticalAlignment::top)
 )
 END_COMPONENT(UIElement)
 
@@ -31,7 +40,7 @@ COMPONENT(
 )
 
     ivec2 textCursor = ivec2(0), innerTopLeft = ivec2(0);
-    int currentLineHeight = 0, minX = 0, maxX = 0;
+    int currentLineHeight = 0, minX = 0, maxX = 0, innerHeight = 0;
 
     const aseprite::Slice *spriteSlice = NULL;
     const aseprite::Slice::NineSlice *nineSlice = NULL;

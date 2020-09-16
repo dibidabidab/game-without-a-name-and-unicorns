@@ -183,7 +183,7 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
         container.goToNewLine(el.lineSpacing);
 
     if (auto *textView = entities.try_get<TextView>(e))
-        textRenderer.add(*textView, container, el.lineSpacing);
+        textRenderer.add(*textView, container, el);
 
     else if (auto *spriteView = entities.try_get<AsepriteView>(e))
     {
@@ -192,15 +192,47 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
 
         int width = spriteView->sprite->width, height = spriteView->sprite->height;
 
-        container.resizeOrNewLine(width, el.lineSpacing);
+        if (el.absolutePositioning)
+        {
+            ivec2 pos(0, 0);
+            switch (el.absoluteHorizontalAlign)
+            {
+                case HorizontalAlignment::left:
+                    pos.x = container.minX;
+                    break;
+                case HorizontalAlignment::center:
+                    pos.x = (container.minX + container.maxX) / 2 - width / 2;
+                    break;
+                case HorizontalAlignment::right:
+                    pos.x = container.maxX - width;
+                    break;
+            }
+            switch (el.absoluteVerticalAlign)
+            {
+                case VerticalAlignment::top:
+                    pos.y = container.innerTopLeft.y - height;
+                    break;
+                case VerticalAlignment::center:
+                    pos.y = container.innerTopLeft.y - container.innerHeight / 2 - height / 2;
+                    break;
+                case VerticalAlignment::bottom:
+                    pos.y = container.innerTopLeft.y - container.innerHeight;
+                    break;
+            }
+            spriteRenderer.add(*spriteView, pos + el.renderOffset);
+        }
+        else
+        {
+            container.resizeOrNewLine(width, el.lineSpacing);
 
-        if (container.centerAlign)
-            container.textCursor.x -= width / 2;
+            if (container.centerAlign)
+                container.textCursor.x -= width / 2;
 
-        spriteRenderer.add(*spriteView, container.textCursor - ivec2(0, height));
-        container.textCursor.x += width;
+            spriteRenderer.add(*spriteView, container.textCursor - ivec2(0, height) + el.renderOffset);
+            container.textCursor.x += width;
 
-        container.resizeLineHeight(height);
+            container.resizeLineHeight(height);
+        }
     }
 
     else if (auto *childContainer = entities.try_get<UIContainer>(e))
@@ -209,7 +241,7 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
 
 void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &cont, UIContainer &parentCont, double deltaTime)
 {
-    ivec2 outerTopLeft = parentCont.textCursor + ivec2(el.margin.x, -el.margin.y);
+    ivec2 outerTopLeft = parentCont.textCursor + ivec2(el.margin.x, -el.margin.y) + el.renderOffset;
 
     if (parentCont.centerAlign)
         outerTopLeft.x -= cont.fixedWidth / 2;
@@ -225,10 +257,11 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
     if (cont.nineSlice)
         cont.innerTopLeft += cont.nineSlice->topLeftOffset * ivec2(1, -1);
 
-    cont.textCursor = cont.innerTopLeft;
-    cont.resetCursorX();
     cont.minX = cont.innerTopLeft.x;
     cont.maxX = cont.minX + cont.fixedWidth - cont.padding.x * 2;
+    cont.textCursor = cont.innerTopLeft;
+    cont.resetCursorX();
+    cont.innerHeight = cont.fixedHeight - (outerTopLeft.y - cont.innerTopLeft.y) * 2;
 
     if (cont.nineSlice)
         cont.maxX -= (cont.spriteSlice->width - cont.nineSlice->innerSize.x - cont.nineSlice->topLeftOffset.x) * 2;

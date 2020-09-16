@@ -27,10 +27,10 @@ using sizeType = u8vec2;
 
 static int lineWidth = 0, lineCharCount = 0;
 
-void TextRenderer::add(const TextView &textView, UIContainer &cont, int lineSpacing)
+void TextRenderer::add(const TextView &textView, UIContainer &cont, UIElement &el)
 {
     lineWidth = lineCharCount = 0;  // todo: these should also be reset if cont.centerAlign is false
-    cont.resizeOrNewLine(0, lineSpacing);
+    cont.resizeOrNewLine(0, el.lineSpacing);
 
     auto &fontData = fontDatas[textView.fontSprite.getLoadedAsset().shortPath];
     if (fontData.charSlices.empty() || fontData.sprite.hasReloaded())
@@ -59,7 +59,7 @@ void TextRenderer::add(const TextView &textView, UIContainer &cont, int lineSpac
         cont.resizeLineHeight(fontData.minLineHeight);
         if (c == '\n')
         {
-            cont.goToNewLine(lineSpacing);
+            cont.goToNewLine(el.lineSpacing);
             jumpedToNewLine = true;
             continue;
         }
@@ -75,10 +75,10 @@ void TextRenderer::add(const TextView &textView, UIContainer &cont, int lineSpac
             if (lineWidth + slice->width > cont.maxX - cont.minX)
             {
                 jumpedToNewLine = true;
-                cont.goToNewLine(lineSpacing);
+                cont.goToNewLine(el.lineSpacing);
             }
         }
-        else jumpedToNewLine |= cont.resizeOrNewLine(slice->width, lineSpacing);
+        else jumpedToNewLine |= cont.resizeOrNewLine(slice->width, el.lineSpacing);
 
         if (jumpedToNewLine && cont.centerAlign)
         {
@@ -102,7 +102,7 @@ void TextRenderer::add(const TextView &textView, UIContainer &cont, int lineSpac
         }
 
         cont.resizeLineHeight(fontData.minLineHeight);
-        instancedData.set(posType(cont.textCursor.x, cont.textCursor.y + yOffset - cont.currentLineHeight, 0), vertI, attrOffset);
+        instancedData.set(posType(cont.textCursor.x + el.renderOffset.x, cont.textCursor.y + yOffset - cont.currentLineHeight + el.renderOffset.y, 0), vertI, attrOffset);
         attrOffset += sizeof(posType);
 
         spriteOffsetType spriteOffset(fontData.spriteOffsetOnMegaSpriteSheet);

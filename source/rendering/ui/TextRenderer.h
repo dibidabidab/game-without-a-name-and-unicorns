@@ -31,7 +31,7 @@ class TextRenderer
 
     TextRenderer();
 
-    void add(const TextView &, UIContainer &, int lineSpacing);
+    void add(const TextView &, UIContainer &, UIElement &);
 
     void render(const Camera &);
 
