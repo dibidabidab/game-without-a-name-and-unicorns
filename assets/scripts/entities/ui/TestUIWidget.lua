@@ -3,7 +3,9 @@ function create(widget)
 
     setComponents(widget, {
         UIElement = {
-            margin = {32, 32}
+            margin = {16, 16},
+            absolutePositioning = true,
+            absoluteHorizontalAlign = 2
         },
         UIContainer = {
             nineSliceSprite = "sprites/ui/default_9slice_plane",

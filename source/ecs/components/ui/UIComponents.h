@@ -5,25 +5,6 @@
 #include <utils/aseprite/Aseprite.h>
 #include "../../../macro_magic/component.h"
 
-ENUM(HorizontalAlignment, left, center, right)
-ENUM(VerticalAlignment, top, center, bottom)
-
-COMPONENT(
-    UIElement,
-    HASH(0),
-    FIELD_DEF_VAL(ivec2, margin, ivec2(0)),
-    FIELD_DEF_VAL(bool, startOnNewLine, false),
-    FIELD_DEF_VAL(int, lineSpacing, 3),
-
-    FIELD_DEF_VAL(ivec2, renderOffset, ivec2(0)),
-
-    FIELD_DEF_VAL(bool, absolutePositioning, false),
-    FIELD_DEF_VAL(HorizontalAlignment, absoluteHorizontalAlign, HorizontalAlignment::left),
-    FIELD_DEF_VAL(VerticalAlignment, absoluteVerticalAlign, VerticalAlignment::top)
-)
-END_COMPONENT(UIElement)
-
-
 
 COMPONENT(
     UIContainer,
@@ -102,6 +83,56 @@ COMPONENT(
     }
 
 END_COMPONENT(UIContainer)
+
+
+ENUM(HorizontalAlignment, left, center, right)
+ENUM(VerticalAlignment, top, center, bottom)
+
+COMPONENT(
+        UIElement,
+        HASH(0),
+        FIELD_DEF_VAL(ivec2, margin, ivec2(0)),
+        FIELD_DEF_VAL(bool, startOnNewLine, false),
+        FIELD_DEF_VAL(int, lineSpacing, 3),
+
+        FIELD_DEF_VAL(ivec2, renderOffset, ivec2(0)),
+
+        FIELD_DEF_VAL(bool, absolutePositioning, false),
+        FIELD_DEF_VAL(HorizontalAlignment, absoluteHorizontalAlign, HorizontalAlignment::left),
+        FIELD_DEF_VAL(VerticalAlignment, absoluteVerticalAlign, VerticalAlignment::top)
+)
+
+    ivec2 getAbsolutePosition(const UIContainer &container, int width, int height)
+    {
+        ivec2 pos;
+        switch (absoluteHorizontalAlign)
+        {
+            case HorizontalAlignment::left:
+                pos.x = container.minX;
+                break;
+            case HorizontalAlignment::center:
+                pos.x = (container.minX + container.maxX) / 2 - width / 2;
+                break;
+            case HorizontalAlignment::right:
+                pos.x = container.maxX - width;
+                break;
+        }
+        switch (absoluteVerticalAlign)
+        {
+            case VerticalAlignment::top:
+                pos.y = container.innerTopLeft.y;
+                break;
+            case VerticalAlignment::center:
+                pos.y = container.innerTopLeft.y - container.innerHeight / 2 + height / 2;
+                break;
+            case VerticalAlignment::bottom:
+                pos.y = container.innerTopLeft.y - container.innerHeight + height;
+                break;
+        }
+        return pos;
+    }
+
+END_COMPONENT(UIElement)
 
 
 COMPONENT(

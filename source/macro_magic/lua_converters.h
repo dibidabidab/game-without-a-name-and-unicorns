@@ -12,10 +12,12 @@
 #include <utils/math_utils.h>
 #include <asset_manager/asset.h>
 
+#include "../../external/entt/src/entt/entity/registry.hpp"
+
 HAS_MEM_FUNC(toLuaTable, has_toLuaTable_function)
 HAS_MEM_FUNC(fromLuaTable, has_fromLuaTable_function)
 
-template<typename type>
+template<typename type, typename ignore_me=void>
 struct lua_converter
 {
     static void fromLua(sol::object v, type &field)
@@ -63,6 +65,21 @@ struct lua_converter
     }
 };
 
+
+template<typename ENUM_TYPE>
+struct lua_converter<ENUM_TYPE, typename std::enable_if<std::is_enum<ENUM_TYPE>::value>::type>
+{
+    static void fromLua(sol::object v, ENUM_TYPE &c)
+    {
+        c = ENUM_TYPE(v.as<sol::optional<int>>().value_or(0));
+    }
+
+    template<typename luaRef>
+    static void toLua(luaRef &luaVal, const ENUM_TYPE &c)
+    {
+        luaVal = int(c);
+    }
+};
 
 template<>
 struct lua_converter<uint8>

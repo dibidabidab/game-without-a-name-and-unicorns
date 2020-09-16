@@ -96,6 +96,9 @@ void UIScreen::render(double deltaTime)
         uiContainer.fixedHeight = cam.viewportHeight;
         uiContainer.fixedWidth = cam.viewportWidth;
         uiContainer.innerTopLeft = ivec2(cam.viewportWidth * -.5, cam.viewportHeight * .5);
+        uiContainer.innerHeight = cam.viewportHeight;
+        uiContainer.minX = uiContainer.innerTopLeft.x;
+        uiContainer.maxX = uiContainer.minX + cam.viewportWidth;
         uiContainer.textCursor = uiContainer.innerTopLeft;
 
         entities.view<UIElement>(entt::exclude<Child>).each([&] (auto e, UIElement &el) {
@@ -194,31 +197,8 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
 
         if (el.absolutePositioning)
         {
-            ivec2 pos(0, 0);
-            switch (el.absoluteHorizontalAlign)
-            {
-                case HorizontalAlignment::left:
-                    pos.x = container.minX;
-                    break;
-                case HorizontalAlignment::center:
-                    pos.x = (container.minX + container.maxX) / 2 - width / 2;
-                    break;
-                case HorizontalAlignment::right:
-                    pos.x = container.maxX - width;
-                    break;
-            }
-            switch (el.absoluteVerticalAlign)
-            {
-                case VerticalAlignment::top:
-                    pos.y = container.innerTopLeft.y - height;
-                    break;
-                case VerticalAlignment::center:
-                    pos.y = container.innerTopLeft.y - container.innerHeight / 2 - height / 2;
-                    break;
-                case VerticalAlignment::bottom:
-                    pos.y = container.innerTopLeft.y - container.innerHeight;
-                    break;
-            }
+            ivec2 pos = el.getAbsolutePosition(container, width, height);
+            pos.y -= height;
             spriteRenderer.add(*spriteView, pos + el.renderOffset);
         }
         else
@@ -241,7 +221,12 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
 
 void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &cont, UIContainer &parentCont, double deltaTime)
 {
-    ivec2 outerTopLeft = parentCont.textCursor + ivec2(el.margin.x, -el.margin.y) + el.renderOffset;
+    ivec2 outerTopLeft;
+    if (el.absolutePositioning)
+        outerTopLeft = el.getAbsolutePosition(parentCont, cont.fixedWidth, cont.fixedHeight);
+    else
+        outerTopLeft = parentCont.textCursor + ivec2(el.margin.x, -el.margin.y);
+    outerTopLeft += el.renderOffset;
 
     if (parentCont.centerAlign)
         outerTopLeft.x -= cont.fixedWidth / 2;
