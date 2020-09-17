@@ -132,5 +132,11 @@ function create(player)
 
     setOnDestroyCallback(player, function()
         print("Player entity #", player, "was alive for", t, "seconds. RIP")
+
+        local health = getComponent(player, "Health")
+        if health ~= nil then
+            saveGame.currentPlayerHealth = health.currHealth
+            saveGame.maxPlayerHealth = health.maxHealth
+        end
     end)
 end

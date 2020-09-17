@@ -25,8 +25,8 @@ class EntityEngine
     virtual void initializeLuaEnvironment();
 
   public:
-    entt::registry entities;
     sol::environment luaEnvironment;
+    entt::registry entities;
     EventEmitter events;
 
     ivec2 cursorPosition = ivec2(0);

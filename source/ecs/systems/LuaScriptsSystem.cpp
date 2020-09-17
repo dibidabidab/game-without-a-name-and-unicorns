@@ -4,6 +4,7 @@
 
 void LuaScriptsSystem::init(EntityEngine *room)
 {
+    engine = room;
     room->entities.on_destroy<LuaScripted>().connect<&LuaScriptsSystem::onDestroyed>(this);
 }
 
@@ -64,4 +65,11 @@ void LuaScriptsSystem::onDestroyed(entt::registry &reg, entt::entity e)
         std::cerr << "Error while calling Lua onDestroy callback for entity#" << int(e) << " (" << scripted.onDestroyFuncScript.getLoadedAsset().fullPath << "):" << std::endl;
         std::cerr << exc.what() << std::endl;
     }
+}
+
+LuaScriptsSystem::~LuaScriptsSystem()
+{
+    engine->entities.view<LuaScripted>().each([&] (auto e, auto) {
+        onDestroyed(engine->entities, e);
+    });
 }

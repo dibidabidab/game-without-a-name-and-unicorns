@@ -56,8 +56,6 @@ void TransRoomerSystem::update(double deltaTime, EntityEngine *engine)
                 archiveComponents(j, childE, room, componentList);
             }
 
-            nextRoom->getTemplate(transable.templateName).createComponents(newEntity);
-
             {
                 if (room->entities.has<LocalPlayer>(e))
                     nextRoom->entities.assign<LocalPlayer>(newEntity);
@@ -66,12 +64,13 @@ void TransRoomerSystem::update(double deltaTime, EntityEngine *engine)
                     nextRoom->entities.assign<PlayerControlled>(newEntity, *playerControlled);
             }
 
+            room->entities.destroy(e);
+            nextRoom->getTemplate(transable.templateName).createComponents(newEntity);
+
         } catch (std::exception &exc)
         {
             throw gu_err("Error while TransRooming entity#" + std::to_string(int(e)) + " (Template: " + transable.templateName + "):\n" + exc.what());
         }
-
-        room->entities.destroy(e);
     });
 }
 
