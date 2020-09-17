@@ -34,9 +34,27 @@ class EventEmitter
         static auto luaRef = luau::getLuaState()["__current_event__"];
         lua_converter<type>::toLua(luaRef, event);
 
+        auto it = listeners.begin();
+
+        bool removeListener = false;
+        auto removeCallback = [&] {
+            removeListener = true;
+        };
+
         // call each listener with the event as argument:
-        for (auto &listener : listeners)
-            listener(luaRef);
+        // also pass a callback function that can be used to remove the listener
+        while (it != listeners.end())
+        {
+            auto &listener = *it;
+            listener(luaRef, removeCallback);
+
+            if (removeListener)
+            {
+                removeListener = false;
+                it = listeners.erase(it);
+            }
+            else ++it;
+        }
     }
 
     void on(const char *eventName, const sol::function &listener)

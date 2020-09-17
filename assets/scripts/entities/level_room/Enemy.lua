@@ -30,14 +30,14 @@ function create(enemy)
         }
     })
 
-    onEntityEvent(enemy, "Damage", function(damage)
+    onEntityEvent(enemy, "Damage", function(damage, removeListener)
 
         local health = getComponent(enemy, "Health");
 
         print("AUWWWWWW", damage.points, health.currHealth, "/", health.maxHealth)
 
-        if health.currHealth == 0 then
-            print("ded")
+        if health.currHealth == 1 then
+            removeListener()
         end
 
     end)
