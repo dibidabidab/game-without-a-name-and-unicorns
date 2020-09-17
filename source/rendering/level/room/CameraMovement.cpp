@@ -39,9 +39,12 @@ void move(double deltaTime, float &x, float targetX)
     x += step;
 }
 
-void limit(float &x, float camWidth, float roomWidth)
+
+static const int PADDING_X = 20, PADDING_Y = 16;
+
+void limit(float &x, float camWidth, float roomWidth, float padding)
 {
-    float minX = camWidth * .5;
+    float minX = camWidth * .5 - padding;
     float maxX = roomWidth - minX;
 
     if (minX > maxX)
@@ -64,8 +67,8 @@ void CameraMovement::update(double deltaTime)
     move(deltaTime, cam->position.x, target.x);
     move(deltaTime, cam->position.y, target.y);
 
-    limit(cam->position.x, cam->viewportWidth, room->getMap().width * TileMap::PIXELS_PER_TILE);
-    limit(cam->position.y, cam->viewportHeight, room->getMap().height * TileMap::PIXELS_PER_TILE);
+    limit(cam->position.x, cam->viewportWidth, room->getMap().width * TileMap::PIXELS_PER_TILE, PADDING_X);
+    limit(cam->position.y, cam->viewportHeight, room->getMap().height * TileMap::PIXELS_PER_TILE, PADDING_Y);
 
     vec2 halfSize(cam->viewportWidth * .5, cam->viewportHeight * .5);
     ivec2 bottomLeft = vec2(cam->position) - halfSize;

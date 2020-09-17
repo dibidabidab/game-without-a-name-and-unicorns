@@ -247,10 +247,14 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
     if (cont.fillRemainingParentHeight)
     {
         int maxY = parentCont.innerTopLeft.y - parentCont.innerHeight;
-        size.y = outerTopLeft.y - maxY;
+        int minY = el.absolutePositioning ? parentCont.innerTopLeft.y : outerTopLeft.y;
+        size.y = minY - maxY;
     }
     if (cont.fillRemainingParentWidth)
-        size.x = parentCont.maxX - parentCont.textCursor.x;
+    {
+        int minX = el.absolutePositioning ? parentCont.minX : parentCont.textCursor.x;
+        size.x = parentCont.maxX - minX;
+    }
 
     cont.innerHeight = size.y - (outerTopLeft.y - cont.innerTopLeft.y) * 2;
 
