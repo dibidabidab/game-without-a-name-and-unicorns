@@ -1,0 +1,7 @@
+
+Head:
+  maxHeadRetraction: [int, 4]
+  turnHeadDelay: [float, .05]
+
+  _cpp_only:
+    timeSinceBodyFlipped: [float, 0]

@@ -1,0 +1,20 @@
+
+Bow:
+  archer: [entt::entity, entt::null]
+  archerLeftArm: [entt::entity, entt::null]
+  archerRightArm: [entt::entity, entt::null]
+
+  rotatePivot: [ivec2, ivec2(0)]
+
+  handBowAnchor: [entt::entity, entt::null]
+  handStringAnchor: [entt::entity, entt::null]
+
+  fireRate: [float, .4]
+  distanceFromArcher: [float, 9]
+
+  arrowTemplate: [std::string, "Arrow"]
+
+  cooldown: [float, 0]
+
+  _cpp_only:
+    prevAimDir: [vec2, vec2(1, 0)]

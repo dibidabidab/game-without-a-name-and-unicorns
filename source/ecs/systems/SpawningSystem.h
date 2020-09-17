@@ -3,7 +3,7 @@
 #define GAME_SPAWNINGSYSTEM_H
 
 #include "EntitySystem.h"
-#include "../components/Spawning.h"
+#include "../components/Spawning.yaml"
 #include "../../level/room/Room.h"
 
 

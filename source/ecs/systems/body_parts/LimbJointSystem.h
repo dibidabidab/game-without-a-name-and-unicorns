@@ -4,10 +4,10 @@
 
 #include "../../../level/room/Room.h"
 #include "../EntitySystem.h"
-#include "../../components/body_parts/LimbJoint.h"
+#include "../../components/body_parts/LimbJoint.yaml"
 #include "../../components/physics/Physics.h"
 #include "../../components/body_parts/Leg.h"
-#include "../../components/body_parts/Arm.h"
+#include "../../components/body_parts/Arm.yaml"
 
 /**
  * see LimbJoint documentation

@@ -1,0 +1,13 @@
+
+TransRoomable:
+  templateName: std::string
+  archiveComponents: std::vector<std::string>
+  archiveChildComponents: std::map<std::string, std::vector<std::string>>
+
+
+TransRoomed:
+  travelHistory: std::vector<int>
+  archivedComponents: [json, json::object()]
+  archivedChildComponents: [json, json::object()]
+  positionInNewRoom: ivec2
+  travelDir: ivec2

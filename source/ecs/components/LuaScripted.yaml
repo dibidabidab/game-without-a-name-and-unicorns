@@ -1,0 +1,14 @@
+
+LuaScripted:
+  updateAccumulator: [float, 0]
+
+  updateFunc: sol::function
+  onDestroyFunc: sol::function
+
+  updateFuncScript: asset<luau::Script>
+  onDestroyFuncScript: asset<luau::Script>
+
+  saveData: sol::table
+
+  usedTemplate: [LuaEntityTemplate*, NULL]
+

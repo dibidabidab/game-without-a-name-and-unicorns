@@ -2,8 +2,8 @@
 #include "DamageSystem.h"
 #include "../../../level/room/Room.h"
 #include "../../components/physics/Physics.h"
-#include "../../components/PlayerControlled.h"
-#include "../../components/combat/Bow.h"
+#include "../../components/PlayerControlled.yaml"
+#include "../../components/combat/Bow.yaml"
 #include "../../components/graphics/PaletteSetter.h"
 #include "../../components/graphics/BloodDrop.h"
 

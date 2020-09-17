@@ -1,6 +1,6 @@
 
 #include "LevelEditor.h"
-#include "../../ecs/components/PlayerControlled.h"
+#include "../../ecs/components/PlayerControlled.yaml"
 #include "MiniMapTextureGenerator.h"
 #include <imgui.h>
 

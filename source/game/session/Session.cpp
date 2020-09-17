@@ -1,6 +1,6 @@
 
 #include "Session.h"
-#include "../../ecs/components/PlayerControlled.h"
+#include "../../ecs/components/PlayerControlled.yaml"
 
 const Player_ptr &Session::getPlayerById(int id) const
 {

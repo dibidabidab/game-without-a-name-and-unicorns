@@ -1,0 +1,21 @@
+
+Rainbow:
+  disappearOnPlayerTouch: [bool, false]
+  disappearAfterTime: [float, 0] # 0 means never
+  startDissapearingFromLeft: [bool, true]
+  disappearSpeed: [float, 1]
+
+  _cpp_only:
+    disappearing: [bool, false]
+    timer: [float, 0]
+
+
+RainbowSpawner:
+  maxRainbowLength: [float, 220]
+  rainbowSettings: Rainbow
+
+  _cpp_only:
+    rainbowEntity: [entt::entity, entt::null]
+    currentLength: [float, 0]
+    prevPoint: [ivec2, ivec2(0)]
+

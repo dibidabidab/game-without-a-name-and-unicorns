@@ -1,6 +1,6 @@
 #include "NetworkingSystem.h"
 #include "../../components/Networked.h"
-#include "../../components/PlayerControlled.h"
+#include "../../components/PlayerControlled.yaml"
 #include "../../../game/session/multiplayer/MultiplayerSession.h"
 #include "../../components/physics/Physics.h"
 

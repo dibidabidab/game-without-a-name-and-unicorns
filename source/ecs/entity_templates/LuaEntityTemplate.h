@@ -8,7 +8,7 @@
 #include "../../level/room/Room.h"
 #include "../../luau.h"
 #include "../../macro_magic/component.h"
-#include "../components/Saving.h"
+#include "../components/Saving.yaml"
 
 class LuaEntityTemplate : public EntityTemplate
 {

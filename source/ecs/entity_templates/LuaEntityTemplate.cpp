@@ -1,6 +1,6 @@
 
 #include "LuaEntityTemplate.h"
-#include "../components/LuaScripted.h"
+#include "../components/LuaScripted.yaml"
 #include "../components/physics/Physics.h"
 #include "../../game/Game.h"
 

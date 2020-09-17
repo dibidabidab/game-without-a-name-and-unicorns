@@ -1,6 +1,6 @@
 
 #include "RainbowSystem.h"
-#include "../components/combat/Arrow.h"
+#include "../components/combat/Arrow.yaml"
 
 void RainbowSystem::updateRainbowSpawners(float deltaTime)
 {

@@ -4,14 +4,14 @@
 
 #include "../EntitySystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/combat/Arrow.h"
+#include "../../components/combat/Arrow.yaml"
 #include "../../components/physics/Physics.h"
 #include "../../components/graphics/AsepriteView.h"
-#include "../../components/combat/Aiming.h"
-#include "../../components/Spawning.h"
+#include "../../components/combat/Aiming.yaml"
+#include "../../components/Spawning.yaml"
 #include "../../components/Polyline.h"
 #include "../../components/combat/Health.h"
-#include "../../components/SoundSpeaker.h"
+#include "../../components/SoundSpeaker.yaml"
 
 class ArrowSystem : public EntitySystem
 {

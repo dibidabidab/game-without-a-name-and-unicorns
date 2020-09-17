@@ -1,0 +1,11 @@
+
+SoundSpeaker:
+  sound: asset<au::Sound>
+  volume: [float, 1.]
+  pitch: [float, 1.]
+  looping: [bool, false]
+  paused: [bool, false]
+
+  _cpp_only:
+    source: std::shared_ptr<au::SoundSource>
+

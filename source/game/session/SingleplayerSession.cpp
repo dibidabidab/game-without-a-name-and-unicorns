@@ -1,6 +1,6 @@
 
 #include "SingleplayerSession.h"
-#include "../../ecs/components/PlayerControlled.h"
+#include "../../ecs/components/PlayerControlled.yaml"
 
 void SingleplayerSession::join(std::string username)
 {

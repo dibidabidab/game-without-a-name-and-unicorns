@@ -6,7 +6,7 @@
 #include <zlib.h>
 
 #include "Level.h"
-#include "../ecs/components/PlayerControlled.h"
+#include "../ecs/components/PlayerControlled.yaml"
 
 void Level::initialize()
 {

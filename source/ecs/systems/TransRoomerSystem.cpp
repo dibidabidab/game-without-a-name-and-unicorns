@@ -1,8 +1,8 @@
 
 #include "TransRoomerSystem.h"
 #include "../components/physics/Physics.h"
-#include "../components/PlayerControlled.h"
-#include "../components/TransRoomable.h"
+#include "../components/PlayerControlled.yaml"
+#include "../components/TransRoomable.yaml"
 #include "../../level/room/Room.h"
 
 void TransRoomerSystem::update(double deltaTime, EntityEngine *engine)
