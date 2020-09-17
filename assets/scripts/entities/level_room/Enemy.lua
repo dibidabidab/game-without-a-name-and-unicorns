@@ -18,8 +18,8 @@ function create(enemy)
                     steps = 6
                 }
             },
-            currHealth = 2,
-            maxHealth = 2,
+            currHealth = 4,
+            maxHealth = 4,
             givePlayerArrowOnKill = "RainbowArrow"
         },
         AsepriteView = {
@@ -29,4 +29,17 @@ function create(enemy)
             radius = 60
         }
     })
+
+    onEntityEvent(enemy, "Damage", function(damage)
+
+        local health = getComponent(enemy, "Health");
+
+        print("AUWWWWWW", damage.points, health.currHealth, "/", health.maxHealth)
+
+        if health.currHealth == 0 then
+            print("ded")
+        end
+
+    end)
+
 end

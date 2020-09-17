@@ -1,7 +1,6 @@
 
 #include "DamageSystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/combat/Health.h"
 #include "../../components/physics/Physics.h"
 #include "../../components/PlayerControlled.h"
 #include "../../components/combat/Bow.h"
@@ -67,7 +66,10 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                     dropPhysics.velocity += p->velocity * (mu::random() > .9 ? -.5f : 1.f);
             }
 
-            if (health.currHealth <= attack.points)
+            health.currHealth -= attack.points;
+            health.immunityTimer += damageType.immunity;
+
+            if (health.currHealth <= 0)
             {
                 // this attack is the death cause of this entity
                 health.currHealth = 0;
@@ -90,10 +92,8 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                         }
                     }
                 }
-                continue;
             }
-            health.currHealth -= attack.points;
-            health.immunityTimer += damageType.immunity;
+            room->emitEntityEvent(e, attack);
         }
 
         health.attacks.clear();

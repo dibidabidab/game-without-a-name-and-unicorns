@@ -11,6 +11,7 @@
 #include "systems/EntitySystem.h"
 #include "../luau.h"
 #include "../macro_magic/component.h"
+#include "EventEmitter.h"
 
 class EntityEngine
 {
@@ -26,6 +27,7 @@ class EntityEngine
   public:
     entt::registry entities;
     sol::environment luaEnvironment;
+    EventEmitter events;
 
     ivec2 cursorPosition = ivec2(0);
 
@@ -70,6 +72,13 @@ class EntityEngine
     entt::entity createChild(entt::entity parent, const char *childName="");
 
     void setParent(entt::entity child, entt::entity parent, const char *childName="");
+
+    template<typename type>
+    void emitEntityEvent(entt::entity e, const type &event)
+    {
+        if (auto *emitter = entities.try_get<EventEmitter>(e))
+            emitter->emit(event);
+    }
 
     virtual ~EntityEngine();
 

@@ -20,7 +20,9 @@ function create(player)
             radius = 60
         },
         Health = {
-            takesDamageFrom = {"hit"}
+            takesDamageFrom = {"hit"},
+            maxHealth = saveGame.maxPlayerHealth or 20,
+            currHealth = saveGame.currentPlayerHealth or 20
         },
         Aiming = {},
         AsepriteView = {

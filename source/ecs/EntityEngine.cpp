@@ -167,6 +167,15 @@ void EntityEngine::initializeLuaEnvironment()
         else
             entityTemplate->createComponents(entt::entity(extendE), makePersistent);
     };
+
+    env["onEntityEvent"] = [&](int entity, const char *eventName, const sol::function &listener) {
+
+        auto &emitter = entities.get_or_assign<EventEmitter>(entt::entity(entity));
+        emitter.on(eventName, listener);
+    };
+    env["onEvent"] = [&](const char *eventName, const sol::function &listener) {
+        events.on(eventName, listener);
+    };
 }
 
 void EntityEngine::luaTableToComponent(entt::entity e, const std::string &componentName, const sol::table &component)
