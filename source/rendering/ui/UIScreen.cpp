@@ -242,11 +242,22 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
     if (cont.nineSlice)
         cont.innerTopLeft += cont.nineSlice->topLeftOffset * ivec2(1, -1);
 
+    ivec2 size(cont.fixedWidth, cont.fixedHeight);
+
+    if (cont.fillRemainingParentHeight)
+    {
+        int maxY = parentCont.innerTopLeft.y - parentCont.innerHeight;
+        size.y = outerTopLeft.y - maxY;
+    }
+    if (cont.fillRemainingParentWidth)
+        size.x = parentCont.maxX - parentCont.textCursor.x;
+
+    cont.innerHeight = size.y - (outerTopLeft.y - cont.innerTopLeft.y) * 2;
+
     cont.minX = cont.innerTopLeft.x;
-    cont.maxX = cont.minX + cont.fixedWidth - cont.padding.x * 2;
+    cont.maxX = cont.minX + size.x - cont.padding.x * 2;
     cont.textCursor = cont.innerTopLeft;
     cont.resetCursorX();
-    cont.innerHeight = cont.fixedHeight - (outerTopLeft.y - cont.innerTopLeft.y) * 2;
 
     if (cont.nineSlice)
         cont.maxX -= (cont.spriteSlice->width - cont.nineSlice->innerSize.x - cont.nineSlice->topLeftOffset.x) * 2;
@@ -258,8 +269,6 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
         for (auto child : parent->children)
             if (auto *childEl = entities.try_get<UIElement>(child))
                 renderUIElement(child, *childEl, cont, deltaTime);
-
-    ivec2 size(cont.fixedWidth, cont.fixedHeight);
 
     if (cont.autoHeight)
     {

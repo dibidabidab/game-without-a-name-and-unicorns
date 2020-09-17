@@ -151,6 +151,28 @@ struct lua_converter<asset<type>>
     }
 };
 
+template<>
+struct lua_converter<entt::entity>
+{
+    static void fromLua(sol::object v, entt::entity &e)
+    {
+        if (!v.valid())
+            return;
+
+        auto optional = v.as<sol::optional<int>>();
+        e = optional.has_value() ? entt::entity(optional.value()) : entt::null;
+    }
+
+    template<typename luaRef>
+    static void toLua(luaRef &luaVal, const entt::entity &e)
+    {
+        if (e == entt::null)
+            luaVal = sol::nil;
+        else
+            luaVal = int(e);
+    }
+};
+
 template<typename type>
 struct lua_converter<std::vector<type>>
 {

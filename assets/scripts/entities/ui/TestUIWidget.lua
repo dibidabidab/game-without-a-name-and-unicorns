@@ -5,7 +5,7 @@ function create(widget)
         UIElement = {
             margin = {16, 16},
             absolutePositioning = true,
-            absoluteHorizontalAlign = 2
+            absoluteHorizontalAlign = 2 -- todo, use strings or constants
         },
         UIContainer = {
             nineSliceSprite = "sprites/ui/default_9slice_plane",
@@ -41,8 +41,10 @@ function create(widget)
         },
         UIContainer = {
             nineSliceSprite = "sprites/ui/default_9slice_plane",
-            fixedWidth = 64,
-            fixedHeight = 29,
+            fixedWidth = 100,
+            fixedHeight = 24,
+            fillRemainingParentHeight = false,
+            padding = {0, -5},
             centerAlign = true
         }
     })

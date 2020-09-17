@@ -17,7 +17,10 @@ COMPONENT(
 
     FIELD_DEF_VAL(ivec2, padding, ivec2(0)),
 
-    FIELD_DEF_VAL(bool, centerAlign, false)
+    FIELD_DEF_VAL(bool, centerAlign, false),
+
+    FIELD_DEF_VAL(bool, fillRemainingParentHeight, false),
+    FIELD_DEF_VAL(bool, fillRemainingParentWidth, false)
 )
 
     ivec2 textCursor = ivec2(0), innerTopLeft = ivec2(0);
