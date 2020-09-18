@@ -1,7 +1,7 @@
 
 DamageType:
 
-  _options:
+  _flags:
     - json_with_keys
     - not_a_component
 
