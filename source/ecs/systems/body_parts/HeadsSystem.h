@@ -4,10 +4,7 @@
 
 #include "../EntitySystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/body_parts/Head.yaml"
-#include "../../components/physics/Physics.h"
-#include "../../components/graphics/AsepriteView.h"
-#include "../../components/PlatformerMovement.yaml"
+#include "../../../generated/Head.hpp"
 
 class HeadsSystem : public EntitySystem
 {

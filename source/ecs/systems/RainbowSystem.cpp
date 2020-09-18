@@ -1,6 +1,11 @@
 
 #include "RainbowSystem.h"
-#include "../components/combat/Arrow.yaml"
+#include "../components/physics/Physics.h"
+#include "../components/Polyline.h"
+#include "../components/physics/PolyPlatform.h"
+#include "../../generated/Rainbow.hpp"
+#include "../../generated/PlayerControlled.hpp"
+#include "../../generated/Arrow.hpp"
 
 void RainbowSystem::updateRainbowSpawners(float deltaTime)
 {

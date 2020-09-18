@@ -1,6 +1,8 @@
 
 #include <utils/code_editor/CodeEditor.h>
 #include "RoomScreen.h"
+#include "../../../generated/LimbJoint.hpp"
+#include "../../../generated/Aiming.hpp"
 
 RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
         :

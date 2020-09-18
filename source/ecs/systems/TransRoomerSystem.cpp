@@ -1,9 +1,9 @@
 
 #include "TransRoomerSystem.h"
 #include "../components/physics/Physics.h"
-#include "../components/PlayerControlled.yaml"
-#include "../components/TransRoomable.yaml"
 #include "../../level/room/Room.h"
+#include "../../generated/TransRoomable.hpp"
+#include "../../generated/PlayerControlled.hpp"
 
 void TransRoomerSystem::update(double deltaTime, EntityEngine *engine)
 {
@@ -26,7 +26,8 @@ void TransRoomerSystem::update(double deltaTime, EntityEngine *engine)
         else
             return;
 
-        if (!transable.templateName.empty()) try
+        auto templateName = transable.templateName;
+        if (!templateName.empty()) try
         {
             ivec2 positionInNextRoom;
 
@@ -65,9 +66,11 @@ void TransRoomerSystem::update(double deltaTime, EntityEngine *engine)
             }
 
             room->entities.destroy(e);
-            nextRoom->getTemplate(transable.templateName).createComponents(newEntity);
+            // !!!! e is destroyed here, so dont use e's components anymore!!!!!
+            nextRoom->getTemplate(templateName).createComponents(newEntity);
 
-        } catch (std::exception &exc)
+        }
+        catch (std::exception &exc)
         {
             throw gu_err("Error while TransRooming entity#" + std::to_string(int(e)) + " (Template: " + transable.templateName + "):\n" + exc.what());
         }

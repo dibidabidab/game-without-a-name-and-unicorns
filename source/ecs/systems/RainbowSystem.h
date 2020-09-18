@@ -3,12 +3,6 @@
 #define GAME_RAINBOWSYSTEM_H
 
 #include "EntitySystem.h"
-#include "../../level/room/Room.h"
-#include "../components/Rainbow.yaml"
-#include "../components/physics/Physics.h"
-#include "../components/Polyline.h"
-#include "../components/physics/PolyPlatform.h"
-#include "../components/PlayerControlled.yaml"
 
 class RainbowSystem : public EntitySystem
 {

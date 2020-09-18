@@ -8,7 +8,7 @@
 #include "components/physics/Physics.h"
 #include "../game/Game.h"
 #include "entity_templates/LuaEntityTemplate.h"
-#include "components/LuaScripted.yaml"
+#include "../generated/LuaScripted.hpp"
 
 
 EntityInspector::EntityInspector(EntityEngine &engine, const std::string &name) : engine(engine), reg(engine.entities), inspectorName(name)

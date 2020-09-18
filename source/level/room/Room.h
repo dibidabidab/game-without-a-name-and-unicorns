@@ -4,7 +4,7 @@
 
 #include "../../ecs/EntityEngine.h"
 #include "TileMap.h"
-#include "../../ecs/components/Saving.yaml"
+#include "../../generated/Saving.hpp"
 #include <json.hpp>
 #include <utils/base64.h>
 

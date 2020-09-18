@@ -4,8 +4,6 @@
 
 #include "../EntitySystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/body_parts/Arm.yaml"
-#include "../../components/physics/Physics.h"
 
 class ArmsSystem : public EntitySystem
 {

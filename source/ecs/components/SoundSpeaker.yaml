@@ -6,6 +6,10 @@ SoundSpeaker:
   looping: [bool, false]
   paused: [bool, false]
 
+  _hash:
+    [paused, looping, pitch, volume, sound.isSet()]
+
   _cpp_only:
     source: std::shared_ptr<au::SoundSource>
+    prevHash: int
 

@@ -2,10 +2,10 @@
 #include "DamageSystem.h"
 #include "../../../level/room/Room.h"
 #include "../../components/physics/Physics.h"
-#include "../../components/PlayerControlled.yaml"
-#include "../../components/combat/Bow.yaml"
-#include "../../components/graphics/PaletteSetter.h"
 #include "../../components/graphics/BloodDrop.h"
+#include "../../components/graphics/PaletteSetter.h"
+#include "../../../generated/Bow.hpp"
+#include "../../../generated/PlayerControlled.hpp"
 
 void DamageSystem::update(double deltaTime, EntityEngine *room)
 {

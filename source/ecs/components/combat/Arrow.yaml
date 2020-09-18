@@ -2,7 +2,7 @@
 Arrow:
   launchedBy: [entt::entity, entt::null]
   launchVelocity: [float, 1000]
-  damageType: [std::string, "hit"]
+  damageType: [string, "hit"]
   returnToSender: [bool, false]
 
   _cpp_only:

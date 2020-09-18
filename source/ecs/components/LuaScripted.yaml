@@ -1,14 +1,17 @@
 
 LuaScripted:
   updateAccumulator: [float, 0]
+  updateFrequency: [float, 0]
 
-  updateFunc: sol::function
-  onDestroyFunc: sol::function
+  _cpp_only:
+    usedTemplate: [LuaEntityTemplate*, NULL]
 
-  updateFuncScript: asset<luau::Script>
-  onDestroyFuncScript: asset<luau::Script>
+    updateFunc: sol::function
+    onDestroyFunc: sol::function
 
-  saveData: sol::table
+    updateFuncScript: asset<luau::Script>
+    onDestroyFuncScript: asset<luau::Script>
 
-  usedTemplate: [LuaEntityTemplate*, NULL]
+    saveData: sol::table
+
 

@@ -2,7 +2,7 @@
 #include "SpriteSlicerSystem.h"
 #include "../../../level/room/Room.h"
 #include "../../components/graphics/AsepriteView.h"
-#include "../../components/Spawning.yaml"
+#include "../../../generated/Spawning.hpp"
 
 void SpriteSlicerSystem::update(double deltaTime, EntityEngine *room)
 {

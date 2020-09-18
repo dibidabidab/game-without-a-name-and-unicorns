@@ -1,9 +1,9 @@
 
 #include "FluidsSystem.h"
-#include "../../components/SoundSpeaker.yaml"
-#include "../../components/Spawning.yaml"
 #include "../../components/graphics/BloodDrop.h"
 #include "../../components/graphics/AsepriteView.h"
+#include "../../../generated/SoundSpeaker.hpp"
+#include "../../../generated/Spawning.hpp"
 
 void FluidsSystem::update(double deltaTime, EntityEngine *room)
 {

@@ -5,7 +5,7 @@
 #include "../../../../level/room/Room.h"
 #include "../../../../ecs/components/graphics/BloodDrop.h"
 #include "../../../../ecs/components/physics/Physics.h"
-#include "../../../../ecs/components/Spawning.yaml"
+#include "../../../../generated/Spawning.hpp"
 
 
 BloodSplatterRenderer::BloodSplatterRenderer(Room *r)
