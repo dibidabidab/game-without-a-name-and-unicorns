@@ -12,9 +12,9 @@ Bow:
   fireRate: [float, .4]
   distanceFromArcher: [float, 9]
 
-  arrowTemplate: [std::string, "Arrow"]
+  arrowTemplate: [string, "Arrow"]
 
   cooldown: [float, 0]
 
   _cpp_only:
-    prevAimDir: [vec2, vec2(1, 0)]
+    prevAimDir: [vec2, "vec2(1, 0)"]
