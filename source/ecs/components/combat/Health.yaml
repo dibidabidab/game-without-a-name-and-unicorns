@@ -1,0 +1,39 @@
+
+DamageType:
+
+  _options:
+    - json_with_keys
+    - not_a_component
+
+  knockback: [float, 0]
+  immunity: [float, 0]
+
+
+Damage:
+  type: string
+  points: [int, 0]
+  dealtBy: [entt::entity, entt::null]
+  sourcePosition: vec2
+  knockBackMultiplier: [float, 1]
+
+
+Health:
+  currHealth: [uint16, 20]
+  maxHealth: [uint16, 20]
+
+  takesDamageFrom: std::set<std::string>
+  attacks: std::list<Damage>
+
+  immunityTimer: [float, 0]
+  knockBackResistance: [float, 0] # should be between 0 and 1. Values outside that range can create funny results I think
+
+  bloodColor: [uint8, 10]
+
+  componentsToAddOnDeath: json  # todo: use an OnDeath event instead?
+  componentsToRemoveOnDeath: std::list<std::string> # todo ^
+
+  givePlayerArrowOnKill: string
+
+  _methods:
+    - bool doesTakeDamageType(const std::string& damageType) const
+

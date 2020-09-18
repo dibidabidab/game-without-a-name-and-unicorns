@@ -8,7 +8,7 @@
 #include <graphics/camera.h>
 #include "../../../../level/room/Room.h"
 #include "../../../../ecs/components/graphics/Light.h"
-#include "../../../../ecs/components/physics/Physics.h"
+#include "../../../../generated/Physics.hpp"
 
 class ShadowCaster
 {

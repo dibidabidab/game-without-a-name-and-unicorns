@@ -1,6 +1,6 @@
 
 #include "FluidRenderer.h"
-#include "../../../ecs/components/physics/Physics.h"
+#include "../../../generated/Physics.hpp"
 #include "../../../ecs/components/Polyline.h"
 #include <graphics/3d/vert_buffer.h>
 

@@ -1,8 +1,9 @@
 
 #include "TerrainCollisionDetector.h"
-#include "../../components/physics/Physics.h"
+#include "../../../generated/Physics.hpp"
 #include "../../components/physics/PolyPlatform.h"
 #include "../../components/Polyline.h"
+#include "../../components/component_methods.h"
 
 void TerrainCollisionDetector::detect(
         TerrainCollisions &collisions, const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms, bool ignoreFluids
@@ -320,7 +321,7 @@ bool TerrainCollisionDetector::inFluid(const AABB &aabb, TerrainCollisions &col)
 
     auto test = [&](auto fluidEntity, const AABB &fluidBox, Fluid &fluid) {
 
-        if (foundFluid || !fluidBox.overlaps(aabb))
+        if (foundFluid || !overlap(fluidBox, aabb))
             return;
 
         Polyline *surfaceLine = reg->try_get<Polyline>(fluidEntity);

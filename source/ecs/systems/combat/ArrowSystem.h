@@ -4,10 +4,11 @@
 
 #include "../EntitySystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/combat/Health.h"
+#include "../../../generated/Health.hpp"
 #include "../../../generated/Spawning.hpp"
 #include "../../../generated/SoundSpeaker.hpp"
 #include "../../../generated/Arrow.hpp"
+#include "../../components/component_methods.h"
 
 class ArrowSystem : public EntitySystem
 {
@@ -35,7 +36,7 @@ class ArrowSystem : public EntitySystem
             room->entities.view<AABB, Health>().each([&](
                 auto eOther, AABB &aabbOther, Health &healthOther
             ){
-                if (enemyHit || (eOther == arrow.launchedBy) != arrow.returnToSender || !aabbOther.lineIntersectsOrInside(aabb.center, arrow.prevPos))
+                if (enemyHit || (eOther == arrow.launchedBy) != arrow.returnToSender || !lineIntersectsOrInside(aabbOther, aabb.center, arrow.prevPos))
                     return;
 
                 if (!healthOther.doesTakeDamageType(arrow.damageType))

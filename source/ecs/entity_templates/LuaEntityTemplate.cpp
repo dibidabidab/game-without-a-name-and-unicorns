@@ -1,6 +1,6 @@
 
 #include "LuaEntityTemplate.h"
-#include "../components/physics/Physics.h"
+#include "../../generated/Physics.hpp"
 #include "../../game/Game.h"
 #include "../../generated/LuaScripted.hpp"
 

@@ -4,7 +4,6 @@
 
 #include "../EntitySystem.h"
 #include "../../../macro_magic/serializable.h"
-#include "../../components/combat/Health.h"
 #include <asset_manager/asset.h>
 
 struct DamageType;

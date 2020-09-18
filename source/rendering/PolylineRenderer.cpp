@@ -3,7 +3,7 @@
 #include "../ecs/components/physics/VerletRope.h"
 #include "../ecs/components/graphics/DrawPolyline.h"
 #include "../ecs/components/Polyline.h"
-#include "../ecs/components/physics/Physics.h"
+#include "../generated/Physics.hpp"
 #include <graphics/3d/vert_buffer.h>
 
 PolylineRenderer::PolylineRenderer()

@@ -2,7 +2,6 @@
 #ifndef GAME_NETWORKEDDATAGROUP_H
 #define GAME_NETWORKEDDATAGROUP_H
 
-#include "../../components/Networked.h"
 #include "NetworkedData.h"
 
 /**

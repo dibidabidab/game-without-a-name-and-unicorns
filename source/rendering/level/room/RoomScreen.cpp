@@ -3,6 +3,8 @@
 #include "RoomScreen.h"
 #include "../../../generated/LimbJoint.hpp"
 #include "../../../generated/Aiming.hpp"
+#include "../../../generated/Leg.hpp"
+#include "../../../ecs/components/component_methods.h"
 
 RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
         :
@@ -242,9 +244,9 @@ void RoomScreen::renderDebugStuff()
 
             auto p = room->entities.try_get<Physics>(e);
             if (p)
-                p->draw(body, lineRenderer, mu::X);
+                draw(*p, body, lineRenderer, mu::X);
             else
-                body.draw(lineRenderer, mu::X);
+                draw(body, lineRenderer, mu::X);
         });
         room->entities.view<VerletRope>().each([&](VerletRope &rope) {
             for (int i = 1; i < rope.points.size(); i++)

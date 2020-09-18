@@ -1,0 +1,101 @@
+
+AABB: # 2d pixel based Axis Aligned Bounding Box
+
+  halfSize: [ivec2, ivec2(1)]
+  center: [ivec2, ivec2(0)]
+
+  _cpp_only:
+    centerHashStep: [int, 10] # todo: blegh
+
+  _hash:
+    [halfSize.x, halfSize.y,
+     center.x / centerHashStep, center.y / centerHashStep]
+
+  _methods: # todo: just dont have this much c++ inside a yaml file:
+    - inline ivec2 topRight() const       { return center + halfSize; }
+    - inline ivec2 bottomRight() const    { return center + ivec2(halfSize.x, -halfSize.y); }
+    - inline ivec2 bottomLeft() const     { return center - halfSize; }
+    - inline ivec2 topLeft() const        { return center + ivec2(-halfSize.x, halfSize.y); }
+    - inline ivec2 topCenter() const      { return center + ivec2(0, halfSize.y); }
+    - inline ivec2 bottomCenter() const   { return center + ivec2(0, -halfSize.y); }
+    - inline ivec2 rightCenter() const    { return center + ivec2(halfSize.x, 0); }
+    - inline ivec2 leftCenter() const     { return center + ivec2(-halfSize.x, 0); }
+
+    - template <class vec>
+      bool contains(const vec &p) const
+      {
+        return p.x >= center.x - halfSize.x && p.x <= center.x + halfSize.x && p.y >= center.y - halfSize.y && p.y <= center.y + halfSize.y;
+      }
+
+
+Physics:  # Adds physics to an AABB-entity. (Terrain collisions & gravity)
+  airFriction: [float, 2.8]
+  floorFriction: [float, 18]
+  wallFriction: [float, 6]
+  createWind: [float, 0]
+  moveByWind: [float, 0]
+
+  velocity: [vec2, vec2(0)]
+  gravity: [float, 0]
+
+  ignorePlatforms: [bool, false]
+  ignorePolyPlatforms: [bool, true]
+  ghost: [bool, false]
+  ignoreFluids: [bool, true]
+  fluidAnimations: [bool, true]
+
+  airTime: [float, 0]
+
+  _cpp_only:
+    touches: TerrainCollisions
+    prevTouched: TerrainCollisions
+
+    prevVelocity: vec2
+
+    pixelsMovedByPolyPlatform: [ivec2, ivec2(0)]
+
+    # used by PhysicsSystem:
+    velocityAccumulator: vec2
+    justMovedByPolyPlatform: [bool, false]
+
+
+StaticCollider:
+  # Entities that are a StaticCollider can push entities that are DynamicCollider.
+
+DynamicCollider:
+  repositionAfterCollision: [bool, true]
+
+
+DistanceConstraint:
+  maxDistance: [float, 32]
+
+  # todo add min distance
+
+  target: [entt::entity, entt::null]
+  targetOffset: [vec2, vec2(0)]
+
+
+Fluid:
+  friction: [float, 3]
+  reduceGravity: [float, 800]
+  splatterAmount: [float, 1]
+  splatterDropSize: [float, 1]
+  splatterVelocity: [float, 1]
+
+  color: [uint8, 0u]
+
+  enterSound: asset<au::Sound>
+  leaveSound: asset<au::Sound>
+
+  bubbleSprite: asset<aseprite::Sprite>
+  bubblesAmount: [float, 1]
+
+
+  _cpp_only:
+    entitiesInFluid: std::vector<entt::entity>
+    entitiesLeftFluid: std::vector<entt::entity>
+
+
+FluidBubbleParticle:
+  timeAlive: [float, 0]
+  timeBeforeDestroy: [float, 0]

@@ -5,7 +5,7 @@
 #include "../EntitySystem.h"
 #include "../../../level/Level.h"
 #include "../../components/physics/PolyPlatform.h"
-#include "../../components/physics/Physics.h"
+#include "../../../generated/Physics.hpp"
 
 /**
  * based on:

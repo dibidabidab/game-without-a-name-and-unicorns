@@ -1,6 +1,6 @@
 
 #include "TransRoomerSystem.h"
-#include "../components/physics/Physics.h"
+#include "../../generated/Physics.hpp"
 #include "../../level/room/Room.h"
 #include "../../generated/TransRoomable.hpp"
 #include "../../generated/PlayerControlled.hpp"

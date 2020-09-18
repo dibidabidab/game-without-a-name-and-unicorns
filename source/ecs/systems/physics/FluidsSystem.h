@@ -4,7 +4,7 @@
 
 #include "../EntitySystem.h"
 #include "../../../level/Level.h"
-#include "../../components/physics/Physics.h"
+#include "../../../generated/Physics.hpp"
 #include "../../components/Polyline.h"
 #include "../../components/physics/PolyPlatform.h"
 

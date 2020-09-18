@@ -1,6 +1,6 @@
 
 #include "RainbowSystem.h"
-#include "../components/physics/Physics.h"
+#include "../../generated/Physics.hpp"
 #include "../components/Polyline.h"
 #include "../components/physics/PolyPlatform.h"
 #include "../../generated/Rainbow.hpp"

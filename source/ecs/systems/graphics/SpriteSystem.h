@@ -5,8 +5,8 @@
 #include "../../../level/room/Room.h"
 #include "../EntitySystem.h"
 #include "../../components/graphics/SpriteAnchor.h"
-#include "../../components/graphics/AsepriteView.h"
-#include "../../components/physics/Physics.h"
+#include "../../../generated/AsepriteView.hpp"
+#include "../../../generated/Physics.hpp"
 
 /**
  * see SpriteAnchor documentation

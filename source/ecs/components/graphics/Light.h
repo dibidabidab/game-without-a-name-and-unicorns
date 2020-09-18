@@ -3,7 +3,7 @@
 #define GAME_LIGHT_H
 
 #include "../../../macro_magic/component.h"
-#include "../physics/Physics.h"
+#include "../../../generated/Physics.hpp"
 
 /**
  * Any entity with PointLight + AABB will create a light that (optionally) casts shadows.

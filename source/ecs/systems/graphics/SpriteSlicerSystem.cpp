@@ -1,8 +1,9 @@
 
 #include "SpriteSlicerSystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/graphics/AsepriteView.h"
+#include "../../../generated/AsepriteView.hpp"
 #include "../../../generated/Spawning.hpp"
+#include "../../../generated/Physics.hpp"
 
 void SpriteSlicerSystem::update(double deltaTime, EntityEngine *room)
 {

@@ -1,0 +1,40 @@
+
+# A leg that moves using procedural animation.
+#
+# body = e.g. the player entity
+# anchor = the position of the hip on the body.
+
+Leg:
+  length: [float, 24]
+  body: [entt::entity, entt::null]
+  anchor: [ivec2, ivec2(0)]
+  idleXPos: [int, 0]
+
+  oppositeLeg: [entt::entity, entt::null]
+
+  stepSize: [float, 16]
+  stepArcAngle: [float, 72]
+  idleStepSpeed: [float, 65]
+  inAirStepSpeed: [float, 40]
+
+  _cpp_only:  # variables used by the LegsSystem:
+
+    initialized: [bool, false]
+    target: [vec2, vec2(0)]
+
+    moving: [bool, false]
+    shouldBeMoving: [bool, false]
+
+    distToTargetBeforeMoving: [float, 0]
+    timeSinceStartedMoving: [float, 0]
+    maxDistToTarget: [float, 0]
+
+    moveAccumulator: [vec2, vec2(0)]
+
+    prevBodyPos: [ivec2, ivec2(0)]
+    prevBodyVelocity: [vec2, vec2(0)]
+
+    oppositeLegWaiting: [float, 0]
+
+  _methods:
+    - void stopMoving()
