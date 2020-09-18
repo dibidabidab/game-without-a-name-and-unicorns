@@ -1,0 +1,64 @@
+config:
+  namespace: Game
+
+GraphicsSettings:
+  _flags:
+    - not_a_component
+
+  vsync: [ bool, V_SYNC_ENABLED_BY_DEFAULT ]
+  fullscreen: [ bool, false ]
+  windowSize: [ ivec1, "ivec2(1600, 900)" ]
+  printOpenGLMessages: [ bool, false ]
+  printOpenGLErrors: [ bool, false ]
+
+  waterReflections: [ bool, true ]
+  bloom: [ bool, true ]
+  vignette: [ bool, true ]
+
+  roomTransitionAnimation: [ bool, true ]
+
+  imGuiThemeColor_background: [ u8vec3, "vec3(37, 33, 49)" ]
+  imGuiThemeColor_text: [ u8vec3, "vec3(244, 241, 222)" ]
+  imGuiThemeColor_main: [ u8vec3,"vec3(218, 17, 94)" ]
+  imGuiThemeColor_mainAccent: [ u8vec3,"vec3(121, 35, 89)" ]
+  imGuiThemeColor_highLight: [ u8vec3,"vec3(199, 239, 0)" ]
+
+AudioSettings:
+  _flags:
+    - not_a_component
+
+  masterVolume: [ float, 1. ]
+
+KeyInputSettings:
+  _flags:
+    - not_a_component
+
+  walkLeft: [ Key, GLFW_KEY_A ]
+  walkRight: [ Key, GLFW_KEY_D ]
+  jump: [ Key, GLFW_KEY_SPACE ]
+  fall: [ Key, GLFW_KEY_S ]
+
+  nextTileShape: [ Key, GLFW_KEY_RIGHT ]
+  prevTileShape: [ Key, GLFW_KEY_LEFT ]
+  nextTileMaterial: [ Key, GLFW_KEY_DOWN ]
+  prevTileMaterial: [ Key, GLFW_KEY_UP ]
+
+  reloadAssets: [ Key, GLFW_KEY_R ]
+  toggleFullscreen: [ Key, GLFW_KEY_F11 ]
+  toggleDeveloperOptions: [ Key, GLFW_KEY_F3 ]
+
+  inspectEntity: [ Key, GLFW_KEY_I ]
+  moveEntity: [ Key, GLFW_KEY_M ]
+  moveEntityAndSpawnPoint: [ Key, GLFW_KEY_LEFT_ALT ]
+  createEntity: [ Key, GLFW_KEY_INSERT ]
+
+Settings:
+  _flags:
+    - not_a_component
+
+  graphics: GraphicsSettings
+  audio: AudioSettings
+  keyInput: KeyInputSettings
+  customSettings: [ json, json::object() ]
+
+  showDeveloperOptions: [ bool, true ]

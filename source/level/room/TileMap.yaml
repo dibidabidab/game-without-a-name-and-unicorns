@@ -1,0 +1,18 @@
+tile_update:
+  _flags:
+    - not_a_component
+
+  x: uint8
+  y: uint8
+  newTile: uint8
+  newTileMaterial: uint8
+
+TileMaterialProperties:
+  _flags:
+    - not_a_component
+
+  name: std::string
+  tileSet: asset<TileSet>
+  friction: [ float, 1 ]
+  bounciness: [ float, 0 ]
+  color: vec3
