@@ -28,7 +28,6 @@ enum class Tile : unsigned char {
     // same as slope_up, but spread over 2 tiles:
     slope_up_half0, slope_up_half1,
 };
-typedef uint8 TileMaterial;
 
 typedef std::vector<std::pair<vec2, vec2>> TileMapOutlines;
 

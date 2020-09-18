@@ -1,6 +1,7 @@
 
 #include "component.h"
 #include <audio/audio.h>
+#include <input/key_input.h>
 #include "../ecs/entity_templates/LuaEntityTemplate.h"
 
 #include "../ecs/systems/networking/NetworkedDataList.h"

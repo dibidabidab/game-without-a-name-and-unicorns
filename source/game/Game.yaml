@@ -5,9 +5,9 @@ GraphicsSettings:
   _flags:
     - not_a_component
 
-  vsync: [ bool, V_SYNC_ENABLED_BY_DEFAULT ]
+  vsync: [ bool, true ]
   fullscreen: [ bool, false ]
-  windowSize: [ ivec1, "ivec2(1600, 900)" ]
+  windowSize: [ ivec2, "ivec2(1600, 900)" ]
   printOpenGLMessages: [ bool, false ]
   printOpenGLErrors: [ bool, false ]
 
@@ -33,24 +33,24 @@ KeyInputSettings:
   _flags:
     - not_a_component
 
-  walkLeft: [ Key, GLFW_KEY_A ]
-  walkRight: [ Key, GLFW_KEY_D ]
-  jump: [ Key, GLFW_KEY_SPACE ]
-  fall: [ Key, GLFW_KEY_S ]
+  walkLeft: [ KeyInput::Key, GLFW_KEY_A ]
+  walkRight: [ KeyInput::Key, GLFW_KEY_D ]
+  jump: [ KeyInput::Key, GLFW_KEY_SPACE ]
+  fall: [ KeyInput::Key, GLFW_KEY_S ]
 
-  nextTileShape: [ Key, GLFW_KEY_RIGHT ]
-  prevTileShape: [ Key, GLFW_KEY_LEFT ]
-  nextTileMaterial: [ Key, GLFW_KEY_DOWN ]
-  prevTileMaterial: [ Key, GLFW_KEY_UP ]
+  nextTileShape: [ KeyInput::Key, GLFW_KEY_RIGHT ]
+  prevTileShape: [ KeyInput::Key, GLFW_KEY_LEFT ]
+  nextTileMaterial: [ KeyInput::Key, GLFW_KEY_DOWN ]
+  prevTileMaterial: [ KeyInput::Key, GLFW_KEY_UP ]
 
-  reloadAssets: [ Key, GLFW_KEY_R ]
-  toggleFullscreen: [ Key, GLFW_KEY_F11 ]
-  toggleDeveloperOptions: [ Key, GLFW_KEY_F3 ]
+  reloadAssets: [ KeyInput::Key, GLFW_KEY_R ]
+  toggleFullscreen: [ KeyInput::Key, GLFW_KEY_F11 ]
+  toggleDeveloperOptions: [ KeyInput::Key, GLFW_KEY_F3 ]
 
-  inspectEntity: [ Key, GLFW_KEY_I ]
-  moveEntity: [ Key, GLFW_KEY_M ]
-  moveEntityAndSpawnPoint: [ Key, GLFW_KEY_LEFT_ALT ]
-  createEntity: [ Key, GLFW_KEY_INSERT ]
+  inspectEntity: [ KeyInput::Key, GLFW_KEY_I ]
+  moveEntity: [ KeyInput::Key, GLFW_KEY_M ]
+  moveEntityAndSpawnPoint: [ KeyInput::Key, GLFW_KEY_LEFT_ALT ]
+  createEntity: [ KeyInput::Key, GLFW_KEY_INSERT ]
 
 Settings:
   _flags:
