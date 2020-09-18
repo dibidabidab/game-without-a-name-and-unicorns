@@ -1,8 +1,8 @@
 
 #include "RainbowSystem.h"
 #include "../../generated/Physics.hpp"
-#include "../components/Polyline.h"
-#include "../components/physics/PolyPlatform.h"
+#include "../../generated/Polyline.hpp"
+#include "../../generated/PolyPlatform.hpp"
 #include "../../generated/Rainbow.hpp"
 #include "../../generated/PlayerControlled.hpp"
 #include "../../generated/Arrow.hpp"

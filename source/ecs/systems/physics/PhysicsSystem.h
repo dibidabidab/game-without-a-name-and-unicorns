@@ -6,8 +6,8 @@
 #include "../EntitySystem.h"
 #include "../../../level/Level.h"
 #include "../../../generated/Physics.hpp"
-#include "../../components/physics/PolyPlatform.h"
-#include "../../components/Polyline.h"
+#include "../../../generated/PolyPlatform.hpp"
+#include "../../../generated/Polyline.hpp"
 
 namespace
 {

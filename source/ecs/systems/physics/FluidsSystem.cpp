@@ -1,6 +1,6 @@
 
 #include "FluidsSystem.h"
-#include "../../components/graphics/BloodDrop.h"
+#include "../../../generated/BloodDrop.hpp"
 #include "../../../generated/AsepriteView.hpp"
 #include "../../../generated/SoundSpeaker.hpp"
 #include "../../../generated/Spawning.hpp"

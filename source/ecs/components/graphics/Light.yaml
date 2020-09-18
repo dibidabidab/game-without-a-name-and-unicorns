@@ -1,0 +1,25 @@
+
+
+# Any entity with PointLight + AABB will create a light that (optionally) casts shadows.
+PointLight:
+  radius: [uint8, 128]
+  castShadow: [bool, true]
+  checkForTerrainCollision: [bool, false]
+  radiusFlickeringFrequency: [float, 0]
+  radiusFlickeringIntensity: [float, 10]
+
+  _cpp_only:
+    flickeringRadius: [float, 0]
+    flickeringTimeRemaining: [float, 0]
+    flickeringNextRadius: [float, 0]
+
+    prevPosition: ivec2
+
+    shadowTextureIndex: [int, -1]
+    prevRadius: [int, -1]
+
+
+DirectionalLight:
+  width: [float, 64]
+  distance: [float, 160]
+  rotation: [float, 20]

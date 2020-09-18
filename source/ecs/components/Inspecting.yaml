@@ -1,0 +1,27 @@
+
+InspectPathState:
+  _flags:
+    - not_a_component
+
+  multiline: [bool, false]
+  newKey: string
+
+
+Inspecting:
+
+  _cpp_only:
+
+    show: [bool, true]
+
+    addingComponentJson: json
+
+    addingComponentTypeName: string
+
+    currentPath: std::vector<std::string>
+    state: "std::map<std::string, InspectPathState>"
+
+    windowPos: [ImVec2, "ImVec2(-1, -1)"]
+
+  _methods:
+    - InspectPathState &getState()
+

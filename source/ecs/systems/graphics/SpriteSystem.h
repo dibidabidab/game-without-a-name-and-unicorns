@@ -2,11 +2,10 @@
 #ifndef GAME_SPRITESYSTEM_H
 #define GAME_SPRITESYSTEM_H
 
-#include "../../../level/room/Room.h"
 #include "../EntitySystem.h"
-#include "../../components/graphics/SpriteAnchor.h"
-#include "../../../generated/AsepriteView.hpp"
-#include "../../../generated/Physics.hpp"
+
+struct SpriteAnchor;
+struct AABB;
 
 /**
  * see SpriteAnchor documentation

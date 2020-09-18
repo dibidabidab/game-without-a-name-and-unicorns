@@ -4,8 +4,8 @@
 
 #include "../EntitySystem.h"
 #include "../../../level/Level.h"
-#include "../../components/physics/PolyPlatform.h"
 #include "../../../generated/Physics.hpp"
+#include "../../../generated/PolyPlatform.hpp"
 
 /**
  * based on:
@@ -77,7 +77,7 @@ class WavesSystem : public EntitySystem
             if (i == wave.springs.size())
                 wave.springs.emplace_back();
 
-            PolylineWaves::Spring &spring = wave.springs.at(i);
+            Spring &spring = wave.springs.at(i);
 
             // x = height - targetHeight;
             float x = p.y - (p.y - spring.yOffset);

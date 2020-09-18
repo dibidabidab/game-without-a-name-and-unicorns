@@ -5,7 +5,7 @@
 #include "../EntitySystem.h"
 #include "../../../level/Level.h"
 #include "../../../generated/Physics.hpp"
-#include "../../components/physics/VerletRope.h"
+#include "../../../generated/VerletRope.hpp"
 
 /**
  * based on https://github.com/dci05049/Verlet-Rope-Unity/blob/master/Tutorial%20Verlet%20Rope/Assets/Rope.cs

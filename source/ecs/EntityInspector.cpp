@@ -9,6 +9,7 @@
 #include "entity_templates/LuaEntityTemplate.h"
 #include "../generated/LuaScripted.hpp"
 #include "../generated/Physics.hpp"
+#include "../generated/Inspecting.hpp"
 #include "components/component_methods.h"
 
 

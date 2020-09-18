@@ -4,8 +4,8 @@
 #include "BloodSplatterRenderer.h"
 
 #include "../../../../level/room/Room.h"
-#include "../../../../ecs/components/graphics/BloodDrop.h"
 #include "../../../../generated/Physics.hpp"
+#include "../../../../generated/BloodDrop.hpp"
 #include "../../../../generated/Spawning.hpp"
 
 

@@ -1,7 +1,7 @@
 
 #include "LightMapRenderer.h"
 #include "../../../../generated/Physics.hpp"
-#include "../../../../ecs/components/graphics/Light.h"
+#include "../../../../generated/Light.hpp"
 #include "../../../../level/Level.h"
 #include "ShadowCaster.h"
 

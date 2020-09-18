@@ -1,0 +1,13 @@
+
+BloodDrop:
+  size: [float, 5]
+  color: [uint8, 10u]
+  permanentDrawOnTerrain: [bool, true]
+  split: [bool, true]
+
+  _cpp_only:
+    timer: [float, 0]
+    splitAtTime: [float, 0]
+    drawPermanentAfterTime: [float, 0]
+
+    permanentDraw: [bool, false]

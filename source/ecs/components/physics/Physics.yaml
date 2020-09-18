@@ -36,7 +36,7 @@ Physics:  # Adds physics to an AABB-entity. (Terrain collisions & gravity)
   moveByWind: [float, 0]
 
   velocity: [vec2, vec2(0)]
-  gravity: [float, 0]
+  gravity: [float, 1250]
 
   ignorePlatforms: [bool, false]
   ignorePolyPlatforms: [bool, true]

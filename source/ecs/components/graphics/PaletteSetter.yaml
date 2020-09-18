@@ -1,0 +1,4 @@
+
+PaletteSetter:
+  priority: [int, 0]
+  paletteName: string

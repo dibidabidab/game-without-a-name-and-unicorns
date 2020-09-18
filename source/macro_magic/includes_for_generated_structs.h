@@ -7,6 +7,7 @@
 #include "../ecs/systems/networking/NetworkedDataGroup.h"
 
 #include <set>
+#include <imgui.h>
 
 struct AABB;
 #include "../ecs/systems/physics/TerrainCollisionDetector.h"

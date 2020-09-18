@@ -1,7 +1,7 @@
 
 Rainbow:
   disappearOnPlayerTouch: [bool, false]
-  disappearAfterTime: [float, 0] # 0 means never
+  disappearAfterTime: [float, 1] # 0 means never
   startDissapearingFromLeft: [bool, true]
   disappearSpeed: [float, 1]
 
