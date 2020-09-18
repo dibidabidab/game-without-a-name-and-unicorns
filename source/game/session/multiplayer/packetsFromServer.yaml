@@ -1,0 +1,51 @@
+config:
+  namespace: Packet::from_server
+
+join_request_declined:
+  _flags:
+    - not_a_component
+
+  reason: std::string
+
+join_request_accepted:
+  _flags:
+    - not_a_component
+
+  yourPlayerId: int
+  players: std::vector<Player>
+
+player_joined:
+  _flags:
+    - not_a_component
+
+  player: Player
+
+player_left:
+  _flags:
+    - not_a_component
+
+  playerId: int
+
+entity_created:
+  _flags:
+    - not_a_component
+
+  roomI: int
+  networkId: int
+  entityTemplateHash: int
+
+
+
+entity_destroyed:
+  _flags:
+    - not_a_component
+
+  roomI: int
+  networkId: int
+
+tilemap_update:
+  _flags:
+    - not_a_component
+
+  roomI: int
+  tileUpdates: std::list<tile_update>
