@@ -136,7 +136,7 @@ jobs:
         zip -r ../site/game-windows.zip ./*
 
     - name: Deploy to GH-pages
-      uses: JamesIves/github-pages-deploy-action@v3.6.1
+      uses: JamesIves/github-pages-deploy-action@3.6.1
       with:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         BRANCH: gh-pages
