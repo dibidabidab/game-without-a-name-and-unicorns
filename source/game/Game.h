@@ -11,14 +11,7 @@
 #include "../rendering/ui/UIScreenManager.h"
 #include "../generated/Game.hpp"
 
-#ifdef EMSCRIPTEN
-#define V_SYNC_ENABLED_BY_DEFAULT false
-#else
-#define V_SYNC_ENABLED_BY_DEFAULT true
-#endif
-
 namespace Game {
-    using namespace KeyInput;
 
 
     extern Settings settings;

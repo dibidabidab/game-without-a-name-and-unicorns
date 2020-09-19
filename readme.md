@@ -1,7 +1,7 @@
 
-### [Play game in browser](https://hilkojj.github.io/dibidabidab/game.html)
-#### [Download for Linux](https://hilkojj.github.io/dibidabidab/game-linux.zip)
-#### [Download for Windows](https://hilkojj.github.io/dibidabidab/game-windows.zip)
+### [Play game in browser](https://dibidabidab.github.io/dibidab-engine/game.html)
+#### [Download for Linux](https://dibidabidab.github.io/dibidab-engine/game-linux.zip)
+#### [Download for Windows](https://dibidabidab.github.io/dibidab-engine/game-windows.zip)
 
 [![Build & deploy to gh-pages](https://github.com/hilkojj/dibidabidab/workflows/Build%20&%20deploy%20to%20gh-pages/badge.svg)](https://github.com/hilkojj/dibidabidab/actions)
 [![BCH compliance](https://bettercodehub.com/edge/badge/hilkojj/dibidabidab?branch=master)](https://bettercodehub.com/)
