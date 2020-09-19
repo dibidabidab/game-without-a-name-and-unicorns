@@ -7,7 +7,7 @@
 #include <graphics/camera.h>
 #include <graphics/shader_asset.h>
 #include "../../../external/entt/src/entt/entity/registry.hpp"
-#include "../../ecs/components/graphics/AsepriteView.h"
+#include "../../generated/AsepriteView.hpp"
 
 /**
  * Used to render all entities with a AsepriteView component.

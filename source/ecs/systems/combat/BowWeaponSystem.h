@@ -4,13 +4,11 @@
 
 #include "../EntitySystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/combat/Bow.h"
-#include "../../components/physics/Physics.h"
-#include "../../components/graphics/AsepriteView.h"
-#include "../../components/combat/Aiming.h"
-#include "../../components/PlatformerMovement.h"
-#include "../../components/body_parts/Arm.h"
-#include "../../components/combat/Arrow.h"
+#include "../../../generated/SoundSpeaker.hpp"
+#include "../../../generated/Arrow.hpp"
+#include "../../../generated/Spawning.hpp"
+#include "../../../generated/Bow.hpp"
+#include "../../../generated/Aiming.hpp"
 
 class BowWeaponSystem : public EntitySystem
 {

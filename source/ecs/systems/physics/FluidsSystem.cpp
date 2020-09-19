@@ -1,9 +1,10 @@
 
 #include "FluidsSystem.h"
-#include "../../components/SoundSpeaker.h"
-#include "../../components/Spawning.h"
-#include "../../components/graphics/BloodDrop.h"
-#include "../../components/graphics/AsepriteView.h"
+#include "../../../generated/BloodDrop.hpp"
+#include "../../../generated/AsepriteView.hpp"
+#include "../../../generated/SoundSpeaker.hpp"
+#include "../../../generated/Spawning.hpp"
+#include "../../components/component_methods.h"
 
 void FluidsSystem::update(double deltaTime, EntityEngine *room)
 {
@@ -55,7 +56,7 @@ void FluidsSystem::update(double deltaTime, EntityEngine *room)
                     for (int i = 0; i < nrOfBubbles; i++)
                     {
                         auto bubbleE = room->entities.create();
-                        room->entities.assign<AABB>(bubbleE).center = bodyInFluid->randomPointInAABB();
+                        room->entities.assign<AABB>(bubbleE).center = randomPointInAABB(*bodyInFluid);
                         room->entities.assign<AsepriteView>(bubbleE, fluid.bubbleSprite);
                         auto &p = room->entities.assign<Physics>(bubbleE);
                         p.ignoreFluids = false;

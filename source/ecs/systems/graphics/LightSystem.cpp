@@ -1,7 +1,7 @@
 
 #include "LightSystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/graphics/Light.h"
+#include "../../../generated/Light.hpp"
 
 void LightSystem::update(double deltaTime, EntityEngine *room)
 {

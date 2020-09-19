@@ -1,5 +1,6 @@
 
 #include "PhysicsSystem.h"
+#include "../../components/component_methods.h"
 
 void PhysicsSystem::update(double deltaTime, EntityEngine *)
 {
@@ -88,7 +89,7 @@ void PhysicsSystem::update(double deltaTime, EntityEngine *)
 
         staticColliders.each([&](const AABB &staticAABB, auto) {
 
-            if (!dynamicAABB.overlaps(staticAABB))
+            if (!overlap(dynamicAABB, staticAABB))
                 return;
 
             // todo: emit collision event

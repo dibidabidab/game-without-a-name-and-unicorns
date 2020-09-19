@@ -1,8 +1,8 @@
 
 #include "LuaEntityTemplate.h"
-#include "../components/LuaScripted.h"
-#include "../components/physics/Physics.h"
+#include "../../generated/Physics.hpp"
 #include "../../game/Game.h"
+#include "../../generated/LuaScripted.hpp"
 
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, EntityEngine *engine_)

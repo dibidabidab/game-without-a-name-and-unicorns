@@ -1,0 +1,37 @@
+
+RopePoint:
+  _flags:
+    - not_a_component
+
+  currentPos: vec2
+  prevPos: vec2
+
+
+VerletRope:
+
+  length: [float, 32]
+  nrOfPoints: [uint8, 10]
+  gravity: [vec2, "ivec2(0, -1.5)"]
+  friction: [float, 1]
+  moveByWind: [float, 0]
+
+  updatePrecision: [int, 1]
+  endPointEntity: [entt::entity, entt::null]
+  fixedEndPoint: [bool, false]
+
+  _cpp_only:
+    points: std::vector<RopePoint>
+
+    attachedRopes: std::vector<entt::entity> # ropes that are attached to this rope. (usually branches of a tree)
+
+    isAttachedToRope: [bool, false]
+
+
+AttachToRope:
+  ropeEntity: [entt::entity, entt::null]
+  x: [float, 1] # where along the rope the entity should stick to. 0 = start, 1 = end
+  offset: [ivec2, ivec2(0)]
+
+  _cpp_only:
+    registerAsChildRope: [bool, false]
+

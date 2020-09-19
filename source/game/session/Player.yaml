@@ -1,0 +1,14 @@
+Player:
+  _flags:
+    - not_a_component
+
+  id: int
+  name: std::string
+
+  _cpp_only:
+    io: [ MultiplayerIO*, NULL ]
+
+  _methods:
+    - "Player() = default;"
+    - "Player(const Player &other): id(other.id), name(other.name) {}"
+    - "~Player() { delete io; }"

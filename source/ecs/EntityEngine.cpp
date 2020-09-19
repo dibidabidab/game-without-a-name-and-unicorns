@@ -1,9 +1,9 @@
 
 #include "EntityEngine.h"
-#include "components/Children.h"
 #include <utils/hashing.h>
 #include <utils/gu_error.h>
 #include "entity_templates/LuaEntityTemplate.h"
+#include "../generated/Children.hpp"
 
 void EntityEngine::addSystem(EntitySystem *sys)
 {

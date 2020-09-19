@@ -37,6 +37,20 @@ add_subdirectory(../external/lua/sol2/single ./bin/lua/sol2)
 target_link_libraries(game sol2_single)
 
 
+# ---Generate structs with LUA SERDE---
+find_package(PythonInterp 3.7 REQUIRED)
+
+add_custom_target(
+        generate_structs ALL
+        COMMAND ${PYTHON_EXECUTABLE} ../external/lua-serde/lua-json-serde ../source/generated/ ../macro_magic/includes_for_generated_structs.h ../source/
+        BYPRODUCTS ./source/generated/include_all.hpp
+        COMMENT "Generating structs from yaml"
+)
+
+add_dependencies(game generate_structs)
+
+
+
 # for debugging: set(CMAKE_CXX_FLAGS  "-O3 -g4 -lwebsocket.js -s ASSERTIONS=2 -s DEMANGLE_SUPPORT=1")
 set(CMAKE_CXX_FLAGS  "-O3 -lwebsocket.js")
 

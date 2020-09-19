@@ -3,8 +3,8 @@
 #define GAME_SPAWNINGSYSTEM_H
 
 #include "EntitySystem.h"
-#include "../components/Spawning.h"
 #include "../../level/room/Room.h"
+#include "../../generated/Spawning.hpp"
 
 
 class SpawningSystem : public EntitySystem

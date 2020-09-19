@@ -1,6 +1,7 @@
 
 #include "SpawningSystem.h"
-#include "../components/physics/Physics.h"
+#include "../../generated/Physics.hpp"
+#include "../../generated/Spawning.hpp"
 
 void SpawningSystem::update(double deltaTime, EntityEngine *room)
 {

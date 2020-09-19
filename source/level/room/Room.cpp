@@ -25,7 +25,6 @@
 #include "../../ecs/systems/graphics/LightSystem.h"
 #include "../../ecs/systems/physics/FluidsSystem.h"
 #include "../../ecs/systems/TransRoomerSystem.h"
-#include "../../ecs/components/Saving.h"
 #include "../../ecs/systems/LuaScriptsSystem.h"
 
 Room::Room(ivec2 size)

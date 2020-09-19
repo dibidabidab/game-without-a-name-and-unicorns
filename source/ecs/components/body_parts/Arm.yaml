@@ -1,0 +1,16 @@
+
+# An arm that can be attached to a body and is procedurally animated.
+#
+# body = e.g. the player entity
+# anchor = the position of the shoulder on the body.
+
+Arm:
+  body: entt::entity
+  anchor: ivec2
+  length: [float, 16]
+  moveSpeed: [float, 190]
+
+  grab: [entt::entity, entt::null] # if grab is set, then the hand will be attached to the 'grab' entity
+
+  _cpp_only:
+    moveAccumulator: [vec2, vec2(0)]

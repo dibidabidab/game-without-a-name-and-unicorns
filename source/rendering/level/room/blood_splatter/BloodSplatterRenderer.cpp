@@ -1,11 +1,12 @@
 
 #include <graphics/orthographic_camera.h>
+#include <graphics/3d/vert_buffer.h>
 #include "BloodSplatterRenderer.h"
 
 #include "../../../../level/room/Room.h"
-#include "../../../../ecs/components/graphics/BloodDrop.h"
-#include "../../../../ecs/components/physics/Physics.h"
-#include "../../../../ecs/components/Spawning.h"
+#include "../../../../generated/Physics.hpp"
+#include "../../../../generated/BloodDrop.hpp"
+#include "../../../../generated/Spawning.hpp"
 
 
 BloodSplatterRenderer::BloodSplatterRenderer(Room *r)

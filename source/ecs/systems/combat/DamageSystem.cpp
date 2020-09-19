@@ -1,11 +1,12 @@
 
 #include "DamageSystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/physics/Physics.h"
-#include "../../components/PlayerControlled.h"
-#include "../../components/combat/Bow.h"
-#include "../../components/graphics/PaletteSetter.h"
-#include "../../components/graphics/BloodDrop.h"
+#include "../../../generated/Physics.hpp"
+#include "../../../generated/BloodDrop.hpp"
+#include "../../../generated/PaletteSetter.hpp"
+#include "../../../generated/Bow.hpp"
+#include "../../../generated/PlayerControlled.hpp"
+#include "../../../generated/Health.hpp"
 
 void DamageSystem::update(double deltaTime, EntityEngine *room)
 {
@@ -148,6 +149,6 @@ void DamageSystem::loadDamageTypes()
         damageTypes = damageTypesJson.get()["damageTypes"].get<decltype(damageTypes)>();
     } catch (std::exception &e)
     {
-        throw gu_err("Content of " + damageTypesJson.getLoadedAsset().fullPath + " is invalid!");
+        throw gu_err("Content of " + damageTypesJson.getLoadedAsset().fullPath + " is invalid!\n" + e.what());
     }
 }

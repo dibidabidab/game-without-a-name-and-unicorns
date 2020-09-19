@@ -6,7 +6,7 @@
 #include <graphics/shader_asset.h>
 #include <graphics/3d/mesh.h>
 #include <graphics/camera.h>
-#include "../../ecs/components/ui/UIComponents.h"
+#include "../../generated/UIComponents.hpp"
 
 class TextRenderer
 {

@@ -3,7 +3,6 @@
 #define GAME_LUA_CONVERTERS_H
 
 #include "../luau.h"
-#include "macro_helpers.h"
 #include "sfinae.h"
 
 #include <iostream>
@@ -17,7 +16,7 @@
 HAS_MEM_FUNC(toLuaTable, has_toLuaTable_function)
 HAS_MEM_FUNC(fromLuaTable, has_fromLuaTable_function)
 
-template<typename type, typename ignore_me=void>
+template<typename type>
 struct lua_converter
 {
     static void fromLua(sol::object v, type &field)
@@ -65,21 +64,6 @@ struct lua_converter
     }
 };
 
-
-template<typename ENUM_TYPE>
-struct lua_converter<ENUM_TYPE, typename std::enable_if<std::is_enum<ENUM_TYPE>::value>::type>
-{
-    static void fromLua(sol::object v, ENUM_TYPE &c)
-    {
-        c = ENUM_TYPE(v.as<sol::optional<int>>().value_or(0));
-    }
-
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const ENUM_TYPE &c)
-    {
-        luaVal = int(c);
-    }
-};
 
 template<>
 struct lua_converter<uint8>
@@ -324,42 +308,5 @@ struct lua_converter<json>
     }
 };
 
-
-// MACROS FOR Lua->Struct
-
-#define PULL_FIELD_OUT_LUA_TABLE(field) \
-    __PULL_FIELD_OUT_LUA_TABLE__(EAT field)
-
-#define __PULL_FIELD_OUT_LUA_TABLE__(X)  \
-    lua_converter<ARGTYPE(X)>::fromLua(table[ARGNAME_AS_STRING(X)], ARGNAME(X))
-
-
-// the macro to be used in serializable.h:
-#define FROM_LUA_TABLE(...)\
-    DOFOREACH_SEMICOLON(PULL_FIELD_OUT_LUA_TABLE, __VA_ARGS__)
-
-// END MACROS FOR Lua->Struct
-
-
-
-
-// MACROS FOR Struct->Lua
-
-#define PUT_FIELD_IN_LUA_TABLE(field) \
-    __PUT_FIELD_IN_LUA_TABLE__(EAT field)
-
-#define __PUT_FIELD_IN_LUA_TABLE__(X) \
-    {\
-        auto ref = table[ARGNAME_AS_STRING(X)];\
-        lua_converter<ARGTYPE(X)>::toLua(ref, ARGNAME(X));\
-    }
-
-
-// the other macro to be used in serializable.h:
-#define TO_LUA_TABLE(...)\
-    DOFOREACH_SEMICOLON(PUT_FIELD_IN_LUA_TABLE, __VA_ARGS__)
-
-
-// END MACROS FOR Struct->Lua
 
 #endif //GAME_LUA_CONVERTERS_H

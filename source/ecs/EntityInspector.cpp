@@ -5,10 +5,12 @@
 #include <utils/code_editor/CodeEditor.h>
 #include <imgui_internal.h>
 #include "EntityInspector.h"
-#include "components/physics/Physics.h"
 #include "../game/Game.h"
 #include "entity_templates/LuaEntityTemplate.h"
-#include "components/LuaScripted.h"
+#include "../generated/LuaScripted.hpp"
+#include "../generated/Physics.hpp"
+#include "../generated/Inspecting.hpp"
+#include "components/component_methods.h"
 
 
 EntityInspector::EntityInspector(EntityEngine &engine, const std::string &name) : engine(engine), reg(engine.entities), inspectorName(name)
@@ -105,7 +107,7 @@ void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
             MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10, 10);
             breakk = true;
 
-            box.draw(lineRenderer, mu::Y);
+            draw(box, lineRenderer, mu::Y);
 
             ImGui::SetTooltip("#%d", int(e));
 
@@ -116,7 +118,7 @@ void EntityInspector::pickEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
             }
             return;
         }
-        else box.draw(lineRenderer, mu::X);
+        else draw(box, lineRenderer, mu::X);
     });
 }
 
@@ -145,7 +147,7 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
                 MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10);
                 breakk = true;
 
-                box.draw(lineRenderer, mu::Y);
+                draw(box, lineRenderer, mu::Y);
                 auto *persistent = reg.try_get<Persistent>(e);
                 if (persistent && persistent->saveSpawnPosition)
                     drawSpawnPoint(p, persistent->spawnPosition);
@@ -156,7 +158,7 @@ void EntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRe
                     movingEntity = e;
                 return;
             }
-            else box.draw(lineRenderer, mu::X);
+            else draw(box, lineRenderer, mu::X);
         });
 
     }

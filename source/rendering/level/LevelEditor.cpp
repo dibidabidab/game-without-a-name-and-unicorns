@@ -1,7 +1,7 @@
 
 #include "LevelEditor.h"
-#include "../../ecs/components/PlayerControlled.h"
 #include "MiniMapTextureGenerator.h"
+#include "../../generated/PlayerControlled.hpp"
 #include <imgui.h>
 
 LevelEditor::LevelEditor(Level *lvl) : lvl(lvl)

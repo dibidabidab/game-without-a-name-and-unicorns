@@ -1,7 +1,8 @@
 
 #include "LightMapRenderer.h"
-#include "../../../../ecs/components/physics/Physics.h"
-#include "../../../../ecs/components/graphics/Light.h"
+#include "../../../../generated/Physics.hpp"
+#include "../../../../generated/Light.hpp"
+#include "../../../../level/Level.h"
 #include "ShadowCaster.h"
 
 LightMapRenderer::LightMapRenderer(Room *room)

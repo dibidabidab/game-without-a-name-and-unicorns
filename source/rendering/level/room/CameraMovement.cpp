@@ -1,8 +1,7 @@
 
 #include "CameraMovement.h"
-#include "../../../ecs/components/PlayerControlled.h"
-#include "../../../ecs/components/physics/Physics.h"
-#include "../../../ecs/components/combat/Aiming.h"
+#include "../../../generated/Physics.hpp"
+#include "../../../generated/PlayerControlled.hpp"
 
 void move(float &x, float targetX, float deltaTime)
 {

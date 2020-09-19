@@ -4,8 +4,9 @@
 
 #include "../EntitySystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/body_parts/Leg.h"
-#include "../../components/physics/Physics.h"
+#include "../../../generated/Health.hpp"
+#include "../../../generated/Leg.hpp"
+#include "../../../generated/Physics.hpp"
 
 /**
  * Responsible for:

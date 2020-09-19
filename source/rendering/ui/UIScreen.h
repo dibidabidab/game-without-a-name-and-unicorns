@@ -8,7 +8,6 @@
 #include "../../ecs/EntityEngine.h"
 #include "../../ecs/EntityInspector.h"
 #include "TextRenderer.h"
-#include "../../ecs/components/Children.h"
 #include "../sprites/SpriteRenderer.h"
 #include "NineSliceRenderer.h"
 

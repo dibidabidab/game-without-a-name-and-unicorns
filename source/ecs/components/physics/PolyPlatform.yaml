@@ -1,0 +1,29 @@
+
+PolyPlatform:
+  allowFallThrough: [bool, true]
+  material: TileMaterial
+
+  _cpp_only:
+    entitiesOnPlatform: std::vector<entt::entity>
+    entitiesAbovePlatform: std::vector<entt::entity>
+
+    prevAABBPos: [ivec2, ivec2(0)]
+
+
+Spring:
+  _flags:
+    - not_a_component
+
+  yOffset: [float, 0]
+  velocity: [float, 0]
+
+
+PolylineWaves:
+  stiffness: [float, 240]
+  dampening: [float, 4]
+  spread: [float, 45]
+  impactMultiplier: [float, 1]
+  moveByWind: [float, 0]
+
+  _cpp_only:
+    springs: std::vector<Spring>

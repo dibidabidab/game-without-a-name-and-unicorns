@@ -3,8 +3,8 @@
 #define GAME_AUDIOSYSTEM_H
 
 #include "EntitySystem.h"
-#include "../components/SoundSpeaker.h"
 #include "../../level/room/Room.h"
+#include "../../generated/SoundSpeaker.hpp"
 
 class AudioSystem : public EntitySystem
 {

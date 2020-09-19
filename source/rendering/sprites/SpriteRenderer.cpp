@@ -1,6 +1,7 @@
 
 #include "SpriteRenderer.h"
 #include "../../game/Game.h"
+#include "../../generated/Physics.hpp"
 #include <graphics/3d/vert_buffer.h>
 
 SpriteRenderer::SpriteRenderer()

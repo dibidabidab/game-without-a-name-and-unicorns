@@ -6,14 +6,14 @@
 #include <input/key_input.h>
 #include "EntitySystem.h"
 #include "../../level/Level.h"
-#include "../components/physics/Physics.h"
-#include "../components/PlatformerMovement.h"
-#include "../components/PlayerControlled.h"
-#include "../components/combat/Aiming.h"
-#include "../components/graphics/AsepriteView.h"
-#include "../components/Spawning.h"
-#include "../components/SoundSpeaker.h"
+#include "../../generated/Physics.hpp"
+#include "../../generated/AsepriteView.hpp"
+#include "../../generated/PlayerControlled.hpp"
+#include "../../generated/Aiming.hpp"
+#include "../../generated/PlatformerMovement.hpp"
 #include "../../game/Game.h"
+#include "../../generated/Spawning.hpp"
+#include "../../generated/SoundSpeaker.hpp"
 
 /**
  * Responsible for:

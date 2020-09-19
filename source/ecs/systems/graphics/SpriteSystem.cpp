@@ -1,6 +1,9 @@
 
 #include "SpriteSystem.h"
-#include "../../components/graphics/SpriteBobbing.h"
+#include "../../../generated/AsepriteView.hpp"
+#include "../../../generated/SpriteAnchor.hpp"
+#include "../../../generated/SpriteBobbing.hpp"
+#include "../../../generated/Physics.hpp"
 
 void SpriteSystem::update(double deltaTime, EntityEngine *room)
 {
