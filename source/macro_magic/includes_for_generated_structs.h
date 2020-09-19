@@ -1,4 +1,7 @@
 
+#ifndef IFGS
+#define IFGS
+
 #include "component.h"
 #include <audio/audio.h>
 #include <input/key_input.h>
@@ -13,3 +16,12 @@
 struct AABB;
 #include "../ecs/systems/physics/TerrainCollisionDetector.h"
 
+template <typename T>
+inline std::string to_string(
+        const T &
+)
+{
+    return "lol";
+}
+
+#endif

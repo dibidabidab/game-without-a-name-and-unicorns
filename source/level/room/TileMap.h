@@ -30,6 +30,7 @@ enum class Tile : unsigned char {
 };
 
 typedef std::vector<std::pair<vec2, vec2>> TileMapOutlines;
+typedef uint8 TileMaterial;
 
 class TileMap {
 

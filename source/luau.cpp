@@ -2,6 +2,19 @@
 #include "luau.h"
 #include "game/Game.h"
 
+struct Test
+{
+    int poepie = 4;
+    ivec2 point = ivec2(10);
+    asset<aseprite::Sprite> sprite;
+};
+
+struct TestVec
+{
+    std::vector<Test> tests;
+};
+
+
 sol::state &luau::getLuaState()
 {
     static sol::state *lua = NULL;
@@ -72,6 +85,43 @@ sol::state &luau::getLuaState()
             getLuaState().unsafe_script(toBeIncluded->getByteCode().as_string_view(), newEnv);
             return newEnv;
         };
+
+        for (auto &[typeName, info] : SerializableStructInfo::getForAllTypes())
+            info->luaUserTypeGenerator(*lua);
+
+        sol::usertype<Test> testType = lua->new_usertype<Test>("Test");
+        testType["poepie"] = &Test::poepie;
+        testType["point"] = &Test::point;
+        testType["sprite"] = &Test::sprite;
+
+        sol::usertype<TestVec> testVecType = lua->new_usertype<TestVec>("TestVec");
+        testVecType["tests"] = &TestVec::tests;
+
+
+        TestVec vec;
+        vec.tests.emplace_back();
+
+        env["vec"] = &vec;
+
+        lua->unsafe_script("vec.tests[1].poepie = 12345");
+
+        assert(vec.tests[0].poepie == 12345);
+
+        lua->unsafe_script("vec.tests[2] = Test.new()");
+        lua->unsafe_script("vec.tests[2].poepie = -3");
+
+        assert(vec.tests[1].poepie == -3);
+
+        Test lol;
+
+        env["lol"] = &lol;
+
+        lua->unsafe_script("lol.poepie = 12");
+        lua->unsafe_script("lol.sprite = 'sprites/enemy'");
+
+        assert(lol.poepie == 12);
+        std::cout << lol.sprite.getLoadedAsset().fullPath << '\n';
+
     }
     return *lua;
 }
