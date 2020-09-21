@@ -1,0 +1,11 @@
+
+# Makes an entity's sprite move up and down based on the position of the entity's feet
+
+SpriteBobbing:
+  feet: std::vector<entt::entity>
+  maxYPos: [int, 10]
+  minYPos: [int, -6]
+
+  _cpp_only:
+    floorHitVelocity: [float, 0]
+    floorHitYPos: [float, 0]

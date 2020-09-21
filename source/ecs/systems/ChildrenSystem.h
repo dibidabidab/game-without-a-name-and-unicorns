@@ -4,7 +4,7 @@
 
 #include "EntitySystem.h"
 #include "../../level/room/Room.h"
-#include "../components/Children.h"
+#include "../../generated/Children.hpp"
 
 class ChildrenSystem : public EntitySystem
 {

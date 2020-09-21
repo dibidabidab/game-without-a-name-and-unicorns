@@ -2,16 +2,24 @@
 function create(widget)
 
     setComponents(widget, {
-        UIElement = {},
+        UIElement = {
+            margin = {16, 16},
+            absolutePositioning = true,
+            absoluteHorizontalAlign = 2 -- todo, use strings or constants
+        },
         UIContainer = {
-            nineSliceSprite = "sprites/ui/default_9slice_plane"
+            nineSliceSprite = "sprites/ui/default_9slice_plane",
+            autoHeight = true,
+            --autoWidth = true,
+            fixedWidth = 128,
+            centerAlign = true
         },
         Inspecting = {}
     })
 
     applyTemplate(createChild(widget), "Text", {
-        text = "dibidabidab!",
-        color = colors.rainbow_red,
+        text = "dibidabidab!!!\n\n\nlol",
+        color = colors.brick,
         waving = true
     })
 
@@ -22,7 +30,27 @@ function create(widget)
         }
     })
     applyTemplate(createChild(widget), "Text", {
-        text = "heheh"
+        text = "HP: 24/30"
     })
+
+
+    local button = createChild(widget, "bttn")
+    setComponents(button, {
+        UIElement = {
+            startOnNewLine = true
+        },
+        UIContainer = {
+            nineSliceSprite = "sprites/ui/default_9slice_plane",
+            fixedWidth = 100,
+            fixedHeight = 24,
+            fillRemainingParentHeight = false,
+            padding = {0, -5},
+            centerAlign = true
+        }
+    })
+    applyTemplate(createChild(button), "Text", {
+        text = "OK"
+    })
+
 
 end

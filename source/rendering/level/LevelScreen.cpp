@@ -1,8 +1,8 @@
 
 #include "LevelScreen.h"
 #include "MiniMapTextureGenerator.h"
-#include "../../ecs/components/PlayerControlled.h"
-#include "../../ecs/components/TransRoomable.h"
+#include "../../generated/PlayerControlled.hpp"
+#include "../../generated/TransRoomable.hpp"
 
 LevelScreen::LevelScreen(Level *lvl) : lvl(lvl), lvlEditor(lvl)
 {

@@ -1,0 +1,8 @@
+
+# Aseprite sprites have 'slices' (https://www.aseprite.org/docs/slices/)
+# Using this component you can attach an entity to a slice's position.
+
+SpriteAnchor:
+  spriteEntity: [entt::entity, entt::null]
+  spriteSliceName: string
+  ignoreSpriteFlipping: [bool, false]

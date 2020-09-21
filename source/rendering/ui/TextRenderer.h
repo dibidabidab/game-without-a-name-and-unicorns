@@ -6,7 +6,7 @@
 #include <graphics/shader_asset.h>
 #include <graphics/3d/mesh.h>
 #include <graphics/camera.h>
-#include "../../ecs/components/ui/UIComponents.h"
+#include "../../generated/UIComponents.hpp"
 
 class TextRenderer
 {
@@ -31,9 +31,13 @@ class TextRenderer
 
     TextRenderer();
 
-    void add(const TextView &, int lineX, ivec2 &cursor, int &currLineHeight);
+    void add(const TextView &, UIContainer &, UIElement &);
 
     void render(const Camera &);
+
+  private:
+
+    void centerCurrentLineOfText();
 
 };
 

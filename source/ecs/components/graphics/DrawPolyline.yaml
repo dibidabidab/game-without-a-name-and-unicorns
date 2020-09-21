@@ -1,0 +1,18 @@
+
+# Used to tell the renderer that a polyline should be drawn.
+# Must be used in combination with BezierCurve, VerletRope or Polyline.
+#
+# The depth value of the drawn line will be interpolated between zIndexBegin and zIndexEnd
+
+DrawPolyline:
+  colors: std::vector<uint8>
+  zIndexBegin: [float, 0]
+  zIndexEnd: [float, 0]
+
+  repeatX: [uint8, 0]
+  repeatY: [uint8, 0]
+  lineWidth: [uint8, 1]
+
+  repeatColors: std::vector<uint8>
+
+  addAABBOffset: [bool, false]

@@ -12,17 +12,9 @@
 #include "../../rendering/level/room/tile_map/TileSet.h"
 #include "WindMap.h"
 
-SERIALIZABLE(
-    tile_update,
-    FIELD(uint8, x),
-    FIELD(uint8, y),
-    FIELD(uint8, newTile),
-    FIELD(uint8, newTileMaterial)
-)
-END_SERIALIZABLE(tile_update)
+#include "../../generated/TileMap.hpp"
 
-enum class Tile : unsigned char
-{
+enum class Tile : unsigned char {
     /*                                      ___               ___        _______
      *     ___      |\           /|         \  |             |  /
      *    |   |     | \         / |          \ |             | /
@@ -36,22 +28,10 @@ enum class Tile : unsigned char
     // same as slope_up, but spread over 2 tiles:
     slope_up_half0, slope_up_half1,
 };
-typedef uint8 TileMaterial;
-
-SERIALIZABLE(
-    TileMaterialProperties,
-    FIELD(std::string, name),
-    FIELD(asset<TileSet>, tileSet),
-    FIELD_DEF_VAL(float, friction, 1),
-    FIELD_DEF_VAL(float, bounciness, 0),
-    FIELD(vec3, color)
-)
-END_SERIALIZABLE_FULL_JSON(TileMaterialProperties)
 
 typedef std::vector<std::pair<vec2, vec2>> TileMapOutlines;
 
-class TileMap
-{
+class TileMap {
 
     Tile *tiles;
     TileMaterial *tileMaterials;
@@ -59,11 +39,12 @@ class TileMap
     TileMapOutlines outlines;
 
     std::list<tile_update> tileUpdatesSinceLastUpdate, tileUpdatesPrevUpdate;
+
     friend class Room;
 
     const std::vector<TileMaterialProperties> materialProperties;
 
-  public:
+public:
 
     static const int PIXELS_PER_TILE = 16;
 
@@ -94,7 +75,7 @@ class TileMap
 
     void setTile(uint8 x, uint8 y, Tile);
 
-    void setTile(uint8 x, uint8 y, Tile, TileMaterial, bool registerAsUpdate=true, bool refreshOutlines=true);
+    void setTile(uint8 x, uint8 y, Tile, TileMaterial, bool registerAsUpdate = true, bool refreshOutlines = true);
 
     bool contains(uint8 x, uint8 y) const;
 

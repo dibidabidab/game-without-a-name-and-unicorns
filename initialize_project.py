@@ -23,6 +23,11 @@ def file(url, dst):
 
 command("git submodule update --init --recursive")
 
+# dependencies for https://github.com/atasak/lua-serde
+command("python -m pip install --user jinja2")
+command("python -m pip install --user pyYAML")
+
+
 command("python -m pip install --user glad")
 command("python -m glad --generator=c --extensions=GL_EXT_texture_compression_s3tc --out-path=external/gu/external/glad")
 

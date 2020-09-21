@@ -1,12 +1,12 @@
 
 #include "DamageSystem.h"
 #include "../../../level/room/Room.h"
-#include "../../components/combat/Health.h"
-#include "../../components/physics/Physics.h"
-#include "../../components/PlayerControlled.h"
-#include "../../components/combat/Bow.h"
-#include "../../components/graphics/PaletteSetter.h"
-#include "../../components/graphics/BloodDrop.h"
+#include "../../../generated/Physics.hpp"
+#include "../../../generated/BloodDrop.hpp"
+#include "../../../generated/PaletteSetter.hpp"
+#include "../../../generated/Bow.hpp"
+#include "../../../generated/PlayerControlled.hpp"
+#include "../../../generated/Health.hpp"
 
 void DamageSystem::update(double deltaTime, EntityEngine *room)
 {
@@ -67,7 +67,10 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                     dropPhysics.velocity += p->velocity * (mu::random() > .9 ? -.5f : 1.f);
             }
 
-            if (health.currHealth <= attack.points)
+            health.currHealth -= attack.points;
+            health.immunityTimer += damageType.immunity;
+
+            if (health.currHealth <= 0)
             {
                 // this attack is the death cause of this entity
                 health.currHealth = 0;
@@ -90,10 +93,8 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                         }
                     }
                 }
-                continue;
             }
-            health.currHealth -= attack.points;
-            health.immunityTimer += damageType.immunity;
+            room->emitEntityEvent(e, attack);
         }
 
         health.attacks.clear();
@@ -148,6 +149,6 @@ void DamageSystem::loadDamageTypes()
         damageTypes = damageTypesJson.get()["damageTypes"].get<decltype(damageTypes)>();
     } catch (std::exception &e)
     {
-        throw gu_err("Content of " + damageTypesJson.getLoadedAsset().fullPath + " is invalid!");
+        throw gu_err("Content of " + damageTypesJson.getLoadedAsset().fullPath + " is invalid!\n" + e.what());
     }
 }

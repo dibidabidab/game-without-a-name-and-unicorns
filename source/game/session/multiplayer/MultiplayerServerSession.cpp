@@ -1,10 +1,7 @@
 
 #include <gu/profiler.h>
 #include "MultiplayerServerSession.h"
-#include "../../../ecs/components/physics/Physics.h"
-#include "../../../ecs/components/PlatformerMovement.h"
-#include "../../../ecs/components/Networked.h"
-#include "../../../ecs/components/PlayerControlled.h"
+#include "../../../generated/Physics.hpp"
 
 using namespace Packet;
 using namespace Packet::from_player;

@@ -1,9 +1,9 @@
 
 #include "EntityEngine.h"
-#include "components/Children.h"
 #include <utils/hashing.h>
 #include <utils/gu_error.h>
 #include "entity_templates/LuaEntityTemplate.h"
+#include "../generated/Children.hpp"
 
 void EntityEngine::addSystem(EntitySystem *sys)
 {
@@ -166,6 +166,15 @@ void EntityEngine::initializeLuaEnvironment()
         }
         else
             entityTemplate->createComponents(entt::entity(extendE), makePersistent);
+    };
+
+    env["onEntityEvent"] = [&](int entity, const char *eventName, const sol::function &listener) {
+
+        auto &emitter = entities.get_or_assign<EventEmitter>(entt::entity(entity));
+        emitter.on(eventName, listener);
+    };
+    env["onEvent"] = [&](const char *eventName, const sol::function &listener) {
+        events.on(eventName, listener);
     };
 }
 

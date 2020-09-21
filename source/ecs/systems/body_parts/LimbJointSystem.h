@@ -4,10 +4,9 @@
 
 #include "../../../level/room/Room.h"
 #include "../EntitySystem.h"
-#include "../../components/body_parts/LimbJoint.h"
-#include "../../components/physics/Physics.h"
-#include "../../components/body_parts/Leg.h"
-#include "../../components/body_parts/Arm.h"
+#include "../../../generated/PlatformerMovement.hpp"
+#include "../../../generated/LimbJoint.hpp"
+#include "../../../generated/Arm.hpp"
 
 /**
  * see LimbJoint documentation

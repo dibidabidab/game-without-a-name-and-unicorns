@@ -1,0 +1,137 @@
+
+UIContainer:
+  nineSliceSprite: asset<aseprite::Sprite>
+  autoWidth: [bool, false]
+  autoHeight: [bool, false]
+  fixedWidth: [int, 128]
+  fixedHeight: [int, 64]
+
+  padding: [ivec2, ivec2(0)]
+  centerAlign: [bool, false]
+  fillRemainingParentHeight: [bool, false]
+  fillRemainingParentWidth: [bool, false]
+
+  _cpp_only:
+    textCursor: ivec2
+    innerTopLeft: ivec2
+
+    currentLineHeight: [int, 0]
+    minX: [int, 0]
+    maxX: [int, 0]
+    innerHeight: [int, 0]
+
+    spriteSlice: [const aseprite::Slice *, NULL]
+    nineSlice: [const aseprite::Slice::NineSlice *, NULL]
+
+  _methods:
+    - void resetCursorX()
+      {
+          if (centerAlign)
+              textCursor.x = (minX + maxX) / 2;
+          else
+              textCursor.x = minX;
+      }
+
+    - void goToNewLine(int spacing = 0)
+      {
+          resetCursorX();
+
+          textCursor.y -= currentLineHeight + spacing;
+          currentLineHeight = 0;
+      }
+
+    # if requireWidth fits in the current line:
+    #      do nothing
+    #
+    # else if autoWidth is enabled:
+    #      change width
+    #
+    # else:
+    #      jump to next line (AND RETURN TRUE)
+    #
+    - bool resizeOrNewLine(int requireWidth, int lineSpacing = 0)
+      {
+          if (centerAlign)
+          {
+              if (textCursor.x != (minX + maxX) / 2)
+              {
+                  goToNewLine(lineSpacing);
+                  return true;
+              }
+              return false;
+          }
+
+          int maxXNeeded = textCursor.x + requireWidth;
+          if (maxXNeeded <= maxX)
+              return false;
+          if (autoWidth)
+              maxX = maxXNeeded;
+          else
+          {
+              goToNewLine(lineSpacing);
+              return true;
+          }
+          return false;
+      }
+
+    - void resizeLineHeight(int minLineHeightRequired)
+      {
+          currentLineHeight = max(currentLineHeight, minLineHeightRequired);
+      }
+
+
+UIElement:
+  margin: [ivec2, ivec2(0)]
+  startOnNewLine: [bool, false]
+  lineSpacing: [int, 3]
+  renderOffset: [ivec2, ivec2(0)]
+  absolutePositioning: [bool, false]
+  absoluteHorizontalAlign: [int, 0] # 0 = left, 1 = center, 2 = right
+  absoluteVerticalAlign: [int, 0] # 0 = top, 1 = center, 2 = bottom
+
+  _methods:
+    - "ivec2 getAbsolutePosition(const UIContainer &container, int width, int height)
+      {
+          ivec2 pos;
+          switch (absoluteHorizontalAlign)
+          {
+              case 0:
+                  pos.x = container.minX;
+                  break;
+              case 1:
+                  pos.x = (container.minX + container.maxX) / 2 - width / 2;
+                  break;
+              case 2:
+                  pos.x = container.maxX - width;
+                  break;
+          }
+          switch (absoluteVerticalAlign)
+          {
+              case 0:
+                  pos.y = container.innerTopLeft.y;
+                  break;
+              case 1:
+                  pos.y = container.innerTopLeft.y - container.innerHeight / 2 + height / 2;
+                  break;
+              case 2:
+                  pos.y = container.innerTopLeft.y - container.innerHeight + height;
+                  break;
+          }
+          return pos;
+      }"
+
+
+
+TextView:
+
+  text: string
+  fontSprite: asset<aseprite::Sprite>
+  mapColorFrom: [uint8, 0]
+  mapColorTo: [uint8, 0]
+  letterSpacing: [int, 1]
+
+  waving: [bool, false]
+  wavingFrequency: [float, 1]
+  wavingSpeed: [float, 1]
+  wavingAmplitude: [float, 8]
+

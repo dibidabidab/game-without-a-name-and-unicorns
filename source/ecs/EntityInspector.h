@@ -10,32 +10,7 @@
 #include "../level/room/Room.h"
 #include "entity_templates/LuaEntityTemplate.h"
 
-struct InspectPathState
-{
-    bool multiline = false;
-    std::string newKey;
-};
-
-COMPONENT(Inspecting, HASH(0),
-    FIELD_DEF_VAL(bool, show, true),
-
-    FIELD(json, addingComponentJson)
-)
-    std::string addingComponentTypeName;
-
-    std::vector<std::string> currentPath;
-    std::map<std::string, InspectPathState> state;
-
-    ImVec2 windowPos = ImVec2(-1, -1);
-
-    InspectPathState &getState()
-    {
-        std::string pathKey;
-        for (auto &s : currentPath) pathKey += "--->" + s;
-        return state[pathKey];
-    }
-
-END_COMPONENT(Inspecting)
+struct Inspecting;
 
 class EntityInspector
 {

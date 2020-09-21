@@ -1,8 +1,7 @@
 #include "NetworkingSystem.h"
-#include "../../components/Networked.h"
-#include "../../components/PlayerControlled.h"
 #include "../../../game/session/multiplayer/MultiplayerSession.h"
-#include "../../components/physics/Physics.h"
+#include "../../../generated/PlayerControlled.hpp"
+#include "../../../generated/Networked.hpp"
 
 void NetworkingSystem::init(EntityEngine *room_)
 {

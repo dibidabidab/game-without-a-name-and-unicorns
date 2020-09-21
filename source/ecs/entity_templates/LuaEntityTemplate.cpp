@@ -1,8 +1,8 @@
 
 #include "LuaEntityTemplate.h"
-#include "../components/LuaScripted.h"
-#include "../components/physics/Physics.h"
+#include "../../generated/Physics.hpp"
 #include "../../game/Game.h"
+#include "../../generated/LuaScripted.hpp"
 
 
 LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, EntityEngine *engine_)
@@ -121,7 +121,7 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
         if (!luaScripted.saveData.valid())
         {
             id = arguments.value()["saveGameEntityID"].get_or<std::string, std::string>(getUniqueID());
-            luaScripted.saveData = Game::getCurrentSession().saveGame.getSaveDataForEntity(id, !persistent);
+            luaScripted.saveData = SaveGame::getSaveDataForEntity(id, !persistent);
         }
 
         if (persistent)

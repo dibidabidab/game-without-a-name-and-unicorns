@@ -35,10 +35,10 @@
 
     <script type='text/javascript'>
 
-        if (location.protocol == "https:" || location.protocol == "https") {
-            console.log("Can't establish a non-SSL websocket to a multiplayer server when the game is served over HTTPS. Switching to HTTP...")
-            location.replace(location.href.replace("https", "http"))
-        }
+        // if (location.protocol == "https:" || location.protocol == "https") {
+        //     console.log("Can't establish a non-SSL websocket to a multiplayer server when the game is served over HTTPS. Switching to HTTP...")
+        //     location.replace(location.href.replace("https", "http"))
+        // }
 
         const progressElement = document.getElementById('progress')
         const canvas = document.getElementById('canvas')

@@ -4,10 +4,11 @@
 
 #include "../../../macro_magic/serializable.h"
 #include "../../../../external/entt/src/entt/entity/registry.hpp"
-#include "../../../level/room/TileMap.h"
 
 class TileMap;
 struct AABB;
+
+typedef uint8 TileMaterial;
 
 struct TerrainCollisions
 {

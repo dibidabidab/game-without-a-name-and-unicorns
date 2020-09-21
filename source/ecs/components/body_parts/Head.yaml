@@ -1,0 +1,8 @@
+
+Head:
+  maxHeadRetraction: [int, 4]
+  turnHeadDelay: [float, .05]
+  body: [entt::entity, entt::null]
+
+  _cpp_only:
+    timeSinceBodyFlipped: [float, 0]

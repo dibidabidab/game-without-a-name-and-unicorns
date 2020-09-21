@@ -1,6 +1,6 @@
 #include "EntityTemplate.h"
 #include "../EntityEngine.h"
-#include "../components/Networked.h"
+#include "../../generated/Networked.hpp"
 
 entt::entity EntityTemplate::create(bool persistent)
 {

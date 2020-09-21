@@ -1,0 +1,44 @@
+
+SpriteClipping:
+    lowerLeft: u8vec2
+    lowerRight: u8vec2
+    topLeft: u8vec2
+    topRight: u8vec2
+
+
+AsepriteView:
+  # Used to draw an (animated) sprite.
+  # Entity must either have the AABB component to determine where on the screen the sprite is drawn
+  #   OR the UIElement component
+
+  sprite: asset<aseprite::Sprite>
+  frame: [int, 0]
+  playingTag: [int, -1]
+
+  paused: [bool, false]
+  loop: [bool, true]
+  flipHorizontal: [bool, false]
+  flipVertical: [bool, false]
+  rotate90Deg: [bool, false]
+
+  zIndex: [float, 0]
+
+  aabbAlign: [vec2, vec2(.5)]       # by default the sprite's origin is positioned at the center of the AABB of the entity
+  originAlign: [vec2, vec2(.5)]     # by default the sprite's origin is the center of the sprite.
+  positionOffset: [ivec2, ivec2(0)]
+
+  clip: SpriteClipping
+
+  _cpp_only:
+    frameTimer: [float, 0]
+    pong: [bool, false]
+
+  _methods:
+      # play a tag animation.
+      # returns the duration of the animation in seconds.
+    - float playTag(const char *tagName, bool unpause=false)
+    - ivec2 getDrawPosition(const AABB &aabb) const
+
+
+SliceSpriteIntoPieces:
+  steps: [int, 1]

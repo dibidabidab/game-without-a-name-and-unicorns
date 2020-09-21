@@ -16,3 +16,6 @@
 [submodule "external/lua/sol2"]
 	path = external/lua/sol2
 	url = https://github.com/hilkojj/sol2.git
+[submodule "external/lua-serde"]
+	path = external/lua-serde
+	url = https://github.com/atasak/lua-serde.git

@@ -79,15 +79,10 @@ void UIScreen::initializeLuaEnvironment()
     };
 }
 
-static ivec2 textCursor = ivec2(0);
-static int currLineHeight = 0;
-
 void UIScreen::render(double deltaTime)
 {
     assert(indexedFbo != NULL);
     gu::profiler::Zone z("UI");
-    textCursor = ivec2(0);
-    currLineHeight = 0;
 
     lineRenderer.projection = cam.combined;
 
@@ -95,12 +90,19 @@ void UIScreen::render(double deltaTime)
 
     cursorPosition = cam.getCursorRayDirection() + cam.position;
 
-    {   // start of render tree:
+    {   // starting points of the render tree (UIElements that are NOT a Child):
 
-        entities.view<UIElement>(entt::exclude<Child>).each([&] (auto e, UIElement &) {
-            renderChild(e, deltaTime);
-            if (auto *parent = entities.try_get<Parent>(e))
-                renderFamily(*parent, deltaTime);
+        UIContainer uiContainer;
+        uiContainer.fixedHeight = cam.viewportHeight;
+        uiContainer.fixedWidth = cam.viewportWidth;
+        uiContainer.innerTopLeft = ivec2(cam.viewportWidth * -.5, cam.viewportHeight * .5);
+        uiContainer.innerHeight = cam.viewportHeight;
+        uiContainer.minX = uiContainer.innerTopLeft.x;
+        uiContainer.maxX = uiContainer.minX + cam.viewportWidth;
+        uiContainer.textCursor = uiContainer.innerTopLeft;
+
+        entities.view<UIElement>(entt::exclude<Child>).each([&] (auto e, UIElement &el) {
+            renderUIElement(e, el, uiContainer, deltaTime);
         });
     }
 
@@ -178,37 +180,113 @@ void UIScreen::renderDebugStuff()
     ImGui::EndMainMenuBar();
 }
 
-void UIScreen::renderFamily(const Parent &parent, double deltaTime)
+void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &container, double deltaTime)
 {
-    for (auto &child : parent.children)
-    {
-        renderChild(child, deltaTime);
-        Parent *childParent = entities.try_get<Parent>(child);
-        if (childParent)    // render grandchildren of `parent`
-            renderFamily(*childParent, deltaTime);
-    }
-}
+    if (el.startOnNewLine)
+        container.goToNewLine(el.lineSpacing);
 
-void UIScreen::renderChild(entt::entity childEntity, double deltaTime)
-{
-    if (auto *textView = entities.try_get<TextView>(childEntity))
-        textRenderer.add(*textView, 0, textCursor, currLineHeight);
+    if (auto *textView = entities.try_get<TextView>(e))
+        textRenderer.add(*textView, container, el);
 
-    else if (auto *spriteView = entities.try_get<AsepriteView>(childEntity))
+    else if (auto *spriteView = entities.try_get<AsepriteView>(e))
     {
         if (!spriteView->sprite.isSet())
             return;
-        spriteRenderer.add(*spriteView, textCursor);
-        textCursor.x += spriteView->sprite->width;
-    }
 
-    else if (auto *container = entities.try_get<UIContainer>(childEntity))
-    {
-        if (container->nineSliceSprite.isSet())
+        int width = spriteView->sprite->width, height = spriteView->sprite->height;
+
+        if (el.absolutePositioning)
         {
-            ivec2 size(container->fixedWidth, container->fixedHeight); // todo
+            ivec2 pos = el.getAbsolutePosition(container, width, height);
+            pos.y -= height;
+            spriteRenderer.add(*spriteView, pos + el.renderOffset);
+        }
+        else
+        {
+            container.resizeOrNewLine(width, el.lineSpacing);
 
-            nineSliceRenderer.add(container->nineSliceSprite.get(), ivec3(textCursor, 0), size);
+            if (container.centerAlign)
+                container.textCursor.x -= width / 2;
+
+            spriteRenderer.add(*spriteView, container.textCursor - ivec2(0, height) + el.renderOffset);
+            container.textCursor.x += width;
+
+            container.resizeLineHeight(height);
         }
     }
+
+    else if (auto *childContainer = entities.try_get<UIContainer>(e))
+        renderUIContainer(e, el, *childContainer, container, deltaTime);
+}
+
+void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &cont, UIContainer &parentCont, double deltaTime)
+{
+    ivec2 outerTopLeft;
+    if (el.absolutePositioning)
+        outerTopLeft = el.getAbsolutePosition(parentCont, cont.fixedWidth, cont.fixedHeight);
+    else
+        outerTopLeft = parentCont.textCursor + ivec2(el.margin.x, -el.margin.y);
+    outerTopLeft += el.renderOffset;
+
+    if (parentCont.centerAlign)
+        outerTopLeft.x -= cont.fixedWidth / 2;
+
+    cont.innerTopLeft = outerTopLeft + cont.padding * ivec2(1, -1);
+
+    if (cont.nineSliceSprite.isSet())
+    {
+        cont.spriteSlice = &cont.nineSliceSprite->getSliceByName("9slice", 0);
+        cont.nineSlice = cont.spriteSlice->nineSlice.has_value() ? &cont.spriteSlice->nineSlice.value() : NULL;
+    }
+
+    if (cont.nineSlice)
+        cont.innerTopLeft += cont.nineSlice->topLeftOffset * ivec2(1, -1);
+
+    ivec2 size(cont.fixedWidth, cont.fixedHeight);
+
+    if (cont.fillRemainingParentHeight)
+    {
+        int maxY = parentCont.innerTopLeft.y - parentCont.innerHeight;
+        int minY = el.absolutePositioning ? parentCont.innerTopLeft.y : outerTopLeft.y;
+        size.y = minY - maxY;
+    }
+    if (cont.fillRemainingParentWidth)
+    {
+        int minX = el.absolutePositioning ? parentCont.minX : parentCont.textCursor.x;
+        size.x = parentCont.maxX - minX;
+    }
+
+    cont.innerHeight = size.y - (outerTopLeft.y - cont.innerTopLeft.y) * 2;
+
+    cont.minX = cont.innerTopLeft.x;
+    cont.maxX = cont.minX + size.x - cont.padding.x * 2;
+    cont.textCursor = cont.innerTopLeft;
+    cont.resetCursorX();
+
+    if (cont.nineSlice)
+        cont.maxX -= (cont.spriteSlice->width - cont.nineSlice->innerSize.x - cont.nineSlice->topLeftOffset.x) * 2;
+
+    int originalMaxX = cont.maxX;
+
+    cont.currentLineHeight = 0;
+    if (auto *parent = entities.try_get<Parent>(e))
+        for (auto child : parent->children)
+            if (auto *childEl = entities.try_get<UIElement>(child))
+                renderUIElement(child, *childEl, cont, deltaTime);
+
+    if (cont.autoHeight)
+    {
+        size.y = -(cont.textCursor.y - outerTopLeft.y) + cont.currentLineHeight + cont.padding.y;
+
+        if (cont.nineSlice)
+            size.y += cont.spriteSlice->height - cont.nineSlice->innerSize.y - cont.nineSlice->topLeftOffset.y;
+    }
+    if (cont.autoWidth)
+        size.x += cont.maxX - originalMaxX;
+
+    if (cont.nineSlice)
+        nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(outerTopLeft, 0), size);
+
+    parentCont.textCursor.x += size.x + el.margin.x * 2;
+    parentCont.resizeLineHeight(size.y + el.margin.y * 2);
 }

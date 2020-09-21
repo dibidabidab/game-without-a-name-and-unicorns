@@ -1,0 +1,36 @@
+
+PlatformerMovementInput:
+
+  jump: [bool, false]
+  fall: [bool, false]
+  left: [bool, false]
+  right: [bool, false]
+  attack: [bool, false]
+
+  _hash:
+    [jump, fall, left, right]
+
+
+
+PlatformerMovement:
+  walkVelocity: [float, 90]
+  jumpVelocity: [float, 380]
+  maxJumpVelocity: [float, 500]
+  coyoteTime: [float, .25]
+  jumpAntiGravity: [float, .7]
+  airControl: [float, 6]
+  swimVelocity: [float, 960]
+  spawnDustTrails: [bool, true]
+
+  _cpp_only:
+    fallPressedTimer: [float, 0]
+    jumpPressedSinceBegin: [bool, false]
+    currentlyJumping: [bool, false]
+
+
+Flip:
+  horizontal: [bool, false]
+  vertical: [bool, false]
+
+  _hash:
+    [horizontal, vertical]

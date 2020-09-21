@@ -3,7 +3,6 @@
 #define GAME_LUA_CONVERTERS_H
 
 #include "../luau.h"
-#include "macro_helpers.h"
 #include "sfinae.h"
 
 #include <iostream>
@@ -11,6 +10,8 @@
 #include <utils/type_name.h>
 #include <utils/math_utils.h>
 #include <asset_manager/asset.h>
+
+#include "../../external/entt/src/entt/entity/registry.hpp"
 
 HAS_MEM_FUNC(toLuaTable, has_toLuaTable_function)
 HAS_MEM_FUNC(fromLuaTable, has_fromLuaTable_function)
@@ -131,6 +132,28 @@ struct lua_converter<asset<type>>
             luaVal = asset.getLoadedAsset().shortPath;
         else
             luaVal = "";
+    }
+};
+
+template<>
+struct lua_converter<entt::entity>
+{
+    static void fromLua(sol::object v, entt::entity &e)
+    {
+        if (!v.valid())
+            return;
+
+        auto optional = v.as<sol::optional<int>>();
+        e = optional.has_value() ? entt::entity(optional.value()) : entt::null;
+    }
+
+    template<typename luaRef>
+    static void toLua(luaRef &luaVal, const entt::entity &e)
+    {
+        if (e == entt::null)
+            luaVal = sol::nil;
+        else
+            luaVal = int(e);
     }
 };
 
@@ -285,42 +308,5 @@ struct lua_converter<json>
     }
 };
 
-
-// MACROS FOR Lua->Struct
-
-#define PULL_FIELD_OUT_LUA_TABLE(field) \
-    __PULL_FIELD_OUT_LUA_TABLE__(EAT field)
-
-#define __PULL_FIELD_OUT_LUA_TABLE__(X)  \
-    lua_converter<ARGTYPE(X)>::fromLua(table[ARGNAME_AS_STRING(X)], ARGNAME(X))
-
-
-// the macro to be used in serializable.h:
-#define FROM_LUA_TABLE(...)\
-    DOFOREACH_SEMICOLON(PULL_FIELD_OUT_LUA_TABLE, __VA_ARGS__)
-
-// END MACROS FOR Lua->Struct
-
-
-
-
-// MACROS FOR Struct->Lua
-
-#define PUT_FIELD_IN_LUA_TABLE(field) \
-    __PUT_FIELD_IN_LUA_TABLE__(EAT field)
-
-#define __PUT_FIELD_IN_LUA_TABLE__(X) \
-    {\
-        auto ref = table[ARGNAME_AS_STRING(X)];\
-        lua_converter<ARGTYPE(X)>::toLua(ref, ARGNAME(X));\
-    }
-
-
-// the other macro to be used in serializable.h:
-#define TO_LUA_TABLE(...)\
-    DOFOREACH_SEMICOLON(PUT_FIELD_IN_LUA_TABLE, __VA_ARGS__)
-
-
-// END MACROS FOR Struct->Lua
 
 #endif //GAME_LUA_CONVERTERS_H

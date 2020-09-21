@@ -6,6 +6,8 @@ imgui.ini
 settings.json
 saves/*
 
+source/generated/*
+
 desktop/out/*
 html/out/*
 
