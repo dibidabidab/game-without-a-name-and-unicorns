@@ -1,7 +1,7 @@
-mtlib       = include("scripts/util/math")
-treeConfigs = include("scripts/entities/level_room/foliage/_Tree.config")
+mtlib        = include("scripts/util/math")
+treeConfigs  = include("scripts/entities/level_room/foliage/_Tree.config")
 
-treeConfigs = include("scripts/entities/level_room/foliage/_Tree.branches")
+branchSystem = include("scripts/entities/level_room/foliage/_Tree.branches")
 
 function resetDefaults()
     defaultArgs({
