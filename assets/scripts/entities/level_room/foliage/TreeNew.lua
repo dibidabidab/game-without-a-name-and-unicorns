@@ -1,7 +1,7 @@
-mtlib        = include("scripts/util/math")
-treeConfigs  = include("scripts/tmp/Tree.config")
+mtlib       = include("scripts/util/math")
+treeConfigs = include("scripts/entities/level_room/foliage/_Tree.config")
 
-branchSystem = include("scripts/tmp/Tree.branches")
+treeConfigs = include("scripts/entities/level_room/foliage/_Tree.branches")
 
 function resetDefaults()
     defaultArgs({
@@ -17,7 +17,7 @@ end
 
 function rootState      (treeType, zIndex, age)
     local treeConfig        = treeConfigs[treeType]
-    local tendencyDirection = mtlib.select(treeConfig.tendency=="direction", treeConfig.tendencyDirection, 0)
+    local tendencyDirection = mtlib.select(treeConfig.tendency == "direction", treeConfig.tendencyDirection, 0)
     return {
         name              = treeType,
         age               = age,
@@ -31,7 +31,7 @@ function rootState      (treeType, zIndex, age)
         totalPieces       = 0,
         baseWidth         = 0,
 
-        branchlessStart = mtlib.random(treeConfig.branchlessStart),
+        branchlessStart   = mtlib.random(treeConfig.branchlessStart),
 
         pieceLength       = treeConfig.pieceLength,
         pieceAmount       = treeConfig.pieceAmount,

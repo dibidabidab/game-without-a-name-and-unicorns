@@ -1,5 +1,5 @@
 mtlib       = include("scripts/util/math")
-treeConfigs = include("scripts/tmp/Tree.config")
+treeConfigs  = include("scripts/entities/level_room/foliage/_Tree.config")
 
 function entityTable(pieceEntity, parent, angle, zIndex)
 
