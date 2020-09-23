@@ -6,7 +6,7 @@ branchSystem = include("scripts/entities/level_room/foliage/_Tree.branches")
 function resetDefaults()
     defaultArgs({
                     zIndex = -600 - math.random(200),
-                    age    = 1, --mtlib.random(treeConfigs.ageRange),
+                    age    = 100, --mtlib.random(treeConfigs.ageRange),
                     seed   = math.random(math.random(1000000000)),
                     type   = "oak",
                 })

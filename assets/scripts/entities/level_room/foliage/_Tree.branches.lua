@@ -1,5 +1,6 @@
 mtlib       = include("scripts/util/math")
-treeConfigs  = include("scripts/entities/level_room/foliage/_Tree.config")
+fslib       = include("scripts/util/functionalState")
+treeConfigs = include("scripts/entities/level_room/foliage/_Tree.config")
 
 function entityTable(pieceEntity, parent, angle, zIndex)
 
@@ -8,7 +9,7 @@ function entityTable(pieceEntity, parent, angle, zIndex)
 
         DrawPolyline = {
             colors      = { colors.wood },
-            lineWidth     = 0,
+            lineWidth   = 0,
             zIndexBegin = zIndex.min,
             zIndexEnd   = zIndex.max,
         },
@@ -31,15 +32,15 @@ end
 
 function updateFunction(width, length, treeState)
     return function(dTime, entity, _)
-        local lengthRange = mtlib.range(length)
-        local widthRange  = mtlib.range(width)
-        local growthStart = mtlib.interpolate(mtlib.range(treeState.baseWidth), treeConfigs.ageRangeDs,
-                                              math.sqrt(treeState.baseWidth) - math.sqrt(width))
-        local growthRange = mtlib.range(growthStart, treeConfigs.ageRange.max)
+        local lengthRange    = mtlib.range(length)
+        local widthRange     = mtlib.range(width)
+        local growthStart    = mtlib.interpolate(mtlib.range(treeState.baseWidth), treeConfigs.ageRangeDs,
+                                                 math.sqrt(treeState.baseWidth) - math.sqrt(width))
+        local growthRange    = mtlib.range(growthStart, treeConfigs.ageRange.max)
 
         local updateFunction = function(dTime, entity, _)
-            currentLength     = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
-            currentWidth      = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
+            currentLength = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
+            currentWidth  = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
 
             setComponent(entity, "VerletRope", {
                 length = currentLength
@@ -134,22 +135,20 @@ function crown(parent, treeConfig, treeState)
 end
 
 function doBranch(parent, treeConfig, treeState, angle)
-    local bLength          = treeState.length
-    local bBranchlessStart = treeState.branchlessStart
-    treeState.angle        = treeState.angle + angle
-    treeState.length       = 0
-    treeState.depth        = treeState.depth + 1
+
     mtlib.rangeMult(treeState.pieceAmount, treeState.pieceAmountFct or 1)
-    treeState.branchLength    = treeState.branchLength * (treeConfig.branchLengthFct or 1)
-    treeState.branchlessStart = mtlib.random(treeConfig.branchlessStart)
 
-    local width               = piece(parent, treeConfig, treeState)
+    local width = fslib.functionalState(treeState, function(update)
+        update("angle", treeState.angle + angle)
+        update("length", 0)
+        update("depth", treeState.depth + 1)
+        update("branchLength", treeState.branchLength * (treeConfig.branchLengthFct or 1))
+        update("branchlessStart", mtlib.random(treeConfig.branchlessStart))
 
-    treeState.length          = bLength
-    treeState.depth           = treeState.depth - 1
+        return piece(parent, treeConfig, treeState)
+    end)
+
     mtlib.rangeDiv(treeState.pieceAmount, treeState.pieceAmountFct or 1)
-    treeState.branchLength    = treeState.branchLength / (treeConfig.branchLengthFct or 1)
-    treeState.branchlessStart = bBranchlessStart
     return width
 end
 
