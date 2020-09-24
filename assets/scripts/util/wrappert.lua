@@ -1,4 +1,4 @@
-function functionalState(state, fn)
+function wrappert(state, fn)
     local ststate = {}
 
     function update (key, value)
@@ -9,8 +9,9 @@ function functionalState(state, fn)
     local ret = fn(update)
 
     for i = #ststate, 1, -1 do
-        key, value = ststate[i]
-        state[key] = value
+        print(i)
+        kv           = ststate[i]
+        state[kv[1]] = kv[2]
     end
 
     return ret

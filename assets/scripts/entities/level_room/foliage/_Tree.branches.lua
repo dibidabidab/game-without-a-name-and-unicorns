@@ -1,5 +1,5 @@
 mtlib       = include("scripts/util/math")
-fslib       = include("scripts/util/functionalState")
+fslib       = include("scripts/util/wrappert")
 treeConfigs = include("scripts/entities/level_room/foliage/_Tree.config")
 
 function entityTable(pieceEntity, parent, angle, zIndex)
@@ -65,55 +65,55 @@ function updateFunction(width, length, treeState)
 end
 
 function piece          (parent, treeConfig, treeState, entity)
-    entity                = entity or createChild(parent, "branch")
+    entity       = entity or createChild(parent, "branch")
+    local length = mtlib.random(treeState.pieceLength)
 
-    local length          = mtlib.random(treeState.pieceLength)
-
-    local bAngle          = treeState.angle
-    treeState.length      = treeState.length + length
-    treeState.totalLength = treeState.totalLength + length
-    treeState.pieces      = treeState.pieces + 1
-    treeState.totalPieces = treeState.totalPieces + 1
     mtlib.rangeMult(treeState.pieceLength, treeConfig.pieceLengthFct or 1)
-    treeState.tendencyStrength = treeState.tendencyStrength * (treeConfig.tendencyStrengthRdc or 1)
+    print("piece")
 
-    tendency(treeConfig, treeState)
-    local width = treePieces(entity, treeConfig, treeState)
-    entityTable(entity, parent, treeState.angle, mtlib.range(treeState.zIndex, treeState.zIndex))
-    setUpdateFunction(entity, .1, updateFunction(width, length, treeState))
+    local width = fslib.wrappert(treeState, function(update)
+        print("piecef")
+        update("length", treeState.length + length)
+        update("totalLength", treeState.totalLength + length)
+        update("pieces", treeState.pieces + 1)
+        update("totalPieces", treeState.totalPieces + 1)
+        update("tendencyStrength", treeState.tendencyStrength * (treeConfig.tendencyStrengthRdc or 1))
 
-    treeState.length      = treeState.length + length
-    treeState.totalLength = treeState.totalLength - length
-    treeState.pieces      = treeState.pieces - 1
-    treeState.totalPieces = treeState.totalPieces - 1
+        tendency(treeConfig, treeState, update)
+        local width = treePieces(entity, treeConfig, treeState)
+        entityTable(entity, parent, treeState.angle, mtlib.range(treeState.zIndex, treeState.zIndex))
+        setUpdateFunction(entity, .1, updateFunction(width, length, treeState))
+        return width
+    end)
+
     mtlib.rangeDiv(treeState.pieceLength, treeConfig.pieceLengthFct or 1)
-    treeState.tendencyStrength = treeState.tendencyStrength / (treeConfig.tendencyStrengthRdc or 1)
-    treeState.angle            = bAngle
 
     return width
 end
 
-function continueBranch (parent, treeConfig, treeState)
-    local angle     = mtlib.random(treeConfig.pieceAngle)
-    treeState.angle = treeState.angle + angle
-
-    local width     = piece(parent, treeConfig, treeState)
-
-    return width
-end
-
-function tendency (treeConfig, treeState)
+function tendency (treeConfig, treeState, update)
     if treeConfig.tendency ~= "out" and treeConfig.tendency ~= "direction" then return end
 
-    while math.abs(treeState.angle - treeState.tendencyDirection) > 180 do
-        if treeState.angle < treeState.tendencyDirection then
-            treeState.angle = treeState.angle + 360 else
-            treeState.angle = treeState.angle - 360
+    local angle = treeState.angle
+
+    while math.abs(angle - treeState.tendencyDirection) > 180 do
+        if angle < treeState.tendencyDirection then
+            angle = angle + 360
+        else
+            angle = angle - 360
         end
     end
 
-    treeState.angle = mtlib.linearSelect(mtlib.range(treeState.angle, treeState.tendencyDirection),
-                                         treeState.tendencyStrength)
+    update("angle", mtlib.linearSelect(mtlib.range(angle, treeState.tendencyDirection), treeState.tendencyStrength))
+end
+
+function continueBranch (parent, treeConfig, treeState)
+    local angle = mtlib.random(treeConfig.pieceAngle)
+
+    return fslib.wrappert(treeState, function(update)
+        update("angle", treeState.angle + angle)
+        return piece(parent, treeConfig, treeState)
+    end)
 end
 
 function branch(parent, treeConfig, treeState)
@@ -138,7 +138,7 @@ function doBranch(parent, treeConfig, treeState, angle)
 
     mtlib.rangeMult(treeState.pieceAmount, treeState.pieceAmountFct or 1)
 
-    local width = fslib.functionalState(treeState, function(update)
+    local width = fslib.wrappert(treeState, function(update)
         update("angle", treeState.angle + angle)
         update("length", 0)
         update("depth", treeState.depth + 1)
