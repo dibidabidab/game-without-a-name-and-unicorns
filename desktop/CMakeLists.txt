@@ -56,8 +56,7 @@ find_package(PythonInterp 3.7 REQUIRED)
 
 add_custom_target(
         generate_structs ALL
-        COMMAND ${PYTHON_EXECUTABLE} ../external/lua-serde/lua-json-serde.py ../source/generated/ ../macro_magic/includes_for_generated_structs.h ../source/
-        BYPRODUCTS ./source/generated/include_all.hpp
+        COMMAND ${PYTHON_EXECUTABLE} ../external/lua-serde/lua-json-serde.py ../source/generated/ ../source/
         COMMENT "Generating structs from yaml"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
