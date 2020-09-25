@@ -1,3 +1,8 @@
+config:
+  hpp_incl:
+    - ../rendering/level/room/tile_map/TileSet.h
+
+
 tile_update:
   _flags:
     - not_a_component

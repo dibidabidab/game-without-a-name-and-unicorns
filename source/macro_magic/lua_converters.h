@@ -143,6 +143,7 @@ int sol_lua_push(sol::types<asset<type>>, lua_State* L, const asset<type>& asset
     return 1;
 }
 
+// TODO: SOL FUNCTIONS FOR entt::entity, (nil<->entity::null), and replace lambda int args with entt::entity!!!!!!
 
 template<typename type>
 struct lua_converter<asset<type>>

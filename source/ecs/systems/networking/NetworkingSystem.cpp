@@ -72,10 +72,9 @@ void NetworkingSystem::onNetworkedEntityDestroyed(entt::registry &reg, entt::ent
     std::cout << "Entity " << int(entity) << ":" << networked.networkID << " destroyed\n";
     networkIdToEntity.erase(networked.networkID);
 
-    Packet::from_server::entity_destroyed packet {
-            room->getIndexInLevel(),
-            networked.networkID
-    };
+    Packet::from_server::entity_destroyed packet;
+    packet.roomI = room->getIndexInLevel();
+    packet.networkId = networked.networkID;
     return mpSession->sendPacketToPlayers(packet, playersInRoom);
 }
 
@@ -83,10 +82,9 @@ void NetworkingSystem::update(double deltaTime, EntityEngine *)
 {
     if (mpSession->isServer() && !room->getMap().updatesSinceLastUpdate().empty())
     {
-        Packet::from_server::tilemap_update update {
-            room->getIndexInLevel(),
-            room->getMap().updatesSinceLastUpdate()
-        };
+        Packet::from_server::tilemap_update update;
+        update.roomI = room->getIndexInLevel();
+        update.tileUpdates = room->getMap().updatesSinceLastUpdate();
         mpSession->sendPacketToAllPlayers(update);
     }
 
@@ -182,22 +180,23 @@ void NetworkingSystem::handleEntityDestroyed(Packet::from_server::entity_destroy
 
 Packet::from_server::entity_created NetworkingSystem::entityCreatedPacket(Networked &networked)
 {
-    return Packet::from_server::entity_created {
-            room->getIndexInLevel(),
-            networked.networkID,
-            networked.templateHash
-    };
+    Packet::from_server::entity_created packet;
+    packet.roomI = room->getIndexInLevel();
+    packet.networkId = networked.networkID;
+    packet.entityTemplateHash = networked.templateHash;
+    return packet;
 }
 
 Packet::entity_data_update
 NetworkingSystem::dataUpdatePacket(Networked &networked, json &data, NetworkedData_ptr &dataType)
 {
-    return Packet::entity_data_update {
-            room->getIndexInLevel(),
-            networked.networkID,
-            dataType->getDataTypeHash(),
-            data
-    };
+    Packet::entity_data_update packet;
+
+    packet.roomI = room->getIndexInLevel();
+    packet.entityNetworkId = networked.networkID;
+    packet.dataTypeHash = dataType->getDataTypeHash();
+    packet.jsonData = data;
+    return packet;
 }
 
 NetworkedData_ptr NetworkingSystem::getDataType(bool receiving, entt::entity e, Networked& n, int dataTypeHash)
@@ -229,11 +228,10 @@ void NetworkingSystem::sendIfNeeded(NetworkedData_ptr &d, entt::entity e, Networ
 
     if (wasPresent && !isPresent)
     {
-        Packet::entity_data_removed packet {
-                room->getIndexInLevel(),
-                networked.networkID,
-                d->getDataTypeHash()
-        };
+        Packet::entity_data_removed packet;
+        packet.roomI = room->getIndexInLevel();
+        packet.entityNetworkId = networked.networkID;
+        packet.dataTypeHash = d->getDataTypeHash();
         if (mpSession->isServer())
             mpSession->sendPacketToPlayers(packet, playersInRoom);
         else

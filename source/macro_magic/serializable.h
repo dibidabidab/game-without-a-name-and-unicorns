@@ -8,6 +8,15 @@
 #include <json.hpp>
 #include <utils/gu_error.h>
 
+template <typename T>
+inline std::string to_string(
+        const T &
+)
+{
+    static auto name = "<" + getTypeName<T>() + ">";
+    return name;
+}
+
 
 template <typename T>
 inline void getTo(T &v, const json &json)

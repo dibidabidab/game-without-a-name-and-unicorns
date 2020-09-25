@@ -66,7 +66,8 @@ MultiplayerServerSession::MultiplayerServerSession(SocketServer *server, const c
                 std::cout << player->name << " @" << player->io->socket->url << " joined!\n";
             else
             {
-                join_request_declined p { declineReason };
+                join_request_declined p;
+                p.reason = declineReason;
                 player->io->send(p);
             }
             delete req;
@@ -86,14 +87,16 @@ bool MultiplayerServerSession::handleJoinRequest(Player_ptr &player, join_reques
 
     player->name = req->name;
 
-    player_joined msg { *player };
+    player_joined msg;
+    msg.player = *player;
     sendPacketToAllPlayers(msg); // send to all players, except newly joined player
 
     players.push_back(player);
 
     if (player->io)
     {
-        join_request_accepted acceptMsg { player->id };
+        join_request_accepted acceptMsg;
+        acceptMsg.yourPlayerId = player->id;
         for (auto &p : players) acceptMsg.players.push_back(*p.get());
 
         player->io->send(acceptMsg);
@@ -153,7 +156,8 @@ void MultiplayerServerSession::handleLeavingPlayers()
         {
             auto deleted = deletePlayer(pId, players);
             std::cout << deleted->name << " @" << deleted->io->socket->url << " left\n";
-            player_left msg { pId };
+            player_left msg;
+            msg.playerId = pId;
             sendPacketToAllPlayers(msg);
             removePlayerEntities(pId);
         }
@@ -184,6 +188,8 @@ void MultiplayerServerSession::join(std::string username)
     Player_ptr p = std::make_shared<Player>();
     p->id = ++playerIdCounter;
     std::string declineReason;
-    if (!handleJoinRequest(p, new join_request { username }, declineReason))
+    auto jr = new join_request;
+    jr->name = username;
+    if (!handleJoinRequest(p, jr, declineReason))
         onJoinRequestDeclined(declineReason);
 }

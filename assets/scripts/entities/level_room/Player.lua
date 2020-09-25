@@ -2,7 +2,7 @@ function create(player)
 
     --print(component)
     --
-    print(component.StaticCollider.getFor(player).gravity)
+    --print(component.StaticCollider.getFor(player).gravity)
 
     leftLeg = createChild(player, "leftLeg")
     rightLeg = createChild(player, "rightLeg")

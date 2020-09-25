@@ -16,13 +16,5 @@
 struct AABB;
 #include "../ecs/systems/physics/TerrainCollisionDetector.h"
 
-template <typename T>
-inline std::string to_string(
-        const T &
-)
-{
-    static auto name = "<" + getTypeName<T>() + ">";
-    return name;
-}
 
 #endif

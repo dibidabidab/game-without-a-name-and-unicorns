@@ -1,4 +1,7 @@
-
+config:
+  hpp_incl:
+    - "../ecs/systems/networking/NetworkedDataList.h"
+    - "../ecs/systems/networking/NetworkedDataGroup.h"
 
 # Useful for sending or receiving data associated with an entity over the network
 Networked:

@@ -1,3 +1,8 @@
+config:
+  hpp_incl:
+    - utils/aseprite/Aseprite.h
+  fwd_decl:
+    - AABB
 
 SpriteClipping:
     lowerLeft: u8vec2

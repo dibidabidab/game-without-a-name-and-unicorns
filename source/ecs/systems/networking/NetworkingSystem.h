@@ -6,6 +6,7 @@
 #include "../EntitySystem.h"
 #include "../../../game/session/Player.h"
 #include "../../../game/session/multiplayer/packets.h"
+#include "NetworkedDataList.h"
 
 class MultiplayerSession;
 

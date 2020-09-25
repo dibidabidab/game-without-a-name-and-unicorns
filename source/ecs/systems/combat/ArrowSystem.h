@@ -48,12 +48,12 @@ class ArrowSystem : public EntitySystem
                     return;
                 }
 
-                healthOther.attacks.push_back({
-                    arrow.damageType,
-                    1,
-                    arrow.launchedBy,
-                    vec2(aabb.center) - physics.velocity
-                });
+                Damage attack;
+                attack.points = 1;
+                attack.type = arrow.damageType;
+                attack.dealtBy = arrow.launchedBy;
+                attack.sourcePosition = vec2(aabb.center) - physics.velocity;
+                healthOther.attacks.push_back(attack);
                 enemyHit = true;
             });
             if (enemyHit)

@@ -79,7 +79,11 @@ void TileMap::setTile(uint8 x, uint8 y, Tile tile, TileMaterial material, bool r
 
     if (registerAsUpdate)
     {
-        tile_update update { x, y, uint8(tile), material };
+        tile_update update;
+        update.x = x;
+        update.y = y;
+        update.newTile = uint8(tile);
+        update.newTileMaterial = material;
         tileUpdatesSinceLastUpdate.push_back(update);
     }
 

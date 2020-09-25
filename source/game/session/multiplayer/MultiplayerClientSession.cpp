@@ -102,7 +102,8 @@ void MultiplayerClientSession::update(double deltaTime)
 
 void MultiplayerClientSession::join(std::string username)
 {
-    join_request req { std::move(username) };
+    join_request req;
+    req.name = username;
     io.send(req);
 }
 
