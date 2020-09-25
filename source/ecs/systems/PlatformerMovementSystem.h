@@ -148,25 +148,28 @@ class PlatformerMovementSystem : public EntitySystem
     {
         entt::entity e = room->entities.create();
 
-        room->entities.assign<AABB>(e, ivec2(3), position);
-        auto &view = room->entities.assign<AsepriteView>(e, asset<aseprite::Sprite>("sprites/dust_trails"));
+        room->entities.assign<AABB>(e).center = position;
+
+        auto &view = room->entities.assign<AsepriteView>(e);
+        view.sprite = asset<aseprite::Sprite>("sprites/dust_trails");
         view.originAlign.y = 0;
 
         float duration = view.playTag(animationName);
 
-        room->entities.assign<DespawnAfter>(e, duration);
+        room->entities.assign<DespawnAfter>(e).time = duration;
     }
 
     void spawnLandingSpeaker(float velocity)
     {
         entt::entity e = room->entities.create();
 
-        auto &s = room->entities.assign<SoundSpeaker>(e, asset<au::Sound>("sounds/landing"));
+        auto &s = room->entities.assign<SoundSpeaker>(e);
+        s.sound = asset<au::Sound>("sounds/landing");
         s.pitch = 2.f - std::min(1.f, std::max(0.f, velocity * -.0025f));
 
         s.volume = std::min(1.f, std::max(0.f, velocity * -.0003f));
 
-        room->entities.assign<DespawnAfter>(e, 1.f);
+        room->entities.assign<DespawnAfter>(e).time = 1;
     }
 
 };

@@ -21,7 +21,8 @@ inline std::string to_string(
         const T &
 )
 {
-    return "lol";
+    static auto name = "<" + getTypeName<T>() + ">";
+    return name;
 }
 
 #endif

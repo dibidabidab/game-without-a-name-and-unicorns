@@ -39,7 +39,7 @@ void SpriteSlicerSystem::update(double deltaTime, EntityEngine *room)
         room->entities.assign<AABB>(e, *aabbIt);
         room->entities.assign<AsepriteView>(e, *viewIt);
         room->entities.assign<Physics>(e, *physicsIt);
-        room->entities.assign<DespawnAfter>(e, mu::random(.3, 4));
+        room->entities.assign<DespawnAfter>(e).time = mu::random(.3, 4);
 
         ++aabbIt;
         ++viewIt;

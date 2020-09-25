@@ -23,8 +23,9 @@ class ArrowSystem : public EntitySystem
             if (physics.touches.anything) // Terrain
             {
                 room->entities.remove<Physics>(e);
-                room->entities.assign<DespawnAfter>(e, mu::random(60, 100));
-                auto &s = room->entities.assign<SoundSpeaker>(e, asset<au::Sound>("sounds/arrow_hit"));
+                room->entities.assign<DespawnAfter>(e).time = mu::random(60, 100);
+                auto &s = room->entities.assign<SoundSpeaker>(e);
+                s.sound = asset<au::Sound>("sounds/arrow_hit");
                 s.pitch = mu::random(.8, 1.2);
                 s.volume = .18;
                 return;

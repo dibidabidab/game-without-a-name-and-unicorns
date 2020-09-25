@@ -10,6 +10,7 @@ tile_update:
 TileMaterialProperties:
   _flags:
     - not_a_component
+    - json_with_keys
 
   name: std::string
   tileSet: asset<TileSet>

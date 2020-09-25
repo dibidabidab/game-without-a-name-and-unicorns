@@ -19,6 +19,8 @@ struct ComponentUtils
     std::function<void(const sol::table &, entt::entity, entt::registry &)> setFromLuaTable;
     std::function<void(sol::table &, entt::entity, const entt::registry &)> getToLuaTable;
 
+    std::function<void(sol::table &, entt::registry &)> registerLuaFunctions;
+
     template <class Component>
     const static ComponentUtils *create()
     {
@@ -31,12 +33,12 @@ struct ComponentUtils
 
         auto u = new ComponentUtils();
 
-        utils->operator[](Component::COMPONENT_NAME) = u;
+        (*utils)[Component::COMPONENT_NAME] = u;
         names->push_back(Component::COMPONENT_NAME);
 
         u->entityHasComponent = [] (entt::entity e, const entt::registry &reg)
         {
-            return reg.valid(e) ? reg.has<Component>(e) : false;
+            return reg.valid(e) ? reg.has<Component>(e) : false;    // todo: why the valid() check?
         };
         u->getJsonComponent = [] (json &j, entt::entity e, const entt::registry &reg)
         {
@@ -56,7 +58,7 @@ struct ComponentUtils
         };
         u->removeComponent = [] (entt::entity e, entt::registry &reg)
         {
-            reg.remove<Component>(e);
+            reg.remove_if_exists<Component>(e);
         };
         u->getDefaultJsonComponent = [] { return Component(); };
 
@@ -65,6 +67,11 @@ struct ComponentUtils
         };
         u->getToLuaTable = [] (sol::table &table, entt::entity e, const entt::registry &reg) {
             reg.get<Component>(e).toLuaTable(table);
+        };
+
+        u->registerLuaFunctions = [] (sol::table &table, entt::registry &reg) {
+
+            Component::registerEntityEngineFunctions(table, reg);
         };
 
         return u;

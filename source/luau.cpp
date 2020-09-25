@@ -103,6 +103,12 @@ sol::state &luau::getLuaState()
 
         env["vec"] = &vec;
 
+        assert(env["vec"].get_type() == sol::type::userdata);
+
+        std::cout << env["vec"]["__type"]["name"].get<std::string>() << '\n';
+
+        std::cout << int(env["vec"].get_type()) << '\n';
+
         lua->unsafe_script("vec.tests[1].poepie = 12345");
 
         assert(vec.tests[0].poepie == 12345);

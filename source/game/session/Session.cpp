@@ -65,7 +65,9 @@ void Session::spawnPlayerEntity(Player_ptr &p, bool networked)
 
         auto &templ = spawnRoom->getTemplate("Player");
         auto e = networked ? templ.createNetworked() : templ.create();
-        spawnRoom->entities.assign<PlayerControlled>(e, p->id);
+        PlayerControlled pc;
+        pc.playerId = p->id;
+        spawnRoom->entities.assign<PlayerControlled>(e, pc);
         if (p == localPlayer)
             spawnRoom->entities.assign<LocalPlayer>(e);
     }

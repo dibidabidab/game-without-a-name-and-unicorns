@@ -9,6 +9,9 @@ DamageType:
 
 
 Damage:
+  _flags:
+    - not_a_component
+
   type: string
   points: [ int, 0 ]
   dealtBy: [ entt::entity, entt::null ]

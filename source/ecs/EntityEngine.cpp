@@ -176,6 +176,10 @@ void EntityEngine::initializeLuaEnvironment()
     env["onEvent"] = [&](const char *eventName, const sol::function &listener) {
         events.on(eventName, listener);
     };
+
+    auto componentUtilsTable = env["component"].get_or_create<sol::table>();
+    for (auto &componentName : ComponentUtils::getAllComponentTypeNames())
+        ComponentUtils::getFor(componentName)->registerLuaFunctions(componentUtilsTable, entities);
 }
 
 void EntityEngine::luaTableToComponent(entt::entity e, const std::string &componentName, const sol::table &component)
@@ -194,7 +198,10 @@ const ComponentUtils &EntityEngine::componentUtils(const std::string &componentN
 
 void EntityEngine::setParent(entt::entity child, entt::entity parent, const char *childName)
 {
-    entities.assign<Child>(child, parent, childName);
+    Child c;
+    c.parent = parent;
+    c.name = childName;
+    entities.assign<Child>(child, c);
 }
 
 entt::entity EntityEngine::createChild(entt::entity parent, const char *childName)
