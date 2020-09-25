@@ -10,18 +10,17 @@
 #include "../../macro_magic/component.h"
 #include "../../generated/Saving.hpp"
 
-class LuaEntityTemplate : public EntityTemplate
-{
+class LuaEntityTemplate : public EntityTemplate {
     sol::environment env;
 
-    sol::function createFunc;
+    sol::safe_function createFunc;
     std::string description;
     sol::table defaultArgs;
 
     Persistent persistency;
     bool persistentArgs = false;
 
-  public:
+public:
     const std::string name;
 
     asset<luau::Script> script;
@@ -38,7 +37,7 @@ class LuaEntityTemplate : public EntityTemplate
 
     void createComponentsWithLuaArguments(entt::entity, sol::optional<sol::table> arguments, bool persistent);
 
-  protected:
+protected:
 
     void runScript();
 

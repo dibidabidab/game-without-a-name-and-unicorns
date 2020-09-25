@@ -1,3 +1,15 @@
+function ntRange(min, max)
+    return {
+        min = min,
+        max = max,
+        fn  = function(value)
+            if math.random(0, 1) == 0 then
+                return value else
+                return -value end
+        end
+    }
+end
+
 function rangeDev(dev)
     return range(-dev, dev)
 end
@@ -78,6 +90,10 @@ end
 
 function interpolateCap (from, to, value)
     return interpolate(from, to, cap(from, value))
+end
+
+function linearSelect(range, value)
+    return range.fn(range.min * (1 - value) + range.max * value)
 end
 
 function rotate         (rotation, angle)

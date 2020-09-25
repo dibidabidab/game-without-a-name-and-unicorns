@@ -1,13 +1,12 @@
-
 Persistent:
   applyTemplateOnLoad: std::string
-  data: json
+  data: [ json, json::object() ]
 
-  saveFinalPosition: [bool, false]
-  saveSpawnPosition: [bool, false]
-  spawnPosition: [ivec2, ivec2(0)]
+  saveFinalPosition: [ bool, false ]
+  saveSpawnPosition: [ bool, false ]
+  spawnPosition: [ ivec2, ivec2(0) ]
 
-  revive: [bool, false]
-  saveAllComponents: [bool, false]
+  revive: [ bool, false ]
+  saveAllComponents: [ bool, false ]
   saveComponents: std::vector<std::string>
 
