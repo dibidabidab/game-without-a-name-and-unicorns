@@ -94,6 +94,16 @@ void EntityEngine::initialize()
     initialized = true;
 }
 
+void setComponentFromLua(entt::entity entity, const sol::table &component, entt::registry &reg)
+{
+    if (component.get_type() != sol::type::userdata)
+        throw gu_err("Given object is not a registered type");
+
+    auto typeName = component["__type"]["name"].get<std::string>();
+
+    EntityEngine::componentUtils(typeName).setFromLuaTable(component, entt::entity(entity), reg);
+}
+
 void EntityEngine::initializeLuaEnvironment()
 {
     // todo: functions might be called after EntityEngine is destructed
@@ -101,6 +111,7 @@ void EntityEngine::initializeLuaEnvironment()
     luaEnvironment = sol::environment(luau::getLuaState(), sol::create, luau::getLuaState().globals());
     auto &env = luaEnvironment;
 
+    // todo: old api, remove
     env["getComponent"] = [&](int entity, const std::string &componentName) -> sol::optional<sol::table> {
 
         auto &utils = componentUtils(componentName);
@@ -112,12 +123,21 @@ void EntityEngine::initializeLuaEnvironment()
         utils.getToLuaTable(table, entt::entity(entity), entities);
         return table;
     };
+    // todo: old api, remove
     env["removeComponent"] = [&](int entity, const std::string &componentName) {
         componentUtils(componentName).removeComponent(entt::entity(entity), entities);
     };
+    // todo: old api, remove
     env["setComponent"] = [&](int entity, const std::string &componentName, const sol::table &component) {
         luaTableToComponent(entt::entity(entity), componentName, component);
     };
+
+
+    env["setComponent_new"] = [&](int entity, const sol::table &component) {
+        setComponentFromLua(entt::entity(entity), component, entities);
+    };
+
+    // todo: old api, remove
     env["setComponents"] = [&](int entity, const sol::table &componentsTable) {
 
         for (const auto &[componentName, comp] : componentsTable)
@@ -133,7 +153,13 @@ void EntityEngine::initializeLuaEnvironment()
         }
     };
 
-    env["createEntity"] = [&]() -> int {
+    env["setComponents_new"] = [&](int entity, const sol::table &componentsTable) {
+
+        for (const auto &[i, comp] : componentsTable)
+            setComponentFromLua(entt::entity(entity), comp, entities);
+    };
+
+    env["createEntity"] = [&]() -> int { // todo: make entt::entity<->int sol functions
 
         return int(entities.create());
     };

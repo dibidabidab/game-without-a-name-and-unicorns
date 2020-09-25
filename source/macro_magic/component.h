@@ -63,7 +63,13 @@ struct ComponentUtils
         u->getDefaultJsonComponent = [] { return Component(); };
 
         u->setFromLuaTable = [] (const sol::table &table, entt::entity e, entt::registry &reg) {
-            reg.get_or_assign<Component>(e).fromLuaTable(table);
+
+            auto optional = table.as<sol::optional<Component &>>();
+            if (optional.has_value())
+                reg.get_or_assign<Component>(e).copyFieldsFrom(optional.value());
+
+            else // TODO: give error instead?
+                reg.get_or_assign<Component>(e).fromLuaTable(table);
         };
         u->getToLuaTable = [] (sol::table &table, entt::entity e, const entt::registry &reg) {
             reg.get<Component>(e).toLuaTable(table);

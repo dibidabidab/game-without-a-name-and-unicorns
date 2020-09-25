@@ -4,6 +4,20 @@ function create(player)
     --
     --print(component.StaticCollider.getFor(player).gravity)
 
+    local c = Child:new{
+        name = "pepepe"
+    }
+    --setComponent_new(player, c)
+    --print(c.name, "lua")
+
+    setComponents_new(player, {
+        Inspecting:new{},
+        c
+    })
+
+    component.Child.getFor(player).name = "lol"
+
+
     leftLeg = createChild(player, "leftLeg")
     rightLeg = createChild(player, "rightLeg")
 

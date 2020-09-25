@@ -67,7 +67,7 @@ class EntityEngine
 
     void luaTableToComponent(entt::entity, const std::string &componentName, const sol::table &);
 
-    const ComponentUtils &componentUtils(const std::string &componentName);
+    static const ComponentUtils &componentUtils(const std::string &componentName);
 
     entt::entity createChild(entt::entity parent, const char *childName="");
 
