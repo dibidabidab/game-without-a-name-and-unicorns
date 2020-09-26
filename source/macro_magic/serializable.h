@@ -8,6 +8,7 @@
 #include <json.hpp>
 #include <utils/gu_error.h>
 
+// this template is needed for sol. (probably because sol tries to use glm::to_string())
 template <typename T>
 inline std::string to_string(
         const T &
@@ -17,17 +18,6 @@ inline std::string to_string(
     return name;
 }
 
-
-template <typename T>
-inline void getTo(T &v, const json &json)
-{
-    v = json.get<T>();
-}
-template <>
-inline void getTo<json>(json &v, const json &json)
-{
-    v = json;
-}
 
 template <class FieldType>
 bool isFieldTypePrimitive()
@@ -39,7 +29,7 @@ bool isFieldTypePrimitive()
 /**
  * assume that a FieldType is fixed size if a new instance already contains items.
  *
- * if there are no items, then assume that FieldType will accept new items.
+ * if there are no items, then assume that FieldType will accept new items.     // kinda TODO. this is EXTREMELY hacky, but so far it works perfect
  */
 template <class FieldType>
 bool isStructFieldFixedSize()

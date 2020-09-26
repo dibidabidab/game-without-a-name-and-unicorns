@@ -2,19 +2,6 @@
 #include "luau.h"
 #include "game/Game.h"
 
-struct Test
-{
-    int poepie = 4;
-    ivec2 point = ivec2(10);
-    asset<aseprite::Sprite> sprite;
-};
-
-struct TestVec
-{
-    std::vector<Test> tests;
-};
-
-
 sol::state &luau::getLuaState()
 {
     static sol::state *lua = NULL;
@@ -47,23 +34,23 @@ sol::state &luau::getLuaState()
         env["printTableAsJson"] = [&] (const sol::table &table, sol::optional<int> indent) // todo: this doest work properly
         {
             json j;
-            lua_converter<json>::fromLua(table, j);
+            jsonFromLuaTable(table, j);
             std::cout << j.dump(indent.has_value() ? indent.value() : -1) << std::endl;
         };
 
         env["getSettings"] = [] () -> sol::table {
             auto table = sol::table::create(getLuaState().lua_state());
-            lua_converter<json>::toLuaTable(table, Game::settings);
+            jsonToLuaTable(table, Game::settings);
             return table;
         };
         env["saveSettings"] = [] (const sol::table &settingsTable) {
             json j;
-            lua_converter<json>::fromLuaTable(settingsTable, j);
+            jsonFromLuaTable(settingsTable, j);
             Game::settings = j;
         };
         env["getGameStartupArgs"] = [] () -> sol::table {
             auto table = sol::table::create(getLuaState().lua_state());
-            lua_converter<json>::toLuaTable(table, Game::startupArgs);
+            jsonToLuaTable(table, Game::startupArgs);
             return table;
         };
         env["tryCloseGame"] = [] {
@@ -88,46 +75,6 @@ sol::state &luau::getLuaState()
 
         for (auto &[typeName, info] : SerializableStructInfo::getForAllTypes())
             info->luaUserTypeGenerator(*lua);
-
-        sol::usertype<Test> testType = lua->new_usertype<Test>("Test");
-        testType["poepie"] = &Test::poepie;
-        testType["point"] = &Test::point;
-        testType["sprite"] = &Test::sprite;
-
-        sol::usertype<TestVec> testVecType = lua->new_usertype<TestVec>("TestVec");
-        testVecType["tests"] = &TestVec::tests;
-
-
-        TestVec vec;
-        vec.tests.emplace_back();
-
-        env["vec"] = &vec;
-
-        assert(env["vec"].get_type() == sol::type::userdata);
-
-        std::cout << env["vec"]["__type"]["name"].get<std::string>() << '\n';
-
-        std::cout << int(env["vec"].get_type()) << '\n';
-
-        lua->unsafe_script("vec.tests[1].poepie = 12345");
-
-        assert(vec.tests[0].poepie == 12345);
-
-        lua->unsafe_script("vec.tests[2] = Test.new()");
-        lua->unsafe_script("vec.tests[2].poepie = -3");
-
-        assert(vec.tests[1].poepie == -3);
-
-        Test lol;
-
-        env["lol"] = &lol;
-
-        lua->unsafe_script("lol.poepie = 12");
-        lua->unsafe_script("lol.sprite = 'sprites/enemy'");
-
-        assert(lol.poepie == 12);
-        std::cout << lol.sprite.getLoadedAsset().fullPath << '\n';
-
     }
     return *lua;
 }

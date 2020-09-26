@@ -111,49 +111,11 @@ void EntityEngine::initializeLuaEnvironment()
     luaEnvironment = sol::environment(luau::getLuaState(), sol::create, luau::getLuaState().globals());
     auto &env = luaEnvironment;
 
-    // todo: old api, remove
-    env["getComponent"] = [&](int entity, const std::string &componentName) -> sol::optional<sol::table> {
-
-        auto &utils = componentUtils(componentName);
-
-        if (!utils.entityHasComponent(entt::entity(entity), entities))
-            return sol::optional<sol::table>();
-
-        auto table = sol::table::create(env.lua_state());
-        utils.getToLuaTable(table, entt::entity(entity), entities);
-        return table;
-    };
-    // todo: old api, remove
-    env["removeComponent"] = [&](int entity, const std::string &componentName) {
-        componentUtils(componentName).removeComponent(entt::entity(entity), entities);
-    };
-    // todo: old api, remove
-    env["setComponent"] = [&](int entity, const std::string &componentName, const sol::table &component) {
-        luaTableToComponent(entt::entity(entity), componentName, component);
-    };
-
-
-    env["setComponent_new"] = [&](int entity, const sol::table &component) {
+    env["setComponent"] = [&](int entity, const sol::table &component) {
         setComponentFromLua(entt::entity(entity), component, entities);
     };
 
-    // todo: old api, remove
     env["setComponents"] = [&](int entity, const sol::table &componentsTable) {
-
-        for (const auto &[componentName, comp] : componentsTable)
-        {
-            if (!componentName.is<std::string>())
-                throw gu_err("All keys in the components table must be a string!");
-
-            auto nameStr = componentName.as<std::string>();
-
-            if (!comp.is<sol::table>())
-                throw gu_err("Expected a table for " + nameStr);
-            luaTableToComponent(entt::entity(entity), nameStr, comp);
-        }
-    };
-
-    env["setComponents_new"] = [&](int entity, const sol::table &componentsTable) {
 
         for (const auto &[i, comp] : componentsTable)
             setComponentFromLua(entt::entity(entity), comp, entities);

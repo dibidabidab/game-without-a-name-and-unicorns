@@ -128,7 +128,7 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
         {
             auto &p = engine->entities.assign_or_replace<Persistent>(e, persistency);
             if (persistentArgs && arguments.has_value() && arguments.value().valid())
-                lua_converter<json>::fromLuaTable(arguments.value(), p.data);
+                jsonFromLuaTable(arguments.value(), p.data);
 
             assert(p.data.is_object());
             if (!id.empty())
@@ -166,7 +166,7 @@ json LuaEntityTemplate::getDefaultArgs()
     if (script.hasReloaded())
         runScript();
     json j;
-    lua_converter<json>::fromLua(defaultArgs, j);
+    jsonFromLuaTable(defaultArgs, j);
     return j;
 }
 
@@ -174,7 +174,7 @@ void LuaEntityTemplate::createComponentsWithJsonArguments(entt::entity e, const 
 {
     auto table = sol::table::create(env.lua_state());
     if (arguments.is_structured())
-        lua_converter<json>::toLuaTable(table, arguments);
+        jsonToLuaTable(table, arguments);
     createComponentsWithLuaArguments(e, table, persistent);
 }
 

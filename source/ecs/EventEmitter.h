@@ -26,14 +26,6 @@ class EventEmitter
             typeHash = entt::hashed_string { getTypeName<type>().c_str() }.value();
 
         auto &listeners = eventListeners[typeHash];
-
-        if (listeners.empty())
-            return;
-
-        // convert event object to a Lua object:
-        static auto luaRef = luau::getLuaState()["__current_event__"];
-        lua_converter<type>::toLua(luaRef, event);
-
         auto it = listeners.begin();
 
         bool removeListener = false;
@@ -46,7 +38,7 @@ class EventEmitter
         while (it != listeners.end())
         {
             auto &listener = *it;
-            listener(luaRef, removeCallback);
+            listener(&event, removeCallback);
 
             if (removeListener)
             {

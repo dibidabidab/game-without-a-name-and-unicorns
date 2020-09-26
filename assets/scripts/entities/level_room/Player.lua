@@ -62,8 +62,9 @@ function create(player)
 
     arrowTemplate = "Arrow"
 
-    transRoomed = getComponent(player, "TransRoomed")
-    if transRoomed ~= nil then
+    if component.TransRoomed.has(player) then
+
+        local transRoomed = getComponent(player, "TransRoomed") -- component.TransRoomed.getFor(player) -- todo: tryGetFor()
 
         components.AABB.center = transRoomed.positionInNewRoom
         components.Health = transRoomed.archivedComponents.Health

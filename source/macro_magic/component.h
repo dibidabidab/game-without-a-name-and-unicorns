@@ -10,6 +10,8 @@ struct ComponentUtils
 {
   public:
 
+    // todo: improve naming of these functions:
+
     std::function<bool(entt::entity, const entt::registry &)> entityHasComponent;
     std::function<void(json &, entt::entity, const entt::registry &)> getJsonComponent, getJsonComponentWithKeys;
     std::function<void(const json &, entt::entity, entt::registry &)> setJsonComponent, setJsonComponentWithKeys;
@@ -17,7 +19,6 @@ struct ComponentUtils
     std::function<json()> getDefaultJsonComponent;
 
     std::function<void(const sol::table &, entt::entity, entt::registry &)> setFromLuaTable;
-    std::function<void(sol::table &, entt::entity, const entt::registry &)> getToLuaTable;
 
     std::function<void(sol::table &, entt::registry &)> registerLuaFunctions;
 
@@ -71,9 +72,6 @@ struct ComponentUtils
             else // TODO: give error instead?
                 reg.get_or_assign<Component>(e).fromLuaTable(table);
         };
-        u->getToLuaTable = [] (sol::table &table, entt::entity e, const entt::registry &reg) {
-            reg.get<Component>(e).toLuaTable(table);
-        };
 
         u->registerLuaFunctions = [] (sol::table &table, entt::registry &reg) {
 
@@ -99,6 +97,7 @@ struct ComponentUtils
 
 };
 
+// only used to mark fields "read-only" in the in-game inspector, TODO: remove this unnecessary hack?
 template <typename Type>
 using final = Type;
 

@@ -1,12 +1,11 @@
 
 p = Physics:new {
-    gravity = 1000
+    gravity = 45,
+    velocity = 4
 }
 
-assert(p.gravity == 1000)
 assert(p.wallFriction == 6)
-
-
+assert(p.gravity == 1000)
 
 
 
