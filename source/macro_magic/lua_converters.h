@@ -6,8 +6,6 @@
 
 #include <asset_manager/asset.h>
 
-//template<int len, typename type, qualifier something>
-
 
 template <typename Handler, typename type>
 bool sol_lua_check(sol::types<asset<type>>, lua_State* L, int index, Handler&& handler, sol::stack::record& tracking) {

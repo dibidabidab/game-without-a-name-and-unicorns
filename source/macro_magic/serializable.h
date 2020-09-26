@@ -6,7 +6,6 @@
 #include "lua_converters.h"
 #include "json_converters.h"
 #include <json.hpp>
-#include <utils/gu_error.h>
 
 // this template is needed for sol. (probably because sol tries to use glm::to_string())
 template <typename T>
