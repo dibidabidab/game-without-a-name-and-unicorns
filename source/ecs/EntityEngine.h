@@ -74,10 +74,10 @@ class EntityEngine
     void setParent(entt::entity child, entt::entity parent, const char *childName="");
 
     template<typename type>
-    void emitEntityEvent(entt::entity e, const type &event)
+    void emitEntityEvent(entt::entity e, const type &event, const char *customEventName=NULL)
     {
         if (auto *emitter = entities.try_get<EventEmitter>(e))
-            emitter->emit(event);
+            emitter->emit(event, customEventName);
     }
 
     virtual ~EntityEngine();

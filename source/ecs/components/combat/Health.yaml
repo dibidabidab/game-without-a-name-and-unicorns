@@ -35,9 +35,6 @@ Health:
 
   bloodColor: [ uint8, 10 ]
 
-  componentsToAddOnDeath: json  # todo: use an OnDeath event instead?
-  componentsToRemoveOnDeath: std::list<std::string> # todo ^
-
   givePlayerArrowOnKill: string
 
   _methods:

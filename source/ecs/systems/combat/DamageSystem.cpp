@@ -95,47 +95,15 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                         }
                     }
                 }
+                room->emitEntityEvent(e, attack, "Died");
             }
-            room->emitEntityEvent(e, attack);
+            room->emitEntityEvent(e, attack, "Attacked");
         }
 
         health.attacks.clear();
 
         if (health.currHealth == 0)
-        {
-            for (auto &componentName : health.componentsToRemoveOnDeath)
-            {
-                const ComponentUtils *utils = ComponentUtils::getFor(componentName);
-                if (!utils)
-                {
-                    std::cerr << "componentsToRemoveOnDeath for entity#" << int(e) << " contains '" << componentName << "' which is not a component type!" << std::endl;
-                    continue;
-                }
-                utils->removeComponent(e, room->entities);
-            }
-            if (health.componentsToAddOnDeath.is_object())
-            {
-                for (auto &[componentName, component] : health.componentsToAddOnDeath.items())
-                {
-                    const ComponentUtils *utils = ComponentUtils::getFor(componentName);
-                    if (!utils)
-                    {
-                        std::cerr << "componentsToAddOnDeath for entity#" << int(e) << " contains '" << componentName << "' which is not a component type!" << std::endl;
-                        continue;
-                    }
-                    try
-                    {
-                        utils->setJsonComponentWithKeys(component, e, room->entities);
-                    }
-                    catch (std::exception &exc)
-                    {
-                        std::cerr << "Error while adding " << componentName << " to dead entity#" << int(e) << ":\n" << exc.what() << std::endl;
-                    }
-                }
-            }
-
             room->entities.remove<Health>(e);
-        }
     });
 }
 

@@ -30,20 +30,21 @@ function create(rope)
         DynamicCollider(),
         Health {
             takesDamageFrom = {"hit"},
-            componentsToAddOnDeath = {
-                SliceSpriteIntoPieces = {
-                    steps = 3
-                },
-                SoundSpeaker = {
-                    sound = "sounds/glass_break",
-                    pitch = math.random() * .6 + .7,
-                    volume = math.random() * .3 + .5
-                }
-            },
-            componentsToRemoveOnDeath = {"PointLight"},
             currHealth = 1,
             maxHealth = 1,
             bloodColor = 0
         }
     })
+
+    onEntityEvent(lamp, "Died", function ()
+
+        component.PointLight.remove(lamp)
+        component.SliceSpriteIntoPieces.getFor(lamp).steps = 3
+
+        setComponent(lamp, SoundSpeaker {
+            sound = "sounds/glass_break",
+            pitch = math.random() * .6 + .7,
+            volume = math.random() * .3 + .5
+        })
+    end)
 end
