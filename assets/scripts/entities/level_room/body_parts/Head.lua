@@ -1,22 +1,22 @@
 
 defaultArgs({
     body = nil,
-    halfSize = {2, 4},
+    halfSize = ivec2(2, 4),
     sprite = "sprites/player_head"
 })
 
 function create(head, args)
     components = {
-        Head = {
+        Head {
             body = args.body
         },
-        AABB = {
+        AABB {
             halfSize = args.halfSize
         },
-        AsepriteView = {
+        AsepriteView {
             sprite = args.sprite
         },
-        SpriteAnchor = {
+        SpriteAnchor {
             spriteEntity = args.body,
             spriteSliceName = "head"
         }

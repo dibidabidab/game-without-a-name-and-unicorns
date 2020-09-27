@@ -25,27 +25,27 @@ function create(boomstam, args)
 
     setComponents(boomstam, { -- components die behoren tot 'boomstam'
 
-        AABB = { -- dit is het vierkantje onderaan de boomstam die je met I of M kan 'vastgrijpen'
-            halfSize = {3, 3}, -- vierkantje is 6x6 pixels
-            center = {128, 64} -- de positie van de boom
+        AABB { -- dit is het vierkantje onderaan de boomstam die je met I of M kan 'vastgrijpen'
+            halfSize = ivec2(3), -- vierkantje is 6x6 pixels
+            center = ivec2(128, 64) -- de positie van de boom
         },
 
-        AsepriteView = { -- dit zorgt ervoor dat er kleine grassprietjes worden getekent onderaan de boom
+        AsepriteView { -- dit zorgt ervoor dat er kleine grassprietjes worden getekent onderaan de boom
             sprite = "sprites/tree_leaves",
             frame = 4,
             zIndex = args.zIndex -- werkt hetzelfde als in CSS
         },
 
-        VerletRope = {  -- elke tak/boomstam is eigenlijk een Rope, omdat we rope physics gebruiken.
+        VerletRope {  -- elke tak/boomstam is eigenlijk een Rope, omdat we rope physics gebruiken.
             length = args.length,
-            gravity = {0, 100}, -- zorgt ervoor dat de rope niet naar onder hangt, maar naar boven 'hangt'
+            gravity = vec2(0, 100), -- zorgt ervoor dat de rope niet naar onder hangt, maar naar boven 'hangt'
 
             friction = .8, -- hoe stroef het touw beweegt. niet heel belangrijk
             nrOfPoints = 4, -- uit hoeveel punten bestaat het touw, ook niet echt belangrijk
             moveByWind = 6 -- boomstam beweegt heen en weer door de wind.
         },
 
-        DrawPolyline = { -- om de VerletRope te tekenen.
+        DrawPolyline { -- om de VerletRope te tekenen.
             colors = {colors.wood}, -- zie Palette editor in de game
 
             repeatX = 3, -- we willen dat de boomstam 4 pixels dik is, dus tekenen we de rope gwn 3 keer extra, elke keer 1 pixel horizontaal verder
@@ -67,9 +67,9 @@ function create(boomstam, args)
 
     takComponents = { -- dit zijn de components die worden toegevoegd aan de branch
 
-        AABB = {}, -- zorgt voor een klein vierkantje aan het begin van de tak die je met I kan inspecteren
+        AABB(), -- zorgt voor een klein vierkantje aan het begin van de tak die je met I kan inspecteren
 
-        DrawPolyline = {
+        DrawPolyline {
             colors = {6},
             repeatX = 1, -- lees regel 51
             repeatY = 0, -- gebruik repeatY ipv repeatX als de tak horizontaal is.
@@ -79,7 +79,7 @@ function create(boomstam, args)
         },
 
 
-        VerletRope = {
+        VerletRope {
             length = 100, -- maak de tak 100 pixels lang
             gravity = {500, 500}, -- zorgt ervoor dat de tak/rope naar rechtsboven gaat 'hangen'
 
@@ -89,7 +89,7 @@ function create(boomstam, args)
         },
 
 
-        AttachToRope = {   -- we willen dat de tak vastzit aan de boomstam, en meebeweegt als de boomstam wiebelt ofzo
+        AttachToRope {   -- we willen dat de tak vastzit aan de boomstam, en meebeweegt als de boomstam wiebelt ofzo
 
             ropeEntity = boomstam, -- geef aan aan welke rope deze tak vastgemaakt moet worden.
             x = .8 -- deze tak komt te zitten op 80% van de hoogte van de boomstam
@@ -107,23 +107,23 @@ function create(boomstam, args)
 
     setComponents(leaves, {
 
-        AsepriteView = {
+        AsepriteView {
             sprite = "sprites/tree_leaves",
             zIndex = args.zIndex + 5, -- dit is dezelfde zIndex als de zIndex van het midden van de tak, dus zal de tak daar door het grote blad heen steken
 
             frame = math.random(0, 2) -- 0 = klein blad, 1 = middelgroot, 2 = heel groot
         },
 
-        AABB = {
-            halfSize = {3, 3}
+        AABB {
+            halfSize = ivec2(3)
         },
 
-        AttachToRope = {
+        AttachToRope {
             ropeEntity = branch, -- zie regel 92
             x = .5 -- plaats het grote blad op de helft van de tak
         },
 
-        TemplateSpawner = { -- af en toe een klein vallend blaadje spawnen. Zie particles/TreeLeaveParticle.entity.lua
+        TemplateSpawner { -- af en toe een klein vallend blaadje spawnen. Zie particles/TreeLeaveParticle.entity.lua
             templateName = "TreeLeaveParticle",
             minDelay = 4,
             maxDelay = 100,
@@ -139,12 +139,12 @@ function create(boomstam, args)
 
     setComponents(smallLeave, {
 
-        AABB = {},
-        AttachToRope = {
+        AABB(),
+        AttachToRope {
             ropeEntity = branch,
             x = .8
         },
-        AsepriteView = {
+        AsepriteView {
             sprite = "sprites/tree_leaves",
             zIndex = args.zIndex + 20,
             frame = 3,

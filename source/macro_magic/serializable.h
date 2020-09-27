@@ -7,16 +7,6 @@
 #include "json_converters.h"
 #include <json.hpp>
 
-// this template is needed for sol. (probably because sol tries to use glm::to_string())
-template <typename T>
-inline std::string to_string(
-        const T &
-)
-{
-    static auto name = "<" + getTypeName<T>() + ">";
-    return name;
-}
-
 
 template <class FieldType>
 bool isFieldTypePrimitive()

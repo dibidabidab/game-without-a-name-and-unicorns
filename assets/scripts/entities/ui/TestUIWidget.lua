@@ -2,19 +2,19 @@
 function create(widget)
 
     setComponents(widget, {
-        UIElement = {
-            margin = {16, 16},
+        UIElement {
+            margin = ivec2(16),
             absolutePositioning = true,
             absoluteHorizontalAlign = 2 -- todo, use strings or constants
         },
-        UIContainer = {
+        UIContainer {
             nineSliceSprite = "sprites/ui/default_9slice_plane",
             autoHeight = true,
             --autoWidth = true,
             fixedWidth = 128,
             centerAlign = true
         },
-        Inspecting = {}
+        Inspecting()
     })
 
     applyTemplate(createChild(widget), "Text", {
@@ -24,8 +24,8 @@ function create(widget)
     })
 
     setComponents(createChild(widget), {
-        UIElement = {},
-        AsepriteView = {
+        UIElement(),
+        AsepriteView {
             sprite = "sprites/enemy"
         }
     })
@@ -36,15 +36,15 @@ function create(widget)
 
     local button = createChild(widget, "bttn")
     setComponents(button, {
-        UIElement = {
+        UIElement {
             startOnNewLine = true
         },
-        UIContainer = {
+        UIContainer {
             nineSliceSprite = "sprites/ui/default_9slice_plane",
             fixedWidth = 100,
             fixedHeight = 24,
             fillRemainingParentHeight = false,
-            padding = {0, -5},
+            padding = ivec2(0, -5),
             centerAlign = true
         }
     })

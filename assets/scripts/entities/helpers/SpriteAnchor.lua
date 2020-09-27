@@ -9,11 +9,11 @@ defaultArgs({
 
 function create(anchor, args)
     setComponents(anchor, {
-        SpriteAnchor = {
+        SpriteAnchor {
             spriteEntity = args.spriteEntity,
             spriteSliceName = args.sliceName,
             ignoreSpriteFlipping = args.ignoreSpriteFlipping
         },
-        AABB = {}
+        AABB()
     })
 end

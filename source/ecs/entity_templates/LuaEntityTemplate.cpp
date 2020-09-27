@@ -49,9 +49,9 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, En
     env["description"] = [&](const char *d) {
         description = d;
     };
-    env["setUpdateFunction"] = [&](int entity, float updateFrequency, const sol::function &func, sol::optional<bool> randomAcummulationDelay) {
+    env["setUpdateFunction"] = [&](entt::entity entity, float updateFrequency, const sol::function &func, sol::optional<bool> randomAcummulationDelay) {
 
-        LuaScripted &scripted = engine->entities.get_or_assign<LuaScripted>(entt::entity(entity));
+        LuaScripted &scripted = engine->entities.get_or_assign<LuaScripted>(entity);
         scripted.updateFrequency = updateFrequency;
 
         if (randomAcummulationDelay.value_or(true))
@@ -62,9 +62,9 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, En
         scripted.updateFunc = func;
         scripted.updateFuncScript = script;
     };
-    env["setOnDestroyCallback"] = [&](int entity, const sol::function &func) {
+    env["setOnDestroyCallback"] = [&](entt::entity entity, const sol::function &func) {
 
-        LuaScripted &scripted = engine->entities.get_or_assign<LuaScripted>(entt::entity(entity));
+        LuaScripted &scripted = engine->entities.get_or_assign<LuaScripted>(entity);
         scripted.onDestroyFunc = func;
         scripted.onDestroyFuncScript = script;
     };

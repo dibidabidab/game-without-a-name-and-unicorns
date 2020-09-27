@@ -3,7 +3,7 @@ defaultArgs({
     length = 15,
     oppositeLeg = nil,
     body = nil,
-    hipAnchor = {0, 0},
+    hipAnchor = ivec2(),
     idleXPos = 0,
     spriteSliceName = "leg",
     color = 5,
@@ -27,8 +27,8 @@ function create(leg, args)
     -- KNEE:
     knee = createChild(leg, "knee")
     setComponents(knee, {
-        AABB = {},
-        LimbJoint = {
+        AABB(),
+        LimbJoint {
             hipJointEntity = hip,
             footEntity = leg
         }
@@ -36,7 +36,7 @@ function create(leg, args)
 
     -- FOOT/LEG:
     components = {
-        Leg = {
+        Leg {
             length = args.length,
             body = args.body,
             anchor = args.hipAnchor,
@@ -48,11 +48,11 @@ function create(leg, args)
             idleStepSpeed = args.idleStepSpeed,
             inAirStepSpeed = args.inAirStepSpeed
         },
-        AABB = {},
-        BezierCurve = {
+        AABB(),
+        BezierCurve {
             points = {hip, knee, leg}
         },
-        DrawPolyline = {
+        DrawPolyline {
             colors = {args.color}
         }
     }

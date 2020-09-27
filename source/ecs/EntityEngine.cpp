@@ -111,37 +111,37 @@ void EntityEngine::initializeLuaEnvironment()
     luaEnvironment = sol::environment(luau::getLuaState(), sol::create, luau::getLuaState().globals());
     auto &env = luaEnvironment;
 
-    env["setComponent"] = [&](int entity, const sol::table &component) {
-        setComponentFromLua(entt::entity(entity), component, entities);
+    env["setComponent"] = [&](entt::entity entity, const sol::table &component) {
+        setComponentFromLua(entity, component, entities);
     };
 
-    env["setComponents"] = [&](int entity, const sol::table &componentsTable) {
+    env["setComponentFromJson"] = [&](entt::entity entity, const char *compName, const json &j) {
+        componentUtils(compName).setJsonComponentWithKeys(j, entity, entities);
+    };
+
+    env["setComponents"] = [&](entt::entity entity, const sol::table &componentsTable) {
 
         for (const auto &[i, comp] : componentsTable)
-            setComponentFromLua(entt::entity(entity), comp, entities);
+            setComponentFromLua(entity, comp, entities);
     };
 
-    env["createEntity"] = [&]() -> int { // todo: make entt::entity<->int sol functions
+    env["createEntity"] = [&]() -> entt::entity {
 
-        return int(entities.create());
+        return entities.create();
     };
-    env["destroyEntity"] = [&](int e) {
+    env["destroyEntity"] = [&](entt::entity e) {
 
-        entities.destroy(entt::entity(e));
+        entities.destroy(e);
     };
-    env["createChild"] = [&](int parentEntity, sol::optional<std::string> childName) -> int {
+    env["createChild"] = [&](entt::entity parentEntity, sol::optional<std::string> childName) -> entt::entity {
 
-        int child = int(createChild(entt::entity(parentEntity), childName.value_or("").c_str()));
-        return child;
+        return createChild(parentEntity, childName.value_or("").c_str());
     };
-    env["getChild"] = [&](int parentEntity, const char *childName) -> sol::optional<int> {
+    env["getChild"] = [&](entt::entity parentEntity, const char *childName) -> entt::entity {
 
-        entt::entity childEntity = getChildByName(entt::entity(parentEntity), childName);
-        if (childEntity == entt::null)
-            return sol::optional<int>(); // nil
-        return int(childEntity);
+        return getChildByName(parentEntity, childName);
     };
-    env["applyTemplate"] = [&](int extendE, const char *templateName, const sol::optional<sol::table> &extendArgs, sol::optional<bool> persistent) {
+    env["applyTemplate"] = [&](entt::entity extendE, const char *templateName, const sol::optional<sol::table> &extendArgs, sol::optional<bool> persistent) {
 
         auto entityTemplate = &getTemplate(templateName); // could throw error :)
 
@@ -150,15 +150,15 @@ void EntityEngine::initializeLuaEnvironment()
         if (dynamic_cast<LuaEntityTemplate *>(entityTemplate))
         {
             ((LuaEntityTemplate *) entityTemplate)->
-                    createComponentsWithLuaArguments(entt::entity(extendE), extendArgs, makePersistent);
+                    createComponentsWithLuaArguments(extendE, extendArgs, makePersistent);
         }
         else
-            entityTemplate->createComponents(entt::entity(extendE), makePersistent);
+            entityTemplate->createComponents(extendE, makePersistent);
     };
 
-    env["onEntityEvent"] = [&](int entity, const char *eventName, const sol::function &listener) {
+    env["onEntityEvent"] = [&](entt::entity entity, const char *eventName, const sol::function &listener) {
 
-        auto &emitter = entities.get_or_assign<EventEmitter>(entt::entity(entity));
+        auto &emitter = entities.get_or_assign<EventEmitter>(entity);
         emitter.on(eventName, listener);
     };
     env["onEvent"] = [&](const char *eventName, const sol::function &listener) {

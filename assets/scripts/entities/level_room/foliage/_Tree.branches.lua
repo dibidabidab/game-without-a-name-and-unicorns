@@ -5,25 +5,25 @@ treeConfigs = include("scripts/entities/level_room/foliage/_Tree.config")
 function entityTable(pieceEntity, parent, angle, zIndex)
 
     setComponents(pieceEntity, {
-        AABB         = {},
+        AABB(),
 
-        DrawPolyline = {
+        DrawPolyline {
             colors      = { colors.wood },
             lineWidth   = 0,
             zIndexBegin = zIndex.min,
             zIndexEnd   = zIndex.max,
         },
 
-        VerletRope   = {
+        VerletRope {
             length     = 0,
-            gravity    = rotate2d(0, 100, angle),
+            gravity    = vec2(rotate2d(0, 100, angle)[1], rotate2d(0, 100, angle)[2]), -- todo
 
             friction   = .7,
             nrOfPoints = 1,
             moveByWind = 6,
         },
 
-        AttachToRope = {
+        AttachToRope {
             ropeEntity = parent,
             x          = 1,
         }
@@ -42,12 +42,10 @@ function updateFunction(width, length, treeState)
             currentLength = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
             currentWidth  = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
 
-            setComponent(entity, "VerletRope", {
-                length = currentLength
-            })
-            setComponent(entity, "DrawPolyline", {
-                lineWidth = math.sqrt(currentWidth),
-            })
+            component.VerletRope.getFor(entity).length = currentLength
+
+            component.DrawPolyline.getFor(entity).lineWidth = math.sqrt(currentWidth)
+
 
             if treeState.age >= 100 then
                 setUpdateFunction(entity, 0, nil)
@@ -69,10 +67,8 @@ function piece          (parent, treeConfig, treeState, entity)
     local length = mtlib.random(treeState.pieceLength)
 
     mtlib.rangeMult(treeState.pieceLength, treeConfig.pieceLengthFct or 1)
-    print("piece")
 
     local width = fslib.wrappert(treeState, function(update)
-        print("piecef")
         update("length", treeState.length + length)
         update("totalLength", treeState.totalLength + length)
         update("pieces", treeState.pieces + 1)

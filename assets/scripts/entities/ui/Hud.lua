@@ -2,10 +2,10 @@
 function create(hud)
 
     setComponents(hud, {
-        UIElement = {
+        UIElement {
             absolutePositioning = true
         },
-        UIContainer = {
+        UIContainer {
             nineSliceSprite = "sprites/ui/hud_border",
             fillRemainingParentHeight = true,
             fillRemainingParentWidth = true

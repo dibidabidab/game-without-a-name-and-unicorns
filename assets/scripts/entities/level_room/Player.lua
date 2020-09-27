@@ -1,75 +1,58 @@
 function create(player)
 
-    --print(component)
-    --
-    --print(component.StaticCollider.getFor(player).gravity)
-
-    local c = Child:new{
-        name = "pepepe"
-    }
-    --setComponent_new(player, c)
-    --print(c.name, "lua")
-
-    setComponents_new(player, {
-        Inspecting:new{},
-        c
-    })
-
-    component.Child.getFor(player).name = "lol"
-
-
     leftLeg = createChild(player, "leftLeg")
     rightLeg = createChild(player, "rightLeg")
 
-    components = {
-        Physics = {
+    setComponents(player, {
+        Physics {
             ignorePolyPlatforms = false,
             createWind = 3,
             ignoreFluids = false
         },
-        AABB = {
-            halfSize = {3, 13},
-            center = {64, 64}
+        AABB {
+            halfSize = ivec2(3, 13),
+            center = ivec2(64)
         },
-        StaticCollider = {},
-        PlatformerMovement = {},
-        Flip = {},
-        PointLight = {
+        StaticCollider(),
+        PlatformerMovement(),
+        Flip(),
+        PointLight {
             radius = 60
         },
-        Health = {
+        Health {
             takesDamageFrom = {"hit"},
             maxHealth = saveGame.maxPlayerHealth or 20,
             currHealth = saveGame.currentPlayerHealth or 20
         },
-        Aiming = {},
-        AsepriteView = {
+        Aiming(),
+        AsepriteView {
             sprite = "sprites/player_body",
             zIndex = -1 -- make sure head and bow show in front of body
         },
-        SpriteBobbing = {
+        SpriteBobbing {
             feet = {leftLeg, rightLeg}
         },
-        PaletteSetter = {
+        PaletteSetter {
             priority = 1,
             paletteName = "default"
         },
-        TransRoomable = {
+        TransRoomable {
             templateName = TEMPLATE_NAME,
             archiveComponents = {"Health", "PaletteSetter", "Physics"}
         }
-    }
+    })
 
     arrowTemplate = "Arrow"
 
-    if component.TransRoomed.has(player) then
+    local transRoomed = component.TransRoomed.tryGetFor(player)
 
-        local transRoomed = getComponent(player, "TransRoomed") -- component.TransRoomed.getFor(player) -- todo: tryGetFor()
+    if transRoomed ~= nil then
 
-        components.AABB.center = transRoomed.positionInNewRoom
-        components.Health = transRoomed.archivedComponents.Health
-        components.PaletteSetter = transRoomed.archivedComponents.PaletteSetter
-        components.Physics.velocity = transRoomed.archivedComponents.Physics.velocity
+        component.AABB.getFor(player).center = transRoomed.positionInNewRoom
+
+        setComponentFromJson(player, "Health", transRoomed.archivedComponents.Health)
+        setComponentFromJson(player, "PaletteSetter", transRoomed.archivedComponents.PaletteSetter)
+        setComponentFromJson(player, "Physics", transRoomed.archivedComponents.Physics)
 
         arrowTemplate = transRoomed.archivedChildComponents.bow.Bow.arrowTemplate
     end
@@ -91,7 +74,7 @@ function create(player)
         length = legLength,
         oppositeLeg = rightLeg,
         body = player,
-        hipAnchor = {-3, 0},
+        hipAnchor = ivec2(-3, 0),
         idleXPos = -2,
         spriteSliceName = "leg_left"
     })
@@ -99,7 +82,7 @@ function create(player)
         length = legLength,
         oppositeLeg = leftLeg,
         body = player,
-        hipAnchor = {3, 0},
+        hipAnchor = ivec2(3, 0),
         idleXPos = 2,
         spriteSliceName = "leg_right"
     })
@@ -115,13 +98,13 @@ function create(player)
     applyTemplate(leftArm, "Arm", {
         length = armLength,
         body = player,
-        shoulderAnchor = {-3, 4},
+        shoulderAnchor = ivec2(-3, 4),
         spriteSliceName = "arm_left"
     })
     applyTemplate(rightArm, "Arm", {
         length = armLength,
         body = player,
-        shoulderAnchor = {3, 4},
+        shoulderAnchor = ivec2(3, 4),
         spriteSliceName = "arm_right"
     })
 
@@ -136,12 +119,11 @@ function create(player)
             archer = player,
             leftArm = leftArm,
             rightArm = rightArm,
-            rotatePivot = {0, 7}
+            rotatePivot = ivec2(0, 7)
         }
     )
-    components.TransRoomable.archiveChildComponents = { bow = {"Bow"} } -- archive the Bow component of the bow child
+    component.TransRoomable.getFor(player).archiveChildComponents = { bow = {"Bow"} } -- archive the Bow component of the bow child
 
-    setComponents(player, components)
 
     local t = 0
 
@@ -152,7 +134,7 @@ function create(player)
     setOnDestroyCallback(player, function()
         print("Player entity #", player, "was alive for", t, "seconds. RIP")
 
-        local health = getComponent(player, "Health")
+        local health = component.Health.tryGetFor(player)
         if health ~= nil then
             saveGame.currentPlayerHealth = health.currHealth
             saveGame.maxPlayerHealth = health.maxHealth

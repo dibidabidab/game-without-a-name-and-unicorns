@@ -50,19 +50,18 @@ function create(entity, args)
     treeState.baseWidth  = branchSystem.piece(nil, treeConfig, treeState, entity)
 
     -- Tree root should not be attatched to a parent
-    removeComponent(entity, "AttachToRope")
+    component.AttachToRope.remove(entity)
 
     -- Grass at the bottom of the tree
-    setComponent(entity, "AsepriteView", {
+    setComponent(entity, AsepriteView {
         sprite = "sprites/tree_leaves",
         frame  = 4,
         zIndex = args.zIndex
     })
 
     -- Larger AABB, so we can pick it up easier
-    setComponent(entity, "AABB", {
-        halfSize = { 4, 4 }, -- vierkantje is 6x6 pixels
-    })
+    component.AABB.getFor(entity).halfSize = ivec2(4)
+
     resetDefaults()
 end
 

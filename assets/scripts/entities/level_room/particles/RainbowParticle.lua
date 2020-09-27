@@ -2,44 +2,38 @@
 
 function create(particle)
 
-    spawnedBy = getComponent(particle, "SpawnedBy")
-    rainbow = spawnedBy.spawner
-    line = getComponent(rainbow, "Polyline")
+    local spawnedBy = component.SpawnedBy.getFor(particle)
+    local rainbow = spawnedBy.spawner
+    local line = component.Polyline.getFor(rainbow)
 
-    x = spawnedBy.spawnerPos[1]
-    y = spawnedBy.spawnerPos[2]
+    local x = spawnedBy.spawnerPos.x
+    local y = spawnedBy.spawnerPos.y
 
     pointIndex = 1
     if math.random() > .5 then
         pointIndex = #line.points
     end
 
-    x = x + line.points[pointIndex][1]
-    y = y + line.points[pointIndex][2] + math.random(-12, 0)
+    x = x + line.points[pointIndex].x
+    y = y + line.points[pointIndex].y + math.random(-12, 0)
 
     maxVel = 60
 
-    components = {
-        AABB = {
-            center = {x, y},
-            halfSize = {math.random(1, 5), math.random(1, 5)}
-        },
-        Physics = {
-            gravity = 0,
-            velocity = {math.random(-maxVel, maxVel), math.random(-maxVel, maxVel)}
-        },
-        DynamicCollider = {},
-        DespawnAfter = {
-            time = 1.
-        },
-        AsepriteView = {
-            sprite = "sprites/rainbow_particle",
-            loop = false,
-            playingTag = 0,
-        }
-    }
+    local aabb = component.AABB.getFor(particle)
+    aabb.center = ivec2(x, y)
+    aabb.halfSize = ivec2(math.random(1, 5), math.random(1, 5))
 
-    setComponents(particle, components)
+    local physics = component.Physics.getFor(particle)
+    physics.gravity = 0
+    physics.velocity = vec2(math.random(-maxVel, maxVel), math.random(-maxVel, maxVel))
+
+    component.DynamicCollider.getFor(particle)
+    component.DespawnAfter.getFor(particle).time = 1.
+
+    local spriteView = component.AsepriteView.getFor(particle)
+    spriteView.sprite = "sprites/rainbow_particle"
+    spriteView.loop = false
+    spriteView.playingTag = 0
 
 end
 

@@ -3,15 +3,15 @@ description("yes you can do a moonwalk on rainbows")
 
 function create(rainbow)
     components = {
-        AABB = {},
-        PolyPlatform = {},
-        PolylineWaves = {
+        AABB(),
+        PolyPlatform(),
+        PolylineWaves {
             impactMultiplier = 1.5
         },
-        Polyline = {
+        Polyline {
             points = {}
         },
-        DrawPolyline = {
+        DrawPolyline {
             -- each rainbow color twice:
             repeatColors = {
                 colors.rainbow_red, colors.rainbow_red,
@@ -25,15 +25,15 @@ function create(rainbow)
             addAABBOffset = true,
             zIndexEnd = -64, zIndexBegin = -64
         },
-        Rainbow = {},
-        TemplateSpawner = {
+        Rainbow(),
+        TemplateSpawner {
             templateName = "RainbowParticle",
             minDelay = .1,
             maxDelay = .2,
             minQuantity = 3,
             maxQuantity = 10
         },
-        PaletteSetter = {
+        PaletteSetter {
             paletteName = "test",
             priority = 10
         }

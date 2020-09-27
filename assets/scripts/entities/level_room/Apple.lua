@@ -4,14 +4,14 @@ description("i like apples")
 function create(apple)
 
     setComponents(apple, {
-        AABB = {
-            halfSize = {4, 3}
+        AABB {
+            halfSize = ivec2(4, 3)
         },
-        Physics = {},
-        AsepriteView = {
+        Physics(),
+        AsepriteView {
             sprite = "sprites/apple"
         },
-        Health = {
+        Health {
             takesDamageFrom = {"hit"},
             componentsToAddOnDeath = {
                 SliceSpriteIntoPieces = {

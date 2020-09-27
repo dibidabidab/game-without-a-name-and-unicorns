@@ -9,7 +9,7 @@ defaultArgs({
 function create(hpBar)
 
     setComponents(hpBar, {
-        UIElement = {
+        UIElement {
 
         }
     })
