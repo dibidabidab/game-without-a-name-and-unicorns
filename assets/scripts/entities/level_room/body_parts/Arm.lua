@@ -2,7 +2,7 @@
 defaultArgs({
     length = 15,
     body = nil,
-    shoulderAnchor = {0, 0},
+    shoulderAnchor = ivec2(),
     spriteSliceName = "arm",
     color = 5
 })
@@ -20,8 +20,8 @@ function create(arm, args)
     -- ELBOW:
     elbow = createChild(arm, "elbow")
     setComponents(elbow, {
-        AABB = {},
-        LimbJoint = {
+        AABB(),
+        LimbJoint {
             hipJointEntity = shoulder,
             footEntity = arm
         }
@@ -29,16 +29,16 @@ function create(arm, args)
 
     -- HAND/ARM:
     components = {
-        Arm = {
+        Arm {
             length = args.length,
             body = args.body,
             anchor = args.shoulderAnchor,
         },
-        AABB = {},
-        BezierCurve = {
+        AABB(),
+        BezierCurve {
             points = {shoulder, elbow, arm}
         },
-        DrawPolyline = {
+        DrawPolyline {
             colors = {args.color}
         }
     }

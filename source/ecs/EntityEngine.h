@@ -67,17 +67,17 @@ class EntityEngine
 
     void luaTableToComponent(entt::entity, const std::string &componentName, const sol::table &);
 
-    const ComponentUtils &componentUtils(const std::string &componentName);
+    static const ComponentUtils &componentUtils(const std::string &componentName);
 
     entt::entity createChild(entt::entity parent, const char *childName="");
 
     void setParent(entt::entity child, entt::entity parent, const char *childName="");
 
     template<typename type>
-    void emitEntityEvent(entt::entity e, const type &event)
+    void emitEntityEvent(entt::entity e, const type &event, const char *customEventName=NULL)
     {
         if (auto *emitter = entities.try_get<EventEmitter>(e))
-            emitter->emit(event);
+            emitter->emit(event, customEventName);
     }
 
     virtual ~EntityEngine();

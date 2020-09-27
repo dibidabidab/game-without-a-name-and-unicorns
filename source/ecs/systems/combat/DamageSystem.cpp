@@ -55,11 +55,13 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                 auto dropE = room->entities.create();
 
                 float dropSize = mu::random(.8, 2.5);
-                auto &drop = room->entities.assign<BloodDrop>(dropE, dropSize, health.bloodColor);
+                auto &drop = room->entities.assign<BloodDrop>(dropE);
+                drop.size = dropSize;
+                drop.color = health.bloodColor;
                 if (dropSize > 1.3)
                     drop.splitAtTime = mu::random(.05, .5);
 
-                room->entities.assign<AABB>(dropE, ivec2(1), aabb->center);
+                room->entities.assign<AABB>(dropE).center = aabb->center;
                 auto &dropPhysics = room->entities.assign<Physics>(dropE);
                 dropPhysics.wallFriction = dropPhysics.floorFriction = mu::random(10, 60);
                 dropPhysics.velocity = vec2(mu::random(-250, 250), mu::random(-250, 250));
@@ -75,7 +77,7 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                 // this attack is the death cause of this entity
                 health.currHealth = 0;
 
-                if (!health.givePlayerArrowOnKill.empty() && room->entities.try_get<PlayerControlled>(attack.dealtBy) != NULL)
+                if (!health.givePlayerArrowOnKill.empty() && room->entities.has<PlayerControlled>(attack.dealtBy))
                 {
                     Bow *bow = room->tryGetChildComponentByName<Bow>(attack.dealtBy, "bow");
                     if (bow)
@@ -93,47 +95,15 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                         }
                     }
                 }
+                room->emitEntityEvent(e, attack, "Died");
             }
-            room->emitEntityEvent(e, attack);
+            room->emitEntityEvent(e, attack, "Attacked");
         }
 
         health.attacks.clear();
 
         if (health.currHealth == 0)
-        {
-            for (auto &componentName : health.componentsToRemoveOnDeath)
-            {
-                const ComponentUtils *utils = ComponentUtils::getFor(componentName);
-                if (!utils)
-                {
-                    std::cerr << "componentsToRemoveOnDeath for entity#" << int(e) << " contains '" << componentName << "' which is not a component type!" << std::endl;
-                    continue;
-                }
-                utils->removeComponent(e, room->entities);
-            }
-            if (health.componentsToAddOnDeath.is_object())
-            {
-                for (auto &[componentName, component] : health.componentsToAddOnDeath.items())
-                {
-                    const ComponentUtils *utils = ComponentUtils::getFor(componentName);
-                    if (!utils)
-                    {
-                        std::cerr << "componentsToAddOnDeath for entity#" << int(e) << " contains '" << componentName << "' which is not a component type!" << std::endl;
-                        continue;
-                    }
-                    try
-                    {
-                        utils->setJsonComponentWithKeys(component, e, room->entities);
-                    }
-                    catch (std::exception &exc)
-                    {
-                        std::cerr << "Error while adding " << componentName << " to dead entity#" << int(e) << ":\n" << exc.what() << std::endl;
-                    }
-                }
-            }
-
             room->entities.remove<Health>(e);
-        }
     });
 }
 

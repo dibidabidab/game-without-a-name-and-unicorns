@@ -1,3 +1,7 @@
+config:
+  hpp_incl:
+    - set
+
 DamageType:
 
   _flags:
@@ -9,6 +13,9 @@ DamageType:
 
 
 Damage:
+  _flags:
+    - not_a_component
+
   type: string
   points: [ int, 0 ]
   dealtBy: [ entt::entity, entt::null ]
@@ -27,9 +34,6 @@ Health:
   knockBackResistance: [ float, 0 ] # should be between 0 and 1. Values outside that range can create funny results I think
 
   bloodColor: [ uint8, 10 ]
-
-  componentsToAddOnDeath: json  # todo: use an OnDeath event instead?
-  componentsToRemoveOnDeath: std::list<std::string> # todo ^
 
   givePlayerArrowOnKill: string
 

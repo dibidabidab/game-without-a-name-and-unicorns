@@ -4,6 +4,7 @@ config:
 GraphicsSettings:
   _flags:
     - not_a_component
+    - json_with_keys
 
   vsync: [ bool, true ]
   fullscreen: [ bool, false ]
@@ -26,12 +27,14 @@ GraphicsSettings:
 AudioSettings:
   _flags:
     - not_a_component
+    - json_with_keys
 
   masterVolume: [ float, 1. ]
 
 KeyInputSettings:
   _flags:
     - not_a_component
+    - json_with_keys
 
   walkLeft: [ KeyInput::Key, GLFW_KEY_A ]
   walkRight: [ KeyInput::Key, GLFW_KEY_D ]
@@ -55,6 +58,7 @@ KeyInputSettings:
 Settings:
   _flags:
     - not_a_component
+    - json_with_keys
 
   graphics: GraphicsSettings
   audio: AudioSettings

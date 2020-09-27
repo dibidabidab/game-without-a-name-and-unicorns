@@ -77,7 +77,7 @@ void BloodSplatterRenderer::updateSplatterTexture(float deltaTime)
         {
             drop.permanentDraw = true;
             physics.gravity = 0;
-            room->entities.assign<DespawnAfter>(e, mu::random(.3, 1));
+            room->entities.assign<DespawnAfter>(e).time = mu::random(.3, 1);
         }
 
         if (!drop.split || drop.timer < drop.splitAtTime || drop.splitAtTime == 0 || drop.permanentDraw)
@@ -90,7 +90,8 @@ void BloodSplatterRenderer::updateSplatterTexture(float deltaTime)
 
         for (int i = 0; i < newOnes; i++)
         {
-            BloodDrop newDrop{drop.size};
+            BloodDrop newDrop;
+            newDrop.size = drop.size;
             newDrops.push_back({newDrop, aabb, physics});
             newDrops.back().physics.velocity += vec2(mu::random(-100, 100), mu::random(-100, 100));
         }

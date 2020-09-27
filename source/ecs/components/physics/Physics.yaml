@@ -1,3 +1,8 @@
+config: # todo, this file is included a lot only for AABB, but that also includes all this other shit
+  hpp_incl:
+    - ../ecs/systems/physics/TerrainCollisionDetector.h
+    - audio/audio.h
+    - utils/aseprite/Aseprite.h
 
 AABB: # 2d pixel based Axis Aligned Bounding Box
 

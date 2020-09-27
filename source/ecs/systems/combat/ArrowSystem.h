@@ -23,8 +23,9 @@ class ArrowSystem : public EntitySystem
             if (physics.touches.anything) // Terrain
             {
                 room->entities.remove<Physics>(e);
-                room->entities.assign<DespawnAfter>(e, mu::random(60, 100));
-                auto &s = room->entities.assign<SoundSpeaker>(e, asset<au::Sound>("sounds/arrow_hit"));
+                room->entities.assign<DespawnAfter>(e).time = mu::random(60, 100);
+                auto &s = room->entities.assign<SoundSpeaker>(e);
+                s.sound = asset<au::Sound>("sounds/arrow_hit");
                 s.pitch = mu::random(.8, 1.2);
                 s.volume = .18;
                 return;
@@ -47,12 +48,12 @@ class ArrowSystem : public EntitySystem
                     return;
                 }
 
-                healthOther.attacks.push_back({
-                    arrow.damageType,
-                    1,
-                    arrow.launchedBy,
-                    vec2(aabb.center) - physics.velocity
-                });
+                Damage attack;
+                attack.points = 1;
+                attack.type = arrow.damageType;
+                attack.dealtBy = arrow.launchedBy;
+                attack.sourcePosition = vec2(aabb.center) - physics.velocity;
+                healthOther.attacks.push_back(attack);
                 enemyHit = true;
             });
             if (enemyHit)

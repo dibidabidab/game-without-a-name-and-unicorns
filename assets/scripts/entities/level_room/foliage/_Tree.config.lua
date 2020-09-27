@@ -1,6 +1,8 @@
-mtlib = include("scripts/util/math")
+mtlib      = include("scripts/util/math")
 
-ageRange = mtlib.range(100)
+maxAge     = 100
+ageRange   = mtlib.range(maxAge)
+ageRangeDs = mtlib.range(maxAge - 1)
 
 --[[ types in tree config
     length          Length in pixels
@@ -15,7 +17,6 @@ ageRange = mtlib.range(100)
 ]]--
 
 --[[ TreeConfig
-    branchLength            length      Max length of the stem at full age. Length at age 0 is 0
     branchlessStart         factorRange Amount of branch from the start that cannot have any branches split off of it
     width                   factorRange Stem width factor. 1 is normal width. Width depends on size and weight
     widthIncrease           factor      Increase of width for each branch piece
@@ -32,8 +33,11 @@ ageRange = mtlib.range(100)
     crownAngle              degreeRange Angle of branches at the crown
     crownMinAngle           degrees     Minimum angle between branches at the crown
 
-    tendency                enum        "up", "out", "down", "none": tendency for the tree to grow towards
-    tendencyStrength        factor      Strenght of tendency: 1 is medium tendency, above 1 will ignore some limits
+    tendency                enum        "out", "direction", "none": tendency for the tree to grow towards
+    tendencyDirection       degrees     Direction of the tendency when using "direction"
+    tendencyOutRange        degrees     Degrees of tendency "out" at the bottom of the branchable part of the stem
+    tendencyStrength        factor      Strength of tendency
+    tendencyStrengthRdc     factor      Each piece should have a reduced tendency (0-.9) or not (1)
 
     branchLengthFct         factor      Each branch should have a reduced length (0-.9) or not (1)
     pieceAmountFct          factor      Each branch should have a reduced nr of pieces (0-.9) or not (1)
@@ -44,27 +48,31 @@ ageRange = mtlib.range(100)
     limitPieces             amount      Limit the depth of recursive branch pieces
 ]]--
 
-oak   = {
-    branchlessStart = mtlib.range(.4, .6),
-    width           = mtlib.range(1, 1.4),
-    widthIncrease   = mtlib.range(.4),
+oak        = {
+    branchlessStart     = mtlib.range(.2, .4),
+    width               = mtlib.range(1, 1.4),
+    widthIncrease       = mtlib.range(.4),
 
-    pieceLength     = mtlib.range(12, 24),
-    pieceAngle      = mtlib.sqRangeDev(40),
+    pieceLength         = mtlib.range(4, 16),
+    pieceAngle          = mtlib.sqRangeDev(40),
 
-    branchChance    = 1,
-    branchAngle     = mtlib.rangeDev(50),
-    branchLength    = 50,
+    branchChance        = .4,
+    branchAngle         = mtlib.rangeDev(40),
+    branchLength        = 50,
 
-    crownBranches   = mtlib.range(1),
-    crownAngle      = mtlib.rangeDev(60),
-    crownMinAngle   = 25,
+    crownBranches       = mtlib.range(1, 2),
+    crownAngle          = mtlib.rangeDev(60),
+    crownMinAngle       = 25,
 
-    -- ...
+    tendency            = "direction",
+    tendencyDirection   = 0,
+    tendencyOutRange    = 0,
+    tendencyStrength    = .05,
+    tendencyStrengthRdc = .99,
 
-    pieceLengthFct  = .95,
-    pieceAmountFct  = .8,
-    branchLengthFct = .8,
+    pieceLengthFct      = .99,
+    pieceAmountFct      = .8,
+    branchLengthFct     = .8,
 
-    limitLength     = 200
+    limitLength         = 200
 }

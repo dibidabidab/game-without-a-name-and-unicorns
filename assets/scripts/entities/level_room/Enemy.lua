@@ -2,44 +2,37 @@
 persistenceMode(TEMPLATE | ARGS | SPAWN_POS | REVIVE)
 
 function create(enemy)
+    component.AABB.getFor(enemy).halfSize = ivec2(5, 8)
     setComponents(enemy, {
-        AABB = {
-            halfSize = {5, 8}
-        },
-        Physics = {
+        Physics {
             ignorePolyPlatforms = false,
             ignoreFluids = false
         },
-        StaticCollider = {},
-        Health = {
+        StaticCollider(),
+        Health {
             takesDamageFrom = {"hit"},
-            componentsToAddOnDeath = {
-                SliceSpriteIntoPieces = {
-                    steps = 6
-                }
-            },
             currHealth = 4,
             maxHealth = 4,
             givePlayerArrowOnKill = "RainbowArrow"
         },
-        AsepriteView = {
+        AsepriteView {
             sprite = "sprites/enemy"
         },
-        PointLight = {
+        PointLight {
             radius = 60
         }
     })
 
-    onEntityEvent(enemy, "Damage", function(damage, removeListener)
+    onEntityEvent(enemy, "Attacked", function(attack)
 
-        local health = getComponent(enemy, "Health");
+        local health = component.Health.getFor(enemy)
 
-        print("AUWWWWWW", damage.points, health.currHealth, "/", health.maxHealth)
+        print("AUWWWWWW", attack.points, health.currHealth, "/", health.maxHealth)
+    end)
+    onEntityEvent(enemy, "Died", function (attack)
+        component.SliceSpriteIntoPieces.getFor(enemy).steps = 6
 
-        if health.currHealth == 1 then
-            removeListener()
-        end
-
+        print("enemy was killed with an attack of", attack.points, "points")
     end)
 
 end

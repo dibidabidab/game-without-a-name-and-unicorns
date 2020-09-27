@@ -32,7 +32,10 @@ void SpawningSystem::spawn(entt::entity spawnerEntity, TemplateSpawner &spawner)
     try
     {
         auto spawned = room->entities.create();
-        auto &spawnedBy = room->entities.assign<SpawnedBy>(spawned, spawnerEntity, spawner.customData);
+        auto &spawnedBy = room->entities.assign<SpawnedBy>(spawned);
+        spawnedBy.spawner = spawnerEntity;
+        spawnedBy.customData = spawner.customData;
+
 
         AABB *aabb = room->entities.try_get<AABB>(spawnerEntity);
         if (aabb)

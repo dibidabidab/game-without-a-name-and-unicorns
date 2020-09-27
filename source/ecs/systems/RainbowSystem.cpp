@@ -1,5 +1,6 @@
 
 #include "RainbowSystem.h"
+#include "../EntityEngine.h"
 #include "../../generated/Physics.hpp"
 #include "../../generated/Polyline.hpp"
 #include "../../generated/PolyPlatform.hpp"

@@ -3,310 +3,102 @@
 #define GAME_LUA_CONVERTERS_H
 
 #include "../luau.h"
-#include "sfinae.h"
-
-#include <iostream>
-#include <utils/gu_error.h>
-#include <utils/type_name.h>
-#include <utils/math_utils.h>
-#include <asset_manager/asset.h>
-
 #include "../../external/entt/src/entt/entity/registry.hpp"
 
-HAS_MEM_FUNC(toLuaTable, has_toLuaTable_function)
-HAS_MEM_FUNC(fromLuaTable, has_fromLuaTable_function)
+#include <asset_manager/asset.h>
+
+/////////// asset<>
+
+template <typename Handler, typename type>
+bool sol_lua_check(sol::types<asset<type>>, lua_State* L, int index, Handler&& handler, sol::stack::record& tracking) {
+
+    bool success = sol::stack::check<const char *>(L, index, handler);
+    tracking.use(1);
+    return success;
+}
 
 template<typename type>
-struct lua_converter
+asset<type> sol_lua_get(sol::types<asset<type>>, lua_State* L, int index, sol::stack::record& tracking)
 {
-    static void fromLua(sol::object v, type &field)
-    {
-        if (!v.valid())
-            return;
+    sol::optional<const char *> path = sol::stack::get<sol::optional<const char *>>(L, index);
 
-        if constexpr (has_fromLuaTable_function<type>::value)
-        {
-            auto optionalTable = v.as<sol::optional<sol::table>>();
-            if (!optionalTable.has_value())
-                throw gu_err("Unable to convert to " + getTypeName<type>() + " because the given Lua value is not a table!");
+    tracking.use(1);
 
-            field.fromLuaTable(optionalTable.value());
-        }
-        else
-        {
-            auto optional = v.as<sol::optional<type>>();
-            if (optional.has_value())
-                field = optional.value();
-            else
-                throw gu_err("Unable to convert to " + getTypeName<type>());
+    asset<type> a;
 
-            /**
-             * if this ever fails then this might work:
-             *
-             * if constexpr (has_fromJson_function<type>::value)
-             * {
-             *      convert lua value to json, then call fromJson<type>(json, type())
-             * }
-             */
-        }
-    }
+    if (path.has_value())
+        a.set(path.value());
 
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const type &val)
-    {
-        if constexpr (has_toLuaTable_function<type>::value)
-        {
-            auto table = luaVal.template get_or_create<sol::table>();
-            val.toLuaTable(table);
-        }
-        else
-            luaVal = val;
-    }
-};
-
-
-template<>
-struct lua_converter<uint8>
-{
-    static void fromLua(sol::object v, uint8 &c)
-    {
-        if (!v.valid())
-            return;
-        c = v.as<sol::optional<uint8>>().value_or(v.as<sol::optional<float>>().value_or(-123));
-    }
-
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const uint8 &c)
-    {
-        luaVal = c;
-    }
-};
-
-template<int len, typename type, qualifier something>
-struct lua_converter<vec<len, type, something>>
-{
-    static void fromLua(sol::object v, vec<len, type, something> &vec)
-    {
-        if (!v.valid())
-            return;
-
-        auto vecTable = v.as<sol::optional<sol::table>>();
-
-        if (!vecTable.has_value() || vecTable.value().size() != len)
-            throw gu_err("In order to convert to vec" + std::to_string(len) + ", value should be a table with " +
-                         std::to_string(len) + " numbers!");
-
-        for (int i = 0; i < len; i++)
-            vec[i] = vecTable.value()[i + 1].get<float>(); // get<float>() because get<int>() might cause error when value is a float
-    }
-
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const vec<len, type, something> &vec)
-    {
-        auto vecTable = luaVal.template get_or_create<sol::table>();
-        for (int i = 0; i < len; i++)
-            vecTable[i + 1] = vec[i];
-    }
-};
+    return a;
+}
 
 template<typename type>
-struct lua_converter<asset<type>>
+int sol_lua_push(sol::types<asset<type>>, lua_State* L, const asset<type>& asset) {
+
+    if (asset.isSet())
+        sol::stack::push(L, asset.getLoadedAsset()->shortPath);
+    else
+        sol::stack::push(L, sol::nil);
+
+    return 1;
+}
+///////////
+
+/////////// entt::entity
+
+template <typename Handler>
+bool sol_lua_check(sol::types<entt::entity>, lua_State* L, int index, Handler&& handler, sol::stack::record& tracking) {
+
+    bool success = sol::stack::check<int>(L, index, handler);
+    if (!success)
+        success = sol::stack::check<sol::nil_t>(L, index, handler);
+    tracking.use(1);
+    return success;
+}
+
+entt::entity sol_lua_get(sol::types<entt::entity>, lua_State* L, int index, sol::stack::record& tracking);
+
+int sol_lua_push(sol::types<entt::entity>, lua_State* L, const entt::entity& e);
+
+///////////////
+
+void jsonFromLuaTable(const sol::table &table, json &jsonOut);
+
+void jsonToLuaTable(sol::table &table, const json &json);
+
+template <>
+struct sol::usertype_container<json> : public container_detail::usertype_container_default<json>
 {
-    static void fromLua(sol::object v, asset<type> &asset)
+    static int index_get(lua_State *lua)
     {
-        if (!v.valid())
-            return;
+        json &j = *sol::stack::unqualified_check_get<json *>(lua, 1).value();
 
-        auto path = v.as<sol::optional<std::string>>();
-        if (!path.has_value())
-            throw gu_err("In order to set asset<" + getTypeName<type>() +
-                         ">, value should be a string (example: 'sprites/my_very_nice_sprite').");
+        json *jOut = NULL;
 
-        asset.set(path.value());
-    }
+        const char *keyStr = sol::stack::unqualified_check_get<const char *>(lua, 2).value_or((const char *) NULL);
+        if (keyStr)
+            jOut = &j.at(keyStr);
 
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const asset<type> &asset)
-    {
-        if (asset.isSet())
-            luaVal = asset.getLoadedAsset().shortPath;
         else
-            luaVal = "";
-    }
-};
-
-template<>
-struct lua_converter<entt::entity>
-{
-    static void fromLua(sol::object v, entt::entity &e)
-    {
-        if (!v.valid())
-            return;
-
-        auto optional = v.as<sol::optional<int>>();
-        e = optional.has_value() ? entt::entity(optional.value()) : entt::null;
-    }
-
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const entt::entity &e)
-    {
-        if (e == entt::null)
-            luaVal = sol::nil;
-        else
-            luaVal = int(e);
-    }
-};
-
-template<typename type>
-struct lua_converter<std::vector<type>>
-{
-    static void fromLua(sol::object v, std::vector<type> &vec)
-    {
-        if (!v.valid())
-            return;
-
-        auto listTable = v.as<sol::optional<sol::table>>();
-
-        if (!listTable.has_value())
-            throw gu_err("Cannot convert non-table to vector :(");
-
-        vec.resize(listTable.value().size());
-
-        int i = 0;
-        for (auto &[_, val] : listTable.value())
-            lua_converter<type>::fromLua(val, vec[i++]);
-    }
-
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const std::vector<type> &vec)
-    {
-        int i = 1;
-        auto table = luaVal.template get_or_create<sol::table>();
-        for (const type &v : vec)
         {
-            auto ref = table[i++];
-            lua_converter<type>::toLua(ref, v);
+            int keyInt = sol::stack::unqualified_check_get<int>(lua, 2).value();
+            jOut = &j.at(keyInt);
         }
+        if (jOut->is_structured())
+            sol::stack::push(lua, jOut);
+        else if (jOut->is_boolean())
+            sol::stack::push(lua, bool(*jOut));
+        else if (jOut->is_null())
+            sol::stack::push(lua, sol::nil);
+        else if (jOut->is_number_float())
+            sol::stack::push(lua, float(*jOut));
+        else if (jOut->is_number())
+            sol::stack::push(lua, int(*jOut));
+        else if (jOut->is_string())
+            sol::stack::push(lua, std::string(*jOut));
+        return 1;
     }
+
 };
-
-template<typename type>
-struct lua_converter<std::list<type>>
-{
-    static void fromLua(sol::object v, std::list<type> &list)
-    {
-        if (!v.valid())
-            return;
-
-        auto listTable = v.as<sol::optional<sol::table>>();
-
-        if (!listTable.has_value())
-            throw gu_err("Cannot convert non-table to list :(");
-
-        list.clear();
-
-        for (auto &[key, val] : listTable.value())
-        {
-            list.emplace_back();
-            type &back = list.back();
-            lua_converter<type>::fromLua(val, back);
-        }
-    }
-
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const std::list<type> &list)
-    {
-        int i = 1;
-        auto table = luaVal.template get_or_create<sol::table>();
-        for (const type &v : list)
-        {
-            auto ref = table[i++];
-            lua_converter<type>::toLua(ref, v);
-        }
-    }
-};
-
-template<>
-struct lua_converter<json>
-{
-    static void fromLuaTable(const sol::table &table, json &jsonOut)
-    {
-        jsonOut = json::object(); // assume its an object (keys are strings).
-        for (auto &[key, val] : table)
-        {
-            if (jsonOut.is_object() && key.get_type() == sol::type::number)
-                jsonOut = json::array();
-
-            json jsonVal;
-
-            switch (val.get_type())
-            {
-                case sol::type::number:
-                    jsonVal = val.as<double>();
-                    break;
-                case sol::type::boolean:
-                    jsonVal = val.as<bool>();
-                    break;
-                case sol::type::string:
-                    jsonVal = val.as<std::string>();
-                    break;
-                case sol::type::table:
-                    fromLuaTable(val.as<sol::table>(), jsonVal);
-                    break;
-                default:
-                    break;
-            }
-            if (jsonOut.is_object())
-                jsonOut[key.as<std::string>()] = jsonVal;
-            else
-                jsonOut.push_back(jsonVal);
-        }
-    }
-
-    static void fromLua(sol::object v, json &jsonOut)
-    {
-        if (!v.valid())
-            return;
-
-        auto listTable = v.as<sol::optional<sol::table>>();
-        if (listTable.has_value())
-            fromLuaTable(listTable.value(), jsonOut);
-    }
-
-    static void toLuaTable(sol::table &table, const json &json)
-    {
-        assert(json.is_structured());
-        if (json.is_object())
-            for (auto &[key, val] : json.items())
-            {
-                auto ref = table[key];
-                toLua(ref, val);
-            }
-        else
-            for (auto &[key, val] : json.items())
-            {
-                auto ref = table[atoi(key.c_str()) + 1];
-                toLua(ref, val);
-            }
-    }
-
-    template<typename luaRef>
-    static void toLua(luaRef &luaVal, const json &json)
-    {
-        if (json.is_structured())
-        {
-            auto subTable = luaVal.template get_or_create<sol::table>();
-            toLuaTable(subTable, json);
-        } else if (json.is_number_integer())
-            luaVal = int(json);
-        else if (json.is_number())
-            luaVal = float(json);
-        else if (json.is_boolean())
-            luaVal = bool(json);
-        else if (json.is_string())
-            luaVal = std::string(json);
-    }
-};
-
 
 #endif //GAME_LUA_CONVERTERS_H

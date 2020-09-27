@@ -1,5 +1,8 @@
 config:
   namespace: Packet::from_server
+  hpp_incl:
+    - Player.hpp
+    - ../level/room/TileMap.h
 
 join_request_declined:
   _flags:

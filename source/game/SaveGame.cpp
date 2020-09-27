@@ -11,7 +11,7 @@ SaveGame::SaveGame(const char *path) : loadedFromPath(path)
     {
         auto data = File::readBinary(path);
         json jsonData = json::from_cbor(data.begin(), data.end());
-        lua_converter<json>::toLuaTable(luaTable, jsonData.at("luaTable"));
+        jsonToLuaTable(luaTable, jsonData.at("luaTable"));
     }
 }
 
@@ -21,7 +21,7 @@ void SaveGame::save(const char *path)
 {
     json j = json::object();
     json &jsonLuaTable = j["luaTable"] = json::object();
-    lua_converter<json>::fromLuaTable(luaTable, jsonLuaTable);
+    jsonFromLuaTable(luaTable, jsonLuaTable);
 
     std::vector<std::string> idsToRemove;
 

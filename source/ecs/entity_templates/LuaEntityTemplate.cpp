@@ -49,9 +49,9 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, En
     env["description"] = [&](const char *d) {
         description = d;
     };
-    env["setUpdateFunction"] = [&](int entity, float updateFrequency, const sol::function &func, sol::optional<bool> randomAcummulationDelay) {
+    env["setUpdateFunction"] = [&](entt::entity entity, float updateFrequency, const sol::function &func, sol::optional<bool> randomAcummulationDelay) {
 
-        LuaScripted &scripted = engine->entities.get_or_assign<LuaScripted>(entt::entity(entity));
+        LuaScripted &scripted = engine->entities.get_or_assign<LuaScripted>(entity);
         scripted.updateFrequency = updateFrequency;
 
         if (randomAcummulationDelay.value_or(true))
@@ -62,9 +62,9 @@ LuaEntityTemplate::LuaEntityTemplate(const char *assetName, const char *name, En
         scripted.updateFunc = func;
         scripted.updateFuncScript = script;
     };
-    env["setOnDestroyCallback"] = [&](int entity, const sol::function &func) {
+    env["setOnDestroyCallback"] = [&](entt::entity entity, const sol::function &func) {
 
-        LuaScripted &scripted = engine->entities.get_or_assign<LuaScripted>(entt::entity(entity));
+        LuaScripted &scripted = engine->entities.get_or_assign<LuaScripted>(entity);
         scripted.onDestroyFunc = func;
         scripted.onDestroyFuncScript = script;
     };
@@ -128,7 +128,7 @@ void LuaEntityTemplate::createComponentsWithLuaArguments(entt::entity e, sol::op
         {
             auto &p = engine->entities.assign_or_replace<Persistent>(e, persistency);
             if (persistentArgs && arguments.has_value() && arguments.value().valid())
-                lua_converter<json>::fromLuaTable(arguments.value(), p.data);
+                jsonFromLuaTable(arguments.value(), p.data);
 
             assert(p.data.is_object());
             if (!id.empty())
@@ -166,7 +166,7 @@ json LuaEntityTemplate::getDefaultArgs()
     if (script.hasReloaded())
         runScript();
     json j;
-    lua_converter<json>::fromLua(defaultArgs, j);
+    jsonFromLuaTable(defaultArgs, j);
     return j;
 }
 
@@ -174,7 +174,7 @@ void LuaEntityTemplate::createComponentsWithJsonArguments(entt::entity e, const 
 {
     auto table = sol::table::create(env.lua_state());
     if (arguments.is_structured())
-        lua_converter<json>::toLuaTable(table, arguments);
+        jsonToLuaTable(table, arguments);
     createComponentsWithLuaArguments(e, table, persistent);
 }
 

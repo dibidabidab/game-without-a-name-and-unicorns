@@ -15,11 +15,10 @@ defaultArgs({
 function create(text, args)
 
     setComponents(text, {
-        TextView = {
+        TextView {
             text = args.text,
             mapColorFrom = args.mapColorFrom,
             mapColorTo = args.color,
-            lineSpacing = args.lineSpacing,
             letterSpacing = args.letterSpacing,
             fontSprite = args.font,
             waving = args.waving,
@@ -27,6 +26,8 @@ function create(text, args)
             wavingSpeed = args.wavingSpeed,
             wavingAmplitude = args.wavingAmplitude
         },
-        UIElement = {}
+        UIElement {
+            lineSpacing = args.lineSpacing
+        }
     })
 end

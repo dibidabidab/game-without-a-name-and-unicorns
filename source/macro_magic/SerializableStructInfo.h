@@ -23,18 +23,23 @@ struct SerializableStructInfo
 
     const int nrOfFields;
 
+    std::function<void(sol::state &)> luaUserTypeGenerator;
+
     SerializableStructInfo(
             const char *name, const str_vec &fieldNames, const str_vec &fieldTypeNames,
             const bool_vec &fieldIsStructured,
             const bool_vec &structFieldIsFixedSize,
 
-            std::size_t typeHash
+            std::size_t typeHash,
+
+            std::function<void(sol::state &)> luaUserTypeGenerator
     )
 
             : name(name), fieldNames(fieldNames), fieldTypeNames(fieldTypeNames),
               fieldIsPrimitive(fieldIsStructured),
               structFieldIsFixedSize(structFieldIsFixedSize),
-              nrOfFields(fieldNames.size())
+              nrOfFields(fieldNames.size()),
+              luaUserTypeGenerator(luaUserTypeGenerator)
     {
         if (infos == NULL)
             infos = new std::map<std::string, SerializableStructInfo *>();
@@ -60,6 +65,11 @@ struct SerializableStructInfo
     static std::size_t getTypeHash()
     {
         return typeid(StructType).hash_code();
+    }
+
+    static const std::map<std::string, SerializableStructInfo *> &getForAllTypes()
+    {
+        return *infos;
     }
 
   private:

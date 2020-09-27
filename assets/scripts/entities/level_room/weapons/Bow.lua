@@ -4,7 +4,7 @@ defaultArgs({
     archer = nil,
     leftArm = nil,
     rightArm = nil,
-    rotatePivot = {0, 0},
+    rotatePivot = ivec2(),
     distanceFromArcher = 9
 })
 
@@ -24,17 +24,17 @@ function create(bow, args)
         sliceName = "hand_string_anchor"
     })
 
-    components = {
-        AABB = {
-            halfSize = {3, 3}
+    setComponents(bow, {
+        AABB {
+            halfSize = ivec2(3)
         },
-        AsepriteView = {
+        AsepriteView {
             sprite = "sprites/bow",
             playingTag = 0,
             paused = true,
             loop = false
         },
-        Bow = {
+        Bow {
             handBowAnchor = handBowAnchor,
             handStringAnchor = handStringAnchor,
 
@@ -46,6 +46,5 @@ function create(bow, args)
 
             arrowTemplate = args.arrowTemplate
         }
-    }
-    setComponents(bow, components)
+    })
 end

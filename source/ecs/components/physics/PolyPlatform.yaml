@@ -1,7 +1,7 @@
 
 PolyPlatform:
   allowFallThrough: [bool, true]
-  material: TileMaterial
+  material: uint8 # uint8 == TileMaterial
 
   _cpp_only:
     entitiesOnPlatform: std::vector<entt::entity>

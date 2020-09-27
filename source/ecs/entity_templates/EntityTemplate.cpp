@@ -12,9 +12,10 @@ entt::entity EntityTemplate::create(bool persistent)
 entt::entity EntityTemplate::createNetworked(int networkID, bool serverSide, bool persistent)
 {
     auto e = create(persistent);
-    engine->entities.assign<Networked>(e, networkID, templateHash);
 
-    Networked &n = engine->entities.get<Networked>(e);
+    Networked &n = engine->entities.assign<Networked>(e);
+    n.networkID = networkID;
+    n.templateHash = templateHash;
 
     if (serverSide)
         makeNetworkedServerSide(n);

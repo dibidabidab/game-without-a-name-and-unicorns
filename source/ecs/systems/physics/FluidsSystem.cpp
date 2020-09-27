@@ -57,7 +57,7 @@ void FluidsSystem::update(double deltaTime, EntityEngine *room)
                     {
                         auto bubbleE = room->entities.create();
                         room->entities.assign<AABB>(bubbleE).center = randomPointInAABB(*bodyInFluid);
-                        room->entities.assign<AsepriteView>(bubbleE, fluid.bubbleSprite);
+                        room->entities.assign<AsepriteView>(bubbleE).sprite = fluid.bubbleSprite;
                         auto &p = room->entities.assign<Physics>(bubbleE);
                         p.ignoreFluids = false;
                         p.fluidAnimations = false;
@@ -84,10 +84,11 @@ void FluidsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Fluid &
     {   // SOUND:
 
         auto speakerEntity = room->entities.create();
-        auto &s = room->entities.assign<SoundSpeaker>(speakerEntity, sound);
+        auto &s = room->entities.assign<SoundSpeaker>(speakerEntity);
+        s.sound = sound;
         s.volume = min<float>(1., absYVel / 200) * sizeMultiplier;
         s.pitch = max<float>(.8, 2. - (absYVel / 200)) + mu::random(-.3, .3) ;
-        room->entities.assign<DespawnAfter>(speakerEntity, .4f);
+        room->entities.assign<DespawnAfter>(speakerEntity).time = 4;
     }
 
 
@@ -95,7 +96,7 @@ void FluidsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Fluid &
     for (int i = 0; i < absYVel * .1 * fluid.splatterAmount * sizeMultiplier; i++)
     {
         auto dropE = room->entities.create();
-        room->entities.assign<AABB>(dropE, ivec2(1), otherAABB.bottomCenter());
+        room->entities.assign<AABB>(dropE).center = otherAABB.bottomCenter();
         auto &dropPhysics = room->entities.assign<Physics>(dropE);
         dropPhysics.airFriction = 0.;
         dropPhysics.velocity = rotate(vec2(0, absYVel * mu::random(.5, 1.6)), mu::random(20, 70) * mu::DEGREES_TO_RAD);
@@ -113,7 +114,7 @@ void FluidsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Fluid &
         drop.split = false;
         drop.color = fluid.color;
 
-        room->entities.assign<DespawnAfter>(dropE, mu::random(.4, .6));
+        room->entities.assign<DespawnAfter>(dropE).time = mu::random(.4, .6);
     }
 
     // WAVES:

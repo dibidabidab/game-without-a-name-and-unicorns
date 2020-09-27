@@ -11,25 +11,15 @@ defaultArgs({
 
 function create(rope, args)
 
-    components = {
-        VerletRope = {
-            endPointEntity = args.endPointEntity,
-            length = args.length,
-            moveByWind = args.moveByWind,
-            updatePrecision = args.updatePrecision
-        },
-        AABB = {
-            halfSize = {4, 4}
-        }
-    }
+    setComponent(rope, VerletRope {
+        endPointEntity = args.endPointEntity,
+        length = args.length,
+        moveByWind = args.moveByWind,
+        updatePrecision = args.updatePrecision
+    })
+    component.AABB.getFor(rope).halfSize = ivec2(4)
 
     if args.draw then
-
-        components.DrawPolyline = {
-            colors = { args.color }
-        }
-
+        component.DrawPolyline.getFor(rope).colors = { args.color }
     end
-
-    setComponents(rope, components)
 end

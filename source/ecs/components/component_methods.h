@@ -88,50 +88,6 @@ inline bool lineIntersectsOrInside(const AABB &aabb, const vec &p0, const vec &p
         || mu::lineSegmentsIntersect(p0, p1, aabb.topLeft(), aabb.topRight());
 }
 
-template <>
-struct ComponentInterpolator<AABB>
-{
-    float speed = 5;
-
-    AABB diff(AABB& aabb, const AABB &other)
-    {
-        prevCenter = aabb.center;
-        aabb.copyFieldsFrom(other);
-
-        if (length(vec2(other.center - prevCenter)) < 32) // dont interpolate if distance is too big
-            aabb.center = prevCenter;
-
-        AABB diff;
-        diff.center = other.center - aabb.center;
-        return diff;
-    }
-
-    vec2 addAccumulator;
-    ivec2 prevCenter;
-
-    void add(AABB& aabb, const AABB &diff, float x)
-    {
-        addAccumulator += vec2(diff.center) * vec2(x);
-
-        ivec2 selfTravel = aabb.center - prevCenter;
-        while (selfTravel.x >= 1 && addAccumulator.x > 0)
-            addAccumulator.x -= 1;
-        while (selfTravel.x <= -1 && addAccumulator.x < 0)
-            addAccumulator.x += 1;
-        while (selfTravel.y >= 1 && addAccumulator.y > 0)
-            addAccumulator.y -= 1;
-        while (selfTravel.y <= -1 && addAccumulator.y < 0)
-            addAccumulator.y += 1;
-
-        aabb.center += addAccumulator;
-        vec2 one(1);
-        addAccumulator = modf(addAccumulator, one);
-
-
-        prevCenter = aabb.center;
-    }
-};
-
 inline void draw(const Physics &physics, const AABB &body, DebugLineRenderer &lineRenderer, const vec3 &color)
 {
     lineRenderer.line(body.bottomLeft(), body.topLeft(), physics.touches.leftWall    ? mu::Y : color);

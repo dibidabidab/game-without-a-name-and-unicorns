@@ -16,25 +16,24 @@ function create(water, args)
     points = {}
 
     for i = 0, nrOfPoints - 1 do
-        table.insert(points, {
+        table.insert(points, vec2(
             args.width * -.5 + i * PIXELS_PER_LINE,
             args.depth * .5 - WAVE_MARGIN
-        })
+        ))
     end
 
-    components = {
-        AABB = {
-            halfSize = {args.width * .5, (args.depth + WAVE_MARGIN) * .5}
-        },
-        Polyline = {
+    component.AABB.getFor(water).halfSize = ivec2(args.width * .5, (args.depth + WAVE_MARGIN) * .5)
+
+    setComponents(water, {
+        Polyline {
             points = points
         },
-        DrawPolyline = {
+        DrawPolyline {
             addAABBOffset = true,
             colors = {colors.water1},
             zIndexBegin = -512, zIndexEnd = -512
         },
-        Fluid = {
+        Fluid {
             friction = 2.83, -- this value gives a funny walk animation underwater
             reduceGravity = 900,
 
@@ -49,12 +48,10 @@ function create(water, args)
             bubbleSprite = "sprites/bubble",
             bubblesAmount = 1.
         },
-        PolylineWaves = {
+        PolylineWaves {
             moveByWind = 1.,
             impactMultiplier = 2.,
             spread = 60
         }
-    }
-
-    setComponents(water, components)
+    })
 end

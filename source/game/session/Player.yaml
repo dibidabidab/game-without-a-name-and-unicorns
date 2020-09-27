@@ -1,3 +1,7 @@
+config:
+  fwd_decl:
+    - MultiplayerIO
+
 Player:
   _flags:
     - not_a_component
@@ -9,6 +13,5 @@ Player:
     io: [ MultiplayerIO*, NULL ]
 
   _methods:
-    - "Player() = default;"
     - "Player(const Player &other): id(other.id), name(other.name) {}"
-    - "~Player() { delete io; }"
+#    - "~Player() { delete io; }"  # todo: MultiplayerIO is forward declared, deleting it does not work

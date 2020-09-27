@@ -94,6 +94,16 @@ void EntityEngine::initialize()
     initialized = true;
 }
 
+void setComponentFromLua(entt::entity entity, const sol::table &component, entt::registry &reg)
+{
+    if (component.get_type() != sol::type::userdata)
+        throw gu_err("Given object is not a registered type");
+
+    auto typeName = component["__type"]["name"].get<std::string>();
+
+    EntityEngine::componentUtils(typeName).setFromLuaTable(component, entt::entity(entity), reg);
+}
+
 void EntityEngine::initializeLuaEnvironment()
 {
     // todo: functions might be called after EntityEngine is destructed
@@ -101,59 +111,37 @@ void EntityEngine::initializeLuaEnvironment()
     luaEnvironment = sol::environment(luau::getLuaState(), sol::create, luau::getLuaState().globals());
     auto &env = luaEnvironment;
 
-    env["getComponent"] = [&](int entity, const std::string &componentName) -> sol::optional<sol::table> {
-
-        auto &utils = componentUtils(componentName);
-
-        if (!utils.entityHasComponent(entt::entity(entity), entities))
-            return sol::optional<sol::table>();
-
-        auto table = sol::table::create(env.lua_state());
-        utils.getToLuaTable(table, entt::entity(entity), entities);
-        return table;
-    };
-    env["removeComponent"] = [&](int entity, const std::string &componentName) {
-        componentUtils(componentName).removeComponent(entt::entity(entity), entities);
-    };
-    env["setComponent"] = [&](int entity, const std::string &componentName, const sol::table &component) {
-        luaTableToComponent(entt::entity(entity), componentName, component);
-    };
-    env["setComponents"] = [&](int entity, const sol::table &componentsTable) {
-
-        for (const auto &[componentName, comp] : componentsTable)
-        {
-            if (!componentName.is<std::string>())
-                throw gu_err("All keys in the components table must be a string!");
-
-            auto nameStr = componentName.as<std::string>();
-
-            if (!comp.is<sol::table>())
-                throw gu_err("Expected a table for " + nameStr);
-            luaTableToComponent(entt::entity(entity), nameStr, comp);
-        }
+    env["setComponent"] = [&](entt::entity entity, const sol::table &component) {
+        setComponentFromLua(entity, component, entities);
     };
 
-    env["createEntity"] = [&]() -> int {
-
-        return int(entities.create());
+    env["setComponentFromJson"] = [&](entt::entity entity, const char *compName, const json &j) {
+        componentUtils(compName).setJsonComponentWithKeys(j, entity, entities);
     };
-    env["destroyEntity"] = [&](int e) {
 
-        entities.destroy(entt::entity(e));
-    };
-    env["createChild"] = [&](int parentEntity, sol::optional<std::string> childName) -> int {
+    env["setComponents"] = [&](entt::entity entity, const sol::table &componentsTable) {
 
-        int child = int(createChild(entt::entity(parentEntity), childName.value_or("").c_str()));
-        return child;
+        for (const auto &[i, comp] : componentsTable)
+            setComponentFromLua(entity, comp, entities);
     };
-    env["getChild"] = [&](int parentEntity, const char *childName) -> sol::optional<int> {
 
-        entt::entity childEntity = getChildByName(entt::entity(parentEntity), childName);
-        if (childEntity == entt::null)
-            return sol::optional<int>(); // nil
-        return int(childEntity);
+    env["createEntity"] = [&]() -> entt::entity {
+
+        return entities.create();
     };
-    env["applyTemplate"] = [&](int extendE, const char *templateName, const sol::optional<sol::table> &extendArgs, sol::optional<bool> persistent) {
+    env["destroyEntity"] = [&](entt::entity e) {
+
+        entities.destroy(e);
+    };
+    env["createChild"] = [&](entt::entity parentEntity, sol::optional<std::string> childName) -> entt::entity {
+
+        return createChild(parentEntity, childName.value_or("").c_str());
+    };
+    env["getChild"] = [&](entt::entity parentEntity, const char *childName) -> entt::entity {
+
+        return getChildByName(parentEntity, childName);
+    };
+    env["applyTemplate"] = [&](entt::entity extendE, const char *templateName, const sol::optional<sol::table> &extendArgs, sol::optional<bool> persistent) {
 
         auto entityTemplate = &getTemplate(templateName); // could throw error :)
 
@@ -162,20 +150,24 @@ void EntityEngine::initializeLuaEnvironment()
         if (dynamic_cast<LuaEntityTemplate *>(entityTemplate))
         {
             ((LuaEntityTemplate *) entityTemplate)->
-                    createComponentsWithLuaArguments(entt::entity(extendE), extendArgs, makePersistent);
+                    createComponentsWithLuaArguments(extendE, extendArgs, makePersistent);
         }
         else
-            entityTemplate->createComponents(entt::entity(extendE), makePersistent);
+            entityTemplate->createComponents(extendE, makePersistent);
     };
 
-    env["onEntityEvent"] = [&](int entity, const char *eventName, const sol::function &listener) {
+    env["onEntityEvent"] = [&](entt::entity entity, const char *eventName, const sol::function &listener) {
 
-        auto &emitter = entities.get_or_assign<EventEmitter>(entt::entity(entity));
+        auto &emitter = entities.get_or_assign<EventEmitter>(entity);
         emitter.on(eventName, listener);
     };
     env["onEvent"] = [&](const char *eventName, const sol::function &listener) {
         events.on(eventName, listener);
     };
+
+    auto componentUtilsTable = env["component"].get_or_create<sol::table>();
+    for (auto &componentName : ComponentUtils::getAllComponentTypeNames())
+        ComponentUtils::getFor(componentName)->registerLuaFunctions(componentUtilsTable, entities);
 }
 
 void EntityEngine::luaTableToComponent(entt::entity e, const std::string &componentName, const sol::table &component)
@@ -194,7 +186,10 @@ const ComponentUtils &EntityEngine::componentUtils(const std::string &componentN
 
 void EntityEngine::setParent(entt::entity child, entt::entity parent, const char *childName)
 {
-    entities.assign<Child>(child, parent, childName);
+    Child c;
+    c.parent = parent;
+    c.name = childName;
+    entities.assign<Child>(child, c);
 }
 
 entt::entity EntityEngine::createChild(entt::entity parent, const char *childName)

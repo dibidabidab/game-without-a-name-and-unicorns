@@ -51,8 +51,11 @@ class ArmsSystem : public EntitySystem
                     handAABB.center += movePixels;
                 }
             }
-            room->entities.get_or_assign<DistanceConstraint>(e, arm.length, arm.body, arm.anchor);
-
+            DistanceConstraint con;
+            con.maxDistance = arm.length;
+            con.target = arm.body;
+            con.targetOffset = arm.anchor;
+            room->entities.assign_or_replace<DistanceConstraint>(e, con);
         });
     }
 
