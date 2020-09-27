@@ -8,12 +8,11 @@ defaultArgs({
 })
 
 function create(anchor, args)
-    setComponents(anchor, {
-        SpriteAnchor {
-            spriteEntity = args.spriteEntity,
-            spriteSliceName = args.sliceName,
-            ignoreSpriteFlipping = args.ignoreSpriteFlipping
-        },
-        AABB()
-    })
+
+    component.AABB.getFor(anchor)
+    local comp = component.SpriteAnchor.getFor(anchor)
+    comp.spriteEntity = args.spriteEntity
+    comp.spriteSliceName = args.sliceName
+    comp.ignoreSpriteFlipping = args.ignoreSpriteFlipping
+
 end

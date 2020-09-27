@@ -77,7 +77,7 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                 // this attack is the death cause of this entity
                 health.currHealth = 0;
 
-                if (!health.givePlayerArrowOnKill.empty() && room->entities.try_get<PlayerControlled>(attack.dealtBy) != NULL)
+                if (!health.givePlayerArrowOnKill.empty() && room->entities.has<PlayerControlled>(attack.dealtBy))
                 {
                     Bow *bow = room->tryGetChildComponentByName<Bow>(attack.dealtBy, "bow");
                     if (bow)

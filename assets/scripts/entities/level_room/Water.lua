@@ -22,10 +22,9 @@ function create(water, args)
         ))
     end
 
+    component.AABB.getFor(water).halfSize = ivec2(args.width * .5, (args.depth + WAVE_MARGIN) * .5)
+
     setComponents(water, {
-        AABB {
-            halfSize = ivec2(args.width * .5, (args.depth + WAVE_MARGIN) * .5)
-        },
         Polyline {
             points = points
         },
