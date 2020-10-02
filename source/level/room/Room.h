@@ -2,7 +2,7 @@
 #ifndef GAME_ROOM_H
 #define GAME_ROOM_H
 
-#include "../../ecs/EntityEngine.h"
+#include <ecs/EntityEngine.h>
 #include "TileMap.h"
 #include "../../generated/Saving.hpp"
 #include <json.hpp>

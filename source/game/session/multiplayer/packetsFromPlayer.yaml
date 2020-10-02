@@ -1,8 +1,0 @@
-config:
-  namespace: Packet::from_player
-
-join_request:
-  _flags:
-    - not_a_component
-
-  name: std::string

@@ -2,7 +2,7 @@
 #ifndef GAME_TERRAINCOLLISIONDETECTOR_H
 #define GAME_TERRAINCOLLISIONDETECTOR_H
 
-#include "../../../macro_magic/serializable.h"
+#include <utils/math_utils.h>
 #include "../../../../external/entt/src/entt/entity/registry.hpp"
 
 class TileMap;

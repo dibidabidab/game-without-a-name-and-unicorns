@@ -8,6 +8,7 @@ endif ()
 
 project(game)
 
+execute_process(COMMAND git submodule update --init --recursive WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 # define GIT_COMMIT_HASH and GIT_COMMIT_MESSAGE. Todo: generate a .h file instead, since that won't cause everything to recompile
 execute_process(COMMAND git log -1 --pretty=%h OUTPUT_VARIABLE GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -39,11 +40,10 @@ find_package(PythonInterp 3.7 REQUIRED)
 
 add_custom_target(
         generate_structs_for_game ALL
-        COMMAND ${PYTHON_EXECUTABLE} ../external/dibidab-engine/external/lua-serde/lua-json-serde.py ../source/generated/ ../source/
+        COMMAND ${PYTHON_EXECUTABLE} ../external/dibidab-engine/external/lua-serde/lua-json-serde.py ../source/generated/ ../source/ ../../external/dibidab-engine/source/macro_magic/component.h
         COMMENT "Generating structs from yaml (game)"
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
-
 add_dependencies(game generate_structs_for_game)
 
 

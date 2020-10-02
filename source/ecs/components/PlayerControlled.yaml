@@ -1,9 +1,0 @@
-
-# Used to tell the game that an entity belongs to a player.
-
-PlayerControlled:
-  playerId: [final<int>, -1]
-
-LocalPlayer:
-  wat de hond dan doet laat miljoenen luidkeels lachen
-

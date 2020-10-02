@@ -1,9 +1,0 @@
-
-Parent:
-  deleteChildrenOnDeletion: [bool, true]
-  children: std::vector<entt::entity>
-  childrenByName: std::map<std::string, entt::entity>
-
-Child:
-  parent: entt::entity
-  name: std::string

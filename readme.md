@@ -8,11 +8,7 @@
 
 ## Usage
 
-Clone this repository.
-
-make sure you have [Git LFS](https://git-lfs.github.com/)
-
-run `python3 initialize_project.py` to download dependencies.
+Make sure you have [Git LFS](https://git-lfs.github.com/) installed, then clone this repo.
 
 ### Compile for Desktop
 
