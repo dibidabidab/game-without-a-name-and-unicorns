@@ -1,5 +1,6 @@
 
 #include "MiniMapTextureGenerator.h"
+#include "../../tiled_room/TiledRoom.h"
 
 ivec2 miniMapSize(const Level &lvl)
 {
@@ -7,7 +8,7 @@ ivec2 miniMapSize(const Level &lvl)
 
     for (int i = 0; i < lvl.getNrOfRooms(); i++)
     {
-        auto &room = lvl.getRoom(i);
+        auto &room = (TiledRoom &) lvl.getRoom(i);
 
         size.x = max<int>(size.x, room.positionInLevel.x + room.getMap().width);
         size.y = max<int>(size.y, room.positionInLevel.y + room.getMap().height);
@@ -33,7 +34,7 @@ SharedTexture MiniMapTextureGenerator::generate(const Level &lvl)
 
     for (int i = 0; i < lvl.getNrOfRooms(); i++)
     {
-        auto &room = lvl.getRoom(i);
+        auto &room = (TiledRoom &) lvl.getRoom(i);
         auto &map = room.getMap();
 
         TileMaterial prevMaterial = -1;

@@ -1,0 +1,39 @@
+config:
+  namespace: Game
+
+GraphicsSettings:
+  _flags:
+    - not_a_component
+    - json_with_keys
+
+  waterReflections: [ bool, true ]
+  bloom: [ bool, true ]
+  vignette: [ bool, true ]
+
+  roomTransitionAnimation: [ bool, true ]
+
+  imGuiFont: [string, "assets/fonts/ruda/Ruda-Bold.ttf"]
+
+KeyInputSettings:
+  _flags:
+    - not_a_component
+    - json_with_keys
+
+  walkLeft: [ KeyInput::Key, GLFW_KEY_A ]
+  walkRight: [ KeyInput::Key, GLFW_KEY_D ]
+  jump: [ KeyInput::Key, GLFW_KEY_SPACE ]
+  fall: [ KeyInput::Key, GLFW_KEY_S ]
+
+  nextTileShape: [ KeyInput::Key, GLFW_KEY_RIGHT ]
+  prevTileShape: [ KeyInput::Key, GLFW_KEY_LEFT ]
+  nextTileMaterial: [ KeyInput::Key, GLFW_KEY_DOWN ]
+  prevTileMaterial: [ KeyInput::Key, GLFW_KEY_UP ]
+
+Settings:
+  _flags:
+    - not_a_component
+    - json_with_keys
+
+  graphics: GraphicsSettings
+  keyInput: KeyInputSettings
+  customSettings: [ json, json::object() ]

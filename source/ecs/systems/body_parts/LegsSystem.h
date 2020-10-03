@@ -2,8 +2,8 @@
 #ifndef GAME_LEGSSYSTEM_H
 #define GAME_LEGSSYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../level/room/Room.h"
+#include <ecs/systems/EntitySystem.h>
+#include "../../../tiled_room/TiledRoom.h"
 #include "../../../generated/Health.hpp"
 #include "../../../generated/Leg.hpp"
 #include "../../../generated/Physics.hpp"
@@ -19,11 +19,11 @@ class LegsSystem : public EntitySystem
     constexpr static float MIN_JUMP_TIME = .1;
 
   protected:
-    Room *room;
+    TiledRoom *room;
 
     void update(double deltaTime, EntityEngine *engine) override
     {
-        this->room = (Room *) engine;
+        this->room = (TiledRoom *) engine;
         room->entities.view<Leg, AABB>().each([&](auto e, Leg &leg, AABB &footAABB) {
 
             AABB *bodyAABB = room->entities.try_get<AABB>(leg.body);

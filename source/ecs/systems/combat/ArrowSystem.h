@@ -2,11 +2,11 @@
 #ifndef GAME_ARROWSYSTEM_H
 #define GAME_ARROWSYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../level/room/Room.h"
+#include <ecs/systems/EntitySystem.h>
+#include "../../../tiled_room/TiledRoom.h"
 #include "../../../generated/Health.hpp"
-#include "../../../generated/Spawning.hpp"
-#include "../../../generated/SoundSpeaker.hpp"
+#include <generated/Spawning.hpp>
+#include <generated/SoundSpeaker.hpp>
 #include "../../../generated/Arrow.hpp"
 #include "../../components/component_methods.h"
 

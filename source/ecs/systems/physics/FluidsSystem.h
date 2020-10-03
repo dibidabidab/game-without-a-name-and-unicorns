@@ -2,8 +2,7 @@
 #ifndef GAME_FLUIDSSYSTEM_H
 #define GAME_FLUIDSSYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../level/Level.h"
+#include <ecs/systems/EntitySystem.h>
 #include "../../../generated/Physics.hpp"
 #include "../../../generated/PolyPlatform.hpp"
 #include "../../../generated/Polyline.hpp"

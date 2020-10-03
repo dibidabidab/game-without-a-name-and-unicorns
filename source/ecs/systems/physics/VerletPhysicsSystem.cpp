@@ -4,7 +4,7 @@
 
 void VerletPhysicsSystem::init(EntityEngine *engine)
 {
-    room = (Room *) engine;
+    room = (TiledRoom *) engine;
     updateFrequency = 60;
 
 

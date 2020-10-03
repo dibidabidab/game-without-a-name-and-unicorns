@@ -2,8 +2,7 @@
 #ifndef GAME_DAMAGESYSTEM_H
 #define GAME_DAMAGESYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../macro_magic/serializable.h"
+#include <ecs/systems/EntitySystem.h>
 #include <asset_manager/asset.h>
 
 struct DamageType;

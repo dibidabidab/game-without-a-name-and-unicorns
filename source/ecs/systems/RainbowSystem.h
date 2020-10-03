@@ -2,7 +2,7 @@
 #ifndef GAME_RAINBOWSYSTEM_H
 #define GAME_RAINBOWSYSTEM_H
 
-#include "EntitySystem.h"
+#include <ecs/systems/EntitySystem.h>
 
 class RainbowSystem : public EntitySystem
 {

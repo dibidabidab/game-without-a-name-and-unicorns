@@ -7,11 +7,11 @@
 #include <functional>
 #include <utils/math_utils.h>
 #include "TileMapOutliner.h"
-#include "../../ecs/systems/EntitySystem.h"
-#include "../../rendering/level/room/tile_map/TileSet.h"
+#include <ecs/systems/EntitySystem.h>
+#include "../rendering/level/room/tile_map/TileSet.h"
 #include "WindMap.h"
 
-#include "../../generated/TileMap.hpp"
+#include "../generated/TileMap.hpp"
 
 enum class Tile : unsigned char {
     /*                                      ___               ___        _______
@@ -40,7 +40,7 @@ class TileMap {
 
     std::list<tile_update> tileUpdatesSinceLastUpdate, tileUpdatesPrevUpdate;
 
-    friend class Room;
+    friend class TiledRoom;
 
     const std::vector<TileMaterialProperties> materialProperties;
 

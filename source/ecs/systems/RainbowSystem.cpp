@@ -5,8 +5,8 @@
 #include "../../generated/Polyline.hpp"
 #include "../../generated/PolyPlatform.hpp"
 #include "../../generated/Rainbow.hpp"
-#include "../../generated/PlayerControlled.hpp"
 #include "../../generated/Arrow.hpp"
+#include <generated/PlayerControlled.hpp>
 
 void RainbowSystem::updateRainbowSpawners(float deltaTime)
 {

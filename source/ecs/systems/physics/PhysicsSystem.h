@@ -3,11 +3,11 @@
 #define GAME_PHYSICSSYSTEM_H
 
 
-#include "../EntitySystem.h"
-#include "../../../level/Level.h"
+#include <ecs/systems/EntitySystem.h>
 #include "../../../generated/Physics.hpp"
 #include "../../../generated/PolyPlatform.hpp"
 #include "../../../generated/Polyline.hpp"
+#include "../../../tiled_room/TiledRoom.h"
 
 namespace
 {
@@ -28,7 +28,7 @@ namespace
  */
 class PhysicsSystem : public EntitySystem
 {
-    Room *room = NULL;
+    TiledRoom *room = NULL;
 
     using EntitySystem::EntitySystem;
   protected:

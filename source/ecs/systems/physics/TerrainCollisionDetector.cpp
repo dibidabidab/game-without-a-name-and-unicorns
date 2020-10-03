@@ -4,7 +4,7 @@
 #include "../../../generated/PolyPlatform.hpp"
 #include "../../../generated/Polyline.hpp"
 #include "../../components/component_methods.h"
-#include "../../../level/room/TileMap.h"
+#include "../../../tiled_room/TileMap.h"
 
 void TerrainCollisionDetector::detect(
         TerrainCollisions &collisions, const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms, bool ignoreFluids

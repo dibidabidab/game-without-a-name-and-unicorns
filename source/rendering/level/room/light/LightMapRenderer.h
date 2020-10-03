@@ -8,11 +8,11 @@
 #include <graphics/shader_asset.h>
 #include <graphics/3d/mesh.h>
 #include <graphics/3d/vert_buffer.h>
-#include "../../../../level/room/Room.h"
+#include "../../../../tiled_room/TiledRoom.h"
 
 class LightMapRenderer
 {
-    Room *room;
+    TiledRoom *room;
 
     ShaderAsset pointLightShader, directionalLightShader;
 
@@ -25,7 +25,7 @@ class LightMapRenderer
 
     FrameBuffer *fbo = NULL;
 
-    LightMapRenderer(Room *room);
+    LightMapRenderer(TiledRoom *room);
 
     void render(const Camera &cam, const SharedTexture &shadowTexture);
 

@@ -2,8 +2,8 @@
 #ifndef GAME_LIMBJOINTSYSTEM_H
 #define GAME_LIMBJOINTSYSTEM_H
 
-#include "../../../level/room/Room.h"
-#include "../EntitySystem.h"
+#include "../../../tiled_room/TiledRoom.h"
+#include <ecs/systems/EntitySystem.h>
 #include "../../../generated/PlatformerMovement.hpp"
 #include "../../../generated/LimbJoint.hpp"
 #include "../../../generated/Arm.hpp"

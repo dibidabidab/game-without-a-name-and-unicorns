@@ -2,8 +2,7 @@
 #ifndef GAME_ARMSSYSTEM_H
 #define GAME_ARMSSYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../level/room/Room.h"
+#include <ecs/systems/EntitySystem.h>
 
 class ArmsSystem : public EntitySystem
 {

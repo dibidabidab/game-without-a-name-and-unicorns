@@ -2,10 +2,10 @@
 #include "LightMapRenderer.h"
 #include "../../../../generated/Physics.hpp"
 #include "../../../../generated/Light.hpp"
-#include "../../../../level/Level.h"
 #include "ShadowCaster.h"
+#include <level/Level.h>
 
-LightMapRenderer::LightMapRenderer(Room *room)
+LightMapRenderer::LightMapRenderer(TiledRoom *room)
     :
         room(room),
         pointLightShader("PointLightShader", "shaders/light/point_light.vert", "shaders/light/point_light.frag"),

@@ -1,18 +1,21 @@
 
 #include "LevelScreen.h"
 #include "MiniMapTextureGenerator.h"
-#include "../../generated/PlayerControlled.hpp"
+#include <generated/PlayerControlled.hpp>
+#include <game/dibidab.h>
+#include <imgui.h>
 #include "../../generated/TransRoomable.hpp"
+#include "../../game/Game.h"
 
 LevelScreen::LevelScreen(Level *lvl) : lvl(lvl), lvlEditor(lvl)
 {
     onPlayerEnteredRoom = lvl->onPlayerEnteredRoom += [this](Room *room, int playerId)
     {
-        auto localPlayer = Game::getCurrentSession().getLocalPlayer();
+        auto localPlayer = dibidab::getCurrentSession().getLocalPlayer();
         if (!localPlayer || localPlayer->id != playerId)
             return;
         std::cout << "Local player entered room. Show RoomScreen\n";
-        showRoom(room);
+        showRoom(dynamic_cast<TiledRoom *>(room));
     };
 
     onRoomDeletion = lvl->beforeRoomDeletion += [this](Room *r)
@@ -43,7 +46,7 @@ void LevelScreen::onResize()
 
 void LevelScreen::renderDebugTools()
 {
-    if (!Game::settings.showDeveloperOptions)
+    if (!dibidab::settings.showDeveloperOptions)
         return;
 
     ImGui::BeginMainMenuBar();
@@ -63,10 +66,10 @@ void LevelScreen::renderDebugTools()
 
     lvlEditor.render();
     if (lvlEditor.moveCameraToRoom >= 0)
-        showRoom(&lvl->getRoom(lvlEditor.moveCameraToRoom));
+        showRoom(dynamic_cast<TiledRoom *>(&lvl->getRoom(lvlEditor.moveCameraToRoom)));
 }
 
-void LevelScreen::showRoom(Room *r)
+void LevelScreen::showRoom(TiledRoom *r)
 {
     delete roomScreen;
     roomScreen = NULL;

@@ -418,7 +418,7 @@ void PhysicsSystem::updateWind(Physics &physics, AABB &body, double deltaTime)
 
 void PhysicsSystem::init(EntityEngine *room)
 {
-    this->room = (Room *) room;
+    this->room = (TiledRoom *) room;
 
     room->entities.on_construct<DistanceConstraint>().connect<&PhysicsSystem::onDistanceConstraintCreated>(this);
 }

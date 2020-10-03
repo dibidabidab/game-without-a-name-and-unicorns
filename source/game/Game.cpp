@@ -1,4 +1,5 @@
 
+#include <game/dibidab.h>
 #include "Game.h"
 
 Game::Settings Game::settings;
@@ -27,10 +28,13 @@ void Game::loadSettings()
     {
         settings = Settings();
         std::cerr << "Settings file (" << SETTINGS_FILE_PATH << ") not found!" << std::endl;
+        saveSettings();
         return;
     }
     try {
-        settings = json::parse(File::readString(SETTINGS_FILE_PATH));
+        json j = json::parse(File::readString(SETTINGS_FILE_PATH));
+        settings = j;
+        dibidab::settings = j;
     }
     catch (std::exception &e)
     {
@@ -44,37 +48,9 @@ void Game::saveSettings()
 {
     setShaderDefinitions();
     json j = settings;
+    j.merge_patch(dibidab::settings);
 
     File::writeBinary(SETTINGS_FILE_PATH, j.dump(4));
-}
-
-std::map<std::string, std::string> Game::startupArgs;
-
-Session &Game::getCurrentSession()
-{
-    auto *s = tryGetCurrentSession();
-    if (s == NULL)
-        throw gu_err("There's no Session active at the moment");
-    return *s;
-}
-
-delegate<void()> Game::onSessionChange;
-Session *currSession = NULL;
-
-Session *Game::tryGetCurrentSession()
-{
-    return currSession;
-}
-
-void Game::setCurrentSession(Session *s)
-{
-    delete currSession;
-    currSession = s;
-
-    if (s)
-        luau::getLuaState()["saveGame"] = s->saveGame.luaTable;
-
-    onSessionChange();
 }
 
 MegaSpriteSheet Game::spriteSheet;

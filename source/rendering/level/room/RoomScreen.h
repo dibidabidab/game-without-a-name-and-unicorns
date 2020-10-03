@@ -8,29 +8,14 @@
 #include <graphics/orthographic_camera.h>
 #include <graphics/frame_buffer.h>
 #include <graphics/shader_asset.h>
-#include <utils/quad_renderer.h>
-#include <imgui.h>
 
-#include "../../../level/room/Room.h"
-#include "RoomEditor.h"
-#include "DebugTileRenderer.h"
-#include "../../../generated/Physics.hpp"
-#include "../../../generated/Light.hpp"
-#include "../../../generated/VerletRope.hpp"
-#include "../../../generated/PolyPlatform.hpp"
-#include "../../../generated/PaletteSetter.hpp"
-#include "../../../generated/Polyline.hpp"
-#include "../../../ecs/EntityInspector.h"
+#include "../../../tiled_room/TiledRoom.h"
 #include "CameraMovement.h"
 #include "tile_map/TileMapRenderer.h"
-#include "../../PaletteEditor.h"
 #include "light/ShadowCaster.h"
 #include "light/LightMapRenderer.h"
-#include "../../sprites/MegaSpriteSheet.h"
 #include "../../sprites/SpriteRenderer.h"
 #include "../../PolylineRenderer.h"
-#include "../../../ecs/entity_templates/LuaEntityTemplate.h"
-#include "../../../game/Game.h"
 #include "blood_splatter/BloodSplatterRenderer.h"
 #include "FluidRenderer.h"
 
@@ -38,7 +23,7 @@ class RoomScreen : public Screen
 {
     bool showRoomEditor = false;
 
-    EntityInspector inspector;
+//    EntityInspector inspector;
 
     DebugLineRenderer lineRenderer;
 
@@ -70,9 +55,9 @@ class RoomScreen : public Screen
     static inline float timeSinceNewPaletteEffect = 0;
     CameraMovement camMovement;
 
-    Room *room;
+    TiledRoom *room;
 
-    RoomScreen(Room *room, bool showRoomEditor=false);
+    RoomScreen(TiledRoom *room, bool showRoomEditor=false);
 
     void render(double deltaTime) override;
 

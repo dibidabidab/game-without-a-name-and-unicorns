@@ -3,7 +3,7 @@
 #define GAME_MINIMAPTEXTUREGENERATOR_H
 
 #include <graphics/texture.h>
-#include "../../level/Level.h"
+#include <level/Level.h>
 
 class MiniMapTextureGenerator
 {

@@ -12,7 +12,6 @@
 #include "../../generated/Health.hpp"
 #include "../../generated/AsepriteView.hpp"
 #include "../../generated/Physics.hpp"
-#include "../../generated/Inspecting.hpp"
 
 void Leg::stopMoving()
 {
@@ -56,11 +55,4 @@ ivec2 AsepriteView::getDrawPosition(const AABB &aabb) const
     position += originAlign * vec2(-sprite->width, -sprite->height);
     position += aabbAlign * vec2(aabb.halfSize * 2);
     return position;
-}
-
-InspectPathState &Inspecting::getState()
-{
-    std::string pathKey;
-    for (auto &s : currentPath) pathKey += "--->" + s;
-    return state[pathKey];
 }

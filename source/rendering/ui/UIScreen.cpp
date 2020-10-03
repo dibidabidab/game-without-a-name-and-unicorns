@@ -2,24 +2,22 @@
 #include <imgui.h>
 #include <utils/code_editor/CodeEditor.h>
 #include <utils/quad_renderer.h>
+#include <ecs/systems/AudioSystem.h>
+#include <ecs/systems/LuaScriptsSystem.h>
+#include <generated/Children.hpp>
 #include "UIScreen.h"
 #include "../../game/Game.h"
-#include "../../game/session/SingleplayerSession.h"
 #include "../../ecs/systems/graphics/SpriteSystem.h"
-#include "../../ecs/systems/LuaScriptsSystem.h"
-#include "../../ecs/systems/AudioSystem.h"
 #include "../level/room/RoomScreen.h"
-#include "../../ecs/systems/ChildrenSystem.h"
 
 UIScreen::UIScreen(const asset<luau::Script> &s)
     :
     script(s),
     cam(.1, 1000, 0, 0),
-    inspector(*this, "UI"),
+//    inspector(*this, "UI"),
     applyPaletteUIShader("Apply palette UI shader", "shaders/fullscreen_quad", "shaders/ui/apply_palette")
 {
 
-    addSystem(new ChildrenSystem("children"));
     addSystem(new SpriteSystem("(animated) sprites"));
     addSystem(new AudioSystem("audio"));
     addSystem(new LuaScriptsSystem("lua functions"));
@@ -40,43 +38,8 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);
 
-    inspector.createEntity_showSubFolder = "ui";
-    inspector.createEntity_persistentOption = false;
-}
-
-void UIScreen::initializeLuaEnvironment()
-{
-    EntityEngine::initializeLuaEnvironment();
-
-    luaEnvironment["endCurrentSession"] = [] {
-        Game::setCurrentSession(NULL);
-    };
-
-    luaEnvironment["startSinglePlayerSession"] = [] (const char *saveGamePath) {
-        Game::setCurrentSession(new SingleplayerSession(saveGamePath));
-    };
-    // todo: startMultiplayerServerSession and startMultiplayerClientsession
-
-    luaEnvironment["joinSession"] = [] (const char *username, const sol::function& onJoinRequestDeclined) {
-
-        auto &session = Game::getCurrentSession();
-
-        session.onJoinRequestDeclined = [onJoinRequestDeclined] (auto reason) {
-
-            sol::protected_function_result result = onJoinRequestDeclined(reason);
-            if (!result.valid())
-                throw gu_err(result.get<sol::error>().what());
-        };
-        session.join(username);
-    };
-
-    luaEnvironment["loadOrCreateLevel"] = [](const char *path)
-    {
-        auto &session = Game::getCurrentSession();
-        auto singleplayerSession = dynamic_cast<SingleplayerSession *>(&session);
-        if (singleplayerSession)
-            singleplayerSession->setLevel(new Level(path));
-    };
+//    inspector.createEntity_showSubFolder = "ui";
+//    inspector.createEntity_persistentOption = false;
 }
 
 void UIScreen::render(double deltaTime)
@@ -160,12 +123,12 @@ void UIScreen::onResize()
 
 void UIScreen::renderDebugStuff()
 {
-    if (!Game::settings.showDeveloperOptions)
+    if (!dibidab::settings.showDeveloperOptions)
         return;
 
     lineRenderer.projection = cam.combined;
 
-    inspector.drawGUI(&cam, lineRenderer);
+//    inspector.drawGUI(&cam, lineRenderer);
 
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("UI"))

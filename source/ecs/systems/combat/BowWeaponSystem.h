@@ -2,11 +2,11 @@
 #ifndef GAME_BOWWEAPONSYSTEM_H
 #define GAME_BOWWEAPONSYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../level/room/Room.h"
-#include "../../../generated/SoundSpeaker.hpp"
+#include <ecs/systems/EntitySystem.h>
+#include "../../../tiled_room/TiledRoom.h"
+#include <generated/SoundSpeaker.hpp>
+#include <generated/Spawning.hpp>
 #include "../../../generated/Arrow.hpp"
-#include "../../../generated/Spawning.hpp"
 #include "../../../generated/Bow.hpp"
 #include "../../../generated/Aiming.hpp"
 

@@ -8,8 +8,6 @@ endif ()
 
 project(game)
 
-execute_process(COMMAND git submodule update --init --recursive WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-
 # define GIT_COMMIT_HASH and GIT_COMMIT_MESSAGE. Todo: generate a .h file instead, since that won't cause everything to recompile
 execute_process(COMMAND git log -1 --pretty=%h OUTPUT_VARIABLE GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND git log -1 --pretty=%s OUTPUT_VARIABLE GIT_COMMIT_MESSAGE OUTPUT_STRIP_TRAILING_WHITESPACE)

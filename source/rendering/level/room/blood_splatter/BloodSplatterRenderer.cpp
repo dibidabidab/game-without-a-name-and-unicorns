@@ -3,13 +3,13 @@
 #include <graphics/3d/vert_buffer.h>
 #include "BloodSplatterRenderer.h"
 
-#include "../../../../level/room/Room.h"
+#include "../../../../tiled_room/TiledRoom.h"
 #include "../../../../generated/Physics.hpp"
 #include "../../../../generated/BloodDrop.hpp"
-#include "../../../../generated/Spawning.hpp"
+#include <generated/Spawning.hpp>
 
 
-BloodSplatterRenderer::BloodSplatterRenderer(Room *r)
+BloodSplatterRenderer::BloodSplatterRenderer(TiledRoom *r)
     :
     room(r),
     fbo(

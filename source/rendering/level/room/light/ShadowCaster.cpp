@@ -3,7 +3,7 @@
 #include <gu/profiler.h>
 #include <graphics/orthographic_camera.h>
 
-ShadowCaster::ShadowCaster(Room *room)
+ShadowCaster::ShadowCaster(TiledRoom *room)
     :
     room(room),
     debugShader("Shadow debug shader", "shaders/light/shadow.vert", "shaders/light/shadow_debug.frag"),

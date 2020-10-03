@@ -3,7 +3,8 @@
 #define GAME_LEVELEDITOR_H
 
 
-#include "../../level/Level.h"
+#include <level/Level.h>
+#include <graphics/texture.h>
 
 class LevelEditor
 {

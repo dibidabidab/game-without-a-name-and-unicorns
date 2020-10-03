@@ -1,7 +1,8 @@
 
 #include "LevelEditor.h"
 #include "MiniMapTextureGenerator.h"
-#include "../../generated/PlayerControlled.hpp"
+#include "../../tiled_room/TiledRoom.h"
+#include <generated/PlayerControlled.hpp>
 #include <imgui.h>
 
 LevelEditor::LevelEditor(Level *lvl) : lvl(lvl)
@@ -78,7 +79,7 @@ void LevelEditor::render()
 
             if (ImGui::Button("Create"))
             {
-                lvl->createRoom(width, height);
+                lvl->addRoom(new TiledRoom(ivec2(width, height)));
                 showingRoomProperties = lvl->getNrOfRooms() - 1;
             }
 
@@ -154,7 +155,7 @@ void LevelEditor::render()
 
         if (importRoomI != -1)
         {
-            const Room &r = loadRoomFromLvl->getRoom(importRoomI);
+            auto &r = dynamic_cast<TiledRoom &>(loadRoomFromLvl->getRoom(importRoomI));
 
             ImGui::Text("Size: (%d, %d)", r.getMap().width, r.getMap().height);
             ImGui::Text("Position: (%d, %d)", r.positionInLevel.x, r.positionInLevel.y);
@@ -185,7 +186,11 @@ void LevelEditor::render()
             {
                 const Room &r = loadRoomFromLvl->getRoom(importRoomI);
                 showingRoomProperties = lvl->getNrOfRooms();
-                lvl->createRoom(r.getMap().width, r.getMap().height, &r);
+                json j;
+                r.toJson(j);
+                auto *imported = new TiledRoom;
+                imported->fromJson(j);
+                lvl->addRoom(imported);
 
                 close = true;
                 recreateMiniMap = true;
@@ -239,13 +244,19 @@ void LevelEditor::moveButtons()
     bool canMove = true;
 
     for (int i = 0; i < lvl->getNrOfRooms(); i++)
-        if (-move.x > int(lvl->getRoom(i).positionInLevel.x) || -move.y > int(lvl->getRoom(i).positionInLevel.y))
+    {
+        auto &r = dynamic_cast<TiledRoom &>(lvl->getRoom(i));
+        if (-move.x > int(r.positionInLevel.x) || -move.y > int(r.positionInLevel.y))
             canMove = false;
+    }
 
     if (canMove && (move.x != 0 || move.y != 0))
     {
         for (int i = 0; i < lvl->getNrOfRooms(); i++)
-            lvl->getRoom(i).positionInLevel += move;
+        {
+            auto &r = dynamic_cast<TiledRoom &>(lvl->getRoom(i));
+            r.positionInLevel += move;
+        }
         miniMapTex = NULL;
     }
 }
@@ -258,7 +269,7 @@ void LevelEditor::roomProperties()
     if (showingRoomProperties < 0)
         return;
 
-    Room &room = lvl->getRoom(showingRoomProperties);
+    auto &room = dynamic_cast<TiledRoom &>(lvl->getRoom(showingRoomProperties));
 
     ImGui::SetNextWindowPos(ImVec2(50, 300), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(350, 400), ImGuiCond_FirstUseEver);
@@ -284,7 +295,11 @@ void LevelEditor::roomProperties()
     if (ImGui::Button("Duplicate Room"))
     {
         showingRoomProperties = lvl->getNrOfRooms();
-        lvl->createRoom(room.getMap().width, room.getMap().height, &room);
+        json j;
+        room.toJson(j);
+        auto *duplicated = new TiledRoom;
+        duplicated->fromJson(j);
+        lvl->addRoom(duplicated);
         recreateMiniMap = true;
     }
 
@@ -376,7 +391,7 @@ void LevelEditor::miniMap()
 
     for (int i = 0; i < lvl->getNrOfRooms(); i++)
     {
-        Room &room = lvl->getRoom(i);
+        auto &room = dynamic_cast<TiledRoom &>(lvl->getRoom(i));
 
         ImVec2 p0(lowerLeft.x + room.positionInLevel.x * zoom, lowerLeft.y - (room.positionInLevel.y + room.getMap().height) * zoom);
         ImVec2 p1(p0.x + room.getMap().width * zoom, lowerLeft.y - room.positionInLevel.y * zoom);

@@ -2,8 +2,7 @@
 #ifndef GAME_WAVESSYSTEM_H
 #define GAME_WAVESSYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../level/Level.h"
+#include <ecs/systems/EntitySystem.h>
 #include "../../../generated/Physics.hpp"
 #include "../../../generated/PolyPlatform.hpp"
 
@@ -15,13 +14,13 @@ class WavesSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;
 
-    Room *room;
+    TiledRoom *room;
 
   protected:
 
     void update(double deltaTime, EntityEngine *engine) override
     {
-        this->room = (Room *) engine;
+        this->room = (TiledRoom *) engine;
         room->entities.view<Polyline, PolylineWaves, AABB>().each([&](
                 Polyline &line, PolylineWaves &wave, AABB &aabb
         ){

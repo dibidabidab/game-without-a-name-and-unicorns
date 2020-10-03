@@ -2,10 +2,10 @@
 #ifndef GAME_VERLETPHYSICSSYSTEM_H
 #define GAME_VERLETPHYSICSSYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../level/Level.h"
+#include <ecs/systems/EntitySystem.h>
 #include "../../../generated/Physics.hpp"
 #include "../../../generated/VerletRope.hpp"
+#include "../../../tiled_room/TiledRoom.h"
 
 /**
  * based on https://github.com/dci05049/Verlet-Rope-Unity/blob/master/Tutorial%20Verlet%20Rope/Assets/Rope.cs
@@ -16,7 +16,7 @@ class VerletPhysicsSystem : public EntitySystem
 
   protected:
 
-    Room *room = NULL;
+    TiledRoom *room = NULL;
 
     void init(EntityEngine *engine) override;
 

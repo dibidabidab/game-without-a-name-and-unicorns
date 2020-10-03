@@ -3,7 +3,7 @@
 #define GAME_LEVELSCREEN_H
 
 #include <gu/screen.h>
-#include "../../level/Level.h"
+#include <level/Level.h>
 #include "room/RoomScreen.h"
 #include "LevelEditor.h"
 
@@ -26,7 +26,7 @@ class LevelScreen : public Screen
 
     void onResize() override;
 
-    void showRoom(Room *);
+    void showRoom(TiledRoom *);
 
   private:
 

@@ -4,7 +4,7 @@
 
 #include <list>
 #include <utils/math_utils.h>
-#include "../EntitySystem.h"
+#include <ecs/systems/EntitySystem.h>
 
 struct AABB;
 struct AsepriteView;

@@ -1,13 +1,13 @@
 
 #include "TransRoomerSystem.h"
 #include "../../generated/Physics.hpp"
-#include "../../level/room/Room.h"
 #include "../../generated/TransRoomable.hpp"
-#include "../../generated/PlayerControlled.hpp"
+#include <generated/PlayerControlled.hpp>
+#include <level/Level.h>
 
 void TransRoomerSystem::update(double deltaTime, EntityEngine *engine)
 {
-    Room *room = (Room *) engine;
+    TiledRoom *room = (TiledRoom *) engine;
     int maxY = room->getMap().height * TileMap::PIXELS_PER_TILE - 1;
     int maxX = room->getMap().width * TileMap::PIXELS_PER_TILE - 1;
 
@@ -77,7 +77,7 @@ void TransRoomerSystem::update(double deltaTime, EntityEngine *engine)
     });
 }
 
-Room *TransRoomerSystem::findNextRoom(Room &current, const ivec2 &travelDir, const ivec2 &position, ivec2 &positionInNextRoom)
+TiledRoom *TransRoomerSystem::findNextRoom(TiledRoom &current, const ivec2 &travelDir, const ivec2 &position, ivec2 &positionInNextRoom)
 {
     ivec2 globalPos = position + ivec2(current.positionInLevel * uvec2(TileMap::PIXELS_PER_TILE)) + travelDir;
 
@@ -86,7 +86,7 @@ Room *TransRoomerSystem::findNextRoom(Room &current, const ivec2 &travelDir, con
         if (i == current.getIndexInLevel())
             continue;
 
-        Room &r = current.getLevel().getRoom(i);
+        auto &r = (TiledRoom &) current.getLevel().getRoom(i);
 
         ivec2
             roomPosMin = r.positionInLevel * uvec2(TileMap::PIXELS_PER_TILE),

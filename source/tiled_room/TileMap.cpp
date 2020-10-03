@@ -4,7 +4,6 @@
 #include <utils/gu_error.h>
 
 #include "TileMap.h"
-#include "../Level.h"
 
 TileMap::TileMap(ivec2 size)
     :

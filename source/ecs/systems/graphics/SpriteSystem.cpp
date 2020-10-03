@@ -1,6 +1,6 @@
 
 #include "SpriteSystem.h"
-#include "../../EntityEngine.h"
+#include <ecs/EntityEngine.h>
 #include "../../../generated/AsepriteView.hpp"
 #include "../../../generated/SpriteAnchor.hpp"
 #include "../../../generated/SpriteBobbing.hpp"

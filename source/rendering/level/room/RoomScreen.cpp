@@ -1,12 +1,22 @@
 
 #include <utils/code_editor/CodeEditor.h>
+#include <level/Level.h>
+#include <game/dibidab.h>
 #include "RoomScreen.h"
 #include "../../../generated/LimbJoint.hpp"
 #include "../../../generated/Aiming.hpp"
 #include "../../../generated/Leg.hpp"
 #include "../../../ecs/components/component_methods.h"
+#include "../../../generated/Physics.hpp"
+#include "../../../generated/Light.hpp"
+#include "../../../generated/VerletRope.hpp"
+#include "../../../generated/PolyPlatform.hpp"
+#include "../../../generated/PaletteSetter.hpp"
+#include "../../../generated/Polyline.hpp"
+#include "RoomEditor.h"
+#include "../../../game/Game.h"
 
-RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
+RoomScreen::RoomScreen(TiledRoom *room, bool showRoomEditor)
         :
         room(room), showRoomEditor(showRoomEditor),
         cam(.1, 1000, 0, 0),
@@ -22,7 +32,7 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
         ),
         shadowCaster(room),
         lightMapRenderer(room),
-        inspector(*room, "Room"),
+//        inspector(*room, "Room"),
         tileMap(&room->getMap())
 {
     assert(room != NULL);
@@ -32,7 +42,7 @@ RoomScreen::RoomScreen(Room *room, bool showRoomEditor)
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);
 
-    inspector.createEntity_showSubFolder = "level_room";
+//    inspector.createEntity_showSubFolder = "level_room";
 }
 
 void RoomScreen::render(double deltaTime)
@@ -176,13 +186,13 @@ void RoomScreen::onResize()
 
 void RoomScreen::renderDebugStuff()
 {
-    if (!Game::settings.showDeveloperOptions)
+    if (!dibidab::settings.showDeveloperOptions)
         return;
 
     gu::profiler::Zone z("debug");
     lineRenderer.projection = cam.combined;
 
-    inspector.drawGUI(&cam, lineRenderer);
+//    inspector.drawGUI(&cam, lineRenderer);
 
     static RoomEditor roomEditor;
 

@@ -6,13 +6,13 @@
 #include <graphics/3d/debug_line_renderer.h>
 #include <graphics/shader_asset.h>
 #include <graphics/camera.h>
-#include "../../../../level/room/Room.h"
+#include "../../../../tiled_room/TiledRoom.h"
 #include "../../../../generated/Physics.hpp"
 #include "../../../../generated/Light.hpp"
 
 class ShadowCaster
 {
-    Room *room;
+    TiledRoom *room;
 
     SharedMesh shadowMesh;
 
@@ -27,7 +27,7 @@ class ShadowCaster
 
     FrameBuffer fbo;
 
-    ShadowCaster(Room *room);
+    ShadowCaster(TiledRoom *room);
 
     void updateMesh(const PointLight &light, const vec2 &lightPos);
 

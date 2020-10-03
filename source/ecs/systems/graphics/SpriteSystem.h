@@ -2,7 +2,7 @@
 #ifndef GAME_SPRITESYSTEM_H
 #define GAME_SPRITESYSTEM_H
 
-#include "../EntitySystem.h"
+#include <ecs/systems/EntitySystem.h>
 
 struct SpriteAnchor;
 struct AABB;

@@ -1,12 +1,12 @@
 
 #include "DamageSystem.h"
-#include "../../../level/room/Room.h"
+#include "../../../tiled_room/TiledRoom.h"
 #include "../../../generated/Physics.hpp"
 #include "../../../generated/BloodDrop.hpp"
 #include "../../../generated/PaletteSetter.hpp"
 #include "../../../generated/Bow.hpp"
-#include "../../../generated/PlayerControlled.hpp"
 #include "../../../generated/Health.hpp"
+#include <generated/PlayerControlled.hpp>
 
 void DamageSystem::update(double deltaTime, EntityEngine *room)
 {

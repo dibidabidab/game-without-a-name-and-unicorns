@@ -7,12 +7,12 @@
 #include <graphics/shader_asset.h>
 #include <graphics/3d/mesh.h>
 
-class Room;
+class TiledRoom;
 
 class BloodSplatterRenderer
 {
 
-    Room *room;
+    TiledRoom *room;
     ShaderAsset shader;
     SharedMesh quad;
     VertData instancedData;
@@ -22,7 +22,7 @@ class BloodSplatterRenderer
   public:
     FrameBuffer fbo;
 
-    BloodSplatterRenderer(Room *);
+    BloodSplatterRenderer(TiledRoom *);
 
     void updateSplatterTexture(float deltaTime);
 

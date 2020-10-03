@@ -2,8 +2,7 @@
 #ifndef GAME_HEADSSYSTEM_H
 #define GAME_HEADSSYSTEM_H
 
-#include "../EntitySystem.h"
-#include "../../../level/room/Room.h"
+#include <ecs/systems/EntitySystem.h>
 #include "../../../generated/Head.hpp"
 
 class HeadsSystem : public EntitySystem
@@ -14,7 +13,7 @@ class HeadsSystem : public EntitySystem
 
     void update(double deltaTime, EntityEngine *room) override
     {
-        TerrainCollisionDetector collisionDetector(((Room *) room)->getMap());
+        TerrainCollisionDetector collisionDetector(((TiledRoom *) room)->getMap());
 
         room->entities.view<Head, AABB, AsepriteView>().each([&](Head &head, const AABB &aabb, AsepriteView &sprite) {
 
