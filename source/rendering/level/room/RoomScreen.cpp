@@ -32,7 +32,7 @@ RoomScreen::RoomScreen(TiledRoom *room, bool showRoomEditor)
         ),
         shadowCaster(room),
         lightMapRenderer(room),
-//        inspector(*room, "Room"),
+        inspector(*room, "Room"),
         tileMap(&room->getMap())
 {
     assert(room != NULL);
@@ -42,7 +42,7 @@ RoomScreen::RoomScreen(TiledRoom *room, bool showRoomEditor)
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);
 
-//    inspector.createEntity_showSubFolder = "level_room";
+    inspector.createEntity_showSubFolder = "level_room";
 }
 
 void RoomScreen::render(double deltaTime)
@@ -192,7 +192,7 @@ void RoomScreen::renderDebugStuff()
     gu::profiler::Zone z("debug");
     lineRenderer.projection = cam.combined;
 
-//    inspector.drawGUI(&cam, lineRenderer);
+    inspector.drawGUI(&cam, lineRenderer);
 
     static RoomEditor roomEditor;
 

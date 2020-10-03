@@ -18,12 +18,13 @@
 #include "../../PolylineRenderer.h"
 #include "blood_splatter/BloodSplatterRenderer.h"
 #include "FluidRenderer.h"
+#include "TiledRoomEntityInspector.h"
 
 class RoomScreen : public Screen
 {
     bool showRoomEditor = false;
 
-//    EntityInspector inspector;
+    TiledRoomEntityInspector inspector;
 
     DebugLineRenderer lineRenderer;
 

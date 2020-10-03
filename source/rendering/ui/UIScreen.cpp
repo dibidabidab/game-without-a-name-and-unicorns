@@ -14,7 +14,7 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     :
     script(s),
     cam(.1, 1000, 0, 0),
-//    inspector(*this, "UI"),
+    inspector(*this, "UI"),
     applyPaletteUIShader("Apply palette UI shader", "shaders/fullscreen_quad", "shaders/ui/apply_palette")
 {
 
@@ -38,8 +38,8 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);
 
-//    inspector.createEntity_showSubFolder = "ui";
-//    inspector.createEntity_persistentOption = false;
+    inspector.createEntity_showSubFolder = "ui";
+    inspector.createEntity_persistentOption = false;
 }
 
 void UIScreen::render(double deltaTime)
@@ -128,7 +128,7 @@ void UIScreen::renderDebugStuff()
 
     lineRenderer.projection = cam.combined;
 
-//    inspector.drawGUI(&cam, lineRenderer);
+    inspector.drawGUI(&cam, lineRenderer);
 
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("UI"))

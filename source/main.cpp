@@ -34,8 +34,8 @@ void initLuaStuff()
     auto &env = luau::getLuaState();
 
     env["getSettings"] = [] {
-        json j = Game::settings;
-        j.merge_patch(dibidab::settings);
+        json j = dibidab::settings;
+        j.merge_patch(Game::settings);
         return j;
     };
     env["saveSettings"] = [] (const json &j) {

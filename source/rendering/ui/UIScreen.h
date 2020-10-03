@@ -7,6 +7,7 @@
 #include <graphics/frame_buffer.h>
 #include <ecs/EntityEngine.h>
 #include <graphics/3d/debug_line_renderer.h>
+#include <ecs/EntityInspector.h>
 #include "TextRenderer.h"
 #include "../sprites/SpriteRenderer.h"
 #include "NineSliceRenderer.h"
@@ -15,7 +16,7 @@ class UIScreen : public EntityEngine, public Screen
 {
     asset<luau::Script> script;
 
-//    EntityInspector inspector;
+    EntityInspector inspector;
 
     OrthographicCamera cam;
 

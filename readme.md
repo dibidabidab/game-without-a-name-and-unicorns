@@ -1,9 +1,9 @@
 
 A game about unicorns and shooting arrows, made using my own [game engine](https://github.com/dibidabidab/dibidab-engine).
 
-#### [Download for Linux](https://dibidabidab.github.io/dibidab-engine/game-linux.zip)
-#### [Download for Windows](https://dibidabidab.github.io/dibidab-engine/game-windows.zip)
-#### [Play game in browser*](https://dibidabidab.github.io/dibidab-engine/game.html)
+#### [Download for Linux](https://dibidabidab.github.io/game-without-a-name-and-unicorns/game-linux.zip)
+#### [Download for Windows](https://dibidabidab.github.io/game-without-a-name-and-unicorns/game-windows.zip)
+#### [Play game in browser*](https://dibidabidab.github.io/game-without-a-name-and-unicorns/game.html)
 <sup>*less peformance, prefer the linux or windows download instead.</sup>
 
 [![Build & deploy to gh-pages](https://github.com/hilkojj/dibidabidab/workflows/Build%20&%20deploy%20to%20gh-pages/badge.svg)](https://github.com/hilkojj/dibidabidab/actions)

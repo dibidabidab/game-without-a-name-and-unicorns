@@ -29,6 +29,7 @@ void Game::loadSettings()
         settings = Settings();
         std::cerr << "Settings file (" << SETTINGS_FILE_PATH << ") not found!" << std::endl;
         saveSettings();
+        loadSettings();// hack for loading font
         return;
     }
     try {
@@ -47,8 +48,8 @@ void Game::loadSettings()
 void Game::saveSettings()
 {
     setShaderDefinitions();
-    json j = settings;
-    j.merge_patch(dibidab::settings);
+    json j = dibidab::settings;
+    j.merge_patch(settings);
 
     File::writeBinary(SETTINGS_FILE_PATH, j.dump(4));
 }
