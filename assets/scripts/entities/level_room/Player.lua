@@ -1,7 +1,7 @@
 function create(player)
 
-    leftLeg = createChild(player, "leftLeg")
-    rightLeg = createChild(player, "rightLeg")
+    local leftLeg = createChild(player, "leftLeg")
+    local rightLeg = createChild(player, "rightLeg")
 
     setComponents(player, {
         Physics {
@@ -42,7 +42,7 @@ function create(player)
         }
     })
 
-    arrowTemplate = "Arrow"
+    local arrowTemplate = "Arrow"
 
     local transRoomed = component.TransRoomed.tryGetFor(player)
 
@@ -92,8 +92,8 @@ function create(player)
     -- ARMS:
     armLength = 15
 
-    leftArm = createChild(player, "leftArm")
-    rightArm = createChild(player, "rightArm")
+    local leftArm = createChild(player, "leftArm")
+    local rightArm = createChild(player, "rightArm")
 
     applyTemplate(leftArm, "Arm", {
         length = armLength,
@@ -124,15 +124,11 @@ function create(player)
     )
     component.TransRoomable.getFor(player).archiveChildComponents = { bow = {"Bow"} } -- archive the Bow component of the bow child
 
-
-    local t = 0
-
-    setUpdateFunction(player, 1., function(deltaTime)
-        t = t + deltaTime
+    onEntityEvent(player, "Attacked", function(attack)
+        print("oof")
     end)
 
     setOnDestroyCallback(player, function()
-        print("Player entity #", player, "was alive for", t, "seconds. RIP")
 
         local health = component.Health.tryGetFor(player)
         if health ~= nil then
@@ -140,4 +136,11 @@ function create(player)
             saveGame.maxPlayerHealth = health.maxHealth
         end
     end)
+
+    if _G.hudScreen ~= nil then
+        _G.hudScreen.applyTemplate(_G.hudScreen.createEntity(), "HealthBar", {
+            entityRoom = currentEngine,
+            entity = player
+        })
+    end
 end

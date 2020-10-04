@@ -41,6 +41,7 @@ void initLuaStuff()
     env["saveSettings"] = [] (const json &j) {
         Game::settings = j;
         dibidab::settings = j;
+        Game::saveSettings();
     };
 
     // colors:

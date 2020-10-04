@@ -28,7 +28,7 @@ void main()
 
     uvec2 textureCoords = uvec2(v_textureOffset);
 
-    uint bottomHeight = v_sliceSize.y - v_innerSize.y - v_topLeftOffset.y;
+    uint bottomHeight = v_sliceSize.y - v_innerSize.y - v_topLeftOffset.y + 1u;
     uint rightEdgeWidth = v_sliceSize.x - v_innerSize.x - v_topLeftOffset.x;
 
     if (coordsTL.x < v_topLeftOffset.x)
