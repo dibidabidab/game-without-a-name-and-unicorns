@@ -6,6 +6,12 @@ add_compile_definitions(PUT_A_SOCK_IN_IT)
 set(EXECUTABLE_OUTPUT_PATH "out")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_package(PythonInterp 3.7 REQUIRED)
+set(LUA_SERDE_COMMAND ${PYTHON_EXECUTABLE} ../external/dibidab-engine/external/lua-serde/lua-json-serde.py ../source/generated/ ../source/ ../../external/dibidab-engine/source/macro_magic/component.h)
+
+execute_process(COMMAND ${LUA_SERDE_COMMAND} WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+
+
 file(GLOB_RECURSE source ../source/*)
 add_executable(game ${source})
 set_target_properties(game PROPERTIES LINKER_LANGUAGE CXX)
@@ -19,11 +25,10 @@ target_link_libraries(game dibidab)
 
 
 # ---Generate structs with LUA SERDE---
-find_package(PythonInterp 3.7 REQUIRED)
 
 add_custom_target(
         generate_structs_for_game ALL
-        COMMAND ${PYTHON_EXECUTABLE} ../external/dibidab-engine/external/lua-serde/lua-json-serde.py ../source/generated/ ../source/ ../../external/dibidab-engine/source/macro_magic/component.h
+        COMMAND ${LUA_SERDE_COMMAND}
         COMMENT "Generating structs from yaml (game)"
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
