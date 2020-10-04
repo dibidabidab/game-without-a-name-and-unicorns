@@ -24,6 +24,7 @@ jobs:
         python-version: '3.x'
     - name: Build linux # running 'cmake .' twice fixes tests being built
       run: |
+        git submodule update --init --recursive
         sudo apt-get update
         sudo apt-get install xorg-dev -y
         sudo apt-get install freeglut3-dev -y
@@ -53,6 +54,7 @@ jobs:
     - uses: seanmiddleditch/gha-setup-vsdevenv@master
     - name: Build windows
       run: |
+        git submodule update --init --recursive
         cd desktop
         cmake .
         cmake .
@@ -91,6 +93,7 @@ jobs:
         python-version: '3.x'
     - name: Build html
       run: |
+        git submodule update --init --recursive
         cd html
         emconfigure cmake .
         emconfigure cmake .
