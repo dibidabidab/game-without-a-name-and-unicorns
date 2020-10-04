@@ -8,13 +8,6 @@ endif ()
 
 project(game)
 
-# define GIT_COMMIT_HASH and GIT_COMMIT_MESSAGE. Todo: generate a .h file instead, since that won't cause everything to recompile
-execute_process(COMMAND git log -1 --pretty=%h OUTPUT_VARIABLE GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND git log -1 --pretty=%s OUTPUT_VARIABLE GIT_COMMIT_MESSAGE OUTPUT_STRIP_TRAILING_WHITESPACE)
-add_compile_definitions(GIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
-add_compile_definitions(GIT_COMMIT_MESSAGE="${GIT_COMMIT_MESSAGE}")
-
-
 
 set(EXECUTABLE_OUTPUT_PATH "out")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

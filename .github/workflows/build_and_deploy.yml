@@ -27,7 +27,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install xorg-dev -y
         sudo apt-get install freeglut3-dev -y
-        python initialize_project.py
         cd desktop
         cmake . -DCMAKE_BUILD_TYPE=Release
         cmake . -DCMAKE_BUILD_TYPE=Release
@@ -54,7 +53,6 @@ jobs:
     - uses: seanmiddleditch/gha-setup-vsdevenv@master
     - name: Build windows
       run: |
-        python initialize_project.py
         cd desktop
         cmake .
         cmake .
@@ -63,7 +61,7 @@ jobs:
         rm game.exp game.lib
         mkdir assets
         cp -a ../../../assets/. assets/
-        cp ../../bin/gu/bin/openal/Release/OpenAL32.dll .
+        cp ../../bin/dibidab-engine/bin/gu/bin/openal/Release/OpenAL32.dll .
       shell: bash
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
@@ -93,7 +91,6 @@ jobs:
         python-version: '3.x'
     - name: Build html
       run: |
-        python initialize_project.py
         cd html
         emconfigure cmake .
         emconfigure cmake .

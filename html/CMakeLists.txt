@@ -2,12 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 project(game)
 
-execute_process(COMMAND git log -1 --pretty=%h OUTPUT_VARIABLE GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND git log -1 --pretty=%s OUTPUT_VARIABLE GIT_COMMIT_MESSAGE OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-add_compile_definitions(GIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
-add_compile_definitions(GIT_COMMIT_MESSAGE="${GIT_COMMIT_MESSAGE}")
-
 add_compile_definitions(PUT_A_SOCK_IN_IT)
 set(EXECUTABLE_OUTPUT_PATH "out")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -19,35 +13,21 @@ set_target_properties(game PROPERTIES LINKER_LANGUAGE CXX)
 set_property(TARGET game PROPERTY CXX_STANDARD 17)
 set_property(TARGET game PROPERTY CXX_STANDARD_REQUIRED ON)
 
-# gameutils repo:
-add_subdirectory(../external/gu/library/ ./bin/gu)
-target_link_libraries(game gameutils)
-
-
-# ---ASIO---
-include_directories(../external/asio/asio/include)
-target_include_directories(game PUBLIC ../external/asio/asio/include)
-
-
-# ---LUA---
-add_subdirectory(../external/lua ./bin/lua)
-target_link_libraries(game lua)
-
-add_subdirectory(../external/lua/sol2/single ./bin/lua/sol2)
-target_link_libraries(game sol2_single)
+# dibidab-engine repo:
+add_subdirectory(../external/dibidab-engine ./bin/dibidab-engine)
+target_link_libraries(game dibidab)
 
 
 # ---Generate structs with LUA SERDE---
 find_package(PythonInterp 3.7 REQUIRED)
 
 add_custom_target(
-        generate_structs ALL
-        COMMAND ${PYTHON_EXECUTABLE} ../external/lua-serde/lua-json-serde.py ../source/generated/ ../macro_magic/includes_for_generated_structs.h ../source/
-        BYPRODUCTS ./source/generated/include_all.hpp
-        COMMENT "Generating structs from yaml"
+        generate_structs_for_game ALL
+        COMMAND ${PYTHON_EXECUTABLE} ../external/dibidab-engine/external/lua-serde/lua-json-serde.py ../source/generated/ ../source/ ../../external/dibidab-engine/source/macro_magic/component.h
+        COMMENT "Generating structs from yaml (game)"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
-
-add_dependencies(game generate_structs)
+add_dependencies(game generate_structs_for_game)
 
 
 
