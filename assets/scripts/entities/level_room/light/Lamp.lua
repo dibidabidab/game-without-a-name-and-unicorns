@@ -1,6 +1,6 @@
 function create(rope)
 
-    lamp = createChild(rope, "lamp")
+    local lamp = createChild(rope, "lamp")
 
     applyTemplate(rope, "Rope", {
         draw = true,

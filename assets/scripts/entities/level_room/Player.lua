@@ -137,8 +137,8 @@ function create(player)
         end
     end)
 
-    if _G.hudScreen ~= nil then
-        _G.hudScreen.applyTemplate(_G.hudScreen.createEntity(), "HealthBar", {
+    if hudScreen ~= nil then
+        hudScreen.applyTemplate(hudScreen.createEntity(), "HealthBar", {
             entityRoom = currentEngine,
             entity = player
         })

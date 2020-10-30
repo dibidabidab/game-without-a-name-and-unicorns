@@ -27,7 +27,6 @@ function create(particle)
     physics.gravity = 0
     physics.velocity = vec2(math.random(-maxVel, maxVel), math.random(-maxVel, maxVel))
 
-    component.DynamicCollider.getFor(particle)
     component.DespawnAfter.getFor(particle).time = 1.
 
     local spriteView = component.AsepriteView.getFor(particle)
