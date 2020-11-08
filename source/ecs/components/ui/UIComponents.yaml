@@ -15,6 +15,8 @@ UIContainer:
   fillRemainingParentHeight: [bool, false]
   fillRemainingParentWidth: [bool, false]
 
+  zIndexOffset: [float, 0]
+
   _cpp_only:
     textCursor: ivec2
     innerTopLeft: ivec2
@@ -23,6 +25,10 @@ UIContainer:
     minX: [int, 0]
     maxX: [int, 0]
     innerHeight: [int, 0]
+
+    zIndex: [float, 0]
+
+    childContainerCount: [int, 0]
 
     spriteSlice: [const aseprite::Slice *, NULL]
     nineSlice: [const aseprite::Slice::NineSlice *, NULL]

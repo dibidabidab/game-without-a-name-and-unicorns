@@ -102,7 +102,7 @@ void TextRenderer::add(const TextView &textView, UIContainer &cont, UIElement &e
         }
 
         cont.resizeLineHeight(fontData.minLineHeight);
-        instancedData.set(posType(cont.textCursor.x + el.renderOffset.x, cont.textCursor.y + yOffset - cont.currentLineHeight + el.renderOffset.y, 0), vertI, attrOffset);
+        instancedData.set(posType(cont.textCursor.x + el.renderOffset.x, cont.textCursor.y + yOffset - cont.currentLineHeight + el.renderOffset.y, cont.zIndex + .1), vertI, attrOffset);
         attrOffset += sizeof(posType);
 
         spriteOffsetType spriteOffset(fontData.spriteOffsetOnMegaSpriteSheet);

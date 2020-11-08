@@ -13,7 +13,7 @@
 UIScreen::UIScreen(const asset<luau::Script> &s)
     :
     script(s),
-    cam(.1, 1000, 0, 0),
+    cam(.1, 2000, 0, 0),
     inspector(*this, "UI"),
     applyPaletteUIShader("Apply palette UI shader", "shaders/fullscreen_quad", "shaders/ui/apply_palette")
 {
@@ -56,6 +56,7 @@ void UIScreen::render(double deltaTime)
     {   // starting points of the render tree (UIElements that are NOT a Child):
 
         UIContainer uiContainer;
+        uiContainer.zIndex = -cam.far_ + 100;
         uiContainer.fixedHeight = cam.viewportHeight;
         uiContainer.fixedWidth = cam.viewportWidth;
         uiContainer.innerTopLeft = ivec2(cam.viewportWidth * -.5, cam.viewportHeight * .5);
@@ -171,7 +172,10 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
             if (container.centerAlign)
                 container.textCursor.x -= width / 2;
 
+            spriteView->zIndex += container.zIndex; // warning: dirty hack :D
             spriteRenderer.add(*spriteView, container.textCursor - ivec2(0, height) + el.renderOffset);
+            spriteView->zIndex -= container.zIndex;
+
             container.textCursor.x += width;
 
             container.resizeLineHeight(height);
@@ -184,6 +188,9 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
 
 void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &cont, UIContainer &parentCont, double deltaTime)
 {
+    cont.childContainerCount = 0;
+    cont.zIndex = parentCont.zIndex + ++parentCont.childContainerCount + cont.zIndexOffset;
+
     ivec2 outerTopLeft;
     if (el.absolutePositioning)
         outerTopLeft = el.getAbsolutePosition(parentCont, cont.fixedWidth, cont.fixedHeight);
@@ -223,11 +230,12 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
 
     cont.minX = cont.innerTopLeft.x;
     cont.maxX = cont.minX + size.x - cont.padding.x * 2;
+
+    if (cont.nineSlice && cont.spriteSlice)
+        cont.maxX -= cont.spriteSlice->width - cont.nineSlice->innerSize.x;
+
     cont.textCursor = cont.innerTopLeft;
     cont.resetCursorX();
-
-    if (cont.nineSlice)
-        cont.maxX -= (cont.spriteSlice->width - cont.nineSlice->innerSize.x - cont.nineSlice->topLeftOffset.x) * 2;
 
     int originalMaxX = cont.maxX;
 
@@ -248,7 +256,7 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
         size.x += cont.maxX - originalMaxX;
 
     if (cont.nineSlice)
-        nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(outerTopLeft, 0), size);
+        nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(outerTopLeft, cont.zIndex), size);
 
     parentCont.textCursor.x += size.x + el.margin.x * 2;
     parentCont.resizeLineHeight(size.y + el.margin.y * 2);

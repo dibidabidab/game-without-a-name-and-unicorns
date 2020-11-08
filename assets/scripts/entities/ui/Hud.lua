@@ -8,7 +8,9 @@ function create(hud)
         UIContainer {
             nineSliceSprite = "sprites/ui/hud_border",
             fillRemainingParentHeight = true,
-            fillRemainingParentWidth = true
+            fillRemainingParentWidth = true,
+
+            zIndexOffset = -10
         }
     })
 end
