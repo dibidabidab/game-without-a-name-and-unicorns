@@ -1,6 +1,6 @@
 
 defaultArgs({
-    arrowTemplate = "Arrow",
+    arrowTemplate = "DefaultArrow",
     archer = nil,
     leftArm = nil,
     rightArm = nil,

@@ -35,12 +35,12 @@ function create(enemy)
         print("enemy was killed with an attack of", attack.points, "points")
     end)
 
-    setUpdateFunction(enemy, .03, function(deltaTime)
-        local arrow = createEntity()
-        applyTemplate(arrow, "Arrow")
-
-        component.Arrow.getFor(arrow).launchedBy = enemy
-        component.AABB.getFor(arrow).center = component.AABB.getFor(enemy).center
-        component.Physics.getFor(arrow).velocity = vec2(math.random(-500, 500), math.random(-500, 500))
-    end)
+    --setUpdateFunction(enemy, .03, function(deltaTime)
+    --    local arrow = createEntity()
+    --    applyTemplate(arrow, "DefaultArrow")
+    --
+    --    component.Arrow.getFor(arrow).launchedBy = enemy
+    --    component.AABB.getFor(arrow).center = component.AABB.getFor(enemy).center
+    --    component.Physics.getFor(arrow).velocity = vec2(math.random(-500, 500), math.random(-500, 500))
+    --end)
 end

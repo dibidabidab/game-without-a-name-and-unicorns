@@ -12,7 +12,7 @@ Bow:
   fireRate: [float, .4]
   distanceFromArcher: [float, 9]
 
-  arrowTemplate: [string, "Arrow"]
+  arrowTemplate: [string, "DefaultArrow"]
 
   cooldown: [float, 0]
 

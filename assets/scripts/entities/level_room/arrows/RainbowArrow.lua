@@ -1,6 +1,6 @@
 function create(arrow)
 
-    applyTemplate(arrow, "Arrow")
+    applyTemplate(arrow, "DefaultArrow")
 
     setComponent(arrow, RainbowSpawner {
         rainbowSettings = Rainbow {

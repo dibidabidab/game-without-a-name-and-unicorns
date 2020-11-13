@@ -13,14 +13,14 @@ function create(arrow)
         AsepriteView {
             sprite = "sprites/arrow"
         },
+        TransRoomable {
+            templateName = "" -- do not create a new Arrow, just let this one disappear.
+        },
 
         -- the white trail you see when shooting an arrow:
         Polyline(),
         DrawPolyline {
             colors = { 7 }
-        },
-        TransRoomable {
-            templateName = "" -- do not create a new Arrow, just let this one disappear.
         }
     })
 end

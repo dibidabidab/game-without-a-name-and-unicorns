@@ -94,6 +94,7 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                             std::cerr << "No palette name found for " << bow->arrowTemplate << std::endl;
                         }
                     }
+                    room->emitEntityEvent(attack.dealtBy, e, "ArrowTemplateFromKilledEntity");
                 }
                 room->emitEntityEvent(e, attack, "Died");
             }

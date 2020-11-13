@@ -42,7 +42,7 @@ function create(player)
         }
     })
 
-    local arrowTemplate = "Arrow"
+    local arrowTemplate = "DefaultArrow"
 
     local transRoomed = component.TransRoomed.tryGetFor(player)
 
@@ -108,12 +108,10 @@ function create(player)
         spriteSliceName = "arm_right"
     })
 
-
-
     -- BOW WEAPON:
+    local bow = createChild(player, "bow")
     applyTemplate(
-        createChild(player, "bow"),
-        "Bow",
+        bow, "Bow",
         {
             arrowTemplate = arrowTemplate,
             archer = player,
@@ -128,6 +126,24 @@ function create(player)
         print("oof")
     end)
 
+    local hud_arrowTypeBar = nil
+
+    if hudScreen ~= nil then
+        hudScreen.applyTemplate(hudScreen.createEntity(), "HealthBar", {
+            entityRoom = currentEngine,
+            entity = player
+        })
+
+        hud_arrowTypeBar = hudScreen.createEntity()
+
+        hudScreen.applyTemplate(hud_arrowTypeBar, "ArrowTypeBar", {
+            entityRoom = currentEngine,
+            archer = player,
+            bow = bow
+        })
+    end
+
+
     setOnDestroyCallback(player, function()
 
         local health = component.Health.tryGetFor(player)
@@ -135,12 +151,9 @@ function create(player)
             saveGame.currentPlayerHealth = health.currHealth
             saveGame.maxPlayerHealth = health.maxHealth
         end
-    end)
 
-    if hudScreen ~= nil then
-        hudScreen.applyTemplate(hudScreen.createEntity(), "HealthBar", {
-            entityRoom = currentEngine,
-            entity = player
-        })
-    end
+        if hudScreen.valid(hud_arrowTypeBar) then -- hud_arrowTypeBar might be nil
+            hudScreen.destroyEntity(hud_arrowTypeBar)
+        end
+    end)
 end
