@@ -11,7 +11,7 @@ function create(enemy)
         StaticCollider(),
         Health {
             takesDamageFrom = {"hit"},
-            currHealth = 4,
+            currHealth = 2,
             maxHealth = 4,
             givePlayerArrowOnKill = "RainbowArrow"
         },

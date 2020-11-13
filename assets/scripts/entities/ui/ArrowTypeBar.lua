@@ -25,6 +25,24 @@ function create(bar, args)
 
     local bowComponent = args.entityRoom.component.Bow.getFor(args.bow)
 
+    local icon = createChild(bar)
+    local iconRenderOffset = ivec2(-25, 2)
+
+    local spriteView = AsepriteView {
+        sprite = "sprites/ui/arrow_type_icons",
+        loop = false
+    }
+    _, spriteView.frame = asepriteTagFrames(spriteView, bowComponent.arrowTemplate)
+
+    setComponents(icon, {
+        UIElement {
+            absolutePositioning = true,
+            renderOffset = iconRenderOffset
+        },
+        spriteView
+    })
+
+
     local text = createChild(bar)
     applyTemplate(text, "Text", {
         text = str_utils.camelCaseToSpaces(bowComponent.arrowTemplate),
@@ -41,13 +59,27 @@ function create(bar, args)
             return
         end
 
+        local screenKillPos = args.entityRoom.positionToScreenPosition(killedAABB.center)
+
+        local newArrowTemplate = bowComponent.arrowTemplate
+        local displayText = str_utils.camelCaseToSpaces(newArrowTemplate)
+
         setUpdateFunction(text, .05, function()
 
             local textView = component.TextView.getFor(text)
 
             if #textView.text == 0 then
 
-                local displayText = str_utils.camelCaseToSpaces(bowComponent.arrowTemplate)
+                local iconSprite = component.AsepriteView.getFor(icon)
+                playAsepriteTag(iconSprite, newArrowTemplate, true)
+
+                local iconUIEl = component.UIElement.getFor(icon)
+                iconUIEl.renderOffset.x = screenKillPos.x - 42
+                iconUIEl.renderOffset.y = screenKillPos.y * -1 + 16
+
+                component.UIElement.animate(icon, "renderOffset", iconRenderOffset, 1.5, "pow3", function()
+                    print("animation done")
+                end)
 
                 textView.waving = true
                 textView.wavingAmplitude = 4

@@ -51,6 +51,16 @@ void initLuaStuff()
     for (auto &[name, color] : palette.colors)
         colorTable[name] = i++;
     env["colors"] = colorTable;
+
+    // sprite function: // todo: maybe this should not be in main.cpp
+    env["playAsepriteTag"] = [] (AsepriteView &view, const char *tagName, sol::optional<bool> unpause) -> float {
+        return view.playTag(tagName, unpause.value_or(false));
+    };
+    env["asepriteTagFrames"] = [] (AsepriteView &view, const char *tagName) {
+        assert(view.sprite.isSet());
+        auto &tag = view.sprite->getTagByName(tagName);
+        return std::make_tuple(tag.from, tag.to);
+    };
 }
 
 int main(int argc, char *argv[])

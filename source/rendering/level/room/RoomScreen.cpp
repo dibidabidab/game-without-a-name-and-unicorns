@@ -43,6 +43,10 @@ RoomScreen::RoomScreen(TiledRoom *room, bool showRoomEditor)
     cam.lookAt(mu::ZERO_3);
 
     inspector.createEntity_showSubFolder = "level_room";
+
+    room->luaEnvironment["positionToScreenPosition"] = [&] (const ivec2 &pos) -> ivec2 {
+        return cam.projectPixels(vec3(pos, 0));
+    };
 }
 
 void RoomScreen::render(double deltaTime)

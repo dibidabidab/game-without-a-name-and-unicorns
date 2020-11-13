@@ -96,7 +96,7 @@ void SpriteSystem::updateFeetBobbing(double deltaTime)
 
 void SpriteSystem::updateAnimations(double deltaTime)
 {
-    room->entities.view<AsepriteView, AABB>().each([&](AsepriteView &view, const AABB &aabb) {
+    room->entities.view<AsepriteView>().each([&](AsepriteView &view) {
 
         if (!view.sprite.isSet())
             return;
