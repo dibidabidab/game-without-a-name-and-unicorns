@@ -6,7 +6,7 @@ A game about unicorns and shooting arrows, made using my own [game engine](https
 #### [Play game in browser*](https://dibidabidab.github.io/game-without-a-name-and-unicorns/game.html)
 <sup>*less peformance, prefer the linux or windows download instead.</sup>
 
-[![Build & deploy to gh-pages](https://github.com/hilkojj/dibidabidab/workflows/Build%20&%20deploy%20to%20gh-pages/badge.svg)](https://github.com/hilkojj/dibidabidab/actions)
+![Build & deploy to gh-pages](https://github.com/dibidabidab/game-without-a-name-and-unicorns/workflows/Build%20&%20deploy%20to%20gh-pages/badge.svg)
 [![BCH compliance](https://bettercodehub.com/edge/badge/hilkojj/dibidabidab?branch=master)](https://bettercodehub.com/)
 
 ## Usage
