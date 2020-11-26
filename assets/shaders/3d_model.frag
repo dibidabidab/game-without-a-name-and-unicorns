@@ -11,7 +11,7 @@ void main()
 {
     indexedColor = colorIndex;
 
-    vec3 sunDir = normalize(vec3(.5, 1, -.5));
+    vec3 sunDir = normalize(vec3(.6, .3, -.1));
 
     float ldot = dot(normal, sunDir);
     lightLevel = ldot < 0.f ? 0u : (ldot > .5f ? 2u : 1u);

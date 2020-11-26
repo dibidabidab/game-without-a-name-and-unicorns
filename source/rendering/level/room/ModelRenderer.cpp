@@ -1,5 +1,6 @@
 
 #include <graphics/3d/vert_buffer.h>
+#include <graphics/3d/perspective_camera.h>
 
 #include "ModelRenderer.h"
 #include "../../../generated/ModelView.hpp"
@@ -7,6 +8,12 @@
 
 void ModelRenderer::render(entt::registry &registry, const OrthographicCamera &camera)
 {
+    PerspectiveCamera perspectiveCam(.1, 1000, camera.viewportWidth, camera.viewportHeight, 70);
+    perspectiveCam.position = mu::Z;
+    perspectiveCam.lookAt(mu::ZERO_3);
+    perspectiveCam.position = camera.position;
+    perspectiveCam.update();
+
     shader.use();
 
     uint8 prevColor = 0;
@@ -38,7 +45,7 @@ void ModelRenderer::render(entt::registry &registry, const OrthographicCamera &c
 
         mvp = glm::scale(mvp, view.scale);
 
-        mvp = camera.combined * mvp;
+        mvp = (view.renderWithPerspectiveCamera ? perspectiveCam.combined : camera.combined) * mvp;
 
         glUniformMatrix4fv(shader.location("mvp"), 1, GL_FALSE, &mvp[0][0]);
 

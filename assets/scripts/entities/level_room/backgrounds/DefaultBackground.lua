@@ -7,9 +7,11 @@ function create(bg)
 
         ModelView {
             modelCollection = "models/default_bg",
-            modelName = "bg"
+            modelName = "bg",
+            locationOffset = vec3(450, 62, -530),
+            renderWithPerspectiveCamera = true
         },
-        Inspecting()
+        --Inspecting()
 
     })
 
