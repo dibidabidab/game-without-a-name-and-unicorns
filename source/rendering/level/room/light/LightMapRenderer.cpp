@@ -41,14 +41,6 @@ LightMapRenderer::~LightMapRenderer()
 void LightMapRenderer::render(const Camera &cam, const SharedTexture &shadowTexture)
 {
     gu::profiler::Zone z("light map");
-    if (!fbo || fbo->width != cam.viewportWidth || fbo->height != cam.viewportHeight)
-    {
-        delete fbo;
-        fbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
-        fbo->addDepthBuffer();
-        fbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
-    }
-
     fbo->bind();
     glEnable(GL_DEPTH_TEST);
     glClearBufferuiv(GL_COLOR, 0, &room->baseLightLevel);
@@ -131,4 +123,12 @@ void LightMapRenderer::renderDirectionalLights(const Camera &cam)
 
     directionalLightsDataBuffer = quadMesh->vertBuffer->uploadPerInstanceData(directionalLightsData, 1, directionalLightsDataBuffer);
     quadMesh->renderInstances(i);
+}
+
+void LightMapRenderer::onResize(const Camera &cam)
+{
+    delete fbo;
+    fbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
+    fbo->addDepthBuffer();
+    fbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
 }

@@ -25,17 +25,19 @@ class LightMapRenderer
 
     FrameBuffer *fbo = NULL;
 
-    LightMapRenderer(TiledRoom *room);
+    LightMapRenderer(TiledRoom *);
 
-    void render(const Camera &cam, const SharedTexture &shadowTexture);
+    void render(const Camera &, const SharedTexture &shadowTexture);
+
+    void onResize(const Camera &);
 
     ~LightMapRenderer();
 
   private:
 
-    void renderPointLights(const Camera &cam, const SharedTexture &shadowTexture);
+    void renderPointLights(const Camera &, const SharedTexture &shadowTexture);
 
-    void renderDirectionalLights(const Camera &cam);
+    void renderDirectionalLights(const Camera &);
 
 };
 

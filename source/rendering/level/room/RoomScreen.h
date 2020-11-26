@@ -33,6 +33,7 @@ class RoomScreen : public Screen
 
     FrameBuffer
         *indexedFbo = NULL,
+        *hacky3dModelFbo = NULL,
         *rgbAndBloomFbo = NULL,
         *horizontalBlurFbo = NULL;
 

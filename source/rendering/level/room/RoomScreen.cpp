@@ -64,6 +64,14 @@ void RoomScreen::render(double deltaTime)
     camMovement.update(deltaTime);
     room->cursorPosition = cam.getCursorRayDirection() + cam.position;
 
+    {
+        gu::profiler::Zone z("lights/shadows");
+        shadowCaster.updateShadowTexture(tileMapRenderer->fbo.colorTexture,
+                                         !room->getMap().updatesPrevUpdate().empty());
+
+        lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
+
+    }
     {   // render indexed stuff:
         gu::profiler::Zone z("indexed image");
 
@@ -84,19 +92,29 @@ void RoomScreen::render(double deltaTime)
         bloodSplatterRenderer->render(cam);
         polylineRenderer.render(room->entities, cam);
         fluidRenderer.render(room->entities, cam);
-        modelRenderer.render(room->entities, cam);
 
-        glDisable(GL_DEPTH_TEST);
         indexedFbo->unbind();
+
+//        glDisable(GL_DEPTH_TEST);
     }
     {
-        gu::profiler::Zone z("lights/shadows/reflections");
-        shadowCaster.updateShadowTexture(tileMapRenderer->fbo.colorTexture, !room->getMap().updatesPrevUpdate().empty());
+        gu::profiler::Zone z("3d models");
 
-        lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
+//        glEnable(GL_DEPTH_TEST);
 
-        if (Game::settings.graphics.waterReflections)
-            fluidRenderer.renderReflections(indexedFbo, cam, room->getLevel().getTime());
+        hacky3dModelFbo->bind();
+
+        modelRenderer.render(room->entities, cam);
+
+        hacky3dModelFbo->unbind();
+
+        glDisable(GL_DEPTH_TEST);
+    }
+    if (Game::settings.graphics.waterReflections)
+    {
+        gu::profiler::Zone z("reflections");
+
+        fluidRenderer.renderReflections(indexedFbo, cam, room->getLevel().getTime());
     }
     {   // indexed image + lights + reflections --> low res RGB image + bloom image
 
@@ -173,20 +191,33 @@ void RoomScreen::onResize()
 
     // create a new framebuffer to render the pixelated scene to:
     delete indexedFbo;
-    indexedFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
+    indexedFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
     indexedFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
     indexedFbo->addDepthTexture(GL_NEAREST, GL_NEAREST);
 
     delete rgbAndBloomFbo;
-    rgbAndBloomFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
+    rgbAndBloomFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
     rgbAndBloomFbo->addColorTexture(GL_RGB, GL_NEAREST, GL_NEAREST);    // pixel rgb values
     rgbAndBloomFbo->addColorTexture(GL_RGB, GL_LINEAR, GL_LINEAR);      // pixel bloom rgb values
 
     delete horizontalBlurFbo;
-    horizontalBlurFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
+    horizontalBlurFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
     horizontalBlurFbo->addColorTexture(GL_RGB, GL_LINEAR, GL_LINEAR);
 
     fluidRenderer.onResize(cam);
+    lightMapRenderer.onResize(cam);
+
+    delete hacky3dModelFbo;
+    hacky3dModelFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
+    hacky3dModelFbo->bind();
+    hacky3dModelFbo->colorTextures.push_back(indexedFbo->colorTexture);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, indexedFbo->colorTexture->id, 0);
+    hacky3dModelFbo->colorTextures.push_back(lightMapRenderer.fbo->colorTexture);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, lightMapRenderer.fbo->colorTexture->id, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, indexedFbo->depthTexture->id, 0);
+    hacky3dModelFbo->setDrawBuffers();
+    hacky3dModelFbo->unbind();
+
 }
 
 void RoomScreen::renderDebugStuff()
@@ -395,4 +426,5 @@ RoomScreen::~RoomScreen()
     delete indexedFbo;
     delete rgbAndBloomFbo;
     delete horizontalBlurFbo;
+    delete hacky3dModelFbo;
 }
