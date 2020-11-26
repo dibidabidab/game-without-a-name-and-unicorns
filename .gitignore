@@ -8,6 +8,8 @@ saves/*
 
 source/generated/*
 
+*.blend1
+
 desktop/out/*
 html/out/*
 

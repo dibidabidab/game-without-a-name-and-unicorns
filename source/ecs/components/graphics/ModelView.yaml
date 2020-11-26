@@ -1,0 +1,17 @@
+config:
+  hpp_incl:
+    - graphics/3d/model.h
+
+ModelView:
+  modelCollection: asset<std::vector<SharedModel>>
+  modelName: string # can be left empty if modelCollection contains only 1 model
+
+  renderWithPerspectiveCamera: [bool, false]
+
+  locationOffset: vec3
+  rotation: quat
+  scale: [vec3, vec3(1)]
+
+  _cpp_only:
+    model: SharedModel
+    prevModelName: string

@@ -21,17 +21,12 @@ FluidRenderer::FluidRenderer()
 {
     VertAttributes attrs;
     attrs.add({"POINT_INDEX", 1, 1, GL_BYTE});
-    trapezoidMesh = SharedMesh(new Mesh("FluidTrapezoidMesh", 4, 6, attrs));
+    trapezoidMesh = SharedMesh(new Mesh("FluidTrapezoidMesh", 4, attrs));
     trapezoidMesh->set<char>(0, 0, 0);
     trapezoidMesh->set<char>(1, 1, 0);
     trapezoidMesh->set<char>(2, 2, 0);
     trapezoidMesh->set<char>(3, 3, 0);
-    trapezoidMesh->indices[0] = 0;
-    trapezoidMesh->indices[1] = 1;
-    trapezoidMesh->indices[2] = 2;
-    trapezoidMesh->indices[3] = 2;
-    trapezoidMesh->indices[4] = 3;
-    trapezoidMesh->indices[5] = 0;
+    trapezoidMesh->parts.emplace_back().indices = {0, 1, 2, 2, 3, 0};
     VertBuffer::uploadSingleMesh(trapezoidMesh);
     trapezoidMesh->vertBuffer->vboUsage = GL_DYNAMIC_DRAW;
 }

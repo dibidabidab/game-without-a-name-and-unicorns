@@ -1,12 +1,16 @@
 #include <asset_manager/asset.h>
 #include <utils/aseprite/AsepriteLoader.h>
 #include <game/dibidab.h>
+#include <graphics/3d/model.h>
+#include <utils/json_model_loader.h>
 
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
 #include "game/Game.h"
 #include "rendering/GameScreen.h"
 #include "tiled_room/TiledRoom.h"
+
+bool assetsLoaded = false;
 
 void addAssetLoaders()
 {
@@ -26,6 +30,39 @@ void addAssetLoaders()
     AssetManager::addAssetLoader<Palette>(".gpl", [](auto path) {
 
         return new Palette(path.c_str());
+    });
+
+    static VertBuffer *vertBuffer = NULL;
+
+    AssetManager::addAssetLoader<std::vector<SharedModel>>(".ubj", [](auto path) {
+
+        VertAttributes vertAttributes;
+        vertAttributes.add(VertAttributes::POSITION);
+        vertAttributes.add(VertAttributes::NORMAL);
+
+        auto collection = new std::vector<SharedModel>(JsonModelLoader::fromUbjsonFile(path.c_str(), &vertAttributes));
+
+        if (assetsLoaded && vertBuffer && !vertBuffer->isUploaded())
+            vertBuffer->upload(true);   // upload before previous models get unloaded.
+
+        if (!vertBuffer || vertBuffer->isUploaded())
+            vertBuffer = VertBuffer::with(vertAttributes);
+
+        for (auto &model : *collection)
+            for (auto &part : model->parts)
+            {
+                if (part.mesh == NULL)
+                    throw gu_err(model->name + " has part without a mesh!");
+
+                if (part.mesh->vertBuffer)
+                    continue; // this mesh was handled before
+
+                for (int i = 0; i < part.mesh->nrOfVertices(); i++)
+                    part.mesh->set<vec3>(part.mesh->get<vec3>(i, 0) * 16.f, i, 0);
+                vertBuffer->add(part.mesh);
+            }
+
+        return collection;
     });
 }
 
@@ -76,6 +113,7 @@ int main(int argc, char *argv[])
     };
 
     dibidab::init(argc, argv);
+    assetsLoaded = true;
 
     File::createDir("./saves"); // todo, see trello
     gu::setScreen(new GameScreen);

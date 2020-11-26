@@ -20,13 +20,14 @@ ShadowCaster::ShadowCaster(TiledRoom *room)
     shadowMesh = std::make_shared<Mesh>(
         "ShadowMesh",
         MAX_SHADOWS_PER_LIGHT * VERTS_PER_SHADOW,
-        MAX_SHADOWS_PER_LIGHT * INDICES_PER_SHADOW,
         attrs
     );
+    auto &part = shadowMesh->parts.emplace_back();
+    part.indices.resize(MAX_SHADOWS_PER_LIGHT * INDICES_PER_SHADOW);
     for (int i = 0; i < MAX_SHADOWS_PER_LIGHT; i++)
     {
         GLushort start = i * VERTS_PER_SHADOW;
-        shadowMesh->indices.insert(shadowMesh->indices.begin() + i * INDICES_PER_SHADOW, {
+        part.indices.insert(part.indices.begin() + i * INDICES_PER_SHADOW, {
             GLushort(start + 0), GLushort(start + 1), GLushort(start + 4),
             GLushort(start + 1), GLushort(start + 2), GLushort(start + 4),
             GLushort(start + 3), GLushort(start + 0), GLushort(start + 4),
@@ -145,9 +146,7 @@ void ShadowCaster::updateMesh(const PointLight &light, const vec2 &lightPos)
         if (++i == MAX_SHADOWS_PER_LIGHT)
             break;
     }
-    shadowMesh->nrOfVertices = i * VERTS_PER_SHADOW;
-    shadowMesh->nrOfIndices = i * INDICES_PER_SHADOW;
-    shadowMesh->vertBuffer->reuploadVertices(shadowMesh);
+    shadowMesh->vertBuffer->reuploadVertices(shadowMesh, i * VERTS_PER_SHADOW);
 }
 
 void ShadowCaster::updateShadowTexture(const SharedTexture &tileMapTexture, bool tileMapChanged)

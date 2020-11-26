@@ -19,6 +19,7 @@
 #include "blood_splatter/BloodSplatterRenderer.h"
 #include "FluidRenderer.h"
 #include "TiledRoomEntityInspector.h"
+#include "ModelRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -47,6 +48,8 @@ class RoomScreen : public Screen
 
     PolylineRenderer polylineRenderer;
     FluidRenderer fluidRenderer;
+
+    ModelRenderer modelRenderer;
 
     TileMap *tileMap = NULL;
 

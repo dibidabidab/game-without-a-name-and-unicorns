@@ -12,12 +12,12 @@ PolylineRenderer::PolylineRenderer()
 {
     VertAttributes attrs;
     attrs.add({"POINT_INDEX", 1, 1, GL_BYTE});
-    lineSegmentMesh = SharedMesh(new Mesh("PolyLineSegment", 2, 2, attrs));
+    lineSegmentMesh = SharedMesh(new Mesh("PolyLineSegment", 2, attrs));
     lineSegmentMesh->set<char>(0, 0, 0);
     lineSegmentMesh->set<char>(1, 1, 0);
-    lineSegmentMesh->mode = GL_LINES;
-    lineSegmentMesh->indices[0] = 0;
-    lineSegmentMesh->indices[1] = 1;
+    auto &part = lineSegmentMesh->parts.emplace_back();
+    part.mode = GL_LINES;
+    part.indices = {0, 1};
     VertBuffer::uploadSingleMesh(lineSegmentMesh);
     lineSegmentMesh->vertBuffer->vboUsage = GL_DYNAMIC_DRAW;
 }

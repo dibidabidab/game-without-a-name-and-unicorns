@@ -84,6 +84,7 @@ void RoomScreen::render(double deltaTime)
         bloodSplatterRenderer->render(cam);
         polylineRenderer.render(room->entities, cam);
         fluidRenderer.render(room->entities, cam);
+        modelRenderer.render(room->entities, cam);
 
         glDisable(GL_DEPTH_TEST);
         indexedFbo->unbind();
