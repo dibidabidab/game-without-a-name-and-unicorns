@@ -10,6 +10,8 @@
 #include "../../../tiled_room/TileMap.h"
 #include "DebugTileRenderer.h"
 
+class TiledRoom;
+
 class RoomEditor
 {
 
@@ -17,11 +19,13 @@ class RoomEditor
 
     TileMaterial material = 0;
 
+    int selectedLayer = 0;
+
   public:
 
     bool show = false;
 
-    void update(OrthographicCamera &cam, TileMap *room, DebugLineRenderer &lineRenderer);
+    void update(OrthographicCamera &cam, TiledRoom &room, DebugLineRenderer &lineRenderer);
 };
 
 

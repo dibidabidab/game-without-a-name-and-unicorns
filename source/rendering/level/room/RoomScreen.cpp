@@ -264,6 +264,27 @@ void RoomScreen::renderDebugStuff()
         ImGui::MenuItem("debug lights", "", &debugLights);
         ImGui::MenuItem("debug legs", "", &debugLegs);
         ImGui::MenuItem("debug aim targets", "", &debugAimTargets);
+
+        ImGui::Separator();
+
+        if (ImGui::MenuItem("View as JSON"))
+        {
+            auto &tab = CodeEditor::tabs.emplace_back();
+            tab.title = room->name.empty() ? "Untitled room" : room->name;
+            tab.title += " (READ-ONLY!)";
+
+            json j;
+            room->toJson(j);
+            tab.code = j.dump(2);
+            tab.languageDefinition = TextEditor::LanguageDefinition::C();
+            tab.revert = [j] (auto &tab) {
+                tab.code = j.dump(2);
+            };
+            tab.save = [] (auto &tab) {
+                std::cerr << "Saving not supported" << std::endl;
+            };
+        }
+
         ImGui::EndMenu();
     }
 
@@ -276,7 +297,7 @@ void RoomScreen::renderDebugStuff()
             renderDebugBackground();
             renderDebugTiles();
         }
-        roomEditor.update(cam, &room->getMap(), lineRenderer);
+        roomEditor.update(cam, *room, lineRenderer);
 
         if (renderWindArrows)
             this->renderWindArrows();
@@ -409,8 +430,8 @@ void RoomScreen::renderDebugTiles()
 
 void RoomScreen::renderWindArrows()
 {
-    TileMap &map = room->getMap();
-    auto &wind = map.wind;
+    auto &map = room->getMap();
+    auto &wind = room->getWindMap();
     for (int x = 0; x < map.width; x++)
         for (int y = 0; y < map.height; y++)
         {

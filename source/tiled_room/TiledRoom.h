@@ -17,6 +17,7 @@
 class TiledRoom : public Room
 {
     TileMap *tileMap = NULL;
+    WindMap *wind = NULL;
 
   protected:
     void initialize(Level *lvl) override;
@@ -24,6 +25,8 @@ class TiledRoom : public Room
     void initializeLuaEnvironment() override;
 
   public:
+
+    std::list<TileMap> decorativeTileLayers;
 
     uint baseLightLevel = 0u;
     uvec2 positionInLevel = uvec2(0);
@@ -37,6 +40,8 @@ class TiledRoom : public Room
     void resize(int moveLeftBorder, int moveRightBorder, int moveTopBorder, int moveBottomBorder);
 
     TileMap &getMap() const;
+
+    WindMap &getWindMap() const;
 
     void update(double deltaTime) override;
 

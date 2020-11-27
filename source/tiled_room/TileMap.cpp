@@ -9,15 +9,11 @@ TileMap::TileMap(ivec2 size)
     :
     width(size.x), height(size.y),
 
-    tiles(new Tile[size.x * size.y]),
-    tileMaterials(new TileMaterial[size.x * size.y]),
+    tiles(size.x * size.y, Tile::empty),
+    tileMaterials(size.x * size.y, 0),
     materialProperties(asset<json>("tile_materials").get().get<decltype(materialProperties)>()),
-    nrOfMaterialTypes(materialProperties.size()),
-
-    wind(size)
+    nrOfMaterialTypes(materialProperties.size())
 {
-    std::fill_n(tiles, width * height, Tile::empty);
-    std::fill_n(tileMaterials, width * height, 0);
 }
 
 void TileMap::fromBinary(const char *data, int size)
@@ -25,24 +21,19 @@ void TileMap::fromBinary(const char *data, int size)
     if (width * height * 2 != size)
         throw gu_err("Trying to load a TileMap with invalid size");
 
-    memcpy(tiles, &data[0], width * height);
-    memcpy(tileMaterials, &data[width * height], width * height);
+    memcpy(tiles.data(), &data[0], width * height);
+    memcpy(tileMaterials.data(), &data[width * height], width * height);
     refreshOutlines();
 }
 
-void TileMap::toBinary(std::vector<char> &out)
+void TileMap::toBinary(std::vector<char> &out) const
 {
     int tilesOffset = out.size();
 
     out.resize(tilesOffset + width * height * 2);
 
-    memcpy(&out[tilesOffset], tiles, width * height);
-    memcpy(&out[tilesOffset + (width * height)], tileMaterials, width * height);
-}
-
-TileMap::~TileMap()
-{
-    delete[] tiles;
+    memcpy(&out[tilesOffset], tiles.data(), width * height);
+    memcpy(&out[tilesOffset + (width * height)], tileMaterials.data(), width * height);
 }
 
 Tile TileMap::getTile(uint8 x, uint8 y) const

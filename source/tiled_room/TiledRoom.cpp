@@ -23,6 +23,7 @@
 
 TiledRoom::TiledRoom(ivec2 size)
 {
+    wind = new WindMap(size);
     tileMap = new TileMap(size);
     for (int x = 0; x < size.x; x++)
     {
@@ -40,6 +41,7 @@ TiledRoom::TiledRoom(ivec2 size)
 void TiledRoom::initialize(Level *lvl)
 {
     assert(tileMap != NULL);
+    assert(wind != NULL);
 
     addSystem(new DamageSystem());
     addSystem(new TransRoomerSystem("transroomer"));
@@ -68,18 +70,25 @@ void TiledRoom::update(double deltaTime)
 
     tileMap->tileUpdatesPrevUpdate = tileMap->tileUpdatesSinceLastUpdate;
     tileMap->tileUpdatesSinceLastUpdate.clear();
-    tileMap->wind.update(deltaTime);
+    wind->update(deltaTime);
 }
 
 TiledRoom::~TiledRoom()
 {
     delete tileMap;
+    delete wind;
 }
 
 TileMap &TiledRoom::getMap() const
 {
     if (!tileMap) throw gu_err("Room doesn't have a TileMap");
     return *tileMap;
+}
+
+WindMap &TiledRoom::getWindMap() const
+{
+    if (!wind) throw gu_err("Room doesn't have a WindMap");
+    return *wind;
 }
 
 void TiledRoom::resize(int moveLeftBorder, int moveRightBorder, int moveTopBorder, int moveBottomBorder)
@@ -133,17 +142,38 @@ void TiledRoom::setPosition(entt::entity e, const vec3 &v)
     entities.get_or_assign<AABB>(e).center = v;
 }
 
+void tileMapToJson(json &j, const TileMap &map)
+{
+    j["mapName"] = map.name;
+    j["mapZIndex"] = map.zIndex;
+    j["width"] = map.width;
+    j["height"] = map.height;
+    std::vector<char> tileMapBinary;
+    map.toBinary(tileMapBinary);
+    std::string tileMapBase64 = base64::encode(&tileMapBinary[0], tileMapBinary.size());
+    j["tileMapBase64"] = tileMapBase64;
+}
+
 void TiledRoom::toJson(json &j) const
 {
     Room::toJson(j);
-    std::vector<char> tileMapBinary;
-    getMap().toBinary(tileMapBinary);
-    std::string tileMapBase64 = base64::encode(&tileMapBinary[0], tileMapBinary.size());
     j["lightLevel"] = baseLightLevel;
     j["position"] = positionInLevel;
-    j["width"] = getMap().width;
-    j["height"] = getMap().height;
-    j["tileMapBase64"] = tileMapBase64;
+    tileMapToJson(j, getMap());
+    auto &layers = j["decorativeTileLayers"] = json::array();
+    for (auto &layer : decorativeTileLayers)
+        tileMapToJson(layers.emplace_back(json::object()), layer);
+}
+
+TileMap tileMapFromJson(const json &j)
+{
+    std::string tileMapBase64 = j.at("tileMapBase64");
+    auto tileMapBinary = base64::decode(&tileMapBase64[0], tileMapBase64.size());
+    TileMap map(ivec2(j.at("width"), j.at("height")));
+    map.name = j.value("mapName", "");
+    map.zIndex = j.value("mapZIndex", 0);
+    map.fromBinary(&tileMapBinary[0], tileMapBinary.size());
+    return map;
 }
 
 void TiledRoom::fromJson(const json &j)
@@ -151,8 +181,9 @@ void TiledRoom::fromJson(const json &j)
     Room::fromJson(j);
     baseLightLevel = j.at("lightLevel");
     positionInLevel = j.at("position");
-    tileMap = new TileMap(ivec2(j.at("width"), j.at("height")));
-    std::string tileMapBase64 = j.at("tileMapBase64");
-    auto tileMapBinary = base64::decode(&tileMapBase64[0], tileMapBase64.size());
-    tileMap->fromBinary(&tileMapBinary[0], tileMapBinary.size());
+    ivec2 size(j.at("width"), j.at("height"));
+    tileMap = new TileMap(tileMapFromJson(j));
+    wind = new WindMap(size);
+    for (auto &layerJson : j.value("decorativeTileLayers", json::array()))
+        decorativeTileLayers.push_back(tileMapFromJson(layerJson));
 }

@@ -91,7 +91,7 @@ class WavesSystem : public EntitySystem
 
             if (wave.moveByWind != 0)
             {
-                spring.velocity += wave.moveByWind * room->getMap().wind.getAtPixelCoordinates(p.x + aabb.center.x, p.y + aabb.center.y).y;
+                spring.velocity += wave.moveByWind * room->getWindMap().getAtPixelCoordinates(p.x + aabb.center.x, p.y + aabb.center.y).y;
             }
             i++;
         }

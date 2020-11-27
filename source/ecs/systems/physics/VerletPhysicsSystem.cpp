@@ -130,7 +130,7 @@ void VerletPhysicsSystem::updateRope(VerletRope &rope, AABB &aabb, float deltaTi
 
         vec2 velocity = (p.currentPos - p.prevPos) * rope.friction;
         if (rope.moveByWind != 0)
-            velocity += room->getMap().wind.getAtPixelCoordinates(p.currentPos.x, p.currentPos.y) * deltaTime * rope.moveByWind;
+            velocity += room->getWindMap().getAtPixelCoordinates(p.currentPos.x, p.currentPos.y) * deltaTime * rope.moveByWind;
 
         p.prevPos = p.currentPos;
         p.currentPos += velocity;

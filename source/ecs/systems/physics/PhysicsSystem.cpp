@@ -220,7 +220,7 @@ void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTim
     }
     if (physics.moveByWind != 0)
     {
-        physics.velocity += room->getMap().wind.getAtPixelCoordinates(aabb.center.x, aabb.center.y) * vec2(deltaTime * physics.moveByWind);
+        physics.velocity += room->getWindMap().getAtPixelCoordinates(aabb.center.x, aabb.center.y) * vec2(deltaTime * physics.moveByWind);
     }
 }
 
@@ -413,7 +413,7 @@ void PhysicsSystem::updateWind(Physics &physics, AABB &body, double deltaTime)
     if (physics.createWind == 0)
         return;
 
-    room->getMap().wind.getAtPixelCoordinates(body.center.x, body.center.y) += physics.velocity * vec2(deltaTime * physics.createWind);
+    room->getWindMap().getAtPixelCoordinates(body.center.x, body.center.y) += physics.velocity * vec2(deltaTime * physics.createWind);
 }
 
 void PhysicsSystem::init(EntityEngine *room)

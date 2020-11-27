@@ -33,8 +33,8 @@ typedef uint8 TileMaterial;
 
 class TileMap {
 
-    Tile *tiles;
-    TileMaterial *tileMaterials;
+    std::vector<Tile> tiles;
+    std::vector<TileMaterial> tileMaterials;
 
     TileMapOutlines outlines;
 
@@ -58,14 +58,13 @@ public:
 
     const uint8 width, height, nrOfMaterialTypes;
 
-    WindMap wind;
+    std::string name;
+    float zIndex = 0;
 
     /**
      * Creates an empty map
      */
     TileMap(ivec2 size);
-
-    ~TileMap();
 
     Tile getTile(uint8 x, uint8 y) const;
 
@@ -102,7 +101,7 @@ public:
     /**
      * Exports this map to binary data, which will be APPENDED to `out`
      */
-    void toBinary(std::vector<char> &out);
+    void toBinary(std::vector<char> &out) const;
 
     /**
      * Loads a map from binary data.
