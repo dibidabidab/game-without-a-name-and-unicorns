@@ -1,5 +1,4 @@
 precision mediump float;
-precision lowp sampler2DArray;
 
 out vec3 color;
 

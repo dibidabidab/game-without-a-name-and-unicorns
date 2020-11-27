@@ -40,7 +40,7 @@ class RoomScreen : public Screen
     TileMapRenderer *tileMapRenderer = NULL;
     BloodSplatterRenderer *bloodSplatterRenderer = NULL;
 
-    ShaderAsset applyPaletteShader, horizontalGaussianShader, postProcessingShader;
+    ShaderAsset applyPaletteShader, horizontalGaussianShader, postProcessingShader, depthBufferDebugShader;
 
     ShadowCaster shadowCaster;
     LightMapRenderer lightMapRenderer;

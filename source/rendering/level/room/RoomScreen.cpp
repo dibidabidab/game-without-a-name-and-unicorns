@@ -30,6 +30,9 @@ RoomScreen::RoomScreen(TiledRoom *room, bool showRoomEditor)
         horizontalGaussianShader(
                 "postProcessingShader", "shaders/fullscreen_quad.vert", "shaders/horizontal_gaussian_blur.frag"
         ),
+        depthBufferDebugShader(
+                "depthBufferDebugShader", "shaders/fullscreen_quad.vert", "shaders/debug_depth_buffer.frag"
+        ),
         shadowCaster(room),
         lightMapRenderer(room),
         inspector(*room, "Room"),
@@ -183,10 +186,12 @@ void RoomScreen::setPaletteEffect(float deltaTime)
     });
 }
 
+static int PIXELS_PER_PIXEL = 3;
+
 void RoomScreen::onResize()
 {
-    cam.viewportWidth = ceil(gu::widthPixels / 3.);
-    cam.viewportHeight = ceil(gu::heightPixels / 3.);
+    cam.viewportWidth = ceil(gu::widthPixels / double(PIXELS_PER_PIXEL));
+    cam.viewportHeight = ceil(gu::heightPixels / double(PIXELS_PER_PIXEL));
     cam.update();
 
     // create a new framebuffer to render the pixelated scene to:
@@ -233,6 +238,7 @@ void RoomScreen::renderDebugStuff()
     static RoomEditor roomEditor;
 
     static bool
+            renderDepthBuffer = false,
             renderTiles = false,
             renderWindArrows = false,
             debugLights = false,
@@ -261,6 +267,7 @@ void RoomScreen::renderDebugStuff()
         ImGui::MenuItem("show debug-tiles", "", &renderTiles);
         ImGui::MenuItem("show wind-arrows", "", &renderWindArrows);
         ImGui::MenuItem("show hitboxes & more", "", &renderHitboxes);
+        ImGui::MenuItem("show depth-buffer", "", &renderDepthBuffer);
         ImGui::MenuItem("debug lights", "", &debugLights);
         ImGui::MenuItem("debug legs", "", &debugLegs);
         ImGui::MenuItem("debug aim targets", "", &debugAimTargets);
@@ -289,6 +296,19 @@ void RoomScreen::renderDebugStuff()
     }
 
     ImGui::EndMainMenuBar();
+
+    if (renderDepthBuffer)
+    {
+        depthBufferDebugShader.use();
+        indexedFbo->depthTexture->bind(0, depthBufferDebugShader, "depthTexture");
+        Mesh::getQuad()->render();
+
+        if (!ImGui::IsAnyWindowHovered())
+            ImGui::SetTooltip("Z-index: %.2f",
+                  indexedFbo->getPixelDepth(MouseInput::mouseX / PIXELS_PER_PIXEL, indexedFbo->height - MouseInput::mouseY / PIXELS_PER_PIXEL)
+                  * -(cam.far_ - cam.near_) + cam.position.z - cam.near_
+            );
+    }
 
     {
         lineRenderer.scale = TileMap::PIXELS_PER_TILE;
