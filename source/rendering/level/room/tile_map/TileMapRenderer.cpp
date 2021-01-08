@@ -1,19 +1,22 @@
 
 #include "TileMapRenderer.h"
 
+#include "../../../../tiled_room/TiledRoom.h"
+#include "../../../../tiled_room/TileMap.h"
+
 #include <graphics/3d/mesh.h>
 #include <gu/profiler.h>
 
-TileMapRenderer::TileMapRenderer(TileMap *map)
-    : map(map),
+TileMapRenderer::TileMapRenderer(const TiledRoom &r)
+    : room(r),
       tileShader(
           "tileShader",
           "shaders/tile_map/tile.vert",
           "shaders/tile_map/tile.frag"
       ),
       fbo(
-          map->width * TileMap::PIXELS_PER_TILE,
-          map->height * TileMap::PIXELS_PER_TILE
+          r.getMap().width * TileMap::PIXELS_PER_TILE,
+          r.getMap().height * TileMap::PIXELS_PER_TILE
       ),
       mapShader(
           "tileMapShader",
@@ -22,6 +25,7 @@ TileMapRenderer::TileMapRenderer(TileMap *map)
       ),
       lastTileSetReloadTime(glfwGetTime())
 {
+    fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
     fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
     fbo.addDepthBuffer();
 }
@@ -36,31 +40,38 @@ void TileMapRenderer::createMapTexture()
     glClear(GL_DEPTH_BUFFER_BIT);
 
     tileShader.use();
-    glUniform2i(tileShader.location("mapSize"), map->width, map->height);
+    glUniform2i(tileShader.location("mapSize"), room.getMap().width, room.getMap().height);
 
-    for (int x = 0; x < map->width; x++)
-        for (int y = 0; y < map->height; y++)
-            renderTile(x, y);
+    for (int x = 0; x < room.getMap().width; x++)
+        for (int y = 0; y < room.getMap().height; y++)
+            {
+                renderTile(room.getMap(), x, y);
+
+                for (auto &m : room.decorativeTileLayers)
+                    renderTile(m, x, y);
+            }
 
     glDisable(GL_DEPTH_TEST);
     fbo.unbind();
     textureCreated = true;
 }
 
-void TileMapRenderer::renderTile(int x, int y)
+void TileMapRenderer::renderTile(const TileMap &map, int x, int y)
 {
-    TileMaterial material = map->getMaterial(x, y);
+    TileMaterial material = map.getMaterial(x, y);
 
-    auto &tileSet = map->getMaterialProperties(material).tileSet;
+    auto &tileSet = map.getMaterialProperties(material).tileSet;
 
-    auto subTexture = tileSet->getSubTextureForTile(*map, x, y);
+    auto subTexture = tileSet->getSubTextureForTile(map, x, y);
     if (!subTexture)
         return;
 
     glUniform2i(tileShader.location("tilePos"), x, y);
     glUniform2i(tileShader.location("tileTextureOffset"), subTexture->offset.x, subTexture->offset.y);
 
-    int variation = mu::randomIntFromX(x + x * y + map->width + map->height, tileSet->variations.size());
+    glUniform1f(tileShader.location("zIndex"), map.zIndex);
+
+    int variation = mu::randomIntFromX(x + x * y + map.width + map.height, tileSet->variations.size());
 
     tileSet->variations.at(variation)->bind(0, tileShader, "tileSet");
 
@@ -73,16 +84,39 @@ void TileMapRenderer::updateMapTextureIfNeeded()
 
     bool tileSetReloaded = false;
 
-    for (int i = 0; i < map->nrOfMaterialTypes; i++)
+    auto &map = room.getMap();
+
+    for (int i = 0; i < map.nrOfMaterialTypes; i++) // TODO: this will not work if different layers get different material/properties/types. Then looping through all layers will be required
     {
-        if (map->getMaterialProperties(i).tileSet.getLoadedAsset().loadedSinceTime > lastTileSetReloadTime)
+        if (map.getMaterialProperties(i).tileSet.getLoadedAsset().loadedSinceTime > lastTileSetReloadTime)
         {
             tileSetReloaded = true;
             lastTileSetReloadTime = glfwGetTime();
         }
     }
 
-    if (!map->updatesPrevUpdate().empty() || !textureCreated || tileSetReloaded)
+    bool zIndexChanged = false;
+    prevZIndexes.resize(room.decorativeTileLayers.size() + 1, -1);
+    if (map.zIndex != prevZIndexes[0])
+    {
+        zIndexChanged = true;
+        prevZIndexes[0] = map.zIndex;
+    }
+
+    bool decChanged = false;
+    int i = 0;
+    for (auto &layer : room.decorativeTileLayers)
+    {
+        if (!layer.updatesPrevUpdate().empty())
+            decChanged = true;
+        if (layer.zIndex != prevZIndexes[++i])
+        {
+            zIndexChanged = true;
+            prevZIndexes[i] = layer.zIndex;
+        }
+    }
+
+    if (decChanged || zIndexChanged || !map.updatesPrevUpdate().empty() || !textureCreated || tileSetReloaded)
         createMapTexture();
 }
 
@@ -95,7 +129,8 @@ void TileMapRenderer::render(const Camera &cam, const SharedTexture &bloodSplatt
     glUniform2f(mapShader.location("camPos"), cam.position.x / float(fbo.width), cam.position.y / float(fbo.height));
     glUniform2f(mapShader.location("camSize"), cam.viewportWidth / float(fbo.width), cam.viewportHeight / float(fbo.height));
     fbo.colorTexture->bind(0, mapShader, "mapTexture");
-    bloodSplatterTexture->bind(1, mapShader, "bloodSplatterTexture");
+    fbo.colorTextures.at(1)->bind(1, mapShader, "depth8BitTexture");
+    bloodSplatterTexture->bind(2, mapShader, "bloodSplatterTexture");
 
     Mesh::getQuad()->render();
 }

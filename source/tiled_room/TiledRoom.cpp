@@ -70,6 +70,12 @@ void TiledRoom::update(double deltaTime)
 
     tileMap->tileUpdatesPrevUpdate = tileMap->tileUpdatesSinceLastUpdate;
     tileMap->tileUpdatesSinceLastUpdate.clear();
+    for (auto &layer : decorativeTileLayers)
+    {
+        layer.tileUpdatesPrevUpdate = layer.tileUpdatesSinceLastUpdate;
+        layer.tileUpdatesSinceLastUpdate.clear();
+    }
+
     wind->update(deltaTime);
 }
 

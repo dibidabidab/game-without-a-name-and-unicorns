@@ -59,7 +59,7 @@ void RoomScreen::render(double deltaTime)
         tileMap = &room->getMap();
 
         delete tileMapRenderer;
-        tileMapRenderer = new TileMapRenderer(tileMap);
+        tileMapRenderer = new TileMapRenderer(*room);
         delete bloodSplatterRenderer;
         bloodSplatterRenderer = new BloodSplatterRenderer(room);
     }

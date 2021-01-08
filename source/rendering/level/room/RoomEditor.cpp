@@ -25,7 +25,7 @@ void RoomEditor::update(OrthographicCamera &cam, TiledRoom &room, DebugLineRende
             if (ImGui::Selectable((room.getMap().name + " (Collision layer)").c_str(), selectedLayer == 0))
                 selectedLayer = 0;
             ImGui::SameLine(180);
-            ImGui::TextDisabled("z: %.2f", room.getMap().zIndex);
+            ImGui::TextDisabled("z: %.2f%%", room.getMap().zIndex);
             int i = 0;
             for (auto &l : room.decorativeTileLayers)
             {
@@ -35,7 +35,7 @@ void RoomEditor::update(OrthographicCamera &cam, TiledRoom &room, DebugLineRende
                     selectedLayerPtr = &l;
 
                 ImGui::SameLine(180);
-                ImGui::TextDisabled("z: %.2f", l.zIndex);
+                ImGui::TextDisabled("z: %.2f%%", l.zIndex);
             }
         }
         ImGui::EndChild();
@@ -70,7 +70,7 @@ void RoomEditor::update(OrthographicCamera &cam, TiledRoom &room, DebugLineRende
             selectedLayerPtr->name = std::string(ptr);
         delete[] ptr;
 
-        ImGui::SliderFloat("Z-index", &selectedLayerPtr->zIndex, cam.position.z + -cam.far_, cam.position.z - cam.near_);
+        ImGui::SliderFloat("Z-index", &selectedLayerPtr->zIndex, 0, 100);//cam.position.z + -cam.far_, cam.position.z - cam.near_);
     }
 
     auto &map = *selectedLayerPtr;

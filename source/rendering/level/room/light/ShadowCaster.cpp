@@ -147,6 +147,7 @@ void ShadowCaster::updateMesh(const PointLight &light, const vec2 &lightPos)
             break;
     }
     shadowMesh->vertBuffer->reuploadVertices(shadowMesh, i * VERTS_PER_SHADOW);
+    shadowMesh->parts.front().nrOfIndicesToRender = i * INDICES_PER_SHADOW;
 }
 
 void ShadowCaster::updateShadowTexture(const SharedTexture &tileMapTexture, bool tileMapChanged)
