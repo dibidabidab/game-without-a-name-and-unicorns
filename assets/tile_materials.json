@@ -7,6 +7,13 @@
     "color": [1, 0.6, 0.9]
   },
   {
+    "name": "brick_BACKGROUND",
+    "tileSet": "sprites/tilesets/bricks_background",
+    "friction": 1,
+    "bounciness": 0,
+    "color": [0.5, 0.3, 0.45]
+  },
+  {
     "name": "grass",
     "tileSet": "sprites/tilesets/grass",
     "friction": 1,

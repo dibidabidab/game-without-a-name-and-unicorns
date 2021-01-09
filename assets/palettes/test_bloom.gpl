@@ -6,7 +6,7 @@ GIMP Palette
   0   0   0	grass
   0   0   0	grass_dark
  21  20   0	brick
-  0   0   0	wood
+  0   0   0	brick_dark
   0  48  50	string
   0   0   0	skin
   0   0   0	hat
@@ -20,3 +20,5 @@ GIMP Palette
 224 110 110	fire1
   0   0   0	water0
   0   0   0	water1
+  0   0   0	wood
+  0   0   0	wood_dark
