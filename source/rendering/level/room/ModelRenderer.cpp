@@ -8,6 +8,7 @@
 
 void ModelRenderer::render(entt::registry &registry, const OrthographicCamera &camera)
 {
+    glEnable(GL_CULL_FACE);
     PerspectiveCamera perspectiveCam(.1, 1000, camera.viewportWidth, camera.viewportHeight, 70);
     perspectiveCam.position = mu::Z;
     perspectiveCam.lookAt(mu::ZERO_3);
@@ -68,6 +69,7 @@ void ModelRenderer::render(entt::registry &registry, const OrthographicCamera &c
             part.mesh->render(part.meshPartIndex);
         }
     });
+    glDisable(GL_CULL_FACE);
 }
 
 ModelRenderer::ModelRenderer()
