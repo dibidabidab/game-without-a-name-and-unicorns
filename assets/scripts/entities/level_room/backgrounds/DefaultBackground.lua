@@ -16,7 +16,7 @@ function create(bg)
             rotation = rot,
             renderWithPerspectiveCamera = true
         },
-        Inspecting()
+        --Inspecting()
 
     })
 

@@ -28,11 +28,14 @@ void main()
         discard;
     else if (!outsideRoom)
     {
-        uint bloodColor = texture(bloodSplatterTexture, v_texCoords).r;
-        if (bloodColor != 0u)
-            indexedColor = bloodColor;
-
         float zIndex = map(float(texture(depth8BitTexture, v_texCoords).r), 0.f, 255.f, 1.f, 0.f);
         gl_FragDepth = zIndex;
+
+        if (zIndex < .1f)
+        {
+            uint bloodColor = texture(bloodSplatterTexture, v_texCoords).r;
+            if (bloodColor != 0u)
+                indexedColor = bloodColor;
+        }
     }
 }

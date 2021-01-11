@@ -5,7 +5,7 @@ branchSystem = include("scripts/entities/level_room/foliage/_Tree.branches")
 
 function resetDefaults()
     defaultArgs({
-                    zIndex = -600 - math.random(200),
+                    zIndex = -500 + math.random(100),
                     age    = 100, --mtlib.random(treeConfigs.ageRange),
                     seed   = math.random(math.random(1000000000)),
                     type   = "oak",
@@ -43,6 +43,13 @@ function rootState      (treeType, zIndex, age)
 end
 
 function create(entity, args)
+
+    local spawnPos = ivec2()
+    local aabb = component.AABB.tryGetFor(entity)
+    if aabb ~= nill then
+        spawnPos = ivec2(aabb.center.x, aabb.center.y)
+    end
+
     mtlib.seed(args.seed)
     local treeState      = rootState(args.type, args.zIndex, args.age)
     local treeConfig     = treeConfigs[args.type]
@@ -60,7 +67,10 @@ function create(entity, args)
     })
 
     -- Larger AABB, so we can pick it up easier
-    component.AABB.getFor(entity).halfSize = ivec2(4)
+    aabb = component.AABB.getFor(entity)
+    aabb.halfSize = ivec2(4)
+    aabb.center.x = spawnPos.x
+    aabb.center.y = spawnPos.y
 
     resetDefaults()
 end

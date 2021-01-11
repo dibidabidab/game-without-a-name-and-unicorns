@@ -56,7 +56,7 @@ oak        = {
     pieceLength         = mtlib.range(4, 16),
     pieceAngle          = mtlib.sqRangeDev(40),
 
-    branchChance        = .4,
+    branchChance        = .5,
     branchAngle         = mtlib.rangeDev(40),
     branchLength        = 50,
 
@@ -67,8 +67,8 @@ oak        = {
     tendency            = "direction",
     tendencyDirection   = 0,
     tendencyOutRange    = 0,
-    tendencyStrength    = .05,
-    tendencyStrengthRdc = .99,
+    tendencyStrength    = .15,
+    tendencyStrengthRdc = .95,
 
     pieceLengthFct      = .99,
     pieceAmountFct      = .8,

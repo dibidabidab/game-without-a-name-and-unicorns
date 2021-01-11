@@ -20,7 +20,7 @@ function entityTable(pieceEntity, parent, angle, zIndex)
 
             friction   = .7,
             nrOfPoints = 1,
-            moveByWind = 6,
+            moveByWind = 1.5,
         },
 
         AttachToRope {
@@ -39,8 +39,8 @@ function updateFunction(width, length, treeState)
         local growthRange    = mtlib.range(growthStart, treeConfigs.ageRange.max)
 
         local updateFunction = function(dTime, entity, _)
-            currentLength = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
-            currentWidth  = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
+            local currentLength = mtlib.interpolateCap(growthRange, lengthRange, treeState.age)
+            local currentWidth  = mtlib.interpolateCap(growthRange, widthRange, treeState.age)
 
             component.VerletRope.getFor(entity).length = currentLength
 
@@ -63,7 +63,7 @@ function updateFunction(width, length, treeState)
 end
 
 function piece          (parent, treeConfig, treeState, entity)
-    entity       = entity or createChild(parent, "branch")
+    local entity       = entity or createChild(parent, "branch")
     local length = mtlib.random(treeState.pieceLength)
 
     mtlib.rangeMult(treeState.pieceLength, treeConfig.pieceLengthFct or 1)
@@ -166,10 +166,9 @@ function treePieces     (parent, treeConfig, treeState)
             -- Create new branch from this point, if depth limit has not been reached
             width = width + branch(parent, treeConfig, treeState)
         end
-    else if not mtlib.upperLimit(treeConfig.limitDepth, treeState.depth) then
+    elseif not mtlib.upperLimit(treeConfig.limitDepth, treeState.depth) then
         --Finished, create crown if depth limit has not been reached
         width = width + crown(parent, treeConfig, treeState)
-    end
     end
 
     return width

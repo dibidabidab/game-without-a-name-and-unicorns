@@ -9,7 +9,7 @@ function wrappert(state, fn)
     local ret = fn(update)
 
     for i = #ststate, 1, -1 do
-        kv           = ststate[i]
+        local kv     = ststate[i]
         state[kv[1]] = kv[2]
     end
 
