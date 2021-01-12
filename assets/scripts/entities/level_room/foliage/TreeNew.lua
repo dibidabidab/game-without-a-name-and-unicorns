@@ -7,7 +7,7 @@ function resetDefaults()
     defaultArgs({
                     zIndex = -500 + math.random(100),
                     age    = 100, --mtlib.random(treeConfigs.ageRange),
-                    seed   = math.random(math.random(1000000000)),
+                    seed   = math.random(math.random(10000000)),
                     type   = "oak",
                 })
 end
@@ -32,6 +32,7 @@ function rootState      (treeType, zIndex, age)
         baseWidth         = 0,
 
         branchlessStart   = mtlib.random(treeConfig.branchlessStart),
+        leavesStart       = mtlib.random(treeConfig.leavesStart),
 
         pieceLength       = treeConfig.pieceLength,
         pieceAmount       = treeConfig.pieceAmount,

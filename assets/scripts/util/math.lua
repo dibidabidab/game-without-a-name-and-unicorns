@@ -1,9 +1,28 @@
+
+function sinrandom(min, max)
+
+    if max == nil then
+        if min == nil then
+            min = 1
+        end
+        max = min
+        min = 0
+    end
+
+    _G.sinrandomI = _G.sinrandomI + 1
+
+    local random01 = math.abs(math.sin(_G.sinrandomSeed + _G.sinrandomI) * (43758.5453123 + _G.sinrandomSeed)) % 1
+
+    return min + (max - min) * random01
+end
+
+
 function ntRange(min, max)
     return {
         min = min,
         max = max,
         fn  = function(value)
-            if math.random(0, 1) == 0 then
+            if random() > .5 then
                 return value else
                 return -value end
         end
@@ -30,11 +49,10 @@ function range(min, max)
     }
 end
 
-function seed(seed)
-    math.randomseed(seed)
-    math.random()
-    math.random()
-    math.random()
+function seed(s)
+    _G.sinrandomSeed = s
+    _G.sinrandomI = 0
+    sinrandom()
 end
 
 function sqRange(min, max)
@@ -65,9 +83,8 @@ function rangeDiv (range, value)
     range.max = range.max / value
 end
 
-resolution = 1000000
 function random         (range)
-    return range.fn(math.random(math.floor(range.min * resolution), math.floor(range.max * resolution)) / resolution)
+    return range.fn(sinrandom(range.min, range.max))
 end
 
 function cap            (range, value)
@@ -131,7 +148,7 @@ function id             (v)
 end
 
 function chance         (chance)
-    return math.random(0, resolution) / resolution < chance
+    return sinrandom() < chance
 end
 
 function randomDistrMin(range, minDist, amount)

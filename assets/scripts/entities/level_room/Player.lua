@@ -6,7 +6,7 @@ function create(player)
     setComponents(player, {
         Physics {
             ignorePolyPlatforms = false,
-            createWind = 3,
+            createWind = 1.5,
             ignoreFluids = false
         },
         AABB {

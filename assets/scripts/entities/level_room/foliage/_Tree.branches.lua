@@ -20,7 +20,7 @@ function entityTable(pieceEntity, parent, angle, zIndex)
 
             friction   = .7,
             nrOfPoints = 1,
-            moveByWind = 1.5,
+            --moveByWind = 1.5,
         },
 
         AttachToRope {
@@ -79,6 +79,30 @@ function piece          (parent, treeConfig, treeState, entity)
         local width = treePieces(entity, treeConfig, treeState)
         entityTable(entity, parent, treeState.angle, mtlib.range(treeState.zIndex, treeState.zIndex))
         setUpdateFunction(entity, .1, updateFunction(width, length, treeState))
+
+
+        component.VerletRope.getFor(entity).moveByWind = 15 / math.max(width, 1)
+
+        if treeState.totalLength - width * treeConfig.limitLength * .06 > treeState.leavesStart * treeConfig.limitLength then
+
+            local leave = createChild(entity)
+
+            setComponents(leave, {
+                AABB(),
+                AttachToRope {
+                    ropeEntity = entity,
+                    x          = .5
+                },
+                AsepriteView {
+                    sprite = "sprites/tree_leaves",
+                    zIndex = treeConfig.zIndex,
+                    frame  = 3,
+                    flipHorizontal = treeState.angle > 0 and true or false,
+                    flipVertical   = math.abs(treeState.angle) > 90 and true or false
+                },
+            })
+        end
+
         return width
     end)
 
@@ -140,6 +164,7 @@ function doBranch(parent, treeConfig, treeState, angle)
         update("depth", treeState.depth + 1)
         update("branchLength", treeState.branchLength * (treeConfig.branchLengthFct or 1))
         update("branchlessStart", mtlib.random(treeConfig.branchlessStart))
+        update("leavesStart", mtlib.random(treeConfig.leavesStart))
 
         return piece(parent, treeConfig, treeState)
     end)

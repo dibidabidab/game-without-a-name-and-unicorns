@@ -50,6 +50,7 @@ ageRangeDs = mtlib.range(maxAge - 1)
 
 oak        = {
     branchlessStart     = mtlib.range(.2, .4),
+    leavesStart         = mtlib.range(.1, .8),
     width               = mtlib.range(1, 1.4),
     widthIncrease       = mtlib.range(.4),
 

@@ -28,10 +28,11 @@ void VerletPhysicsSystem::update(double deltaTime, EntityEngine *)
         if (attach.ropeEntity == entt::null)
             return;
 
+        auto *thisRope = room->entities.try_get<VerletRope>(e);
+
         if (attach.registerAsChildRope)
         {
             auto *parentRope = room->entities.try_get<VerletRope>(attach.ropeEntity);
-            auto *thisRope = room->entities.try_get<VerletRope>(e);
 
             if (parentRope && thisRope)
             {
@@ -42,7 +43,7 @@ void VerletPhysicsSystem::update(double deltaTime, EntityEngine *)
         }
 
         VerletRope *rope = room->entities.try_get<VerletRope>(attach.ropeEntity);
-        if (!rope || rope->isAttachedToRope)
+        if (!rope || (thisRope && thisRope->isAttachedToRope))
             return;
 
         updateAttachToRope(*rope, attach, aabb);
@@ -75,6 +76,9 @@ void VerletPhysicsSystem::updateAttachToRope(const VerletRope &rope, AttachToRop
     int
             pointIndex0 = pointIndex,
             pointIndex1 = ceil(pointIndex);
+
+    if (rope.points.size() <= max(pointIndex0, pointIndex1))
+        return;
 
     auto &point0Pos = rope.points[pointIndex0].currentPos;
     auto &point1Pos = rope.points[pointIndex1].currentPos;

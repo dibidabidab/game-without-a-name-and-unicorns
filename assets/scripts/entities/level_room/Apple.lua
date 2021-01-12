@@ -13,22 +13,24 @@ function create(apple)
         },
         Health {
             takesDamageFrom = {"hit"},
-            componentsToAddOnDeath = {
-                SliceSpriteIntoPieces = {
-                    steps = 4
-                },
-                DespawnAfter = {
-                    time = .1
-                },
-                SoundSpeaker = {
-                    sound = "sounds/apple_hit",
-                    pitch = math.random() + .9,
-                    volume = 1. + math.random()
-                }
-            },
             currHealth = 1,
             maxHealth = 1,
             bloodColor = 0
         }
     })
+    onEntityEvent(apple, "Died", function()
+        setComponents(apple, {
+            SliceSpriteIntoPieces {
+                steps = 4
+            },
+            DespawnAfter {
+                time = .1
+            },
+            SoundSpeaker {
+                sound = "sounds/apple_hit",
+                pitch = math.random() + .9,
+                volume = 1. + math.random()
+            }
+        })
+    end)
 end
