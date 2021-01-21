@@ -30,7 +30,7 @@ function create(particle)
     component.DespawnAfter.getFor(particle).time = 1.
 
     local spriteView = component.AsepriteView.getFor(particle)
-    spriteView.sprite = "sprites/rainbow_particle"
+    spriteView.sprite.set("sprites/rainbow_particle")
     spriteView.loop = false
     spriteView.playingTag = 0
 

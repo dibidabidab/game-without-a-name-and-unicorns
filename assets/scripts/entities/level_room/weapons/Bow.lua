@@ -29,7 +29,7 @@ function create(bow, args)
             halfSize = ivec2(3)
         },
         AsepriteView {
-            sprite = "sprites/bow",
+            sprite = sprite_asset("sprites/bow"),
             playingTag = 0,
             paused = true,
             loop = false

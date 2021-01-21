@@ -6,7 +6,7 @@ function create(hud)
             absolutePositioning = true
         },
         UIContainer {
-            nineSliceSprite = "sprites/ui/hud_border",
+            nineSliceSprite = sprite_asset("sprites/ui/hud_border"),
             fillRemainingParentHeight = true,
             fillRemainingParentWidth = true,
 

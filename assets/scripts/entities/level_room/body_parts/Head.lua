@@ -2,7 +2,7 @@
 defaultArgs({
     body = nil,
     halfSize = ivec2(2, 4),
-    sprite = "sprites/player_head"
+    sprite = sprite_asset("sprites/player_head")
 })
 
 function create(head, args)

@@ -18,7 +18,7 @@ function create(hpBar, args)
             absoluteVerticalAlign = 2
         },
         UIContainer {
-            nineSliceSprite = "sprites/ui/hp_bar_9slice",
+            nineSliceSprite = sprite_asset("sprites/ui/hp_bar_9slice"),
             fixedHeight = 27,
             fixedWidth = 32 + NR_OF_HEARTS * HEART_WIDTH,
             centerAlign = true
@@ -42,7 +42,7 @@ function create(hpBar, args)
         setComponents(heart, {
             UIElement(),
             AsepriteView {
-                sprite = "sprites/ui/heart"
+                sprite = sprite_asset("sprites/ui/heart")
             }
         })
     end

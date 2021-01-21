@@ -16,7 +16,7 @@ function create(bar, args)
             absoluteVerticalAlign = 0
         },
         UIContainer {
-            nineSliceSprite = "sprites/ui/arrow_type_bar_9slice",
+            nineSliceSprite = sprite_asset("sprites/ui/arrow_type_bar_9slice"),
             fixedHeight = 27,
             fixedWidth = 32,
             autoWidth = true
@@ -29,7 +29,7 @@ function create(bar, args)
     local iconRenderOffset = ivec2(-25, 2)
 
     local spriteView = AsepriteView {
-        sprite = "sprites/ui/arrow_type_icons",
+        sprite = sprite_asset("sprites/ui/arrow_type_icons"),
         loop = false
     }
     _, spriteView.frame = asepriteTagFrames(spriteView, bowComponent.arrowTemplate)

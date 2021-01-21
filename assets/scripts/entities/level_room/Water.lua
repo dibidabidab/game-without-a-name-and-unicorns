@@ -37,15 +37,15 @@ function create(water, args)
             friction = 2.83, -- this value gives a funny walk animation underwater
             reduceGravity = 900,
 
-            enterSound = "sounds/jump_in_water",
-            leaveSound = "sounds/jump_out_water",
+            enterSound = sound_asset("sounds/jump_in_water"),
+            leaveSound = sound_asset("sounds/jump_out_water"),
 
             color = colors.water0,
             splatterAmount = 4.,
             splatterDropSize = 1.1,
             splatterVelocity = .8,
 
-            bubbleSprite = "sprites/bubble",
+            bubbleSprite = sprite_asset("sprites/bubble"),
             bubblesAmount = 1.
         },
         PolylineWaves {

@@ -17,7 +17,7 @@ function create(particle)
 
         },
         AsepriteView {
-            sprite = "sprites/tree_leaves",
+            sprite = sprite_asset("sprites/tree_leaves"),
             frame = 3,
             flipHorizontal = math.random() > .5,
             flipVertical = math.random() > .5

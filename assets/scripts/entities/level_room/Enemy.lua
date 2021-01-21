@@ -16,7 +16,7 @@ function create(enemy)
             givePlayerArrowOnKill = "RainbowArrow"
         },
         AsepriteView {
-            sprite = "sprites/enemy"
+            sprite = sprite_asset("sprites/enemy")
         },
         PointLight {
             radius = 60

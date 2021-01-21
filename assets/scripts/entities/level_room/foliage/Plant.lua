@@ -8,7 +8,7 @@ function create(stem)
             halfSize = ivec2(3)
         },
         AsepriteView {
-            sprite = "sprites/plant",
+            sprite = sprite_asset("sprites/plant"),
             frame = math.random(0, 2)
         }
     })
@@ -41,7 +41,7 @@ function create(stem)
                 x = .8 - (leavesI / length)
             },
             AsepriteView {
-                sprite = "sprites/plant",
+                sprite = sprite_asset("sprites/plant"),
                 frame = math.random(3, 5)
             }
         })

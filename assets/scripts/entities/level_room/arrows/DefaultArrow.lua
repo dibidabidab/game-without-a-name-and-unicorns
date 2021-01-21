@@ -11,7 +11,7 @@ function create(arrow)
         },
         StaticCollider(),
         AsepriteView {
-            sprite = "sprites/arrow"
+            sprite = sprite_asset("sprites/arrow")
         },
         TransRoomable {
             templateName = "" -- do not create a new Arrow, just let this one disappear.

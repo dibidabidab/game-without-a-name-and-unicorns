@@ -62,7 +62,7 @@ function create(entity, args)
 
     -- Grass at the bottom of the tree
     setComponent(entity, AsepriteView {
-        sprite = "sprites/tree_leaves",
+        sprite = sprite_asset("sprites/tree_leaves"),
         frame  = 4,
         zIndex = args.zIndex
     })

@@ -8,7 +8,7 @@ function create(widget)
             absoluteHorizontalAlign = 2 -- todo, use strings or constants
         },
         UIContainer {
-            nineSliceSprite = "sprites/ui/default_9slice_plane",
+            nineSliceSprite = sprite_asset("sprites/ui/default_9slice_plane"),
             autoHeight = true,
             --autoWidth = true,
             fixedWidth = 128,
@@ -26,7 +26,7 @@ function create(widget)
     setComponents(createChild(widget), {
         UIElement(),
         AsepriteView {
-            sprite = "sprites/enemy"
+            sprite = sprite_asset("sprites/enemy")
         }
     })
     applyTemplate(createChild(widget), "Text", {
@@ -40,7 +40,7 @@ function create(widget)
             startOnNewLine = true
         },
         UIContainer {
-            nineSliceSprite = "sprites/ui/default_9slice_plane",
+            nineSliceSprite = sprite_asset("sprites/ui/default_9slice_plane"),
             fixedWidth = 100,
             fixedHeight = 24,
             fillRemainingParentHeight = false,

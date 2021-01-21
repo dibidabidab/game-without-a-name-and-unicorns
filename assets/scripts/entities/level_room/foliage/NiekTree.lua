@@ -31,7 +31,7 @@ function create(boomstam, args)
         },
 
         AsepriteView { -- dit zorgt ervoor dat er kleine grassprietjes worden getekent onderaan de boom
-            sprite = "sprites/tree_leaves",
+            sprite = sprite_asset("sprites/tree_leaves"),
             frame = 4,
             zIndex = args.zIndex -- werkt hetzelfde als in CSS
         },
@@ -108,7 +108,7 @@ function create(boomstam, args)
     setComponents(leaves, {
 
         AsepriteView {
-            sprite = "sprites/tree_leaves",
+            sprite = sprite_asset("sprites/tree_leaves"),
             zIndex = args.zIndex + 5, -- dit is dezelfde zIndex als de zIndex van het midden van de tak, dus zal de tak daar door het grote blad heen steken
 
             frame = math.random(0, 2) -- 0 = klein blad, 1 = middelgroot, 2 = heel groot
@@ -145,7 +145,7 @@ function create(boomstam, args)
             x = .8
         },
         AsepriteView {
-            sprite = "sprites/tree_leaves",
+            sprite = sprite_asset("sprites/tree_leaves"),
             zIndex = args.zIndex + 20,
             frame = 3,
 

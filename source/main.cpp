@@ -3,6 +3,7 @@
 #include <game/dibidab.h>
 #include <graphics/3d/model.h>
 #include <utils/json_model_loader.h>
+#include <lua_asset.h>
 
 #include "rendering/Palette.h"
 #include "rendering/sprites/MegaSpriteSheet.h"
@@ -16,25 +17,25 @@ void addAssetLoaders()
 {
     // more loaders are added in dibidab::init()
 
-    AssetManager::addAssetLoader<TileSet>(".tileset.ase", [](auto path) {
+    addLuaAssetLoader<TileSet>("tileset_asset", ".tileset.ase", [](auto path) {
 
         return new TileSet(path.c_str());
     });
-    AssetManager::addAssetLoader<aseprite::Sprite>(".ase", [&](auto path) {
+    addLuaAssetLoader<aseprite::Sprite>("sprite_asset", ".ase", [&](auto path) {
 
         auto sprite = new aseprite::Sprite;
         aseprite::Loader(path.c_str(), *sprite);
         Game::spriteSheet.add(*sprite);
         return sprite;
     });
-    AssetManager::addAssetLoader<Palette>(".gpl", [](auto path) {
+    addLuaAssetLoader<Palette>("palette_asset", ".gpl", [](auto path) {
 
         return new Palette(path.c_str());
     });
 
     static VertBuffer *vertBuffer = NULL;
 
-    AssetManager::addAssetLoader<std::vector<SharedModel>>(".ubj", [](auto path) {
+    addLuaAssetLoader<std::vector<SharedModel>>("model_collection_asset", ".ubj", [](auto path) {
 
         VertAttributes vertAttributes;
         vertAttributes.add(VertAttributes::POSITION);

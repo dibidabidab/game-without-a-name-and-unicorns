@@ -94,7 +94,7 @@ function piece          (parent, treeConfig, treeState, entity)
                     x          = .5
                 },
                 AsepriteView {
-                    sprite = "sprites/tree_leaves",
+                    sprite = sprite_asset("sprites/tree_leaves"),
                     zIndex = treeConfig.zIndex,
                     frame  = 3,
                     flipHorizontal = treeState.angle > 0 and true or false,

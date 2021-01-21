@@ -9,7 +9,7 @@ function create(apple)
         },
         Physics(),
         AsepriteView {
-            sprite = "sprites/apple"
+            sprite = sprite_asset("sprites/apple")
         },
         Health {
             takesDamageFrom = {"hit"},
@@ -27,7 +27,7 @@ function create(apple)
                 time = .1
             },
             SoundSpeaker {
-                sound = "sounds/apple_hit",
+                sound = sound_asset("sounds/apple_hit"),
                 pitch = math.random() + .9,
                 volume = 1. + math.random()
             }

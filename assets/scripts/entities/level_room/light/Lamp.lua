@@ -22,7 +22,7 @@ function create(rope)
             radiusFlickeringIntensity = 3
         },
         AsepriteView {
-            sprite = "sprites/lamp",
+            sprite = sprite_asset("sprites/lamp"),
             playingTag = 0,
             frame = math.random(10),
             aabbAlign = vec2(.5, 0)
@@ -42,7 +42,7 @@ function create(rope)
         component.SliceSpriteIntoPieces.getFor(lamp).steps = 3
 
         setComponent(lamp, SoundSpeaker {
-            sound = "sounds/glass_break",
+            sound = sound_asset("sounds/glass_break"),
             pitch = math.random() * .6 + .7,
             volume = math.random() * .3 + .5
         })

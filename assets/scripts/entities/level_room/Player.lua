@@ -26,7 +26,7 @@ function create(player)
         },
         Aiming(),
         AsepriteView {
-            sprite = "sprites/player_body",
+            sprite = sprite_asset("sprites/player_body"),
             zIndex = -1 -- make sure head and bow show in front of body
         },
         SpriteBobbing {
@@ -63,7 +63,7 @@ function create(player)
         "Head",
         {
             body = player,
-            sprite = "sprites/player_head"
+            sprite = sprite_asset("sprites/player_head")
         }
     )
 

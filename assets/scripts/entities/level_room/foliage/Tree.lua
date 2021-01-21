@@ -34,7 +34,7 @@ function create(tree, args, saveData)
             moveByWind = 6
         },
         AsepriteView = {
-            sprite = "sprites/tree_leaves",
+            sprite = sprite_asset("sprites/tree_leaves"),
             frame  = 4,
             zIndex = args.zIndex
         }
@@ -161,7 +161,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
                     x          = leavePosAlongBranch
                 },
                 AsepriteView    = {
-                    sprite = "sprites/tree_leaves",
+                    sprite = sprite_asset("sprites/tree_leaves"),
                     zIndex = leavePosAlongBranch > .7 and zIndexBegin or zIndexEnd,
                     frame  = math.random(0, 2)
                 },
@@ -196,7 +196,7 @@ addBranch = function(parentBranch, parentBranchComps, side, posAlongParent, leng
                 x          = leavePosAlongBranch
             },
             AsepriteView = {
-                sprite         = "sprites/tree_leaves",
+                sprite         = sprite_asset("sprites/tree_leaves"),
                 zIndex         = zIndexBegin + leavePosAlongBranch * (zIndexEnd - zIndexBegin),
                 frame          = 3,
                 flipHorizontal = gravity[1] < 0 and true or false,

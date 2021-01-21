@@ -5,7 +5,7 @@ defaultArgs({
     color = 7,
     lineSpacing = 3,
     letterSpacing = 1,
-    font = "sprites/ui/default_font",
+    font = sprite_asset("sprites/ui/default_font"),
     waving = false,
     wavingFrequency = .09,
     wavingSpeed = 10,
