@@ -16,7 +16,7 @@ flat out uint v_mapColorTo;
 void main()
 {
     v_mapColorFrom = mapColorFrom;
-    v_mapColorTo = mapColorTo;
+    v_mapColorTo = mapColorTo - 1u;
     v_texCoords = vec2(size) * a_pos;
 
     vec2 pos = vec2(charScreenPos.xy) + v_texCoords;

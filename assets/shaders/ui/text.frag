@@ -14,7 +14,7 @@ void main()
     indexedColor = texelFetch(spriteSheet, ivec2(v_texCoords), 0).r;
 
     if (indexedColor == v_mapColorFrom)
-        indexedColor = v_mapColorTo;
+        indexedColor = v_mapColorTo + 1u;
 
     if (indexedColor == 0u) // transparent
         discard;
