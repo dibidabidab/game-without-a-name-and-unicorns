@@ -99,7 +99,7 @@ void RoomScreen::render(double deltaTime)
         bloodSplatterRenderer->render(cam);
         polylineRenderer.render(room->entities, cam);
         fluidRenderer.render(room->entities, cam);
-        fireRenderer.renderCombined();
+        fireRenderer.renderCombined(room->getLevel().getTime(), cam);
 
         indexedFbo->unbind();
 

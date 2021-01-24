@@ -12,7 +12,6 @@ FireRenderer::FireRenderer()
     particleData(
             VertAttributes()    // todo reduce byte-size:
                     .add_({"POS", 2})
-                    .add_({"RADIUS", 1})
                     .add_({"AGE", 1}),
             std::vector<u_char>()
     )
@@ -28,8 +27,7 @@ void FireRenderer::renderParticles(entt::registry &reg, const Camera &cam)
     reg.view<FireParticle, AABB, DespawnAfter>().each([&] (FireParticle &part, AABB &aabb, DespawnAfter &despawn) {
         particleData.addVertices(1);
         particleData.set(vec2(aabb.center), i, 0);
-        particleData.set(part.radius, i, sizeof(vec2));
-        particleData.set<float>(despawn.timer / despawn.time, i, sizeof(vec2) + sizeof(float));
+        particleData.set<float>(despawn.timer / despawn.time, i, sizeof(vec2));
         i++;
     });
 
@@ -60,9 +58,11 @@ void FireRenderer::onResize(const Camera &cam)
     fbo->addColorTexture(GL_R8, GL_RED, GL_NEAREST, GL_NEAREST);
 }
 
-void FireRenderer::renderCombined()
+void FireRenderer::renderCombined(float time, const Camera &cam)
 {
     combineShader.use();
     fbo->colorTexture->bind(0, combineShader, "particleMap");
+    glUniform1f(combineShader.location("time"), time);
+    glUniformMatrix4fv(combineShader.location("inverseProjection"), 1, GL_FALSE, &inverse(cam.combined)[0][0]);
     Mesh::getQuad()->render();
 }

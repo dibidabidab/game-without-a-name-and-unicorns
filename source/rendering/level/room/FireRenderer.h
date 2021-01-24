@@ -23,7 +23,7 @@ class FireRenderer
 
     void renderParticles(entt::registry &, const Camera &);
 
-    void renderCombined();
+    void renderCombined(float time, const Camera &);
 
     void onResize(const Camera &);
 };

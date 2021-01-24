@@ -8,5 +8,6 @@ flat in float v_age;
 void main()
 {
 
-    col = max(1.f - distance(v_quad_pos, vec2(0)) - (v_age * v_age) * .1, 0.f) * .5;
+    col = max(1.f - distance(v_quad_pos, vec2(0)) - (v_age * v_age) * -.5, 0.f) * .5;
+    col *= min(v_age * 14., 1.);
 }
