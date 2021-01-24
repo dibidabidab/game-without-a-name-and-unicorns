@@ -75,6 +75,10 @@ void RoomScreen::render(double deltaTime)
         lightMapRenderer.render(cam, shadowCaster.fbo.colorTexture);
 
     }
+    {
+        gu::profiler::Zone z("fire particles");
+        fireRenderer.renderParticles(room->entities, cam);
+    }
     {   // render indexed stuff:
         gu::profiler::Zone z("indexed image");
 
@@ -95,6 +99,7 @@ void RoomScreen::render(double deltaTime)
         bloodSplatterRenderer->render(cam);
         polylineRenderer.render(room->entities, cam);
         fluidRenderer.render(room->entities, cam);
+        fireRenderer.renderCombined();
 
         indexedFbo->unbind();
 
@@ -211,6 +216,7 @@ void RoomScreen::onResize()
 
     fluidRenderer.onResize(cam);
     lightMapRenderer.onResize(cam);
+    fireRenderer.onResize(cam);
 
     delete hacky3dModelFbo;
     hacky3dModelFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);

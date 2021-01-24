@@ -1,0 +1,7 @@
+
+Fire:
+  width: [float, 4]
+  intensity: [float, 1.]
+
+FireParticle:
+  radius: [float, 4.]

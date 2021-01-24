@@ -1,0 +1,32 @@
+
+#ifndef GAME_FIRERENDERER_H
+#define GAME_FIRERENDERER_H
+
+#include <graphics/shader_asset.h>
+#include <graphics/camera.h>
+#include <graphics/frame_buffer.h>
+#include <graphics/3d/mesh.h>
+#include "../../../../external/entt/src/entt/entity/registry.hpp"
+
+class FireRenderer
+{
+
+    ShaderAsset particleShader, combineShader;
+    FrameBuffer *fbo = NULL;
+
+    SharedMesh quad;
+    VertData particleData;
+    int particleDataID = -1;
+
+  public:
+    FireRenderer();
+
+    void renderParticles(entt::registry &, const Camera &);
+
+    void renderCombined();
+
+    void onResize(const Camera &);
+};
+
+
+#endif

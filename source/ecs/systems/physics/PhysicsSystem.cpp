@@ -303,6 +303,11 @@ void PhysicsSystem::doMove(Physics &physics, AABB &body, Move move)
 
 void PhysicsSystem::updateTerrainCollisions(Physics &physics, AABB &body)
 {
+    if (physics.ignoreTileTerrain)
+    {
+        physics.touches = TerrainCollisions();
+        return;
+    }
     AABB outlineBox = body;
     outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
     collisionDetector->detect(physics.touches, outlineBox, physics.ignorePlatforms, physics.ignorePolyPlatforms, physics.ignoreFluids);

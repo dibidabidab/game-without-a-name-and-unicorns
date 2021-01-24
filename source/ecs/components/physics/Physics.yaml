@@ -45,7 +45,8 @@ Physics:  # Adds physics to an AABB-entity. (Terrain collisions & gravity)
 
   ignorePlatforms: [bool, false]
   ignorePolyPlatforms: [bool, true]
-  ghost: [bool, false]
+  ignoreTileTerrain: [bool, false]
+  ghost: [bool, false]  # wont collide with terrain, but will check for overlap with terrain
   ignoreFluids: [bool, true]
   fluidAnimations: [bool, true]
 

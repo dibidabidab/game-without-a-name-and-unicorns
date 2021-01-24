@@ -20,6 +20,7 @@
 #include "../ecs/systems/graphics/LightSystem.h"
 #include "../ecs/systems/physics/FluidsSystem.h"
 #include "../ecs/systems/TransRoomerSystem.h"
+#include "../ecs/systems/FireSystem.h"
 
 TiledRoom::TiledRoom(ivec2 size)
 {
@@ -51,6 +52,7 @@ void TiledRoom::initialize(Level *lvl)
     addSystem(new RainbowSystem("rainbows"));
     addSystem(new PhysicsSystem("physics"));
     addSystem(new FluidsSystem("fluids"));
+    addSystem(new FireSystem("fire"));
     addSystem(new VerletPhysicsSystem("verlet physics"));
     addSystem(new WavesSystem("polyline waves"));
     addSystem(new HeadsSystem("heads"));

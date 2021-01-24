@@ -20,6 +20,7 @@
 #include "FluidRenderer.h"
 #include "TiledRoomEntityInspector.h"
 #include "ModelRenderer.h"
+#include "FireRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -49,6 +50,7 @@ class RoomScreen : public Screen
 
     PolylineRenderer polylineRenderer;
     FluidRenderer fluidRenderer;
+    FireRenderer fireRenderer;
 
     ModelRenderer modelRenderer;
 
