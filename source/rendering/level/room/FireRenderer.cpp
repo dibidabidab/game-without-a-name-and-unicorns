@@ -41,8 +41,8 @@ void FireRenderer::renderParticles(entt::registry &reg, const Camera &cam)
     glBlendFunc(GL_ONE, GL_ONE);
     glUniformMatrix4fv(particleShader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
 
-    uint zero = 0;
-    glClearBufferuiv(GL_COLOR, 0, &zero);
+    float zero = 0;
+    glClearBufferfv(GL_COLOR, 0, &zero);
 
     quad->renderInstances(particleData.nrOfVertices());
 
