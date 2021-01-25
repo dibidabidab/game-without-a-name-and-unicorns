@@ -7,8 +7,8 @@ GraphicsSettings:
     - json_with_keys
 
   waterReflections: [ bool, true ]
-  bloom: [ bool, true ]
-  vignette: [ bool, true ]
+  bloom: [ bool, false ]
+  vignette: [ bool, false ]
 
   roomTransitionAnimation: [ bool, true ]
 
