@@ -21,8 +21,7 @@ function create(enemy)
         PointLight {
             radius = 60
         },
-        Fire(),
-        Inspecting()
+        Fire()
     })
 
     onEntityEvent(enemy, "Attacked", function(attack)

@@ -22,6 +22,7 @@ void FireSystem::update(double deltaTime, EntityEngine *engine)
                 sound.sound.set("sounds/fire/fire0");
 //                sound.volume = .6; set in update loop below
                 sound.pitch = mu::random(.5, 1.5);
+                sound.pauseOnLeavingRoom = true;
             }
 
             engine->entities.assign<FireParticle>(particle);
@@ -36,6 +37,11 @@ void FireSystem::update(double deltaTime, EntityEngine *engine)
             particlePhysics.velocity = vec2(mu::random(-40, 40) * mu::random(.2, 1.2), mu::random(-50, 100));
             engine->entities.assign<DespawnAfter>(particle).time = log(fire.intensity + 1) * mu::random(.5, 1.4) * (sound ? 3. : 1.);
         }
+    });
+
+    engine->entities.view<Fire, Physics>().each([&] (auto e, auto, Physics &physics) {
+        if (physics.touches.fluid)
+            engine->entities.remove<Fire>(e);
     });
 
     engine->entities.view<FireParticle, SoundSpeaker, DespawnAfter>().each([&](auto, SoundSpeaker &sound, DespawnAfter &despawn) {

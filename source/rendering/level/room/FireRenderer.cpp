@@ -23,6 +23,7 @@ FireRenderer::FireRenderer()
 
 void FireRenderer::renderParticles(entt::registry &reg, const Camera &cam)
 {
+    particleData.vertices.clear(); // clear here, not at the end, because size is checked in renderCombined()
     int i = 0;
     reg.view<FireParticle, AABB, DespawnAfter>().each([&] (FireParticle &part, AABB &aabb, DespawnAfter &despawn) {
         particleData.addVertices(1);
@@ -30,6 +31,8 @@ void FireRenderer::renderParticles(entt::registry &reg, const Camera &cam)
         particleData.set<float>(despawn.timer / despawn.time, i, sizeof(vec2));
         i++;
     });
+    if (i == 0)
+        return;
 
     particleDataID = quad->vertBuffer->uploadPerInstanceData(particleData, 1, particleDataID);
 
@@ -48,7 +51,6 @@ void FireRenderer::renderParticles(entt::registry &reg, const Camera &cam)
 
     fbo->unbind();
     glDisable(GL_BLEND);
-    particleData.vertices.clear();
 }
 
 void FireRenderer::onResize(const Camera &cam)
@@ -60,6 +62,11 @@ void FireRenderer::onResize(const Camera &cam)
 
 void FireRenderer::renderCombined(float time, const Camera &cam)
 {
+    if (particleData.nrOfVertices() == 0)
+        return;
+
+    gu::profiler::Zone z("fire");
+
     combineShader.use();
     fbo->colorTexture->bind(0, combineShader, "particleMap");
     glUniform1f(combineShader.location("time"), time);
