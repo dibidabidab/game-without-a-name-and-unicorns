@@ -9,6 +9,7 @@ GraphicsSettings:
   waterReflections: [ bool, true ]
   bloom: [ bool, false ]
   vignette: [ bool, false ]
+  fireHeatDistortion: [ bool, true]
 
   roomTransitionAnimation: [ bool, true ]
 

@@ -142,9 +142,12 @@ void RoomScreen::render(double deltaTime)
         glUniform1ui(applyPaletteShader.location("prevPaletteEffect"), prevPaletteEffect);
         glUniform1f(applyPaletteShader.location("timeSinceNewPaletteEffect"), timeSinceNewPaletteEffect);
 
-        fluidRenderer.reflectionsFbo->colorTexture->bind(1, applyPaletteShader, "reflectionsMap");
+        if (Game::settings.graphics.waterReflections)
+            fluidRenderer.reflectionsFbo->colorTexture->bind(1, applyPaletteShader, "reflectionsMap");
         lightMapRenderer.fbo->colorTexture->bind(2, applyPaletteShader, "lightMap");
         indexedFbo->colorTexture->bind(3, applyPaletteShader, "indexedImage");
+        if (Game::settings.graphics.fireHeatDistortion)
+            fireRenderer.fbo->colorTexture->bind(4, applyPaletteShader, "fireHeatMap");
 
         Mesh::getQuad()->render();
 

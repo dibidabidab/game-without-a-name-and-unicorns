@@ -12,13 +12,15 @@ class FireRenderer
 {
 
     ShaderAsset particleShader, combineShader;
-    FrameBuffer *fbo = NULL;
 
     SharedMesh quad;
     VertData particleData;
     int particleDataID = -1;
 
   public:
+
+    FrameBuffer *fbo = NULL;
+
     FireRenderer();
 
     void renderParticles(entt::registry &, const Camera &);

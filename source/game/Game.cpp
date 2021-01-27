@@ -12,14 +12,22 @@ void setShaderDefinitions()
         ShaderDefinitions::define("VIGNETTE");
     else
         ShaderDefinitions::undef("VIGNETTE");
+
     if (Game::settings.graphics.bloom)
         ShaderDefinitions::define("BLOOM");
     else
         ShaderDefinitions::undef("BLOOM");
+
     if (Game::settings.graphics.waterReflections)
         ShaderDefinitions::define("WATER_REFLECTIONS");
     else
         ShaderDefinitions::undef("WATER_REFLECTIONS");
+
+
+    if (Game::settings.graphics.fireHeatDistortion)
+        ShaderDefinitions::define("FIRE_HEAT_DISTORTION");
+    else
+        ShaderDefinitions::undef("FIRE_HEAT_DISTORTION");
 }
 
 void Game::loadSettings()

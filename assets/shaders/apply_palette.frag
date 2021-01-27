@@ -9,7 +9,14 @@ in vec2 v_texCoords;
 
 uniform usampler2D indexedImage;
 uniform usampler2D lightMap;
+
+#ifdef WATER_REFLECTIONS
 uniform usampler2D reflectionsMap;
+#endif
+
+#ifdef FIRE_HEAT_DISTORTION
+uniform sampler2D fireHeatMap;
+#endif
 
 uniform sampler2DArray palettes;
 uniform uint paletteEffect;
@@ -32,9 +39,27 @@ vec3 getColorFromPalette(uint indexedColor, uint lightLevel, uint paletteEffect)
     return colorFromPalette;
 }
 
+float map(float value, float min1, float max1, float min2, float max2) {
+    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
+
 void main()
 {
     ivec2 pixelCoords = ivec2(v_texCoords * vec2(realResolution) / vec2(3.));
+
+    #ifdef FIRE_HEAT_DISTORTION
+
+    #define MAX_DISTORT_HEAT .4
+
+    float heat = texture(fireHeatMap, v_texCoords).r;
+    if (heat > 0. && heat <= MAX_DISTORT_HEAT)
+    {
+        float heat01 = map(heat, 0., MAX_DISTORT_HEAT, 0., 1.);
+
+        pixelCoords.x += int(min(heat01 * 10., 1.) * sin(heat01 * 3. + timeSinceNewPaletteEffect * 12. + v_texCoords.x * 200.) * 1.1);
+        pixelCoords.y += int(min(heat01 * 10., 1.) * sin(heat01 * 3. + timeSinceNewPaletteEffect * 5. + v_texCoords.y * 100.) * 1.1);
+    }
+    #endif
 
     uint indexedColor = texelFetch(indexedImage, pixelCoords, 0).r;
 

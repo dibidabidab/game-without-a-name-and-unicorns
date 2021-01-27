@@ -16,5 +16,5 @@ void main()
 
     v_age = age;
     v_quad_pos = quad_pos;
-    gl_Position = projection * vec4(vec3(quad_pos * 10.f * (1. - age) + particle_pos + vec2(.5 + xOffset, .5), 0), 1);
+    gl_Position = projection * vec4(vec3(quad_pos * 100.f * (1. - age) + particle_pos + vec2(.5 + xOffset, .5), 0), 1);
 }
