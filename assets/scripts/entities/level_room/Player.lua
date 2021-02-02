@@ -17,7 +17,7 @@ function create(player)
         PlatformerMovement(),
         Flip(),
         PointLight {
-            radius = 60
+            radius = 48
         },
         Health {
             takesDamageFrom = {"hit"},

@@ -21,9 +21,6 @@ function create(arrow)
         Polyline(),
         DrawPolyline {
             colors = { 7 }
-        },
-        Fire {
-            width = 1
         }
     })
 end
