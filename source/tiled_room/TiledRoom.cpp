@@ -21,6 +21,7 @@
 #include "../ecs/systems/physics/FluidsSystem.h"
 #include "../ecs/systems/TransRoomerSystem.h"
 #include "../ecs/systems/FireSystem.h"
+#include "../ecs/systems/combat/CombatSystem.h"
 
 TiledRoom::TiledRoom(ivec2 size)
 {
@@ -62,6 +63,7 @@ void TiledRoom::initialize(Level *lvl)
     addSystem(new SpriteSystem("(animated) sprites"));
     addSystem(new LightSystem("lights"));
     addSystem(new LimbJointSystem("knee/elbow joints"));
+    addSystem(new CombatSystem("combat system"));
 
     Room::initialize(lvl);
 }

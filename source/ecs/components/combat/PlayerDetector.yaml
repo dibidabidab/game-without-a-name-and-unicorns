@@ -1,0 +1,4 @@
+
+# will fire an event named 'PlayerDetected' when player is in range
+PlayerDetector:
+  distance: [float, 64]

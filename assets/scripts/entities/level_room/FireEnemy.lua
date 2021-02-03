@@ -57,6 +57,9 @@ function create(enemy, args)
         },
         DrawPolyline {
             colors = {10}
+        },
+        PlayerDetector {
+            distance = 120
         }
     })
 
@@ -101,5 +104,14 @@ function create(enemy, args)
         component.SliceSpriteIntoPieces.getFor(enemy).steps = 6
 
         print("enemy was killed with an attack of", attack.points, "points")
+    end)
+
+    onEntityEvent(enemy, "PlayerDetected", function (player)
+
+        local playerAABB = component.AABB.getFor(player)
+        local enemyAABB = component.AABB.getFor(enemy)
+
+        print(vec2(playerAABB.center - enemyAABB.center):length())
+
     end)
 end
