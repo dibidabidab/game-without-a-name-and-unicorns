@@ -125,6 +125,10 @@ function create(enemy, args)
             component.Fire.animate(enemy, "intensity", FIRE_INTENSITY, .3, "linear")
             component.Fire.animate(enemy, "width", 1, .3, "linear")
 
+            local sound = component.SoundSpeaker.getFor(enemy)
+            sound.sound = "sounds/fire/lit"
+            sound.volume  = .2
+            sound.pitch = .7
 
             local dirI = 0
             local rotateFunc = nil
@@ -141,12 +145,12 @@ function create(enemy, args)
             end
             rotateFunc()
 
-            local attackTime = 0
+            local particleI = 0
 
             setUpdateFunction(fireTail, .08, function(dt)
 
-                attackTime = dt + attackTime
-                if attackTime < .6 then
+                particleI = 1 + particleI
+                if particleI < 8 then
                     return
                 end
 
@@ -171,7 +175,9 @@ function create(enemy, args)
                         center = tailAABB.center,
                         halfSize = ivec2(1)
                     },
-                    Fire(),
+                    Fire {
+                        intensity = .5
+                    },
                     DespawnAfter {
                         time = .25
                     }
