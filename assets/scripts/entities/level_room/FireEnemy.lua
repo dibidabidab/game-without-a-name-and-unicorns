@@ -2,8 +2,11 @@
 persistenceMode(TEMPLATE | ARGS | SPAWN_POS | REVIVE)
 
 defaultArgs({
-    maxFlyDistance = 150
+    maxFlyDistance = 150,
+    triggerDistance = 200
 })
+
+FIRE_INTENSITY = .5
 
 function create(enemy, args)
     component.AABB.getFor(enemy).halfSize = ivec2(9, 8)
@@ -38,7 +41,8 @@ function create(enemy, args)
             givePlayerArrowOnKill = "FireArrow"
         },
         AsepriteView {
-            sprite = "sprites/fire_enemy"
+            sprite = "sprites/fire_enemy",
+            frame = 7
         },
         PointLight {
             radius = 60,
@@ -47,7 +51,7 @@ function create(enemy, args)
         },
         Fire {
             width = 1,
-            intensity = .5
+            intensity = FIRE_INTENSITY
         },
         VerletRope {
             length = 28,
@@ -59,11 +63,17 @@ function create(enemy, args)
             colors = {10}
         },
         PlayerDetector {
-            distance = 120
+            distance = args.triggerDistance
         }
     })
 
+    local playersInRange = 0
+    local attackMode = false
+
     setUpdateFunction(enemy, .8, function()
+        if attackMode then
+            return
+        end
 
         local velGoal = vec2(math.random(-50, 50),
                             math.random(-50, 50))
@@ -80,7 +90,7 @@ function create(enemy, args)
             local dist = diff:length()
 
             if dist > args.maxFlyDistance then
-                component.AABB.animate(enemy, "center", spawnPos, .5, "pow3")
+                component.AABB.animate(enemy, "center", spawnPos, .8, "pow3")
                 return
             end
 
@@ -92,6 +102,93 @@ function create(enemy, args)
 
         component.Physics.animate(enemy, "velocity", velGoal, .8, "pow2")
 
+    end)
+
+
+    onEntityEvent(enemy, "PlayerDetected", function (player)
+
+        --local playerAABB = component.AABB.getFor(player)
+        --local enemyAABB = component.AABB.getFor(enemy)
+
+        playersInRange = playersInRange + 1
+        attackMode = playersInRange > 0
+
+        if playersInRange == 1 then
+
+            local sprite = component.AsepriteView.getFor(enemy)
+            sprite.loop = false
+            playAsepriteTag(sprite, "angry", true)
+
+            local fire = component.Fire.getFor(enemy)
+            fire.intensity = 10
+            fire.width = 10
+            component.Fire.animate(enemy, "intensity", FIRE_INTENSITY, .3, "linear")
+            component.Fire.animate(enemy, "width", 1, .3, "linear")
+
+
+            local dirI = 0
+            local rotateFunc = nil
+            rotateFunc = function()
+
+                if not attackMode then
+                    return
+                end
+                local newVelocity = ({vec2(-100, 0), vec2(0, -100), vec2(100, 0), vec2(0, 100)})[dirI + 1]
+
+                component.Physics.animate(enemy, "velocity", newVelocity, .25, "linear", rotateFunc)
+
+                dirI = (dirI + 1) % 4
+            end
+            rotateFunc()
+
+            local attackTime = 0
+
+            setUpdateFunction(fireTail, .08, function(dt)
+
+                attackTime = dt + attackTime
+                if attackTime < .6 then
+                    return
+                end
+
+                local enemyAABB = component.AABB.getFor(enemy)
+                local tailAABB = component.AABB.getFor(fireTail)
+                local fireParticle = createChild(fireTail)
+
+                local vel = vec2(tailAABB.center - enemyAABB.center) * vec2(8)
+                vel = vec2(-vel.y, vel.x)
+
+                setComponents(fireParticle, {
+                    Physics {
+                        ignoreFluids = false,
+                        --ignoreTileTerrain = true,
+                        ghost = true,
+                        ignorePlatforms = true,
+                        airFriction = .5,
+                        gravity = 0,
+                        velocity = vel
+                    },
+                    AABB {
+                        center = tailAABB.center,
+                        halfSize = ivec2(1)
+                    },
+                    Fire(),
+                    DespawnAfter {
+                        time = .25
+                    }
+                })
+            end)
+        end
+    end)
+
+    onEntityEvent(enemy, "PlayerGone", function (player)
+
+        playersInRange = playersInRange - 1
+        attackMode = playersInRange > 0
+
+        if playersInRange == 0 then
+            component.Fire.remove(fireTail)
+            setUpdateFunction(fireTail, 99, nil)
+        end
     end)
 
     onEntityEvent(enemy, "Attacked", function(attack)
@@ -106,12 +203,4 @@ function create(enemy, args)
         print("enemy was killed with an attack of", attack.points, "points")
     end)
 
-    onEntityEvent(enemy, "PlayerDetected", function (player)
-
-        local playerAABB = component.AABB.getFor(player)
-        local enemyAABB = component.AABB.getFor(enemy)
-
-        print(vec2(playerAABB.center - enemyAABB.center):length())
-
-    end)
 end

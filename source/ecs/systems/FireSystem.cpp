@@ -46,6 +46,6 @@ void FireSystem::update(double deltaTime, EntityEngine *engine)
 
     engine->entities.view<FireParticle, SoundSpeaker, DespawnAfter>().each([&](auto, SoundSpeaker &sound, DespawnAfter &despawn) {
         float age = despawn.timer / despawn.time;
-        sound.volume = min(1. - age, age * 2.) * .1;
+        sound.volume = min(1. - age, age * 2.) * .065;
     });
 }

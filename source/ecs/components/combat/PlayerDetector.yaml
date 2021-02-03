@@ -1,4 +1,7 @@
 
-# will fire an event named 'PlayerDetected' when player is in range
+# will fire an event named 'PlayerDetected' when player enters range, will fire 'PlayerGone' when player leaves range
 PlayerDetector:
   distance: [float, 64]
+
+  _cpp_only:
+    detectedPlayerEntities: std::list<entt::entity>
