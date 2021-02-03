@@ -6,7 +6,7 @@
     }
   },
   "arrowPalettes": {
-    "Arrow": "default",
+    "DefaultArrow": "default",
     "RainbowArrow": "test",
     "FireArrow": "test"
   }

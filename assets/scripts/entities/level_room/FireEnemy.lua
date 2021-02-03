@@ -1,12 +1,34 @@
 
 persistenceMode(TEMPLATE | ARGS | SPAWN_POS | REVIVE)
 
-function create(enemy)
+defaultArgs({
+    maxFlyDistance = 150
+})
+
+function create(enemy, args)
     component.AABB.getFor(enemy).halfSize = ivec2(9, 8)
+
+    local fireTail = createChild(enemy, "tail")
+    setComponents(fireTail, {
+        AABB {
+            halfSize = ivec2(1)
+        },
+        --Fire {
+        --    width = 1,
+        --    intensity = .4
+        --},
+        AsepriteView {
+            sprite = "sprites/fire_enemy_tail"
+        }
+    })
+
     setComponents(enemy, {
         Physics {
             --ignoreFluids = false,
-            gravity = 0
+            ignorePlatforms = true,
+            airFriction = .5,
+            gravity = 0,
+            createWind = 1
         },
         StaticCollider(),
         Health {
@@ -26,8 +48,48 @@ function create(enemy)
         Fire {
             width = 1,
             intensity = .5
+        },
+        VerletRope {
+            length = 28,
+            nrOfPoints = 10,
+            endPointEntity = fireTail,
+            friction = .99
+        },
+        DrawPolyline {
+            colors = {10}
         }
     })
+
+    setUpdateFunction(enemy, .8, function()
+
+        local velGoal = vec2(math.random(-50, 50),
+                            math.random(-50, 50))
+
+        local persistent = component.Persistent.tryGetFor(enemy)
+        if persistent ~= nil then
+
+            local aabb = component.AABB.getFor(enemy)
+
+            local spawnPos = ivec2(persistent.spawnPosition.x, persistent.spawnPosition.y)
+
+            local diff = vec2(spawnPos - aabb.center)
+
+            local dist = diff:length()
+
+            if dist > args.maxFlyDistance then
+                component.AABB.animate(enemy, "center", spawnPos, .5, "pow3")
+                return
+            end
+
+            local steerError = (dist / args.maxFlyDistance) ^ 3
+            --print(steerError, dist)
+
+            velGoal = velGoal * vec2(1. - steerError) + diff * vec2(steerError)
+        end
+
+        component.Physics.animate(enemy, "velocity", velGoal, .8, "pow2")
+
+    end)
 
     onEntityEvent(enemy, "Attacked", function(attack)
 
