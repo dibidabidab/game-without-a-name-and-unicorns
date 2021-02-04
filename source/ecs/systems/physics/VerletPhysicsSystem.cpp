@@ -113,11 +113,16 @@ void VerletPhysicsSystem::updateRope(VerletRope &rope, AABB &aabb, float deltaTi
             int size = rope.points.size();
             if (size == 1)
                 p.currentPos = p.prevPos = aabb.center;
-            else
+            else if (!rope.fixedEndPoint || !endPointAABB)
                 p.currentPos = p.prevPos = rope.points[size - 2].currentPos + normalize(rope.gravity) * segmentLength;
+            else
+            {
+                vec2 diff = endPointAABB->center - aabb.center;
+                p.currentPos = p.prevPos = vec2(aabb.center) + (diff * vec2(size / rope.nrOfPoints));
+            }
         }
 
-        if (endPointAABB && addedPoints)
+        if (endPointAABB && addedPoints && !rope.fixedEndPoint)
             endPointAABB->center = rope.points.back().currentPos;
     }
 

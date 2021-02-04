@@ -3,7 +3,7 @@ persistenceMode(TEMPLATE | ARGS | SPAWN_POS | REVIVE)
 
 defaultArgs({
     maxFlyDistance = 150,
-    triggerDistance = 200
+    triggerDistance = 160
 })
 
 FIRE_INTENSITY = .5
@@ -22,7 +22,12 @@ function create(enemy, args)
         --},
         AsepriteView {
             sprite = "sprites/fire_enemy_tail"
-        }
+        },
+        PointLight {
+            radius = 16,
+            radiusFlickeringFrequency = 3.1, -- todo: 3.1 gives slow flickering, 3.2 gives extremely fast flickering
+            radiusFlickeringIntensity = 10
+        },
     })
 
     setComponents(enemy, {
@@ -45,7 +50,7 @@ function create(enemy, args)
             frame = 7
         },
         PointLight {
-            radius = 60,
+            radius = 32,
             radiusFlickeringFrequency = 3.1, -- todo: 3.1 gives slow flickering, 3.2 gives extremely fast flickering
             radiusFlickeringIntensity = 10
         },

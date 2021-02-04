@@ -39,3 +39,5 @@ Polyline:
           return -1;
       }
 
+PolylineFromEntities:
+  pointEntities: std::list<entt::entity>

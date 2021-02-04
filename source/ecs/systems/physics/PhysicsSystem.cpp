@@ -6,6 +6,18 @@ void PhysicsSystem::update(double deltaTime, EntityEngine *)
 {
     collisionDetector = new TerrainCollisionDetector(room->getMap(), &room->entities);
 
+    room->entities.view<AABB, PolylineFromEntities>().each([&](auto e, AABB &aabb, PolylineFromEntities &plfe) {
+
+        Polyline &polyline = room->entities.get_or_assign<Polyline>(e);
+        polyline.points.clear();
+        for (auto pe : plfe.pointEntities)
+        {
+            AABB *pointAABB = room->entities.try_get<AABB>(pe);
+            if (pointAABB)
+                polyline.points.push_back(pointAABB->center - aabb.center);
+        }
+    });
+
     room->entities.view<AABB, PolyPlatform, Polyline>().each([&](AABB &aabb, PolyPlatform &platform, const Polyline &line) {
 
         aabb.halfSize = ivec2(0, TerrainCollisionDetector::DETECT_POLY_PLATFORM_MARGIN);
