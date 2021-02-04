@@ -49,7 +49,7 @@ class TiledRoom : public Room
 
     void setPosition(entt::entity, const vec3 &) override;
 
-    void toJson(json &) const override;
+    void toJson(json &) override;
 
     void fromJson(const json &) override;
 

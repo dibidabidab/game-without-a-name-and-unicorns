@@ -164,7 +164,7 @@ void tileMapToJson(json &j, const TileMap &map)
     j["tileMapBase64"] = tileMapBase64;
 }
 
-void TiledRoom::toJson(json &j) const
+void TiledRoom::toJson(json &j)
 {
     Room::toJson(j);
     j["lightLevel"] = baseLightLevel;

@@ -184,7 +184,7 @@ void LevelEditor::render()
         {
             if (ImGui::Button("Import", ImVec2(120, 0)))
             {
-                const Room &r = loadRoomFromLvl->getRoom(importRoomI);
+                Room &r = loadRoomFromLvl->getRoom(importRoomI);
                 showingRoomProperties = lvl->getNrOfRooms();
                 json j;
                 r.toJson(j);

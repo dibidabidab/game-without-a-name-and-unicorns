@@ -1,23 +1,17 @@
 
-defaultArgs({
-    width = 160
-})
+persistenceMode(TEMPLATE | ARGS | FINAL_POS)
 
+defaultArgs({
+    width = 160,
+    rightPolePositionX = 200,
+    rightPolePositionY = 100
+})
 
 function create(poleLeft, args)
 
     local poleRight = createChild(poleLeft, "poleRight")
 
-    local poleComponents = {
-        AABB {
-            halfSize = ivec2(2),
-            center = ivec2(32)
-        },
-        Inspecting()
-    }
-
-    setComponents(poleLeft, poleComponents)
-    setComponents(poleRight, poleComponents)
+    component.AABB.getFor(poleLeft).halfSize = ivec2(2, 6)
 
     setComponents(poleLeft, {
         VerletRope {
@@ -25,17 +19,25 @@ function create(poleLeft, args)
             length = args.width * 1.2,
             nrOfPoints = args.width / 10,
             fixedEndPoint = true,
-            moveByWind = .4,
+            moveByWind = .8,
             gravity = vec2(0, -5)
         },
         DrawPolyline {
             colors = {colors.wood}
-        }
+        },
+        Inspecting()
+    })
+
+    setComponents(poleRight, {
+        AABB {
+            halfSize = ivec2(2, 6),
+            center = ivec2(args.rightPolePositionX, args.rightPolePositionY)
+        },
     })
 
     local mainRope = poleLeft -- either makes things less confusing or a lot more. hehe.
 
-    local spacing = 16
+    local spacing = 10
     local nrOfPlanks = math.floor(args.width / spacing)
     local planks = {}
 
@@ -91,10 +93,30 @@ function create(poleLeft, args)
             allowFallThrough = false
         },
         AABB(),
-        Inspecting(),
         DrawPolyline {
-            colors = {colors.wood},
+            colors = {colors.wood_dark},
             addAABBOffset = true
         }
     })
+
+    if component.Persistent.has(poleLeft) then
+
+        currentEngine.onEvent("BeforeSave", function()
+
+            if not valid(poleLeft) or not valid(poleRight) then
+                return
+            end
+
+            local pos = component.AABB.tryGetFor(poleRight).center
+
+            local persistent = component.Persistent.tryGetFor(poleLeft)
+
+            if pos ~= nil and persistent ~= nil then
+
+                persistent.data.rightPolePositionX = pos.x
+                persistent.data.rightPolePositionY = pos.y
+                print(pos)
+            end
+        end)
+    end
 end
