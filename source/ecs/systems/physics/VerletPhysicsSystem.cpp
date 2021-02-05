@@ -186,6 +186,8 @@ void VerletPhysicsSystem::updateRope(VerletRope &rope, AABB &aabb, float deltaTi
             {
                 rope.attachedRopes[i] = rope.attachedRopes.back();
                 rope.attachedRopes.pop_back();
+                if (childRope)
+                    childRope->isAttachedToRope = false;
                 continue;
             }
 

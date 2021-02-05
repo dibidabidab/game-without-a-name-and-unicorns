@@ -92,7 +92,7 @@ function create(enemy, args)
 
             local diff = vec2(spawnPos - aabb.center)
 
-            local dist = diff:length()
+            local dist = diff:length() -- todo: length2()
 
             if dist > args.maxFlyDistance then
                 component.AABB.animate(enemy, "center", spawnPos, .8, "pow3")
