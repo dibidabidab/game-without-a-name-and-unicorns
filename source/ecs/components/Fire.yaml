@@ -2,6 +2,21 @@
 Fire:
   width: [float, 4]
   intensity: [float, 1.]
+  ignitedBy: [entt::entity, entt::null]
 
 FireParticle:
   radius: [float, 4.]
+
+Igniter:
+  igniteChance: [float, 1.]
+  range: [float, 16]
+
+Flammable:
+  range: [float, 16]
+  checkInterval: [float, .5]
+
+  addedFireComponent: Fire
+  addedIgniterComponent: Igniter
+
+  _cpp_only:
+    timer: [float, -1.]

@@ -48,4 +48,36 @@ void FireSystem::update(double deltaTime, EntityEngine *engine)
         float age = despawn.timer / despawn.time;
         sound.volume = min(1. - age, age * 2.) * .065;
     });
+
+    engine->entities.view<AABB, Flammable>(entt::exclude<Fire>).each([&](auto e, AABB &aabb, Flammable &flammable) {
+
+        flammable.timer += deltaTime;
+
+        if (flammable.timer >= flammable.checkInterval)
+            flammable.timer = 0;
+        else return;
+
+        float rangeSq = flammable.range * flammable.range;
+
+        bool ignited = false;
+
+        engine->entities.view<AABB, Igniter>().each([&](auto igniterEntity, AABB &igniterAABB, Igniter &igniter) {
+
+            if (ignited || igniter.igniteChance < mu::random())
+                return;
+
+            vec2 diff = igniterAABB.center - aabb.center;
+
+            float ignRangeSq = igniter.range * igniter.range;
+
+            if (length2(diff) <= rangeSq + ignRangeSq)
+            {
+                // IGNITE
+
+                engine->entities.assign<Fire>(e, flammable.addedFireComponent).ignitedBy = igniterEntity;
+                engine->entities.assign<Igniter>(e, flammable.addedIgniterComponent);
+                ignited = true;
+            }
+        });
+    });
 }

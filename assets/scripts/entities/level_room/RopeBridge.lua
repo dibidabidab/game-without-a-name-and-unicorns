@@ -24,8 +24,7 @@ function create(poleLeft, args)
         },
         DrawPolyline {
             colors = {colors.wood}
-        },
-        Inspecting()
+        }
     })
 
     setComponents(poleRight, {
@@ -58,11 +57,23 @@ function create(poleLeft, args)
                 length = 24,
                 nrOfPoints = 5,
                 --fixedEndPoint = true,
-                gravity = vec2(0, -4),
-                friction = .98
+                gravity = vec2(0, -10),
+                friction = .9
             },
             DrawPolyline {
                 colors = {colors.wood}
+            },
+            Flammable {
+                range = 16,
+                checkInterval = .5,
+
+                addedIgniterComponent = Igniter {
+                    igniteChance = .1
+                },
+                addedFireComponent = Fire {
+                    intensity = .4,
+                    width = 1
+                }
             }
         })
 
@@ -80,6 +91,18 @@ function create(poleLeft, args)
             AsepriteView {
                 sprite = "sprites/rope_bridge",
                 frame = 1
+            },
+            Flammable {
+                range = 16,
+                checkInterval = .5,
+
+                addedIgniterComponent = Igniter {
+                    igniteChance = .1
+                },
+                addedFireComponent = Fire {
+                    intensity = .4,
+                    width = 1
+                }
             }
         })
     end
@@ -92,7 +115,9 @@ function create(poleLeft, args)
         PolyPlatform {
             allowFallThrough = false
         },
-        AABB(),
+        AABB {
+            center = (component.AABB.getFor(poleLeft).center + component.AABB.getFor(poleRight).center) / ivec2(2)
+        },
         DrawPolyline {
             colors = {colors.wood_dark},
             addAABBOffset = true

@@ -183,6 +183,10 @@ function create(enemy, args)
                     Fire {
                         intensity = .5
                     },
+                    Igniter {
+                        igniteChance = 1.,
+                        range = 16
+                    },
                     DespawnAfter {
                         time = .25
                     }
