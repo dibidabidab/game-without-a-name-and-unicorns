@@ -23,7 +23,10 @@ void TiledRoomEntityInspector::pickEntityGUI(const Camera *cam, DebugLineRendere
 
             draw(box, lineRenderer, mu::Y);
 
-            ImGui::SetTooltip("#%d", int(e));
+            if (auto name = engine.getName(e))
+                ImGui::SetTooltip((std::string(name) + " #%d").c_str(), int(e));
+            else
+                ImGui::SetTooltip("#%d", int(e));
 
             if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT, 10))
             {

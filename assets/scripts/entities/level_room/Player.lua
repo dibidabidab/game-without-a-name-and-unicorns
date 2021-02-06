@@ -1,5 +1,7 @@
 function create(player)
 
+    setName(player, "Player")
+
     local leftLeg = createChild(player, "leftLeg")
     local rightLeg = createChild(player, "rightLeg")
 
@@ -41,6 +43,13 @@ function create(player)
             archiveComponents = {"Health", "PaletteSetter", "Physics"}
         }
     })
+    local spawnPoint = getByName("Spawnpoint")
+    if spawnPoint ~= nil then
+        local spawnPointAABB = component.AABB.tryGetFor(spawnPoint)
+        if spawnPointAABB ~= nil then
+            component.AABB.getFor(player).center = spawnPointAABB.center
+        end
+    end
 
     local arrowTemplate = "DefaultArrow"
 
