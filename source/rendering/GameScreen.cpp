@@ -20,6 +20,14 @@ GameScreen::GameScreen()
 
 void GameScreen::render(double deltaTime)
 {
+    static int prevScaling = Game::settings.graphics.pixelScaling;
+    if (Game::settings.graphics.pixelScaling != prevScaling)
+    {
+        prevScaling = Game::settings.graphics.pixelScaling;
+        gu::onResize();
+        onResize();
+    }
+
     if (lvlScreen)
         lvlScreen->render(deltaTime);
 

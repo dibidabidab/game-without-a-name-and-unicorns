@@ -108,3 +108,9 @@ void TiledRoomEntityInspector::moveEntityGUI(const Camera *cam, DebugLineRendere
         aabb->center = p;
     }
 }
+
+void TiledRoomEntityInspector::highLightEntity(entt::entity entity, const Camera *camera, DebugLineRenderer &renderer)
+{
+    if (auto *aabb = reg.try_get<AABB>(entity))
+        draw(*aabb, renderer, mu::X);
+}

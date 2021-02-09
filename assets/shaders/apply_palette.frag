@@ -45,7 +45,7 @@ float map(float value, float min1, float max1, float min2, float max2) {
 
 void main()
 {
-    ivec2 pixelCoords = ivec2(v_texCoords * vec2(realResolution) / vec2(3.));
+    ivec2 pixelCoords = ivec2(v_texCoords * vec2(realResolution) / vec2(PIXEL_SCALING));
 
     #ifdef FIRE_HEAT_DISTORTION
 

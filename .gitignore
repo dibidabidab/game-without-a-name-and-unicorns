@@ -5,6 +5,7 @@
 imgui.ini
 settings.json
 saves/*
+profiler_dump_*.json
 
 source/generated/*
 

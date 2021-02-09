@@ -118,6 +118,11 @@ int main(int argc, char *argv[])
     File::createDir("./saves"); // todo, see trello
     gu::setScreen(new GameScreen);
 
+    auto onResize = gu::onResize += [] {
+        ShaderDefinitions::defineInt("PIXEL_SCALING", Game::settings.graphics.pixelScaling);
+    };
+    gu::onResize();
+
     initLuaStuff();
 
     Game::uiScreenManager->openScreen(asset<luau::Script>("scripts/ui_screens/StartupScreen"));

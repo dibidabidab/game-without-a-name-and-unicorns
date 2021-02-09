@@ -194,12 +194,10 @@ void RoomScreen::setPaletteEffect(float deltaTime)
     });
 }
 
-static int PIXELS_PER_PIXEL = 3;
-
 void RoomScreen::onResize()
 {
-    cam.viewportWidth = ceil(gu::widthPixels / double(PIXELS_PER_PIXEL));
-    cam.viewportHeight = ceil(gu::heightPixels / double(PIXELS_PER_PIXEL));
+    cam.viewportWidth = ceil(gu::widthPixels / double(Game::settings.graphics.pixelScaling));
+    cam.viewportHeight = ceil(gu::heightPixels / double(Game::settings.graphics.pixelScaling));
     cam.update();
 
     // create a new framebuffer to render the pixelated scene to:
@@ -314,7 +312,7 @@ void RoomScreen::renderDebugStuff()
 
         if (!ImGui::IsAnyWindowHovered())
             ImGui::SetTooltip("Z-index: %.2f",
-                  indexedFbo->getPixelDepth(MouseInput::mouseX / PIXELS_PER_PIXEL, indexedFbo->height - MouseInput::mouseY / PIXELS_PER_PIXEL)
+                  indexedFbo->getPixelDepth(MouseInput::mouseX / Game::settings.graphics.pixelScaling, indexedFbo->height - MouseInput::mouseY / Game::settings.graphics.pixelScaling)
                   * -(cam.far_ - cam.near_) + cam.position.z - cam.near_
             );
     }
@@ -420,6 +418,9 @@ void RoomScreen::renderDebugStuff()
         });
         shadowCaster.drawDebugLines(cam);
     }
+
+    if (KeyInput::pressed(GLFW_KEY_LEFT_CONTROL))
+        Game::settings.graphics.pixelScaling = max<int>(1, min<int>(10, Game::settings.graphics.pixelScaling + MouseInput::yScroll));
 }
 
 void RoomScreen::renderDebugBackground()

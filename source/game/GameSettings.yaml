@@ -13,6 +13,8 @@ GraphicsSettings:
 
   roomTransitionAnimation: [ bool, true ]
 
+  pixelScaling: [ uint8, 3 ]
+
   imGuiFont: [string, "assets/fonts/ruda/Ruda-Bold.ttf"]
 
 KeyInputSettings:

@@ -12,6 +12,9 @@ class TiledRoomEntityInspector : public EntityInspector
     void pickEntityGUI(const Camera *, DebugLineRenderer &) override;
 
     void moveEntityGUI(const Camera *, DebugLineRenderer &) override;
+
+  protected:
+    void highLightEntity(entt::entity entity, const Camera *camera, DebugLineRenderer &renderer) override;
 };
 
 
