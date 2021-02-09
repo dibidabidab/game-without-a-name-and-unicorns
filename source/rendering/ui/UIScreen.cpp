@@ -113,6 +113,7 @@ void UIScreen::onResize()
 {
     cam.viewportWidth = ceil(gu::widthPixels / Game::settings.graphics.pixelScaling);
     cam.viewportHeight = ceil(gu::heightPixels / Game::settings.graphics.pixelScaling);
+    cam.position = vec3(fract(cam.viewportWidth * .5f), fract(cam.viewportHeight * .5f), cam.position.z);
     cam.update();
 
     // create a new framebuffer to render the pixelated UIScreen to:
