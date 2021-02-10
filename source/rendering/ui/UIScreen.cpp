@@ -59,8 +59,8 @@ void UIScreen::render(double deltaTime)
         uiContainer.zIndex = -cam.far_ + 100;
         uiContainer.fixedHeight = cam.viewportHeight;
         uiContainer.fixedWidth = cam.viewportWidth;
-        uiContainer.innerTopLeft = ivec2(cam.viewportWidth * -.5, cam.viewportHeight * .5);
-        uiContainer.innerHeight = cam.viewportHeight;
+        uiContainer.innerTopLeft = ivec2(cam.viewportWidth * -.5, cam.viewportHeight * .5 + 1);
+        uiContainer.innerHeight = cam.viewportHeight + 1;
         uiContainer.minX = uiContainer.innerTopLeft.x;
         uiContainer.maxX = uiContainer.minX + cam.viewportWidth;
         uiContainer.textCursor = uiContainer.innerTopLeft;

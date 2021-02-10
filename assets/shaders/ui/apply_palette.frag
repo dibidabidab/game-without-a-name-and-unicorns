@@ -32,8 +32,12 @@ vec3 getColorFromPalette(uint indexedColor, uint lightLevel, uint paletteEffect)
 void main()
 {
     ivec2 pixelCoords = ivec2(v_texCoords * vec2(realResolution) / vec2(PIXEL_SCALING));
+    ivec2 maxCoords = ivec2(vec2(realResolution) / vec2(PIXEL_SCALING));
 
     uint indexedColor = texelFetch(indexedImage, pixelCoords, 0).r;
+
+    if (pixelCoords.x >= maxCoords.x || pixelCoords.y >= maxCoords.y)
+        indexedColor = 1u;
 
     if (indexedColor == 0u)
         discard;
