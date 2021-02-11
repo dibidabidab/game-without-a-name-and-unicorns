@@ -6,39 +6,17 @@
 #include <game/dibidab.h>
 #include <imgui.h>
 
-void move(float &x, float targetX, float deltaTime)
-{
-    float diff = abs(targetX - x);
-    float step = 0;
-
-    if (diff < 1)
-        step = 0;
-    else if (diff < 10)
-        step = 60 * deltaTime;
-    else
-        step = 200 * deltaTime;
-
-    x += step * (targetX - x < 0 ? -1.f : 1.f);
-}
-
 void move(double deltaTime, float &x, float targetX)
 {
     float diff = targetX - x;
-    float diffLength = abs(diff);
 
-    float direction = diff < 0 ? -1 : 1;
+    static const int IGNORE_DIFF = 16;
 
-    float step = direction * deltaTime * 20;
+    if (diff > 0)
+        diff = max(.0f, diff - IGNORE_DIFF);
+    else diff = min(.0f, diff + IGNORE_DIFF);
 
-    float maxDiff = 6;
-
-    if (diffLength > maxDiff)
-        step = direction * (diffLength - maxDiff);
-
-    if (abs(step) > diffLength)
-        return;
-
-    x += step;
+    x += diff * deltaTime * 4;
 }
 
 
@@ -76,19 +54,7 @@ void CameraMovement::update(double deltaTime)
     ivec2 bottomLeft = vec2(cam->position) - halfSize;
     cam->position = vec3(vec2(bottomLeft) + halfSize + offsetAnim, cam->position.z);
 
-    {
-        offsetAnim *= 1. - deltaTime * 6.;
-//        float moveOffset = deltaTime * 120;
-//
-//        if (offsetAnim.x > 0)
-//            offsetAnim.x = max<float>(0, offsetAnim.x - moveOffset);
-//        if (offsetAnim.x < 0)
-//            offsetAnim.x = min<float>(0, offsetAnim.x + moveOffset);
-//        if (offsetAnim.y > 0)
-//            offsetAnim.y = max<float>(0, offsetAnim.y - moveOffset);
-//        if (offsetAnim.y < 0)
-//            offsetAnim.y = min<float>(0, offsetAnim.y + moveOffset);
-    }
+    offsetAnim *= 1. - deltaTime * 6.;
 
     if (dibidab::settings.showDeveloperOptions)
     {
