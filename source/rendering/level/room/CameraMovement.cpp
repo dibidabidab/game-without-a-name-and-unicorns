@@ -1,7 +1,10 @@
 
 #include "CameraMovement.h"
 #include "../../../generated/Physics.hpp"
+#include "../../../game/Game.h"
 #include <generated/PlayerControlled.hpp>
+#include <game/dibidab.h>
+#include <imgui.h>
 
 void move(float &x, float targetX, float deltaTime)
 {
@@ -85,6 +88,32 @@ void CameraMovement::update(double deltaTime)
 //            offsetAnim.y = max<float>(0, offsetAnim.y - moveOffset);
 //        if (offsetAnim.y < 0)
 //            offsetAnim.y = min<float>(0, offsetAnim.y + moveOffset);
+    }
+
+    if (dibidab::settings.showDeveloperOptions)
+    {
+        if (MouseInput::pressed(GLFW_MOUSE_BUTTON_MIDDLE))
+        {
+            if (devCamPos == ivec2(-1))
+                devCamPos = ivec2(cam->position);
+
+            static vec2 accumulator(0);
+
+            accumulator.x -= float(MouseInput::deltaMouseX);
+            accumulator.y += float(MouseInput::deltaMouseY);
+
+            devCamPos += accumulator / vec2(Game::settings.graphics.pixelScaling);
+            accumulator -= floor(accumulator);
+        }
+        if (devCamPos != ivec2(-1))
+        {
+            cam->position.x = devCamPos.x + fract(cam->position.x); // fract() to fix pixel art issues.
+            cam->position.y = devCamPos.y + fract(cam->position.y);
+            ImGui::BeginMainMenuBar();
+            if (ImGui::Button("Reset camera position"))
+                devCamPos = ivec2(-1);
+            ImGui::EndMainMenuBar();
+        }
     }
 
     cam->update();
