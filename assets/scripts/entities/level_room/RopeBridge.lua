@@ -4,7 +4,8 @@ persistenceMode(TEMPLATE | ARGS | SPAWN_POS | REVIVE)
 defaultArgs({
     width = 160,
     rightPolePositionX = 200,
-    rightPolePositionY = 100
+    rightPolePositionY = 100,
+    flammable = false
 })
 
 function create(poleLeft, args)
@@ -68,8 +69,10 @@ function create(poleLeft, args)
             },
             DrawPolyline {
                 colors = {colors.wood}
-            },
-            Flammable {
+            }
+        })
+        if args.flammable then
+            setComponents(attachPoint, { Flammable {
                 range = attachedRopeLength,
                 checkInterval = .5,
 
@@ -80,8 +83,8 @@ function create(poleLeft, args)
                     intensity = .4,
                     width = 1
                 }
-            }
-        })
+            }})
+        end
 
         setComponents(plank, {
             AABB {
@@ -97,8 +100,10 @@ function create(poleLeft, args)
             AsepriteView {
                 sprite = "sprites/rope_bridge",
                 frame = 1
-            },
-            Flammable {
+            }
+        })
+        if args.flammable then
+            setComponents(plank, { Flammable {
                 range = 32,
                 checkInterval = .5,
 
@@ -109,43 +114,43 @@ function create(poleLeft, args)
                     intensity = .4,
                     width = 1
                 }
-            }
-        })
+            }})
 
-        onEntityEvent(plank, "Ignited", function (_by)
+            onEntityEvent(plank, "Ignited", function (_by)
 
-            planksIgnited = planksIgnited + 1
+                planksIgnited = planksIgnited + 1
 
-            if planksIgnited > nrOfPlanks * .4 and not polyPlatformDestroyed then
+                if planksIgnited > nrOfPlanks * .4 and not polyPlatformDestroyed then
 
-                destroyEntity(polyPlatform)
-                polyPlatformDestroyed = true
-            end
-
-            if planksIgnited > nrOfPlanks * .8 then
-                component.VerletRope.getFor(mainRope).fixedEndPoint = false
-                component.Physics.getFor(poleLeft).ignoreTileTerrain = true
-                component.DespawnAfter.getFor(poleLeft).time = 1.
-            end
-
-            setUpdateFunction(plank, .8, function()
-
-                if not polyPlatformDestroyed then
-                    return
+                    destroyEntity(polyPlatform)
+                    polyPlatformDestroyed = true
                 end
 
-                --component.AttachToRope.remove(attachPoint)
-                component.VerletRope.getFor(attachPoint).endPointEntity = nil
-                setComponents(plank, {
-                    DespawnAfter {
-                        time = 1.
-                    },
-                    Physics {
-                    }
-                })
-                setUpdateFunction(plank, 99, nil)
+                if planksIgnited > nrOfPlanks * .8 then
+                    component.VerletRope.getFor(mainRope).fixedEndPoint = false
+                    component.Physics.getFor(poleLeft).ignoreTileTerrain = true
+                    component.DespawnAfter.getFor(poleLeft).time = 1.
+                end
+
+                setUpdateFunction(plank, .8, function()
+
+                    if not polyPlatformDestroyed then
+                        return
+                    end
+
+                    --component.AttachToRope.remove(attachPoint)
+                    component.VerletRope.getFor(attachPoint).endPointEntity = nil
+                    setComponents(plank, {
+                        DespawnAfter {
+                            time = 1.
+                        },
+                        Physics {
+                        }
+                    })
+                    setUpdateFunction(plank, 99, nil)
+                end)
             end)
-        end)
+        end
     end
 
     setComponents(polyPlatform, {

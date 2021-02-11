@@ -298,10 +298,13 @@ void RoomScreen::renderDebugStuff()
                 std::cerr << "Saving not supported" << std::endl;
             };
         }
-
         ImGui::EndMenu();
     }
-
+    if (!ImGui::IsAnyItemHovered() && !ImGui::IsAnyWindowHovered())
+    {
+        ivec2 p = cam.getCursorRayDirection() + cam.position;
+        ImGui::TextDisabled("Cursor: %d, %d.    Tile: %d, %d", p.x, p.y, p.x / TileMap::PIXELS_PER_TILE, p.y / TileMap::PIXELS_PER_TILE);
+    }
     ImGui::EndMainMenuBar();
 
     if (renderDepthBuffer)

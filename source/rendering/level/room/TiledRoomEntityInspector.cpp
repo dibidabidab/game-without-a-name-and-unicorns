@@ -14,29 +14,38 @@ void TiledRoomEntityInspector::pickEntityGUI(const Camera *cam, DebugLineRendere
     bool breakk = false;
     lineRenderer.axes(p, 10, vec3(1));
 
+    entt::entity smallest = entt::null;
+    AABB smallestAABB;
+
     reg.view<AABB>().each([&] (entt::entity e, AABB &box) {
 
-        if (box.contains(p) && !breakk)
+        if (box.contains(p))
         {
-            MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10, 10);
-            breakk = true;
-
-            draw(box, lineRenderer, mu::Y);
-
-            if (auto name = engine.getName(e))
-                ImGui::SetTooltip((std::string(name) + " #%d").c_str(), int(e));
-            else
-                ImGui::SetTooltip("#%d", int(e));
-
-            if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT, 10))
+            if (smallest == entt::null || length2(vec2(box.halfSize)) < length2(vec2(smallestAABB.halfSize)))
             {
-                reg.assign_or_replace<Inspecting>(e);
-                pickEntity = false;
+                smallestAABB = box;
+                smallest = e;
             }
-            return;
         }
-        else draw(box, lineRenderer, mu::X);
+        draw(box, lineRenderer, mu::X);
     });
+    if (smallest != entt::null)
+    {
+        MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10, 10);
+
+        draw(smallestAABB, lineRenderer, mu::Y);
+
+        if (auto name = engine.getName(smallest))
+            ImGui::SetTooltip((std::string(name) + " #%d").c_str(), int(smallest));
+        else
+            ImGui::SetTooltip("#%d", int(smallest));
+
+        if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT, 10))
+        {
+            reg.assign_or_replace<Inspecting>(smallest);
+            pickEntity = false;
+        }
+    }
 }
 
 void TiledRoomEntityInspector::moveEntityGUI(const Camera *cam, DebugLineRenderer &lineRenderer)
@@ -57,27 +66,37 @@ void TiledRoomEntityInspector::moveEntityGUI(const Camera *cam, DebugLineRendere
     {
         lineRenderer.arrows(p, 10, vec3(1, 0, 1));
 
+        entt::entity smallest = entt::null;
+        AABB smallestAABB;
+
         reg.view<AABB>().each([&] (entt::entity e, AABB &box) {
 
-            if (box.contains(p) && !breakk)
+            if (box.contains(p))
             {
-                MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10);
-                breakk = true;
-
-                draw(box, lineRenderer, mu::Y);
-                auto *persistent = reg.try_get<Persistent>(e);
-                if (persistent && persistent->saveSpawnPosition)
-                    drawSpawnPoint(p, persistent->spawnPosition);
-
-                ImGui::SetTooltip("hold LMB to move #%d", int(e));
-
-                if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT, 10))
-                    movingEntity = e;
-                return;
+                if (smallest == entt::null || length2(vec2(box.halfSize)) < length2(vec2(smallestAABB.halfSize)))
+                {
+                    smallestAABB = box;
+                    smallest = e;
+                }
             }
-            else draw(box, lineRenderer, mu::X);
+            draw(box, lineRenderer, mu::X);
         });
 
+        if (smallest != entt::null)
+        {
+            MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, 10);
+            breakk = true;
+
+            draw(smallestAABB, lineRenderer, mu::Y);
+            auto *persistent = reg.try_get<Persistent>(smallest);
+            if (persistent && persistent->saveSpawnPosition)
+                drawSpawnPoint(p, persistent->spawnPosition);
+
+            ImGui::SetTooltip("hold LMB to move #%d", int(smallest));
+
+            if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT, 10))
+                movingEntity = smallest;
+        }
     }
     else
     {
