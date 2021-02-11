@@ -77,20 +77,29 @@ void RoomEditor::update(OrthographicCamera &cam, TiledRoom &room, DebugLineRende
 
     /////////////
 
+    static int brushSize = 1;
+
     constexpr int MOUSE_PRIORITY = 1;
     MouseInput::capture(GLFW_MOUSE_BUTTON_LEFT, MOUSE_PRIORITY, 5);
     MouseInput::capture(GLFW_MOUSE_BUTTON_RIGHT, MOUSE_PRIORITY, 5);
 
     ivec2 hoveredTile(cam.cursorTo2DWorldPos() / vec2(TileMap::PIXELS_PER_TILE));
-    if (MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT, MOUSE_PRIORITY))
-        map.setTile(hoveredTile.x, hoveredTile.y, placing, material);
-    if (MouseInput::pressed(GLFW_MOUSE_BUTTON_RIGHT, MOUSE_PRIORITY))
-        map.setTile(hoveredTile.x, hoveredTile.y, map.getTile(hoveredTile.x, hoveredTile.y), material);
 
-    if (map.contains(hoveredTile.x, hoveredTile.y))
+    int startX = hoveredTile.x - (brushSize / 2);
+    int startY = hoveredTile.y - (brushSize / 2);
+    for (int x = startX; x < startX + brushSize; x++)
     {
-        DebugTileRenderer::renderTile(lineRenderer, placing, hoveredTile.x, hoveredTile.y,
-                                      map.getMaterialProperties(material).color);
+        for (int y = startY; y < startY + brushSize; y++)
+        {
+            if (MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT, MOUSE_PRIORITY))
+                map.setTile(x, y, placing, material);
+            if (MouseInput::pressed(GLFW_MOUSE_BUTTON_RIGHT, MOUSE_PRIORITY))
+                map.setTile(x, y, map.getTile(x, y), material);
+
+            if (map.contains(x, y))
+                DebugTileRenderer::renderTile(lineRenderer, placing, x, y,
+                                              map.getMaterialProperties(material).color);
+        }
     }
 
     {
@@ -158,6 +167,11 @@ void RoomEditor::update(OrthographicCamera &cam, TiledRoom &room, DebugLineRende
         for (TileMaterial m = 0; m < map.nrOfMaterialTypes; m++)
             ImGui::RadioButton(map.getMaterialProperties(m).name.c_str(), &radMat, m);
         material = radMat;
+    }
+    {
+        ImGui::NewLine();
+        ImGui::Separator();
+        ImGui::DragInt("Brush size", &brushSize, 1, 1, 24);
     }
 
     ImGui::End();
