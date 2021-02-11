@@ -43,6 +43,8 @@ Physics:  # Adds physics to an AABB-entity. (Terrain collisions & gravity)
   velocity: [vec2, vec2(0)]
   gravity: [float, 1250]
 
+  autoStepHeight: [uint8, 0u]
+
   ignorePlatforms: [bool, false]
   ignorePolyPlatforms: [bool, true]
   ignoreTileTerrain: [bool, false]
@@ -63,6 +65,8 @@ Physics:  # Adds physics to an AABB-entity. (Terrain collisions & gravity)
     # used by PhysicsSystem:
     velocityAccumulator: vec2
     justMovedByPolyPlatform: [bool, false]
+
+    autoStepped: [uint8, 0u]
 
 
 StaticCollider:

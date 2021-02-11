@@ -95,7 +95,7 @@ function create(enemy, args)
             local dist = diff:length() -- todo: length2()
 
             if dist > args.maxFlyDistance then
-                component.AABB.animate(enemy, "center", spawnPos, .8, "pow3")
+                component.AABB.animate(enemy, "center", spawnPos, .8, "pow2")
                 return
             end
 

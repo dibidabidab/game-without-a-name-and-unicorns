@@ -9,7 +9,8 @@ function create(player)
         Physics {
             ignorePolyPlatforms = false,
             createWind = 1.5,
-            ignoreFluids = false
+            ignoreFluids = false,
+            autoStepHeight = 10
         },
         AABB {
             halfSize = ivec2(3, 13),

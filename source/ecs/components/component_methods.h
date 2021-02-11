@@ -108,6 +108,11 @@ inline void draw(const Physics &physics, const AABB &body, DebugLineRenderer &li
         lineRenderer.line(body.bottomCenter(), body.bottomCenter() - ivec2(0, physics.touches.pixelsAbovePolyPlatform), vec3(1, 1, 0));
     if (physics.touches.fluid)
         lineRenderer.circle(body.center, min(body.halfSize.x, body.halfSize.y), 8, color);
+
+    if (physics.touches.canDoAutoStepHeightRight)
+        lineRenderer.arrow(body.bottomRight() + ivec2(0, physics.touches.canDoAutoStepHeightRight), body.bottomRight() + ivec2(4, physics.touches.canDoAutoStepHeightRight), 2, mu::Y);
+    if (physics.touches.canDoAutoStepHeightLeft)
+        lineRenderer.arrow(body.bottomLeft() + ivec2(0, physics.touches.canDoAutoStepHeightLeft), body.bottomLeft() + ivec2(-4, physics.touches.canDoAutoStepHeightLeft), 2, mu::Y);
 }
 
 #endif //GAME_COMPONENT_METHODS_H

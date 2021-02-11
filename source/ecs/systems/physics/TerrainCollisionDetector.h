@@ -56,6 +56,9 @@ struct TerrainCollisions
      */
     entt::entity fluidEntity = entt::null;
     uint8 fluidDepth = 0, fluidSurfaceLineXIndex = 0;
+
+    uint8 canDoAutoStepHeightRight = 0u;
+    uint8 canDoAutoStepHeightLeft = 0u;
 };
 
 // TODO, bug: when Tile::slope_up and Tile::slope_down are placed next to each other -> player can fall through them
@@ -73,7 +76,7 @@ class TerrainCollisionDetector
     /**
      * Detects collisions with the terrain.
      */
-    void detect(TerrainCollisions &, const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms=true, bool ignoreFluids=true);
+    void detect(TerrainCollisions &, const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms=true, bool ignoreFluids=true, uint autoStepHeight=0u);
 
   private:
 

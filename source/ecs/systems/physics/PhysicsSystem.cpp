@@ -51,6 +51,7 @@ void PhysicsSystem::update(double deltaTime, EntityEngine *)
 
     room->entities.view<Physics, AABB>().each([&](auto e, Physics &physics, AABB &body) {                 /// PHYSICS UPDATE
 
+        physics.autoStepped = 0;
         TerrainCollisions prevTouched = physics.touches;
         auto tmpVel = physics.velocity;
 
@@ -227,8 +228,46 @@ void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTim
 
         if (physics.touches.ceiling && physics.velocity.y > 0) physics.velocity.y = 0;
 
-        if (physics.touches.leftWall && physics.velocity.x < 0) physics.velocity.x = 0;
-        if (physics.touches.rightWall && physics.velocity.x > 0) physics.velocity.x = 0;
+        if (physics.touches.leftWall && physics.velocity.x < 0)
+        {
+            bool resetVel = true;
+            if (physics.touches.canDoAutoStepHeightLeft)
+            {
+                int moveY = physics.touches.canDoAutoStepHeightLeft;
+                for (int i = 0; i < moveY && resetVel; i++)
+                {
+                    if (!tryMove(physics, aabb, Move::up))
+                        break;
+                    if (!physics.touches.leftWall && tryMove(physics, aabb, Move::left))
+                    {
+                        resetVel = false;
+                        physics.autoStepped = i + 1;
+                    }
+                }
+            }
+            if (resetVel)
+                physics.velocity.x = 0;
+        }
+        if (physics.touches.rightWall && physics.velocity.x > 0)    // todo: duplicate code :)
+        {
+            bool resetVel = true;
+            if (physics.touches.canDoAutoStepHeightRight)
+            {
+                int moveY = physics.touches.canDoAutoStepHeightRight;
+                for (int i = 0; i <= moveY && resetVel; i++)
+                {
+                    if (!tryMove(physics, aabb, Move::up))
+                        break;
+                    if (!physics.touches.rightWall && tryMove(physics, aabb, Move::right))
+                    {
+                        resetVel = false;
+                        physics.autoStepped = i + 1;
+                    }
+                }
+            }
+            if (resetVel)
+                physics.velocity.x = 0;
+        }
     }
     if (physics.moveByWind != 0)
     {
@@ -322,7 +361,7 @@ void PhysicsSystem::updateTerrainCollisions(Physics &physics, AABB &body)
     }
     AABB outlineBox = body;
     outlineBox.halfSize += 1; // make box 1 pixel larger to detect if p.body *touches* terrain
-    collisionDetector->detect(physics.touches, outlineBox, physics.ignorePlatforms, physics.ignorePolyPlatforms, physics.ignoreFluids);
+    collisionDetector->detect(physics.touches, outlineBox, physics.ignorePlatforms, physics.ignorePolyPlatforms, physics.ignoreFluids, physics.autoStepHeight);
 }
 
 template<typename vec>
@@ -413,6 +452,10 @@ void PhysicsSystem::preventFallingThroughPolyPlatform(Physics &physics, AABB &aa
         return;
 
     int newY = platformHeight + aabb.halfSize.y + 1;
+
+    if (newY < aabb.center.y && physics.touches.floor)
+        return;
+
     bool invalidNewPosition = newY < aabb.center.y && (!wasOnPlatform || physics.velocity.y > 0);
 
     if (invalidNewPosition)

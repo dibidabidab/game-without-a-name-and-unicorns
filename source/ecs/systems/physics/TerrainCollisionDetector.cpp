@@ -6,8 +6,28 @@
 #include "../../components/component_methods.h"
 #include "../../../tiled_room/TileMap.h"
 
+void checkForAutoStep(TerrainCollisions &collisions, uint autoStepHeight, const AABB &aabb, const TileMap *map)
+{
+    if (collisions.leftWall)
+    {
+        ivec2 p16 = aabb.bottomLeft()  + ivec2(0, autoStepHeight);
+        ivec2 p = p16 / TileMap::PIXELS_PER_TILE;
+        Tile pTile = map->getTile(p.x, p.y);
+        if (pTile == Tile::empty || pTile == Tile::platform)
+            collisions.canDoAutoStepHeightLeft = (p.y * TileMap::PIXELS_PER_TILE) - aabb.bottomLeft().y;
+    }
+    if (collisions.rightWall)   // TODO: duplicate code yolo
+    {
+        ivec2 p16 = aabb.bottomRight()  + ivec2(0, autoStepHeight + 1);
+        ivec2 p = p16 / TileMap::PIXELS_PER_TILE;
+        Tile pTile = map->getTile(p.x, p.y);
+        if (pTile == Tile::empty || pTile == Tile::platform)
+            collisions.canDoAutoStepHeightRight = (p.y * TileMap::PIXELS_PER_TILE) - aabb.bottomRight().y;
+    }
+}
+
 void TerrainCollisionDetector::detect(
-        TerrainCollisions &collisions, const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms, bool ignoreFluids
+        TerrainCollisions &collisions, const AABB &aabb, bool ignorePlatforms, bool ignorePolyPlatforms, bool ignoreFluids, uint autoStepHeight
 )
 {
     collisions.polyPlatform = ignorePolyPlatforms ? false : onPolyPlatform(aabb, collisions, ignorePlatforms);
@@ -33,6 +53,11 @@ void TerrainCollisionDetector::detect(
         if (collisions.polyPlatformDeltaRight > 0)
             collisions.rightWall = true;
     }
+
+    collisions.canDoAutoStepHeightLeft = 0u;
+    collisions.canDoAutoStepHeightRight = 0u;
+    if (autoStepHeight > 0u)
+        checkForAutoStep(collisions, autoStepHeight, aabb, map);
 
     collisions.anything = collisions.floor || collisions.leftWall || collisions.rightWall || collisions.ceiling || collisions.fluid;
 }

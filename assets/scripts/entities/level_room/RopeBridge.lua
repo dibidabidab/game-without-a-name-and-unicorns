@@ -154,6 +154,7 @@ function create(poleLeft, args)
         },
         PolyPlatform {
             --allowFallThrough = false
+            material = 3
         },
         AABB {
             center = (component.AABB.getFor(poleLeft).center + component.AABB.getFor(poleRight).center) / ivec2(2) - ivec2(0, attachedRopeLength)

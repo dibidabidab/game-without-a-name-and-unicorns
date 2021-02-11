@@ -77,6 +77,12 @@ void SpriteSystem::updateFeetBobbing(double deltaTime)
             if (!physics->touches.floor && bobbing.floorHitVelocity < 0)
                 bobbing.floorHitVelocity = 0;
 
+            if (physics->autoStepped)
+            {
+                bobbing.floorHitYPos -= physics->autoStepped;
+                bobbing.floorHitVelocity = 100;
+            }
+
             bobbing.floorHitVelocity += 1700 * deltaTime;
             bobbing.floorHitYPos = min<float>(0, bobbing.floorHitYPos + bobbing.floorHitVelocity * deltaTime);
 

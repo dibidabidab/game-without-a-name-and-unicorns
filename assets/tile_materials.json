@@ -19,5 +19,10 @@
     "friction": 1,
     "bounciness": 0,
     "color": [0.1, 1, 0.3]
+  },
+  {
+    "name": "ropebridge_DONT_USE_FOR_TILES",
+    "friction": 1.2,
+    "tileSet": "sprites/tilesets/grass"
   }
 ]
