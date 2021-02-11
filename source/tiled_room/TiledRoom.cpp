@@ -108,6 +108,9 @@ void TiledRoom::resize(int moveLeftBorder, int moveRightBorder, int moveTopBorde
         old->width + moveLeftBorder + moveRightBorder,
         old->height + moveTopBorder + moveBottomBorder
     ));
+    tileMap->zIndex = old->zIndex;
+    tileMap->name = old->name;
+    // TODO: if TileMap gets more properties I'll forget to copy them here too.
     tileMap->copy(
         *old,
         moveLeftBorder < 0 ? -moveLeftBorder : 0,
@@ -119,6 +122,27 @@ void TiledRoom::resize(int moveLeftBorder, int moveRightBorder, int moveTopBorde
         old->width, old->height
     );
     delete old;
+
+    auto oldLayers = decorativeTileLayers;
+    decorativeTileLayers.clear();
+
+    for (auto &layer : oldLayers)
+    {
+        decorativeTileLayers.emplace_back(ivec2(tileMap->width, tileMap->height));
+        auto &newLayer = decorativeTileLayers.back();
+        newLayer.name = layer.name;
+        newLayer.zIndex = layer.zIndex;
+        newLayer.copy(
+            layer,
+            moveLeftBorder < 0 ? -moveLeftBorder : 0,
+            moveBottomBorder < 0 ? -moveBottomBorder : 0,
+
+            moveLeftBorder > 0 ? moveLeftBorder : 0,
+            moveBottomBorder > 0 ? moveBottomBorder : 0,
+
+            layer.width, layer.height
+        );
+    }
 
     positionInLevel.x = max<int>(0, positionInLevel.x - moveLeftBorder);
     positionInLevel.y = max<int>(0, positionInLevel.y - moveBottomBorder);
