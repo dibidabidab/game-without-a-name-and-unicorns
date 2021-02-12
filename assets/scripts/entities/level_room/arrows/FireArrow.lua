@@ -11,8 +11,9 @@ function create(arrow)
             igniteChance = 1.,
             range = 16
         },
-        Light {
+        PointLight {
             radius = 16
         }
     })
+    component.Arrow.getFor(arrow).damageType = "fire"
 end

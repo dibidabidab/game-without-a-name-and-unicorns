@@ -9,7 +9,8 @@ function create(axo)
     setComponents(axo, {
 
         AsepriteView {
-            sprite = "sprites/axolotl"
+            sprite = "sprites/axolotl",
+            loop = false
         },
         Physics {
             gravity = 820,
@@ -25,10 +26,18 @@ function create(axo)
             feet = {leftLeg, rightLeg},
             maxYPos = 4,
             minYPos = -2
+        },
+
+        Health {
+            takesDamageFrom = {"hit", "fire"},
+            maxHealth = 3,
+            currHealth = 3,
+            givePlayerArrowOnKill = "WaterArrow"
         }
 
     })
     component.AABB.getFor(axo).halfSize = ivec2(10, 6)
+    playAsepriteTag(component.AsepriteView.getFor(axo), "happy", true)
 
 
     local tail = createChild(axo, "tail")
@@ -97,4 +106,26 @@ function create(axo)
         stepSize = 5,
         color = colors.brick
     })
+
+    onEntityEvent(axo, "Attacked", function(attack)
+
+        local sprite = component.AsepriteView.tryGetFor(axo)
+        if sprite ~= nil then
+
+            playAsepriteTag(sprite, "cry", true)
+        end
+    end)
+    onEntityEvent(axo, "Died", function (attack)
+        local sprite = component.AsepriteView.tryGetFor(axo)
+        if sprite ~= nil then
+
+            playAsepriteTag(sprite, "cry", true)
+        end
+
+        component.SliceSpriteIntoPieces.getFor(axo).steps = 4
+
+        component.DespawnAfter.getFor(axo).time = .1
+
+        print("This species is critically endangered! :'(")
+    end)
 end

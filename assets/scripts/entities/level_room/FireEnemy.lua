@@ -41,8 +41,8 @@ function create(enemy, args)
         StaticCollider(),
         Health {
             takesDamageFrom = {"water"},
-            currHealth = 1,
-            maxHealth = 1,
+            currHealth = 3,
+            maxHealth = 3,
             givePlayerArrowOnKill = "FireArrow"
         },
         AsepriteView {
@@ -214,8 +214,9 @@ function create(enemy, args)
     end)
     onEntityEvent(enemy, "Died", function (attack)
         component.SliceSpriteIntoPieces.getFor(enemy).steps = 6
+        component.PlayerDetector.remove(enemy)
+        component.DespawnAfter.getFor(enemy).time = .1
 
-        print("enemy was killed with an attack of", attack.points, "points")
     end)
 
 end

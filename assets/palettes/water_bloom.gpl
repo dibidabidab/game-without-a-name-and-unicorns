@@ -1,0 +1,25 @@
+GIMP Palette
+#
+  0   0   0	transparent
+  0   0   0	background
+  0   0   0	sky
+  0   0   0	grass
+  0   0   0	grass_dark
+  0   0   0	brick
+  0   0   0	brick_dark
+ 67  63  38	string
+  0   0   0	skin
+  0   0   0	hat
+ 92   0  19	rainbow_red
+  0   0   0	rainbow_orange
+  0   0   0	rainbow_yellow
+  0   0   0	rainbow_green
+  0   0   0	rainbow_blue
+ 82   0  83	rainbow_pink
+ 62  25   7	fire0
+116 111  19	fire1
+  0   0   0	water0
+  0   0   0	water1
+  0   0   0	wood
+  0   0   0	wood_dark
+  0   0   0	sky_mist

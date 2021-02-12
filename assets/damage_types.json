@@ -3,11 +3,20 @@
     "hit": {
       "knockback": 400,
       "immunity": 0.5
+    },
+    "fire": {
+      "knockback": 400,
+      "immunity": 0.5
+    },
+    "water": {
+      "knockback": 400,
+      "immunity": 0.5
     }
   },
   "arrowPalettes": {
     "DefaultArrow": "default",
     "RainbowArrow": "test",
-    "FireArrow": "test"
+    "FireArrow": "test",
+    "WaterArrow": "water"
   }
 }

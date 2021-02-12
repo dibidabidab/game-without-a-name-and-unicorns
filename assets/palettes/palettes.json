@@ -10,5 +10,11 @@
     "palettes/test1",
     "palettes/test2",
     "palettes/test_bloom"
+  ],
+  "water": [
+    "palettes/water0",
+    "palettes/water1",
+    "palettes/water2",
+    "palettes/water_bloom"
   ]
 }
