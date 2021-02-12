@@ -22,6 +22,7 @@
 #include "../ecs/systems/TransRoomerSystem.h"
 #include "../ecs/systems/FireSystem.h"
 #include "../ecs/systems/combat/CombatSystem.h"
+#include "../generated/ModelView.hpp"
 
 TiledRoom::TiledRoom(ivec2 size)
 {
@@ -168,12 +169,19 @@ void TiledRoom::initializeLuaEnvironment()
 
 vec3 TiledRoom::getPosition(entt::entity e) const
 {
-    return entities.has<AABB>(e) ? vec3(entities.get<AABB>(e).center, 0) : vec3(0);
+    if (const AABB* aabb = entities.try_get<AABB>(e))
+        return vec3(aabb->center, 0);
+    else if (const ModelView *model = entities.try_get<ModelView>(e))
+        return model->locationOffset;
+    return vec3(0);
 }
 
 void TiledRoom::setPosition(entt::entity e, const vec3 &v)
 {
-    entities.get_or_assign<AABB>(e).center = v;
+    if (v.z != 0)   // 3D -> assume ModelView
+        entities.get_or_assign<ModelView>(e).locationOffset = v;
+    else
+        entities.get_or_assign<AABB>(e).center = v;
 }
 
 void tileMapToJson(json &j, const TileMap &map)

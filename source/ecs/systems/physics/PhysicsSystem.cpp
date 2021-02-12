@@ -234,6 +234,7 @@ void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTim
             if (physics.touches.canDoAutoStepHeightLeft)
             {
                 int moveY = physics.touches.canDoAutoStepHeightLeft;
+                ivec2 originalPos = aabb.center;
                 for (int i = 0; i < moveY && resetVel; i++)
                 {
                     if (!tryMove(physics, aabb, Move::up))
@@ -243,6 +244,11 @@ void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTim
                         resetVel = false;
                         physics.autoStepped = i + 1;
                     }
+                }
+                if (resetVel)
+                {
+                    aabb.center = originalPos;
+                    updateTerrainCollisions(physics, aabb);
                 }
             }
             if (resetVel)
@@ -254,6 +260,7 @@ void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTim
             if (physics.touches.canDoAutoStepHeightRight)
             {
                 int moveY = physics.touches.canDoAutoStepHeightRight;
+                ivec2 originalPos = aabb.center;
                 for (int i = 0; i <= moveY && resetVel; i++)
                 {
                     if (!tryMove(physics, aabb, Move::up))
@@ -263,6 +270,11 @@ void PhysicsSystem::updateVelocity(Physics &physics, AABB &aabb, double deltaTim
                         resetVel = false;
                         physics.autoStepped = i + 1;
                     }
+                }
+                if (resetVel)
+                {
+                    aabb.center = originalPos;
+                    updateTerrainCollisions(physics, aabb);
                 }
             }
             if (resetVel)

@@ -14,7 +14,7 @@ void checkForAutoStep(TerrainCollisions &collisions, uint autoStepHeight, const 
         ivec2 p = p16 / TileMap::PIXELS_PER_TILE;
         Tile pTile = map->getTile(p.x, p.y);
         if (pTile == Tile::empty || pTile == Tile::platform)
-            collisions.canDoAutoStepHeightLeft = (p.y * TileMap::PIXELS_PER_TILE) - aabb.bottomLeft().y;
+            collisions.canDoAutoStepHeightLeft = max<int>(0, (p.y * TileMap::PIXELS_PER_TILE) - aabb.bottomLeft().y);
     }
     if (collisions.rightWall)   // TODO: duplicate code yolo
     {
@@ -22,7 +22,7 @@ void checkForAutoStep(TerrainCollisions &collisions, uint autoStepHeight, const 
         ivec2 p = p16 / TileMap::PIXELS_PER_TILE;
         Tile pTile = map->getTile(p.x, p.y);
         if (pTile == Tile::empty || pTile == Tile::platform)
-            collisions.canDoAutoStepHeightRight = (p.y * TileMap::PIXELS_PER_TILE) - aabb.bottomRight().y;
+            collisions.canDoAutoStepHeightRight = max<int>(0, (p.y * TileMap::PIXELS_PER_TILE) - aabb.bottomRight().y);
     }
 }
 
