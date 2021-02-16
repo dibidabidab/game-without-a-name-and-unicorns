@@ -11,7 +11,9 @@ defaultArgs({
     stepSize = 13,
     stepArcAngle = 65,
     idleStepSpeed = 65,
-    inAirStepSpeed = 40
+    inAirStepSpeed = 40,
+
+    ignoreSpriteFlipping = true
 })
 
 function create(leg, args)
@@ -21,7 +23,7 @@ function create(leg, args)
     applyTemplate(hip, "SpriteAnchor", {
         spriteEntity = args.body,
         sliceName = args.spriteSliceName,
-        ignoreSpriteFlipping = true
+        ignoreSpriteFlipping = args.ignoreSpriteFlipping
     })
 
     -- KNEE:

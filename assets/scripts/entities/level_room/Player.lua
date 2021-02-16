@@ -135,6 +135,12 @@ function create(player)
     onEntityEvent(player, "Attacked", function(attack)
         print("oof")
     end)
+    onEntityEvent(player, "Died", function (attack)
+        component.TransRoomable.remove(player)
+        destroyEntity(bow)
+        component.Arm.getFor(leftArm).grab = nil
+        component.Arm.getFor(rightArm).grab = nil
+    end)
 
     local hud_arrowTypeBar = nil
 

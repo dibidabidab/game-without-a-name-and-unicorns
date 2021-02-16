@@ -8,6 +8,7 @@
 #include "../../../generated/PolyPlatform.hpp"
 #include "../../../generated/Polyline.hpp"
 #include "../../../tiled_room/TiledRoom.h"
+#include "TerrainCollisionDetector.h"
 
 namespace
 {

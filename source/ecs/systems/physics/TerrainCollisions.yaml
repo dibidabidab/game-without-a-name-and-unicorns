@@ -1,0 +1,45 @@
+
+TerrainCollisions:
+  floor:             bool   #  any floor (solid block, sloped block, platform block, poly-platform)
+  flatFloor:         bool   #  flat floors (solid block, platform block)
+  slopeDown:         bool   #  Tile::slope_down, Tile::slope_down_half0 or Tile::slope_down_half1
+  slopeUp:           bool   #  Tile::slope_up, Tile::slope_up_half0 or Tile::slope_up_half1
+  halfSlopeDown:     bool   #  Tile::slope_down_half0 or Tile::slope_down_half1
+  halfSlopeUp:       bool   #  Tile::slope_up_half0 or Tile::slope_up_half1
+  ceiling:           bool   #  any ceiling (solid block, sloped block)
+  slopedCeilingDown: bool   #  only Tile::sloped_ceil_down
+  slopedCeilingUp:   bool   #  only Tile::sloped_ceil_up
+  leftWall:          bool   #  anything that should prevent an entity from going to the left
+  rightWall:         bool   #  anything that should prevent an entity from going to the right
+  polyPlatform:      bool   #  (possibly moving?)-platforms with multiple non-grid-based vertices
+  fluid:             bool   #  fluids, eg: a pool of water
+  anything:          bool   #  ANY of the above
+
+  floorMaterial: uint8 # typedef uint8 TileMaterial
+
+  # if polyPlatform == true, then the following values will be set:
+  #
+  # 'polyPlatformEntity' is the PolyPlatform the entity is standing on
+  # 'polyPlatformDeltaRight' is the difference in the platform's height 1 pixel to the right.
+  # 'polyPlatformDeltaLeft' is the difference in the platform's height 1 pixel to the left.
+  polyPlatformEntity: [entt::entity, entt::null]
+  polyPlatformDeltaRight: int8
+  polyPlatformDeltaLeft:  int8
+
+
+  # the 'abovePolyPlatformEntity' is set if a PolyPlatform was detected under the entity.
+  # 'pixelsAbovePolyPlatform' is the number of pixels between the entity and the PolyPlatform.
+  #
+  # Not guaranteed to be set if the entity already touches a PolyPlatform.
+  abovePolyPlatformEntity: [entt::entity, entt::null]
+  pixelsAbovePolyPlatform: uint8
+
+  # fluidEntity will be set if the entity is in a fluid (eg: water)
+  # fluidDepth tells how deep the entity is inside the fluid.
+  # fluidSurfaceLineXIndex tells at what point of the Polyline the entity is (only if the fluid has a Polyline)
+  fluidEntity: [entt::entity, entt::null]
+  fluidDepth: uint8
+  fluidSurfaceLineXIndex: uint8
+
+  canDoAutoStepHeightRight: uint8
+  canDoAutoStepHeightLeft: uint8

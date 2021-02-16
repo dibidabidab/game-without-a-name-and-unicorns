@@ -13,7 +13,7 @@ function create(axo)
             loop = false
         },
         Physics {
-            gravity = 820,
+            gravity = 1050,
             ignoreFluids = false
         },
         PlatformerMovement {
@@ -25,7 +25,7 @@ function create(axo)
         SpriteBobbing {
             feet = {leftLeg, rightLeg},
             maxYPos = 4,
-            minYPos = -2
+            minYPos = -4
         },
 
         Health {
@@ -41,6 +41,7 @@ function create(axo)
 
 
     local tail = createChild(axo, "tail")
+    local TAIL_GRAVITY = vec2(2, 0)
     setComponents(tail, {
         AABB {
             halfSize = ivec2(1)
@@ -48,7 +49,7 @@ function create(axo)
         VerletRope {
             length = 10,
             nrOfPoints = 4,
-            gravity = vec2(2, 0),
+            gravity = TAIL_GRAVITY,
             friction = .9
         },
         DrawPolyline {
@@ -61,6 +62,7 @@ function create(axo)
         }
     })
     local tailEnd = createChild(tail, "tailEnd")
+    local TAIL_END_GRAVITY = vec2(2, 1)
     setComponents(tailEnd, {
         AttachToRope {
             ropeEntity = tail,
@@ -72,7 +74,7 @@ function create(axo)
         VerletRope {
             length = 9,
             nrOfPoints = 4,
-            gravity = vec2(2, 1),
+            gravity = TAIL_END_GRAVITY,
             friction = .95
         },
         DrawPolyline {
@@ -94,7 +96,8 @@ function create(axo)
         idleXPos = -2,
         spriteSliceName = "leg0",
         stepSize = 5,
-        color = colors.brick
+        color = colors.brick,
+        ignoreSpriteFlipping = false
     })
     applyTemplate(rightLeg, "Leg", {
         length = legLength,
@@ -104,7 +107,8 @@ function create(axo)
         idleXPos = 2,
         spriteSliceName = "leg1",
         stepSize = 5,
-        color = colors.brick
+        color = colors.brick,
+        ignoreSpriteFlipping = false
     })
 
     onEntityEvent(axo, "Attacked", function(attack)
@@ -126,6 +130,44 @@ function create(axo)
 
         component.DespawnAfter.getFor(axo).time = .1
 
+        setUpdateFunction(axo, 1., nil)
+        component.PlatformerMovementInput.remove(axo)
+
         print("This species is critically endangered! :'(")
+    end)
+
+    setUpdateFunction(axo, 1., function()
+
+        local physics = component.Physics.getFor(axo)
+
+        local xDir = 0
+
+        if math.random() > .5 then
+            xDir = xDir - 1
+        end
+        if math.random() > .5 then
+            xDir = xDir + 1
+        end
+
+        local input = component.PlatformerMovementInput.getFor(axo)
+        input.left = xDir == -1
+        input.right = xDir == 1
+
+        if physics.touches.fluid then
+            input.jump = ((physics.touches.leftWall or physics.touches.rightWall) and math.random() > .2) or math.random() > .7
+        else
+            input.jump = false
+        end
+
+        if xDir ~= 0 then
+            component.Flip.getFor(axo).horizontal = xDir == 1
+            component.VerletRope.getFor(tail).gravity = TAIL_GRAVITY * vec2(-xDir, 1)
+            component.VerletRope.getFor(tailEnd).gravity = TAIL_END_GRAVITY * vec2(-xDir, 1)
+
+            local l0 = component.Leg.getFor(leftLeg)
+            l0.anchor.x = math.abs(l0.anchor.x) * -xDir
+            local l1 = component.Leg.getFor(rightLeg)
+            l1.anchor.x = math.abs(l1.anchor.x) * -xDir
+        end
     end)
 end

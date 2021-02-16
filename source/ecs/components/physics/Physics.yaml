@@ -1,6 +1,6 @@
 config: # todo, this file is included a lot only for AABB, but that also includes all this other shit
   hpp_incl:
-    - ../ecs/systems/physics/TerrainCollisionDetector.h
+    - TerrainCollisions.hpp
     - audio/audio.h
     - utils/aseprite/Aseprite.h
 
@@ -54,8 +54,9 @@ Physics:  # Adds physics to an AABB-entity. (Terrain collisions & gravity)
 
   airTime: [float, 0]
 
+  touches: TerrainCollisions
+
   _cpp_only:
-    touches: TerrainCollisions
     prevTouched: TerrainCollisions
 
     prevVelocity: vec2

@@ -3,6 +3,7 @@
 #include "../../../../generated/Physics.hpp"
 #include "../../../../generated/Light.hpp"
 #include "ShadowCaster.h"
+#include "../../../../ecs/systems/physics/TerrainCollisionDetector.h"
 #include <level/Level.h>
 
 LightMapRenderer::LightMapRenderer(TiledRoom *room)

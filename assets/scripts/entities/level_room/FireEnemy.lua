@@ -116,9 +116,9 @@ function create(enemy, args)
         --local enemyAABB = component.AABB.getFor(enemy)
 
         playersInRange = playersInRange + 1
-        attackMode = playersInRange > 0
 
-        if playersInRange == 1 then
+        if playersInRange > 0 and not attackMode then
+            attackMode = true
 
             local sprite = component.AsepriteView.getFor(enemy)
             sprite.loop = false
@@ -153,6 +153,12 @@ function create(enemy, args)
             local particleI = 0
 
             setUpdateFunction(fireTail, .08, function(dt)
+
+                if not attackMode then
+                    component.Fire.remove(fireTail)
+                    setUpdateFunction(fireTail, 99, nil)
+                    return
+                end
 
                 particleI = 1 + particleI
                 if particleI < 8 then
@@ -199,21 +205,17 @@ function create(enemy, args)
 
         playersInRange = playersInRange - 1
         attackMode = playersInRange > 0
-
-        if playersInRange == 0 then
-            component.Fire.remove(fireTail)
-            setUpdateFunction(fireTail, 99, nil)
-        end
     end)
 
     onEntityEvent(enemy, "Attacked", function(attack)
 
-        local health = component.Health.getFor(enemy)
+        removeAnimation(enemy, "velocity")
+        component.Fire.remove(enemy) -- will add itself back in PlayerDetected event
+        attackMode = false
 
-        print("AUWWWWWW", attack.points, health.currHealth, "/", health.maxHealth)
     end)
     onEntityEvent(enemy, "Died", function (attack)
-        component.SliceSpriteIntoPieces.getFor(enemy).steps = 6
+        component.SliceSpriteIntoPieces.getFor(enemy).steps = 4
         component.PlayerDetector.remove(enemy)
         component.DespawnAfter.getFor(enemy).time = .1
 

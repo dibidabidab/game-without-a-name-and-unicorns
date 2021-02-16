@@ -1,15 +1,15 @@
 {
   "damageTypes": {
     "hit": {
-      "knockback": 400,
+      "knockback": 200,
       "immunity": 0.5
     },
     "fire": {
-      "knockback": 400,
+      "knockback": 200,
       "immunity": 0.5
     },
     "water": {
-      "knockback": 400,
+      "knockback": 200,
       "immunity": 0.5
     }
   },
