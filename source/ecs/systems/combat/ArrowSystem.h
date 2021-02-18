@@ -28,6 +28,7 @@ class ArrowSystem : public EntitySystem
                 s.sound = asset<au::Sound>("sounds/arrow_hit");
                 s.pitch = mu::random(.8, 1.2);
                 s.volume = .18;
+                room->emitEntityEvent(e, 0, "TerrainHit");
                 return;
             }
             if (arrow.prevPos == ivec2(0)) // assume arrow.prevPos was not set before
@@ -45,6 +46,7 @@ class ArrowSystem : public EntitySystem
                     // enemy does not take this type of damage -> reflect arrow!
                     physics.velocity = normalize(physics.velocity) * arrow.launchVelocity * -.5f;
                     arrow.returnToSender = !arrow.returnToSender;
+                    room->emitEntityEvent(e, 0, "Reflected");
                     return;
                 }
 
@@ -55,6 +57,7 @@ class ArrowSystem : public EntitySystem
                 attack.sourcePosition = vec2(aabb.center) - physics.velocity;
                 healthOther.attacks.push_back(attack);
                 enemyHit = true;
+                room->emitEntityEvent(e, eOther, "EnemyHit");
             });
             if (enemyHit)
             {

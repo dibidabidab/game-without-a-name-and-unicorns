@@ -77,7 +77,8 @@ void BloodSplatterRenderer::updateSplatterTexture(float deltaTime)
         {
             drop.permanentDraw = true;
             physics.gravity = 0;
-            room->entities.assign<DespawnAfter>(e).time = mu::random(.3, 1);
+            if (!room->entities.has<DespawnAfter>(e))
+                room->entities.assign<DespawnAfter>(e).time = mu::random(.3, 1);
         }
 
         if (!drop.split || drop.timer < drop.splitAtTime || drop.splitAtTime == 0 || drop.permanentDraw)

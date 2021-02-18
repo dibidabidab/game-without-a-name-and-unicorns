@@ -19,6 +19,7 @@
 #include "../ecs/systems/graphics/SpriteSlicerSystem.h"
 #include "../ecs/systems/graphics/LightSystem.h"
 #include "../ecs/systems/physics/FluidsSystem.h"
+#include "../ecs/systems/SprinklerSystem.h"
 #include "../ecs/systems/TransRoomerSystem.h"
 #include "../ecs/systems/FireSystem.h"
 #include "../ecs/systems/combat/CombatSystem.h"
@@ -54,6 +55,7 @@ void TiledRoom::initialize(Level *lvl)
     addSystem(new RainbowSystem("rainbows"));
     addSystem(new PhysicsSystem("physics"));
     addSystem(new FluidsSystem("fluids"));
+    addSystem(new SprinklerSystem("sprinklers"));
     addSystem(new FireSystem("fire"));
     addSystem(new VerletPhysicsSystem("verlet physics"));
     addSystem(new WavesSystem("polyline waves"));

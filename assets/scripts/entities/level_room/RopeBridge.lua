@@ -186,7 +186,6 @@ function create(poleLeft, args)
 
                 persistent.data.rightPolePositionX = pos.x
                 persistent.data.rightPolePositionY = pos.y
-                print(pos)
             end
         end)
     end

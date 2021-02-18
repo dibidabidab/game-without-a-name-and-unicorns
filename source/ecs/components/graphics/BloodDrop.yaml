@@ -10,4 +10,4 @@ BloodDrop:
     splitAtTime: [float, 0]
     drawPermanentAfterTime: [float, 0]
 
-    permanentDraw: [bool, false]
+    permanentDraw: [bool, false]  # will be set to true after a while, only if permanentDrawOnTerrain is true
