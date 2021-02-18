@@ -18,7 +18,8 @@ function create(axo)
         },
         PlatformerMovement {
             walkVelocity = 40,
-            jumpVelocity = 100
+            jumpVelocity = 100,
+            swimVelocity = 700
         },
         PlatformerMovementInput(),
 

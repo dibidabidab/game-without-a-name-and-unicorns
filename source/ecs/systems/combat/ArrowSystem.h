@@ -46,6 +46,13 @@ class ArrowSystem : public EntitySystem
                     // enemy does not take this type of damage -> reflect arrow!
                     physics.velocity = normalize(physics.velocity) * arrow.launchVelocity * -.5f;
                     arrow.returnToSender = !arrow.returnToSender;
+                    {
+                        auto se = room->entities.create();
+                        room->entities.assign<DespawnAfter>(se).time = 1.5;
+                        auto &s = room->entities.assign<SoundSpeaker>(se);
+                        s.sound = asset<au::Sound>("sounds/arrow_block");
+                        s.pitch = mu::random(.7, 1.1);
+                    }
                     room->emitEntityEvent(e, 0, "Reflected");
                     return;
                 }
