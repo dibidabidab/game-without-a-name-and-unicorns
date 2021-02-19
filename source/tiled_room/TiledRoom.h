@@ -26,6 +26,8 @@ class TiledRoom : public Room
 
   public:
 
+    float updateTimeMultiplier = 1., timeUntilTimeMultiplierReset = 0.;
+
     std::list<TileMap> decorativeTileLayers;
 
     uint baseLightLevel = 0u;

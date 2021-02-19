@@ -73,6 +73,12 @@ void TiledRoom::initialize(Level *lvl)
 
 void TiledRoom::update(double deltaTime)
 {
+    timeUntilTimeMultiplierReset -= deltaTime;
+    if (timeUntilTimeMultiplierReset <= 0)
+        Interpolation::interpolate<float>(updateTimeMultiplier, 1., min(1., deltaTime * 10.), updateTimeMultiplier);
+
+    deltaTime *= updateTimeMultiplier;
+
     Room::update(deltaTime);
 
     tileMap->tileUpdatesPrevUpdate = tileMap->tileUpdatesSinceLastUpdate;
@@ -167,6 +173,15 @@ void TiledRoom::initializeLuaEnvironment()
     };
     luaEnvironment["roomWidth"] = getMap().width;
     luaEnvironment["roomHeight"] = getMap().height;
+
+    luaEnvironment["setUpdateTimeMultiplier"] = [&] (float m, float t) {
+        if (m < 0)
+            throw gu_err("Cannot set updateTimeMultiplier to something < 0");
+        updateTimeMultiplier = m;
+        timeUntilTimeMultiplierReset = t;
+    };
+
+    luaEnvironment["currentRoom"] = luaEnvironment;
 }
 
 vec3 TiledRoom::getPosition(entt::entity e) const

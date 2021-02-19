@@ -132,8 +132,20 @@ function create(player)
     )
     component.TransRoomable.getFor(player).archiveChildComponents = { bow = {"Bow"} } -- archive the Bow component of the bow child
 
+    onEntityEvent(player, "ArrowTemplateFromKilledEntity", function(killedEntity)
+
+        setUpdateTimeMultiplier(.5, .1)
+    end)
+
+    onEntityEvent(player, "LaunchedArrowReflected", function(killedEntity)
+
+        setUpdateTimeMultiplier(.4, .07)
+    end)
+
     onEntityEvent(player, "Attacked", function(attack)
         print("oof")
+
+        setUpdateTimeMultiplier(.5, .05)
     end)
     onEntityEvent(player, "Died", function (attack)
         component.TransRoomable.remove(player)
