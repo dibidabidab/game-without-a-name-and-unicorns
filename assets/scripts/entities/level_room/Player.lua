@@ -1,3 +1,6 @@
+
+local bloodSounds = include("scripts/entities/level_room/_blood_sounds")
+
 function create(player)
 
     setName(player, "Player")
@@ -142,6 +145,8 @@ function create(player)
         setUpdateTimeMultiplier(.4, .07)
     end)
 
+    bloodSounds.addTo(player)
+
     onEntityEvent(player, "Attacked", function(attack)
         print("oof")
 
@@ -149,6 +154,12 @@ function create(player)
 
         component.CameraShaking.getFor(player).intensity = 2
         setTimeout(player, .1, component.CameraShaking.remove)
+
+        component.SoundSpeaker.remove(player)
+        local ss = component.SoundSpeaker.getFor(player)
+        ss.sound = "sounds/ouch"
+        ss.pitch = math.random() * .4 + .6
+        ss.volume = .3
     end)
     onEntityEvent(player, "Died", function (attack)
         component.TransRoomable.remove(player)

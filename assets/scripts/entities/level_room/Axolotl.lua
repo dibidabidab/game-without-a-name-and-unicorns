@@ -1,4 +1,6 @@
 
+local bloodSounds = include("scripts/entities/level_room/_blood_sounds")
+
 persistenceMode(TEMPLATE | ARGS | SPAWN_POS | REVIVE)
 
 function create(axo)
@@ -111,6 +113,8 @@ function create(axo)
         color = colors.brick,
         ignoreSpriteFlipping = false
     })
+
+    bloodSounds.addTo(axo, true)
 
     onEntityEvent(axo, "Attacked", function(attack)
 

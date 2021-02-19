@@ -1,4 +1,6 @@
 
+local bloodSounds = include("scripts/entities/level_room/_blood_sounds")
+
 persistenceMode(TEMPLATE | ARGS | SPAWN_POS | REVIVE)
 
 defaultArgs({
@@ -71,6 +73,8 @@ function create(enemy, args)
             distance = args.triggerDistance
         }
     })
+
+    bloodSounds.addTo(enemy)
 
     local playersInRange = 0
     local attackMode = false
