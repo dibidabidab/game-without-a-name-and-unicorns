@@ -1,0 +1,6 @@
+
+CameraShaking:
+  intensity: [float, 5.]
+  maxDistanceFromCamera: [float, 16.*24.]
+  _cpp_only:
+    accumulator: float

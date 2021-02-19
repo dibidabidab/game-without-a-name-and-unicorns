@@ -11,6 +11,9 @@ class CameraMovement
     OrthographicCamera *cam;
     TiledRoom *room;
 
+    float timeSinceShaking = 0.;
+    vec2 maxShake = vec2(0);
+
   public:
 
     vec2 offsetAnim = vec2(0);
