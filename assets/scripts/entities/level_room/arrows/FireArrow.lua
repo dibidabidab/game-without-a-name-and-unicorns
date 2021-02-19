@@ -16,4 +16,11 @@ function create(arrow)
         }
     })
     component.Arrow.getFor(arrow).damageType = "fire"
+
+    onEntityEvent(arrow, "TerrainHit", function()
+
+        component.Fire.animate(arrow, "intensity", .0, 5., function()
+            component.Fire.remove(arrow)
+        end)
+    end)
 end

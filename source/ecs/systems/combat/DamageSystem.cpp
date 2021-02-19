@@ -4,9 +4,11 @@
 #include "../../../generated/Physics.hpp"
 #include "../../../generated/BloodDrop.hpp"
 #include "../../../generated/PaletteSetter.hpp"
+#include "../../../generated/CombatEffects.hpp"
 #include "../../../generated/Bow.hpp"
 #include "../../../generated/Health.hpp"
 #include <generated/PlayerControlled.hpp>
+#include <generated/Spawning.hpp>
 
 void DamageSystem::update(double deltaTime, EntityEngine *room)
 {
@@ -67,6 +69,13 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                 dropPhysics.velocity = vec2(mu::random(-250, 250), mu::random(-250, 250));
                 if (p)
                     dropPhysics.velocity += p->velocity * (mu::random() > .9 ? -.5f : 1.f);
+            }
+            if (aabb && health.showCombatEffects)
+            {
+                auto ee = room->entities.create();
+                room->entities.assign<DamageFlashEffect>(ee).radius = max(aabb->halfSize.x, aabb->halfSize.y);
+                room->entities.assign<AABB>(ee).center = aabb->center;
+                room->entities.assign<DespawnAfter>(ee).time = 3;
             }
 
             health.currHealth -= attack.points;

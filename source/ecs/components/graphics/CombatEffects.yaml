@@ -3,3 +3,7 @@ ArrowReflectedEffect:
   timer: float
   radius: uint8
   angle: float
+
+DamageFlashEffect:
+  timer: float
+  radius: uint8

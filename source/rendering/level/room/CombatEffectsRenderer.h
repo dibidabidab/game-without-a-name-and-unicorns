@@ -9,7 +9,7 @@
 class CombatEffectsRenderer
 {
 
-    ShaderAsset arrowReflectedShader;
+    ShaderAsset arrowReflectedShader, damageFlashShader;
 
   public:
 
