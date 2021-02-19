@@ -71,6 +71,7 @@ void RoomEditor::update(OrthographicCamera &cam, TiledRoom &room, DebugLineRende
         delete[] ptr;
 
         ImGui::SliderFloat("Z-index", &selectedLayerPtr->zIndex, 0, 100);//cam.position.z + -cam.far_, cam.position.z - cam.near_);
+        ImGui::TextColored(ImVec4(1, 0, .2, .8), "To enable blood splatter, Z-index should be > 90%%");
     }
 
     auto &map = *selectedLayerPtr;

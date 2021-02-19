@@ -1,0 +1,5 @@
+
+ArrowReflectedEffect:
+  timer: float
+  radius: uint8
+  angle: float

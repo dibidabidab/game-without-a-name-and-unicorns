@@ -21,6 +21,7 @@
 #include "TiledRoomEntityInspector.h"
 #include "ModelRenderer.h"
 #include "FireRenderer.h"
+#include "CombatEffectsRenderer.h"
 
 class RoomScreen : public Screen
 {
@@ -47,10 +48,10 @@ class RoomScreen : public Screen
     LightMapRenderer lightMapRenderer;
 
     SpriteRenderer spriteRenderer;
-
     PolylineRenderer polylineRenderer;
     FluidRenderer fluidRenderer;
     FireRenderer fireRenderer;
+    CombatEffectsRenderer combatEffects;
 
     ModelRenderer modelRenderer;
 

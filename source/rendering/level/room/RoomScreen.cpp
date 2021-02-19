@@ -113,6 +113,7 @@ void RoomScreen::render(double deltaTime)
         hacky3dModelFbo->bind();
 
         modelRenderer.render(room->entities, cam);
+        combatEffects.render(cam, room->entities, deltaTime);
 
         hacky3dModelFbo->unbind();
 

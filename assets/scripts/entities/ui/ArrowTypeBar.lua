@@ -111,4 +111,17 @@ function create(bar, args)
             textView.text = textView.text:sub(1, #textView.text - 1)
         end)
     end)
+
+    args.entityRoom.onEntityEvent(args.archer, "LaunchedArrowReflected", function()
+
+        local textView = component.TextView.getFor(text)
+
+        -- loop through a few colors:
+        textView.mapColorTo = colors.rainbow_red
+        component.TextView.animate(text, "mapColorTo", colors.brick, .3, "linear", function()
+
+            local textView = component.TextView.getFor(text)
+            textView.mapColorTo = textView.mapColorFrom
+        end)
+    end)
 end

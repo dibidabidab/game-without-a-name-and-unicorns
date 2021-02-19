@@ -9,6 +9,7 @@
 #include <generated/SoundSpeaker.hpp>
 #include "../../../generated/Arrow.hpp"
 #include "../../components/component_methods.h"
+#include "../../../generated/CombatEffects.hpp"
 
 class ArrowSystem : public EntitySystem
 {
@@ -54,6 +55,17 @@ class ArrowSystem : public EntitySystem
                         s.pitch = mu::random(.7, 1.1);
                     }
                     room->emitEntityEvent(e, 0, "Reflected");
+                    if (room->entities.valid(arrow.launchedBy))
+                        room->emitEntityEvent(arrow.launchedBy, 0, "LaunchedArrowReflected");
+                    if (healthOther.showCombatEffects)
+                    {
+                        auto ee = room->entities.create();
+                        auto &effect = room->entities.assign<ArrowReflectedEffect>(ee);
+                        effect.radius = max(aabbOther.halfSize.x, aabbOther.halfSize.y);
+                        effect.angle = atan2(physics.velocity.y, physics.velocity.x);
+                        room->entities.assign<AABB>(ee).center = aabbOther.center;
+                        room->entities.assign<DespawnAfter>(ee).time = 3;
+                    }
                     return;
                 }
 

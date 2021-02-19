@@ -37,6 +37,8 @@ Health:
 
   givePlayerArrowOnKill: string
 
+  showCombatEffects: [ bool, true ]
+
   _methods:
     - bool doesTakeDamageType(const std::string& damageType) const
 
