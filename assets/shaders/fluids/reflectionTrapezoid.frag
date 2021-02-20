@@ -3,7 +3,7 @@ precision lowp usampler2D;
 
 layout(location = 0) out uint reflectionColor;
 
-flat in uint colorIndex;
+flat in int colorIndex_;
 in vec2 projectedCoords;
 in vec2 reflectedWorldCoords;
 in vec2 worldCoords;
@@ -15,7 +15,11 @@ uniform float time;
 
 void main()
 {
+    if (colorIndex_ < 0)
+        discard;
+
     uint indexedColor = texture(indexedImage, projectedCoords).r;
+    uint colorIndex = uint(colorIndex_);
 
     if (indexedColor != colorIndex)
         discard;

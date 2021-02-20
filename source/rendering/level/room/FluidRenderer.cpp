@@ -54,7 +54,7 @@ void FluidRenderer::render(entt::registry &reg, const Camera &cam)
             short rightX = (++it)->x + aabb.center.x;
             float topRightY = it->y + aabb.center.y;
 
-            segments.set<short>(fluid.color, nrOfSegments, 0);
+            segments.set<short>(fluid.reflective ? fluid.color : -fluid.color, nrOfSegments, 0);
             segments.set<short>(bottomY, nrOfSegments, 2);
             segments.set<short>(leftX, nrOfSegments, 4);
             segments.set<short>(rightX, nrOfSegments, 6);

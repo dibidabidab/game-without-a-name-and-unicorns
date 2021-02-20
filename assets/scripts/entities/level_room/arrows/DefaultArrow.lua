@@ -13,7 +13,7 @@ function create(arrow)
         AsepriteView {
             sprite = "sprites/arrow"
         },
-        TransRoomable {
+        TransRoomable { -- todo: doesnt work anymore
             templateName = "" -- do not create a new Arrow, just let this one disappear.
         },
 

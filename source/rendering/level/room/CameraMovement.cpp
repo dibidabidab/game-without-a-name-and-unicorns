@@ -57,8 +57,8 @@ void CameraMovement::update(double deltaTime)
         shakeOffset.x += mu::random(-intensity, intensity);
         shakeOffset.y += mu::random(-intensity, intensity);
     });
-    maxShake.x = max(maxShake.x, abs(shakeOffset.x) * 30.f);
-    maxShake.y = max(maxShake.y, abs(shakeOffset.y) * 30.f);
+    maxShake.x = max(maxShake.x, abs(shakeOffset.x) * 20.f);
+    maxShake.y = max(maxShake.y, abs(shakeOffset.y) * 20.f);
 
     room->entities.view<LocalPlayer, AABB>().each([&](auto, AABB &aabb) {
         target = aabb.center;

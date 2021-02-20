@@ -25,5 +25,4 @@ PolylineWaves:
   impactMultiplier: [float, 1]
   moveByWind: [float, 0]
 
-  _cpp_only:
-    springs: std::vector<Spring>
+  springs: std::vector<Spring>

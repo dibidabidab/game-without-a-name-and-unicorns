@@ -1,11 +1,11 @@
 layout(location = 0) out uint indexedColor;
 
-flat in uint colorIndex;
+flat in int colorIndex;
 
 void main()
 {
-    if (colorIndex == 0u) // transparent
+    if (colorIndex == 0) // transparent
         discard;
 
-    indexedColor = colorIndex;
+    indexedColor = uint(abs(colorIndex));
 }

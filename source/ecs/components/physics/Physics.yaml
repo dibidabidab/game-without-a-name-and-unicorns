@@ -94,6 +94,7 @@ Fluid:
   splatterVelocity: [float, 1]
 
   color: [uint8, 0u]
+  reflective: [bool, true]
 
   enterSound: asset<au::Sound>
   leaveSound: asset<au::Sound>

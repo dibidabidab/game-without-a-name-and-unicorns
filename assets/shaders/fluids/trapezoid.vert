@@ -10,11 +10,11 @@ layout(location = 6) in float topRightY;
 
 uniform mat4 projection;
 
-flat out uint colorIndex;
+flat out int colorIndex;
 
 void main()
 {
-    colorIndex = uint(color);
+    colorIndex = color;
     vec3 pos = vec3(0, 0, -512);
 
     if (pointIndex == 0 || pointIndex == 1)
