@@ -55,7 +55,12 @@ function create(lava, args)
             spread = 10,
             dampening = 5,
             stiffness = 520,
-        }
+        },
+        SoundSpeaker {
+            sound = "sounds/lava_pool",
+            looping = true
+        },
+        PositionedAudio()
     })
 
     setUpdateFunction(lava, 70. / args.width, function()
