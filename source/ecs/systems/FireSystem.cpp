@@ -3,6 +3,7 @@
 #include "FireSystem.h"
 #include "../../generated/Fire.hpp"
 #include "../../generated/Physics.hpp"
+#include "../../generated/Audio.hpp"
 #include <generated/Spawning.hpp>
 #include <generated/SoundSpeaker.hpp>
 
@@ -22,6 +23,7 @@ void FireSystem::update(double deltaTime, EntityEngine *engine)
                 if (sound)
                 {
                     SoundSpeaker &sound = engine->entities.assign_or_replace<SoundSpeaker>(particle);
+                    engine->entities.assign<PositionedAudio>(particle);
                     sound.sound.set("sounds/fire/fire0");
     //                sound.volume = .6; set in update loop below
                     sound.pitch = mu::random(.5, 1.5);

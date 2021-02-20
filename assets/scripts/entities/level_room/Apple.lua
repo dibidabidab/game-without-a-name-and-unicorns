@@ -30,7 +30,8 @@ function create(apple)
                 sound = "sounds/apple_hit",
                 pitch = math.random() + .9,
                 volume = 1. + math.random()
-            }
+            },
+            PositionedAudio()
         })
     end)
 end

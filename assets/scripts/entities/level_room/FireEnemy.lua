@@ -138,6 +138,7 @@ function create(enemy, args)
             sound.sound = "sounds/fire/lit"
             sound.volume  = .2
             sound.pitch = .7
+            component.PositionedAudio.getFor(enemy)
 
             local dirI = 0
             local rotateFunc = nil

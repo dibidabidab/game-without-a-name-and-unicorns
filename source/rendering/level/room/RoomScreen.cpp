@@ -65,6 +65,7 @@ void RoomScreen::render(double deltaTime)
     }
 
     camMovement.update(deltaTime);
+    room->cameraPosition = cam.position;
     room->cursorPosition = cam.getCursorRayDirection() + cam.position;
 
     {

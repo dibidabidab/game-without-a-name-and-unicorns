@@ -45,7 +45,8 @@ function create(player)
         TransRoomable {
             templateName = TEMPLATE_NAME,
             archiveComponents = {"Health", "PaletteSetter", "Physics"}
-        }
+        },
+        PositionedAudio()
     })
     local spawnPoint = getByName("Spawnpoint")
     if spawnPoint ~= nil then

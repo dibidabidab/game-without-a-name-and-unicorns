@@ -14,6 +14,7 @@
 #include "../../generated/Aiming.hpp"
 #include "../../generated/PlatformerMovement.hpp"
 #include "../../game/Game.h"
+#include "../../generated/Audio.hpp"
 
 /**
  * Responsible for:
@@ -139,7 +140,7 @@ class PlatformerMovementSystem : public EntitySystem
                 if (physics.prevVelocity.y < -160)
                     spawnDustTrail(aabb.bottomCenter(), "land");
                 if (physics.prevVelocity.y < -50)
-                    spawnLandingSpeaker(physics.prevVelocity.y);
+                    spawnLandingSpeaker(physics.prevVelocity.y, aabb.center);
             }
         });
     }
@@ -159,11 +160,13 @@ class PlatformerMovementSystem : public EntitySystem
         room->entities.assign<DespawnAfter>(e).time = duration;
     }
 
-    void spawnLandingSpeaker(float velocity)
+    void spawnLandingSpeaker(float velocity, ivec2 pos)
     {
         entt::entity e = room->entities.create();
 
         auto &s = room->entities.assign<SoundSpeaker>(e);
+        room->entities.assign<PositionedAudio>(e);
+        room->entities.assign<AABB>(e).center = pos;
         s.sound = asset<au::Sound>("sounds/landing");
         s.pitch = 2.f - std::min(1.f, std::max(0.f, velocity * -.0025f));
 

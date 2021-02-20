@@ -29,6 +29,7 @@ class ArrowSystem : public EntitySystem
                 s.sound = asset<au::Sound>("sounds/arrow_hit");
                 s.pitch = mu::random(.8, 1.2);
                 s.volume = .18;
+                room->entities.assign_or_replace<PositionedAudio>(e);
                 room->emitEntityEvent(e, 0, "TerrainHit");
                 return;
             }
@@ -50,9 +51,11 @@ class ArrowSystem : public EntitySystem
                     {
                         auto se = room->entities.create();
                         room->entities.assign<DespawnAfter>(se).time = 1.5;
+                        room->entities.assign<AABB>(se).center = aabb.center;
                         auto &s = room->entities.assign<SoundSpeaker>(se);
                         s.sound = asset<au::Sound>("sounds/arrow_block");
                         s.pitch = mu::random(.7, 1.1);
+                        room->entities.assign<PositionedAudio>(e);
                     }
                     room->emitEntityEvent(e, 0, "Reflected");
                     if (room->entities.valid(arrow.launchedBy))

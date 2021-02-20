@@ -83,6 +83,8 @@ void BowWeaponSystem::update(double deltaTime, EntityEngine *room)
             auto &s = room->entities.assign<SoundSpeaker>(soundEntity);
             s.sound = asset<au::Sound>("sounds/arrow_shoot");
             s.pitch = 2.5 + mu::random(.7);
+            room->entities.assign<PositionedAudio>(soundEntity);
+            room->entities.assign<AABB>(soundEntity).center = aabb.center;
             room->entities.assign<DespawnAfter>(soundEntity).time = 1;
 
             room->emitEntityEvent(arrowEntity, angle * mu::RAD_TO_DEGREES, "Launched");

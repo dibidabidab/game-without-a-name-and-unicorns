@@ -7,6 +7,12 @@ function addTo(entity, shortSounds)
 
         local ss = component.SoundSpeaker.getFor(se)
 
+        local aabb = component.AABB.tryGetFor(entity)
+        if aabb ~= nil then
+            component.PositionedAudio.getFor(se)
+            component.AABB.getFor(se).center = aabb.center
+        end
+
         local sounds = {}
 
         if component.Health.getFor(entity).currHealth == 0 then

@@ -24,6 +24,7 @@
 #include "../ecs/systems/FireSystem.h"
 #include "../ecs/systems/combat/CombatSystem.h"
 #include "../generated/ModelView.hpp"
+#include "../ecs/systems/PositionedAudioSystem.h"
 
 TiledRoom::TiledRoom(ivec2 size)
 {
@@ -67,6 +68,7 @@ void TiledRoom::initialize(Level *lvl)
     addSystem(new LightSystem("lights"));
     addSystem(new LimbJointSystem("knee/elbow joints"));
     addSystem(new CombatSystem("combat system"));
+    addSystem(new PositionedAudioSystem("positioned audio"));
 
     Room::initialize(lvl);
 }

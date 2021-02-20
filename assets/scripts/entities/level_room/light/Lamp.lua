@@ -45,6 +45,6 @@ function create(rope)
             sound = "sounds/glass_break",
             pitch = math.random() * .6 + .7,
             volume = math.random() * .3 + .5
-        })
+        }, PositionedAudio())
     end)
 end

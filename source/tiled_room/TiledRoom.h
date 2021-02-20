@@ -33,6 +33,8 @@ class TiledRoom : public Room
     uint baseLightLevel = 0u;
     uvec2 positionInLevel = uvec2(0);
 
+    vec2 cameraPosition = vec2(0);
+
     TiledRoom() = default;
 
     TiledRoom(ivec2 size);

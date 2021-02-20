@@ -3,6 +3,7 @@
 #include "../../../generated/BloodDrop.hpp"
 #include "../../../generated/AsepriteView.hpp"
 #include "../../components/component_methods.h"
+#include "../PlatformerMovementSystem.h"
 #include <generated/SoundSpeaker.hpp>
 #include <generated/Spawning.hpp>
 #include <ecs/EntityEngine.h>
@@ -89,6 +90,8 @@ void FluidsSystem::spawnFluidSplash(const asset<au::Sound> &sound, const Fluid &
         s.sound = sound;
         s.volume = min<float>(1., absYVel / 200) * sizeMultiplier;
         s.pitch = max<float>(.8, 2. - (absYVel / 200)) + mu::random(-.3, .3) ;
+        room->entities.assign<PositionedAudio>(speakerEntity);
+        room->entities.assign<AABB>(speakerEntity).center = otherAABB.center;
         room->entities.assign<DespawnAfter>(speakerEntity).time = 4;
     }
 
