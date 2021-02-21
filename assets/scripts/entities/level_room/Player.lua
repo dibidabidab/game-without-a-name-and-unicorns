@@ -72,8 +72,9 @@ function create(player)
     end
 
     -- HEAD:
+    local head = createChild(player, "head")
     applyTemplate(
-        createChild(player, "head"),
+        head,
         "Head",
         {
             body = player,
@@ -149,8 +150,6 @@ function create(player)
     bloodSounds.addTo(player)
 
     onEntityEvent(player, "Attacked", function(attack)
-        print("oof")
-
         setUpdateTimeMultiplier(.5, .05)
 
         component.CameraShaking.getFor(player).intensity = 2
@@ -164,9 +163,34 @@ function create(player)
     end)
     onEntityEvent(player, "Died", function (attack)
         component.TransRoomable.remove(player)
+
+        -- BOW:
+        local fakeBow = createEntity()
+        setComponents(fakeBow, {
+            component.AABB.getFor(bow),
+            component.AsepriteView.getFor(bow),
+            Physics {
+                velocity = vec2(math.random(-1000, 1000), 700)
+            },
+            DespawnAfter {
+                time = 10.
+            }
+        })
         destroyEntity(bow)
         component.Arm.getFor(leftArm).grab = nil
         component.Arm.getFor(rightArm).grab = nil
+
+        -- HEAD:
+        component.Child.remove(head)
+        component.SpriteAnchor.remove(head)
+        component.Head.remove(head)
+        component.Physics.getFor(head).velocity = vec2(math.random(-500, 500), 900)
+        component.DespawnAfter.getFor(head).time = 60.
+        component.PlayerControlled.getFor(head) -- a hack to keep the room alive.
+
+        -- BODY:
+        component.SliceSpriteIntoPieces.getFor(player).steps = 4
+        component.DespawnAfter.getFor(player).time = .1
     end)
 
     local hud_arrowTypeBar = nil
