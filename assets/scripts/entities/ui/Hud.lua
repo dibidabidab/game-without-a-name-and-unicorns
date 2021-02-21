@@ -1,6 +1,8 @@
 
 function create(hud)
 
+    setName(hud, "hud_border")
+
     setComponents(hud, {
         UIElement {
             absolutePositioning = true

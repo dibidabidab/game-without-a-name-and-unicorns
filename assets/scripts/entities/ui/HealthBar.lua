@@ -8,6 +8,8 @@ defaultArgs({
 
 function create(hpBar, args)
 
+    setName(hpBar, "hp_bar")
+
     local NR_OF_HEARTS = 7
     local HEART_WIDTH = 8
 

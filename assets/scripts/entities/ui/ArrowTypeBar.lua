@@ -9,6 +9,8 @@ defaultArgs({
 
 function create(bar, args)
 
+    setName(bar, "arrow_type_bar")
+
     setComponents(bar, {
         UIElement {
             absolutePositioning = true,
@@ -20,8 +22,18 @@ function create(bar, args)
             fixedHeight = 27,
             fixedWidth = 32,
             autoWidth = true
-        }
+        },
+        UIMouseEvents()
     })
+
+    onEntityEvent(bar, "Hover", function()
+        print("hoi!")
+        component.UIContainer.getFor(bar).fixedHeight = 40
+    end)
+    onEntityEvent(bar, "HoverLeave", function()
+        print("doei!")
+        component.UIContainer.getFor(bar).fixedHeight = 27
+    end)
 
     local bowComponent = args.entityRoom.component.Bow.getFor(args.bow)
 

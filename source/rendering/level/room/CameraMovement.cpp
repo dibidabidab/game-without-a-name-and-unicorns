@@ -64,8 +64,16 @@ void CameraMovement::update(double deltaTime)
         target = aabb.center;
     });
 
-    move(deltaTime, cam->position.x, target.x);
-    move(deltaTime, cam->position.y, target.y);
+    if (!firstUpdate)
+    {
+        move(deltaTime, cam->position.x, target.x);
+        move(deltaTime, cam->position.y, target.y);
+    }
+    else
+    {
+        cam->position.x = target.x;
+        cam->position.y = target.y;
+    }
 
     limit(cam->position.x, cam->viewportWidth, room->getMap().width * TileMap::PIXELS_PER_TILE, PADDING_X + maxShake.x);
     limit(cam->position.y, cam->viewportHeight, room->getMap().height * TileMap::PIXELS_PER_TILE, PADDING_Y + maxShake.y);
@@ -104,4 +112,5 @@ void CameraMovement::update(double deltaTime)
     }
 
     cam->update();
+    firstUpdate = false;
 }

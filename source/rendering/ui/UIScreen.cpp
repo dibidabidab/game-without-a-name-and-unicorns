@@ -42,6 +42,8 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     inspector.createEntity_persistentOption = false;
 }
 
+std::vector<entt::entity> hoveredContainers, hoverLeftContainers;
+
 void UIScreen::render(double deltaTime)
 {
     assert(indexedFbo != NULL);
@@ -107,6 +109,31 @@ void UIScreen::render(double deltaTime)
     }
 
     renderDebugStuff();
+
+    float maxZIndex = -999999999.f;
+
+    for (auto e : hoveredContainers)
+        if (UIContainer *cont = entities.try_get<UIContainer>(e))
+            maxZIndex = max(cont->zIndex, maxZIndex);
+
+    for (auto e : hoveredContainers) if (UIContainer *cont = entities.try_get<UIContainer>(e))
+    {
+        emitEntityEvent(e, cont->zIndex == maxZIndex, "Hover");
+        if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT))
+            emitEntityEvent(e, cont->zIndex == maxZIndex, "Click");
+        if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_LEFT))
+            emitEntityEvent(e, cont->zIndex == maxZIndex, "ClickReleased");
+        if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_RIGHT))
+            emitEntityEvent(e, cont->zIndex == maxZIndex, "RightClick");
+        if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_RIGHT))
+            emitEntityEvent(e, cont->zIndex == maxZIndex, "RightClickReleased");
+    }
+
+    for (auto e : hoverLeftContainers)
+        emitEntityEvent(e, 0, "HoverLeave");
+
+    hoverLeftContainers.clear();
+    hoveredContainers.clear();
 }
 
 void UIScreen::onResize()
@@ -258,6 +285,22 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
 
     if (cont.nineSlice)
         nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(outerTopLeft, cont.zIndex), size);
+
+    if (UIMouseEvents *me = entities.try_get<UIMouseEvents>(e))
+    {
+        bool prevHovered = me->isHovered;
+
+        int mouseX = MouseInput::mouseX / Game::settings.graphics.pixelScaling - cam.viewportWidth * .5;
+        int mouseY = cam.viewportHeight - MouseInput::mouseY / Game::settings.graphics.pixelScaling - cam.viewportHeight * .5;
+        ivec2 mousePos = ivec2(mouseX, mouseY);
+
+        me->isHovered = mouseX >= outerTopLeft.x && mouseX <= outerTopLeft.x + size.x && mouseY >= outerTopLeft.y - size.y && mouseY <= outerTopLeft.y;
+
+        if (me->isHovered)
+            hoveredContainers.push_back(e);
+        if (prevHovered && !me->isHovered)
+            hoverLeftContainers.push_back(e);
+    }
 
     parentCont.textCursor.x += size.x + el.margin.x * 2;
     parentCont.resizeLineHeight(size.y + el.margin.y * 2);

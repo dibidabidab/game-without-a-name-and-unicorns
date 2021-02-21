@@ -14,6 +14,8 @@ class CameraMovement
     float timeSinceShaking = 0.;
     vec2 maxShake = vec2(0);
 
+    bool firstUpdate = true;
+
   public:
 
     vec2 offsetAnim = vec2(0);

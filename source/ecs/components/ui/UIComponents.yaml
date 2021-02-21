@@ -90,6 +90,10 @@ UIContainer:
       }
 
 
+UIMouseEvents:
+  _cpp_only:
+    isHovered: bool
+
 UIElement:
   margin: [ivec2, ivec2(0)]
   startOnNewLine: [bool, false]
