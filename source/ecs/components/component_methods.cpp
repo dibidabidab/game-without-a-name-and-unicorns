@@ -25,7 +25,7 @@ void Leg::stopMoving()
 
 bool Health::doesTakeDamageType(const std::string &damageType) const
 {
-    return takesDamageFrom.find(damageType) != takesDamageFrom.end();
+    return takesAnyDamage || takesDamageFrom.find(damageType) != takesDamageFrom.end();
 }
 
 

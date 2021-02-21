@@ -16,8 +16,8 @@ GIMP Palette
  81 255 112	rainbow_green
  77 179 255	rainbow_blue
 253 132 255	rainbow_pink
-255  39 109	fire0
-255 135 189	fire1
+255  38  38	fire0
+255 185   0	fire1
 110  30 255	water0
  30 171 255	water1
  69 214  95	wood

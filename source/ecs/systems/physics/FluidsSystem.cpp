@@ -4,6 +4,7 @@
 #include "../../../generated/AsepriteView.hpp"
 #include "../../components/component_methods.h"
 #include "../PlatformerMovementSystem.h"
+#include "../../../generated/Health.hpp"
 #include <generated/SoundSpeaker.hpp>
 #include <generated/Spawning.hpp>
 #include <ecs/EntityEngine.h>
@@ -68,6 +69,22 @@ void FluidsSystem::update(double deltaTime, EntityEngine *room)
                         room->entities.assign<FluidBubbleParticle>(bubbleE).timeAlive = mu::random(.2, .5);
                     }
                 }
+            }
+
+            if (fluid.damagePoints == 0)
+                return;
+
+            for (auto e : entities)
+            {
+                Health *health = room->entities.try_get<Health>(e);
+                if (!health || health->immunityTimer > 0 || !health->doesTakeDamageType(fluid.damageType))
+                    continue;
+
+                auto &attack = health->attacks.emplace_back();
+                attack.dealtBy = fluidE;
+                attack.type = fluid.damageType;
+                attack.points = fluid.damagePoints;
+                attack.knockBackMultiplier = 0.;
             }
         };
         updateEntitiesInFluid(fluid.entitiesInFluid);

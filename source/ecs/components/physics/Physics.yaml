@@ -102,6 +102,8 @@ Fluid:
   bubbleSprite: asset<aseprite::Sprite>
   bubblesAmount: [float, 1]
 
+  damageType: [string, "hit"]
+  damagePoints: [int, 0]
 
   _cpp_only:
     entitiesInFluid: std::vector<entt::entity>

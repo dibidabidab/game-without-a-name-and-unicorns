@@ -28,6 +28,7 @@ Health:
   maxHealth: [ uint16, 20 ]
 
   takesDamageFrom: std::set<std::string>
+  takesAnyDamage: bool
   attacks: std::list<Damage>
 
   immunityTimer: [ float, 0 ]

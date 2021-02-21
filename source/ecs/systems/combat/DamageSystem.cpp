@@ -39,7 +39,7 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
             Physics *p = room->entities.try_get<Physics>(e);
             AABB *aabb = room->entities.try_get<AABB>(e);
 
-            if (damageType.knockback != 0 && health.knockBackResistance != 1)
+            if (damageType.knockback != 0 && health.knockBackResistance != 1 && attack.knockBackMultiplier != 0)
             {
                 if (p && aabb)
                 {
@@ -78,7 +78,7 @@ void DamageSystem::update(double deltaTime, EntityEngine *room)
                 room->entities.assign<DespawnAfter>(ee).time = 3;
             }
 
-            health.currHealth -= attack.points;
+            health.currHealth -= min<int>(attack.points, health.currHealth); // min() to prevent under/overflow.
             health.immunityTimer += damageType.immunity;
 
             if (health.currHealth <= 0)

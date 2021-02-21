@@ -47,7 +47,10 @@ function create(lava, args)
             splatterVelocity = 1.,
 
             bubbleSprite = "sprites/lava_bubble",
-            bubblesAmount = 4.
+            bubblesAmount = 4.,
+
+            damagePoints = 4,
+            damageType = "fire"
         },
         PolylineWaves {
             moveByWind = .5,
@@ -58,7 +61,8 @@ function create(lava, args)
         },
         SoundSpeaker {
             sound = "sounds/lava_pool",
-            looping = true
+            looping = true,
+            pauseOnLeavingRoom = true
         },
         PositionedAudio()
     })

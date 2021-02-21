@@ -22,6 +22,6 @@ void PositionedAudioSystem::update(double deltaTime, EntityEngine *engine)
 
         diff *= posAud.positionMultiplier;
 
-        speaker.source->setPosition(vec3(diff, .5));
+        speaker.source->setPosition(vec3(diff, .3));
     });
 }

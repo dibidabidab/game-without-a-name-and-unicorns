@@ -12,7 +12,7 @@ function create(apple)
             sprite = "sprites/apple"
         },
         Health {
-            takesDamageFrom = {"hit"},
+            takesAnyDamage = true,
             currHealth = 1,
             maxHealth = 1,
             bloodColor = 0
