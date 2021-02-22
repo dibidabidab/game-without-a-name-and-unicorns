@@ -36,7 +36,7 @@ void NineSliceRenderer::render(const Camera &cam)
     instancedData.vertices.clear();
 }
 
-void NineSliceRenderer::add(const aseprite::Sprite &sprite, const i16vec3 &position, const ivec2 &size)
+void NineSliceRenderer::add(const aseprite::Sprite &sprite, const i16vec3 &position, const ivec2 &size, uint16 frame)
 {
     auto &slice = sprite.getSliceByName("9slice", 0);
 
@@ -45,7 +45,12 @@ void NineSliceRenderer::add(const aseprite::Sprite &sprite, const i16vec3 &posit
 
     auto &nineSlice = slice.nineSlice.value();
 
-    u16vec2 offset = Game::spriteSheet.spriteInfo(sprite).frameOffsets.at(0);
+    auto &frameOffsets = Game::spriteSheet.spriteInfo(sprite).frameOffsets;
+
+    if (frame >= frameOffsets.size())
+        throw gu_err("Frame #" + std::to_string(frame) + " not available for sprite " + sprite.name);
+
+    u16vec2 offset = frameOffsets.at(frame);
     offset.x += slice.originX;
     offset.y += sprite.height - (slice.originY + slice.height);
 

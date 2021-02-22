@@ -16,4 +16,6 @@ function fastStartup()
 
     levelPath = startupArgs["--level"] or "assets/levels/default_level.lvl"
     loadOrCreateLevel(levelPath)
+
+    applyTemplate(createEntity(), "Hud")
 end

@@ -19,7 +19,7 @@ class NineSliceRenderer
   public:
     NineSliceRenderer();
 
-    void add(const aseprite::Sprite &, const i16vec3 &position, const ivec2 &size);
+    void add(const aseprite::Sprite &, const i16vec3 &position, const ivec2 &size, uint16 frame);
 
     void render(const Camera &);
 

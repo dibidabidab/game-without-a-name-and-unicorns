@@ -197,10 +197,9 @@ function create(player)
             saveGame.timesDied = 1
         end
 
-        setTimeout(player, .1, function()
+        setTimeout(player, .1, destroyEntity)
 
-            destroyEntity(player)
-
+        setTimeout(head, 1., function()
             if hudScreen ~= nil then
                 hudScreen.applyTemplate(hudScreen.createEntity(), "YouDiedMessage", {
                     entityRoom = currentEngine,

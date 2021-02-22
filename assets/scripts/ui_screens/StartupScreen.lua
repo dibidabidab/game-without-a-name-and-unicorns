@@ -11,5 +11,3 @@ end)
 
 fastStartup.fastStartup()
 
---applyTemplate(createEntity(), "TestUIWidget")
-applyTemplate(createEntity(), "Hud")

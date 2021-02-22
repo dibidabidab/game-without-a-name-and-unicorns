@@ -34,8 +34,7 @@ function create(mess)
 
         if saveGame.timesDied > 1 then
 
-            local nice = createChild(mess)
-            setName(nice, "counter")
+            local nice = createChild(mess, "counter")
             setComponents(nice, {
                 UIElement {
                     startOnNewLine = true,
@@ -73,6 +72,8 @@ function create(mess)
                 color = colors.brick
             })
         end
+
+        hudScreen.showRetryButton()
     end)
 
 end

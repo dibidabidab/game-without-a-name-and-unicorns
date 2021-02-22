@@ -5,6 +5,7 @@ config:
 
 UIContainer:
   nineSliceSprite: asset<aseprite::Sprite>
+  spriteFrame: uint16
   autoWidth: [bool, false]
   autoHeight: [bool, false]
   fixedWidth: [int, 128]

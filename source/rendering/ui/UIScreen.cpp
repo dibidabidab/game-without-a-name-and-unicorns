@@ -286,7 +286,7 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
         size.x += cont.maxX - originalMaxX;
 
     if (cont.nineSlice)
-        nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(outerTopLeft, cont.zIndex), size);
+        nineSliceRenderer.add(cont.nineSliceSprite.get(), ivec3(outerTopLeft, cont.zIndex), size, cont.spriteFrame);
 
     if (UIMouseEvents *me = entities.try_get<UIMouseEvents>(e))
     {
