@@ -18,6 +18,8 @@ in vec2 v_coords;
 *   WARNING: I wrote this while I was extremely tired.
 *   yes, that is a very bad excuse for this horrible code.
 *
+*   UPDATE: yeah i found a bug when the 9slice in aseprite is not in center. // todo
+*
 **/
 
 void main()

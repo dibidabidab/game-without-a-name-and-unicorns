@@ -190,7 +190,24 @@ function create(player)
 
         -- BODY:
         component.SliceSpriteIntoPieces.getFor(player).steps = 4
-        component.DespawnAfter.getFor(player).time = .1
+
+        if saveGame.timesDied ~= nil then
+            saveGame.timesDied = saveGame.timesDied + 1
+        else
+            saveGame.timesDied = 1
+        end
+
+        setTimeout(player, .1, function()
+
+            destroyEntity(player)
+
+            if hudScreen ~= nil then
+                hudScreen.applyTemplate(hudScreen.createEntity(), "YouDiedMessage", {
+                    entityRoom = currentEngine,
+                    entity = player
+                })
+            end
+        end)
     end)
 
     local hud_arrowTypeBar = nil

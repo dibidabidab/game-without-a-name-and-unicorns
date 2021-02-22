@@ -93,6 +93,7 @@ UIContainer:
 UIMouseEvents:
   _cpp_only:
     isHovered: bool
+    wasHovered: bool
 
 UIElement:
   margin: [ivec2, ivec2(0)]

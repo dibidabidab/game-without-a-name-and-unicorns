@@ -118,7 +118,9 @@ void UIScreen::render(double deltaTime)
 
     for (auto e : hoveredContainers) if (UIContainer *cont = entities.try_get<UIContainer>(e))
     {
-        emitEntityEvent(e, cont->zIndex == maxZIndex, "Hover");
+        if (UIMouseEvents *me = entities.try_get<UIMouseEvents>(e))
+            if (!me->wasHovered)
+                emitEntityEvent(e, cont->zIndex == maxZIndex, "Hover");
         if (MouseInput::justPressed(GLFW_MOUSE_BUTTON_LEFT))
             emitEntityEvent(e, cont->zIndex == maxZIndex, "Click");
         if (MouseInput::justReleased(GLFW_MOUSE_BUTTON_LEFT))
@@ -288,7 +290,7 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
 
     if (UIMouseEvents *me = entities.try_get<UIMouseEvents>(e))
     {
-        bool prevHovered = me->isHovered;
+        me->wasHovered = me->isHovered;
 
         int mouseX = MouseInput::mouseX / Game::settings.graphics.pixelScaling - cam.viewportWidth * .5;
         int mouseY = cam.viewportHeight - MouseInput::mouseY / Game::settings.graphics.pixelScaling - cam.viewportHeight * .5;
@@ -298,7 +300,7 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
 
         if (me->isHovered)
             hoveredContainers.push_back(e);
-        if (prevHovered && !me->isHovered)
+        if (me->wasHovered && !me->isHovered)
             hoverLeftContainers.push_back(e);
     }
 
