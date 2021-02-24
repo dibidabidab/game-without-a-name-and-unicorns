@@ -28,6 +28,10 @@ class UIScreen : public EntityEngine, public Screen
     FrameBuffer *indexedFbo = NULL;
     ShaderAsset applyPaletteUIShader;
 
+    bool initialized = false;
+
+    bool renderingOrUpdating = false;
+
   public:
 
     UIScreen(const asset<luau::Script> &);
@@ -37,6 +41,8 @@ class UIScreen : public EntityEngine, public Screen
     void onResize() override;
 
     void renderDebugStuff();
+
+    bool isRenderingOrUpdating() const { return renderingOrUpdating; }
 
   private:
     void renderUIContainer(entt::entity, UIElement &, UIContainer &, UIContainer &parent, double deltaTime);

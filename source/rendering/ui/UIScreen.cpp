@@ -25,16 +25,6 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     initialize();
     UIScreen::onResize();
 
-    try
-    {
-        luau::getLuaState().unsafe_script(script->getByteCode().as_string_view(), luaEnvironment);
-    }
-    catch (std::exception &e)
-    {
-        std::cerr << "Error while running UIScreen script " << script.getLoadedAsset().fullPath << ":" << std::endl;
-        std::cerr << e.what() << std::endl;
-    }
-
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);
 
@@ -46,6 +36,25 @@ std::vector<entt::entity> hoveredContainers, hoverLeftContainers;
 
 void UIScreen::render(double deltaTime)
 {
+    renderingOrUpdating = true;
+
+    if (!initialized)
+    {
+        try
+        {
+            sol::protected_function_result result = luau::getLuaState().safe_script(script->getByteCode().as_string_view(), luaEnvironment);
+            if (!result.valid())
+                throw gu_err(result.get<sol::error>().what());
+        }
+        catch (std::exception &e)
+        {
+            std::cerr << "Error while running UIScreen script " << script.getLoadedAsset().fullPath << ":" << std::endl;
+            std::cerr << e.what() << std::endl;
+        }
+
+        initialized = true;
+    }
+
     assert(indexedFbo != NULL);
     gu::profiler::Zone z("UI");
 
@@ -136,6 +145,8 @@ void UIScreen::render(double deltaTime)
 
     hoverLeftContainers.clear();
     hoveredContainers.clear();
+
+    renderingOrUpdating = false;
 }
 
 void UIScreen::onResize()

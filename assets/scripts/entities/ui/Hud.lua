@@ -1,7 +1,7 @@
 
 function create(hud)
 
-    setName(hud, "hud_border")
+    setName(hud, "hud")
 
     setComponents(hud, {
         UIElement {
@@ -18,13 +18,14 @@ function create(hud)
 
     currentEngine.showRetryButton = function()
 
-        local btn = createEntity()
-        setName(btn, "retry button")
+        local btn = createChild(hud, "retry_btn")
         applyTemplate(btn, "Button", {
             text = "[R] Retry",
             action = function()
-                print("lol")
 
+                print("retry -> reload level")
+                closeActiveScreen()
+                openScreen("scripts/ui_screens/LevelScreen")
             end
         })
         local btnUI = component.UIElement.getFor(btn)

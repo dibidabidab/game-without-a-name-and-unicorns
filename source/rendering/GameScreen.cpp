@@ -13,7 +13,10 @@ GameScreen::GameScreen()
         Session *session = dibidab::tryGetCurrentSession();
         if (session)
             onNewLevel = session->onNewLevel += [&] (Level *lvl) {
-                lvlScreen = new LevelScreen(lvl);
+                delete lvlScreen;
+                if (lvl)
+                    lvlScreen = new LevelScreen(lvl);
+                else lvlScreen = NULL;
             };
     };
 }

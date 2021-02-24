@@ -122,8 +122,16 @@ function create(hpBar, args)
     setUpdateFunction(hpBar, 1/30, updateFunction)
     updateFunction(0)
 
+    local screenDeleted = false
+    onEvent("BeforeDelete", function()
+        screenDeleted = true
+    end)
+
     -- remove HP bar from screen if the entity's room gets destroyed (TODO: entity itself can emit a event before being destroyed too, right?)
     args.entityRoom.onEvent("BeforeDelete", function()
+        if screenDeleted then
+            return  -- CALLING valid() OR destroyEntity() WILL CAUSE SEGFAULTS
+        end
         if valid(hpBar) then -- todo, move this check to destroyEntity() and similar functions?
             destroyEntity(hpBar)
         end

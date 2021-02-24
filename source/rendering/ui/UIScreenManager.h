@@ -7,7 +7,7 @@
 class UIScreenManager
 {
 
-    std::vector<UIScreen *> screens;
+    std::list<UIScreen *> screens;
 
     delegate_method onResize;
 
