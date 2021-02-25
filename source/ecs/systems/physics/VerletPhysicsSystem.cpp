@@ -7,9 +7,13 @@ void VerletPhysicsSystem::init(EntityEngine *engine)
     room = (TiledRoom *) engine;
     updateFrequency = 60;
 
-
     room->entities.on_construct<VerletRope>().connect<&VerletPhysicsSystem::onPotentionalChildRopeCreation>(this);
     room->entities.on_construct<AttachToRope>().connect<&VerletPhysicsSystem::onPotentionalChildRopeCreation>(this);
+
+    afterLoad = room->afterLoad += [&] {
+        for (int i = 0; i < updateFrequency * 5; i++)
+            update(1.f / updateFrequency, room);
+    };
 }
 
 void VerletPhysicsSystem::update(double deltaTime, EntityEngine *)

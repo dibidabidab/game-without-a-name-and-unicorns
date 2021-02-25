@@ -14,6 +14,8 @@ class VerletPhysicsSystem : public EntitySystem
 {
     using EntitySystem::EntitySystem;
 
+    delegate_method afterLoad;
+
   protected:
 
     TiledRoom *room = NULL;

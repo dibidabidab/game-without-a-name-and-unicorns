@@ -5,7 +5,8 @@ defaultArgs({
     width = 160,
     rightPolePositionX = 200,
     rightPolePositionY = 100,
-    flammable = false
+    flammable = false,
+    showRetryButton = true
 })
 
 function create(poleLeft, args)
@@ -124,6 +125,10 @@ function create(poleLeft, args)
 
                     destroyEntity(polyPlatform)
                     polyPlatformDestroyed = true
+
+                    if args.showRetryButton and hudScreen ~= nil then
+                        hudScreen.showRetryButton()
+                    end
                 end
 
                 if planksIgnited > nrOfPlanks * .8 then
