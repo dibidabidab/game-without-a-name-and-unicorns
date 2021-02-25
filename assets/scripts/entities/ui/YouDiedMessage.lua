@@ -73,7 +73,7 @@ function create(mess)
             })
         end
 
-        hudScreen.showRetryButton()
+        hudScreen.showRetryButton(true)
     end)
 
 end

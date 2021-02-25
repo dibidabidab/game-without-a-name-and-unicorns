@@ -2,6 +2,7 @@
 _G.hudScreen = currentEngine
 
 onEvent("BeforeDelete", function()
+    loadOrCreateLevel(nil)
     if _G.hudScreen == currentEngine then
         _G.hudScreen = nil
     end

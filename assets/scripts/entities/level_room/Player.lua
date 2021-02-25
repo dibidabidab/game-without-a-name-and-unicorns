@@ -197,7 +197,7 @@ function create(player)
             saveGame.timesDied = 1
         end
 
-        setTimeout(player, .4, destroyEntity)
+        setTimeout(player, .2, destroyEntity)
 
         setTimeout(head, 1., function()
             if hudScreen ~= nil then

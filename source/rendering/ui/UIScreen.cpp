@@ -22,11 +22,11 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     addSystem(new AudioSystem("audio"));
     addSystem(new LuaScriptsSystem("lua functions"));
 
-    initialize();
-    UIScreen::onResize();
-
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);
+
+    initialize();
+    UIScreen::onResize();
 
     inspector.createEntity_showSubFolder = "ui";
     inspector.createEntity_persistentOption = false;
@@ -200,6 +200,8 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
 
         int width = spriteView->sprite->width, height = spriteView->sprite->height;
 
+        spriteView->zIndex += container.zIndex; // warning: dirty hack :D, also note a few lines further
+
         if (el.absolutePositioning)
         {
             ivec2 pos = el.getAbsolutePosition(container, width, height);
@@ -213,14 +215,14 @@ void UIScreen::renderUIElement(entt::entity e, UIElement &el, UIContainer &conta
             if (container.centerAlign)
                 container.textCursor.x -= width / 2;
 
-            spriteView->zIndex += container.zIndex; // warning: dirty hack :D
+
             spriteRenderer.add(*spriteView, container.textCursor - ivec2(0, height) + el.renderOffset);
-            spriteView->zIndex -= container.zIndex;
 
             container.textCursor.x += width;
 
             container.resizeLineHeight(height);
         }
+        spriteView->zIndex -= container.zIndex;   // end of dirty hack
     }
 
     else if (auto *childContainer = entities.try_get<UIContainer>(e))
