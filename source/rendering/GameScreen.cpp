@@ -31,6 +31,10 @@ void GameScreen::render(double deltaTime)
         onResize();
     }
 
+    vec3 bgColor = Game::palettes->effects.front().lightLevels->get().colors.at(1).second; // todo: dirty
+    glClearColor(bgColor.r, bgColor.g, bgColor.b, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     if (lvlScreen)
         lvlScreen->render(deltaTime);
 

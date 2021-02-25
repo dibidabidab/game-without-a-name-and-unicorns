@@ -30,6 +30,23 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
 
     inspector.createEntity_showSubFolder = "ui";
     inspector.createEntity_persistentOption = false;
+
+    luaEnvironment["startScreenTransition"] = [&] (const asset<Texture> &tex, const std::string &fragShader) {
+        if (transitionDir == 1)
+            return;
+        transitionTexture = tex;
+        transitionDir = 1;
+        transitionTimer = 0;
+        transitionShader = new ShaderAsset("startScreenTransition shader (" + fragShader + ")", "shaders/fullscreen_quad", fragShader);
+    };
+    luaEnvironment["endScreenTransition"] = [&] (const asset<Texture> &tex, const std::string &fragShader) {
+        if (transitionDir == -1)
+            return;
+        transitionTexture = tex;
+        transitionDir = -1;
+        transitionTimer = 1;
+        transitionShader = new ShaderAsset("startScreenTransition shader (" + fragShader + ")", "shaders/fullscreen_quad", fragShader);
+    };
 }
 
 std::vector<entt::entity> hoveredContainers, hoverLeftContainers;
@@ -96,6 +113,29 @@ void UIScreen::render(double deltaTime)
         nineSliceRenderer.render(cam);
 
         glDisable(GL_DEPTH_TEST);
+
+        if (transitionDir != 0)
+        {
+            auto prevTimer = transitionTimer;
+            transitionTimer = max<float>(0., min<float>(1., transitionTimer + deltaTime * transitionDir));
+
+            assert(transitionShader != NULL);
+            transitionShader->use();
+
+            if (transitionTexture.isSet())
+                transitionTexture->bind(1, *transitionShader, "transitionTexture");
+            glUniform1f(transitionShader->location("time"), transitionTimer);
+            Mesh::getQuad()->render();
+
+
+            if (transitionTimer == 0.)
+            {
+                events.emit(0, "ScreenTransitionEndFinished");
+                transitionDir = 0;
+            }
+            else if (prevTimer != 1. && transitionTimer == 1.)
+                events.emit(0, "ScreenTransitionStartFinished");
+        }
         indexedFbo->unbind();
     }
 
@@ -320,3 +360,9 @@ void UIScreen::renderUIContainer(entt::entity e, UIElement &el, UIContainer &con
     parentCont.textCursor.x += size.x + el.margin.x * 2;
     parentCont.resizeLineHeight(size.y + el.margin.y * 2);
 }
+
+UIScreen::~UIScreen()
+{
+    delete transitionShader;
+}
+

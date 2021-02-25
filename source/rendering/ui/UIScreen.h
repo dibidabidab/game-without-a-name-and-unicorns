@@ -32,6 +32,11 @@ class UIScreen : public EntityEngine, public Screen
 
     bool renderingOrUpdating = false;
 
+    asset<Texture> transitionTexture;
+    float transitionTimer = 0.;
+    int transitionDir = 0; // 0 = none, 1 = to black, -1 = to transparent
+    ShaderAsset *transitionShader = NULL;
+
   public:
 
     UIScreen(const asset<luau::Script> &);
@@ -43,6 +48,8 @@ class UIScreen : public EntityEngine, public Screen
     void renderDebugStuff();
 
     bool isRenderingOrUpdating() const { return renderingOrUpdating; }
+
+    ~UIScreen() override;
 
   private:
     void renderUIContainer(entt::entity, UIElement &, UIContainer &, UIContainer &parent, double deltaTime);

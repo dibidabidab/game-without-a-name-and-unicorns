@@ -25,8 +25,15 @@ function create(hud)
                 action = function()
 
                     print("retry -> reload level")
-                    closeActiveScreen()
-                    openScreen("scripts/ui_screens/LevelScreen")
+
+                    component.UIMouseEvents.remove(btn)
+
+                    startScreenTransition("textures/screen_transition0", "shaders/screen_transition/cutoff_texture")
+                    onEvent("ScreenTransitionStartFinished", function()
+
+                        closeActiveScreen()
+                        openScreen("scripts/ui_screens/LevelScreen")
+                    end)
                 end
             })
             local btnUI = component.UIElement.getFor(btn)
@@ -42,9 +49,16 @@ function create(hud)
                 text = "Exit",
                 action = function()
 
+                    component.UIMouseEvents.remove(btn)
+
                     print("back to level select")
-                    closeActiveScreen()
-                    openScreen("scripts/ui_screens/LevelSelectScreen")
+
+                    startScreenTransition("textures/screen_transition0", "shaders/screen_transition/cutoff_texture")
+                    onEvent("ScreenTransitionStartFinished", function()
+
+                        closeActiveScreen()
+                        openScreen("scripts/ui_screens/LevelSelectScreen")
+                    end)
                 end
             })
             local btnUI = component.UIElement.getFor(btn)

@@ -12,6 +12,8 @@ if _G.levelToLoad == nil then
     error("_G.levelToLoad is nil")
 end
 
+endScreenTransition("textures/screen_transition0", "shaders/screen_transition/cutoff_texture")
+
 applyTemplate(createEntity(), "Hud")
 
 loadOrCreateLevel(_G.levelToLoad)

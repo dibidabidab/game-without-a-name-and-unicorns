@@ -30,10 +30,6 @@ LevelScreen::LevelScreen(Level *lvl) : lvl(lvl), lvlEditor(lvl)
 
 void LevelScreen::render(double deltaTime)
 {
-    vec3 bgColor = Game::palettes->effects.front().lightLevels->get().colors.at(1).second; // todo: dirty
-    glClearColor(bgColor.r, bgColor.g, bgColor.b, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-
     renderDebugTools();
     if (roomScreen)
         roomScreen->render(deltaTime);

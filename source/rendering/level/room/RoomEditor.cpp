@@ -111,7 +111,7 @@ void RoomEditor::update(OrthographicCamera &cam, TiledRoom &room, DebugLineRende
         ImGui::BulletText("Press left-mouse-button to change\na Tile's shape.");
         ImGui::BulletText("Loop with [%s] and [%s]", KeyInput::getKeyName(Game::settings.keyInput.prevTileShape), KeyInput::getKeyName(Game::settings.keyInput.nextTileShape));
 
-        asset<Texture> tilesImg("tiles");
+        asset<Texture> tilesImg("textures/tiles");
 
         auto imgPtr = (void*)(intptr_t)tilesImg->id;
 
