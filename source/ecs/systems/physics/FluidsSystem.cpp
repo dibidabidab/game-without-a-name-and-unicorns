@@ -38,28 +38,31 @@ void FluidsSystem::update(double deltaTime, EntityEngine *room)
         auto updateEntitiesInFluid = [&](auto &entities) {
             for (auto e : entities)
             {
-                Physics *physics = room->entities.try_get<Physics>(e);
-                AABB *bodyInFluid = room->entities.try_get<AABB>(e);
+                Physics *physics_ = room->entities.try_get<Physics>(e);
+                AABB *bodyInFluid_ = room->entities.try_get<AABB>(e);
 
-                if (!physics || !bodyInFluid || !physics->fluidAnimations)
+                if (!physics_ || !bodyInFluid_ || !physics_->fluidAnimations)
                     continue;
 
-                if (physics->touches.fluid && !physics->prevTouched.fluid && physics->velocity.y < 0)
-                    spawnFluidSplash(fluid.enterSound, fluid, fluidE, *physics, *bodyInFluid);
-                else if (physics->prevTouched.fluid && !physics->touches.fluid && physics->velocity.y > 0)
-                    spawnFluidSplash(fluid.leaveSound, fluid, fluidE, *physics, *bodyInFluid);
+                Physics physics = *physics_;
+                AABB bodyInFluid = *bodyInFluid_;
+
+                if (physics.touches.fluid && !physics.prevTouched.fluid && physics.velocity.y < 0)
+                    spawnFluidSplash(fluid.enterSound, fluid, fluidE, physics, bodyInFluid);
+                else if (physics.prevTouched.fluid && !physics.touches.fluid && physics.velocity.y > 0)
+                    spawnFluidSplash(fluid.leaveSound, fluid, fluidE, physics, bodyInFluid);
 
                 constexpr float BUBBLES_SPAWN_CHANCE = 15;
 
                 if (mu::random() < BUBBLES_SPAWN_CHANCE * deltaTime && fluid.bubbleSprite.isSet())
                 {
-                    float vel = length(physics->velocity);
+                    float vel = length(physics.velocity);
                     int nrOfBubbles = vel * .015 * fluid.bubblesAmount;
 
                     for (int i = 0; i < nrOfBubbles; i++)
                     {
                         auto bubbleE = room->entities.create();
-                        room->entities.assign<AABB>(bubbleE).center = randomPointInAABB(*bodyInFluid);
+                        room->entities.assign<AABB>(bubbleE).center = randomPointInAABB(bodyInFluid);
                         room->entities.assign<AsepriteView>(bubbleE).sprite = fluid.bubbleSprite;
                         auto &p = room->entities.assign<Physics>(bubbleE);
                         p.ignoreFluids = false;
