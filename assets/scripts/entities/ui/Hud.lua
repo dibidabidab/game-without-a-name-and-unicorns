@@ -28,7 +28,7 @@ function create(hud)
 
                     component.UIMouseEvents.remove(btn)
 
-                    startScreenTransition("textures/screen_transition0", "shaders/screen_transition/cutoff_texture")
+                    startScreenTransition("textures/screen_transition1", "shaders/screen_transition/cutoff_texture_rainbow")
                     onEvent("ScreenTransitionStartFinished", function()
 
                         closeActiveScreen()

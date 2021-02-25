@@ -30,6 +30,7 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
 
     inspector.createEntity_showSubFolder = "ui";
     inspector.createEntity_persistentOption = false;
+    inspector.showInDropDown = false;
 
     luaEnvironment["startScreenTransition"] = [&] (const asset<Texture> &tex, const std::string &fragShader) {
         if (transitionDir == 1)
