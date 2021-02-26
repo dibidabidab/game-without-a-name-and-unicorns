@@ -11,6 +11,10 @@
     "water": {
       "knockback": 200,
       "immunity": 0.5
+    },
+    "key": {
+      "knockback": 0,
+      "immunity": 0.0
     }
   },
   "arrowPalettes": {

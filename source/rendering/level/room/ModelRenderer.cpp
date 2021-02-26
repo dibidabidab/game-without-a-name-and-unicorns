@@ -4,6 +4,7 @@
 
 #include "ModelRenderer.h"
 #include "../../../generated/ModelView.hpp"
+#include "../../../generated/Physics.hpp"
 #include "../../../game/Game.h"
 
 void ModelRenderer::render(entt::registry &registry, const OrthographicCamera &camera)
@@ -40,6 +41,8 @@ void ModelRenderer::render(entt::registry &registry, const OrthographicCamera &c
         mat4 mvp(1.0f);
 
         mvp = glm::translate(mvp, view.locationOffset);
+        if (AABB *aabb = registry.try_get<AABB>(e))
+            mvp = glm::translate(mvp, vec3(aabb->center.x, aabb->center.y, 0));
 
         // rotation.. http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
         mvp *= glm::toMat4(view.rotation);
