@@ -41,6 +41,16 @@ function create(chest)
                 points = 1,
                 dealtBy = player
             })
+
+            setTimeout(chest, .5, function()
+
+                local door = getByName("EndDoor")
+                if door ~= nil then
+                    playAsepriteTag(component.AsepriteView.getFor(door), "open", true)
+
+                    component.PlayerDetector.getFor(getChild(door, "detector")).distance = 10
+                end
+            end)
         end)
     end)
 end

@@ -22,14 +22,16 @@ void SprinklerSystem::update(double deltaTime, EntityEngine *engine)
             drop.split = false;
             drop.color = spklr.dropColor;
 
-            engine->entities.assign<AABB>(dropE).center = spklrAABB.center;
+            engine->entities.assign<AABB>(dropE).center = spklrAABB.center
+                    + ivec2(mu::randomInt(-spklr.maxRandomOffset.x, spklr.maxRandomOffset.x),
+                            mu::randomInt(-spklr.maxRandomOffset.y, spklr.maxRandomOffset.y));
 
             auto &physics = engine->entities.assign<Physics>(dropE);
             physics.velocity = rotate(vec2(0, spklr.force * mu::random(.8, 1.2)), mu::random(spklr.angle - spklr.angleRange * .5, spklr.angle + spklr.angleRange * .5) * mu::DEGREES_TO_RAD);
             physics.gravity = spklr.gravity;
             physics.ignoreTileTerrain = true;
 
-            engine->entities.assign<DespawnAfter>(dropE).time = mu::random(.4, .6);
+            engine->entities.assign<DespawnAfter>(dropE).time = mu::random(spklr.minLifetime, spklr.maxLifetime);
         }
     });
 

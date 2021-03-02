@@ -69,8 +69,19 @@ function create(hud)
         end
     end
 
+    currentEngine.levelFinished = function()
+
+        startScreenTransition("textures/screen_transition2", "shaders/screen_transition/cutoff_texture")
+        onEvent("ScreenTransitionStartFinished", function()
+
+            closeActiveScreen()
+            openScreen("scripts/ui_screens/LevelSelectScreen")
+        end)
+    end
+
     setOnDestroyCallback(hud, function()
         currentEngine.showRetryButton = nil
+        currentEngine.levelFinished = nil
     end)
 end
 

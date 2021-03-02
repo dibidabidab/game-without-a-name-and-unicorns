@@ -2,10 +2,13 @@
 Sprinkler:
   minDropSize: [float, .2]
   maxDropSize: [float, 5]
+  minLifetime: [float, .4]
+  maxLifetime: [float, .6]
   dropColor: [uint8, 10u]
   permanentDrawOnTerrain: [bool, false]
   angle: [float, 0]
   angleRange: [float, 90]
+  maxRandomOffset: [ivec2, ivec2()]
   force: [float, 1]
   gravity: [float, 1250]
   amount: [float, 1.]
