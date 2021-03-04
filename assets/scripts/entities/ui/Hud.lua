@@ -16,25 +16,35 @@ function create(hud)
         }
     })
 
+    local retrying = false
+
+    function retryLevel()
+
+        if retrying then
+            return
+        end
+        retrying = true
+
+        print("retry -> reload level")
+
+        startScreenTransition("textures/screen_transition1", "shaders/screen_transition/cutoff_texture_rainbow")
+        onEvent("ScreenTransitionStartFinished", function()
+
+            closeActiveScreen()
+            openScreen("scripts/ui_screens/LevelScreen")
+        end)
+    end
+
+    listenToKey(hud, gameSettings.keyInput.retryLevel, "retry_key")
+    onEntityEvent(hud, "retry_key_pressed", retryLevel)
+
     currentEngine.showRetryButton = function(showExitButton)
 
         if getChild(hud, "retry_btn") == nil then
             local btn = createChild(hud, "retry_btn")
             applyTemplate(btn, "Button", {
-                text = "[R] Retry",
-                action = function()
-
-                    print("retry -> reload level")
-
-                    component.UIMouseEvents.remove(btn)
-
-                    startScreenTransition("textures/screen_transition1", "shaders/screen_transition/cutoff_texture_rainbow")
-                    onEvent("ScreenTransitionStartFinished", function()
-
-                        closeActiveScreen()
-                        openScreen("scripts/ui_screens/LevelScreen")
-                    end)
-                end
+                text = "["..gameSettings.keyInput.retryLevel:getName().."] Retry",
+                action = retryLevel
             })
             local btnUI = component.UIElement.getFor(btn)
             btnUI.absolutePositioning = true

@@ -27,6 +27,8 @@ KeyInputSettings:
   jump: [ KeyInput::Key, GLFW_KEY_SPACE ]
   fall: [ KeyInput::Key, GLFW_KEY_S ]
 
+  retryLevel: [ KeyInput::Key, GLFW_KEY_R ]
+
   nextTileShape: [ KeyInput::Key, GLFW_KEY_RIGHT ]
   prevTileShape: [ KeyInput::Key, GLFW_KEY_LEFT ]
   nextTileMaterial: [ KeyInput::Key, GLFW_KEY_DOWN ]

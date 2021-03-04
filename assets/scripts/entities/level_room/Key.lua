@@ -40,8 +40,16 @@ function create(key)
         setTimeout(key, 0., function()  -- todo: emitting events from c++ sucks.
 
             currentEngine.playerHasKey = true
-            destroyEntity(key)
 
+            component.PlayerDetector.remove(key)
+            component.ModelView.animate(key, "scale", vec3(.6), .07, "pow2Out", function()
+                component.ModelView.animate(key, "scale", vec3(.0), .1, "pow2In", function()
+
+                    setTimeout(key, 0., function()  -- todo: calling lua from c++ sucks.
+                        destroyEntity(key)
+                    end)
+                end)
+            end)
         end)
     end)
 end

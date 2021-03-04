@@ -63,7 +63,9 @@ function create(door)
 
         setTimeout(detector, 0., function()  -- todo: emitting events from c++ sucks.
 
-            component.Physics.remove(player)
+            local p = component.Physics.getFor(player)
+            p.gravity = 0
+            p.velocity = vec2(0)
             component.AABB.animate(player, "center", component.AABB.getFor(detector).center, .3, "pow2Out")
             removeAnimation(door, "center")
 
