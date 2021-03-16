@@ -8,7 +8,8 @@
 
 PolylineRenderer::PolylineRenderer()
     :
-    shader("PolyLine shader", "shaders/polyline.vert", "shaders/polyline.frag")
+    shader("PolyLine shader", "shaders/polyline.vert", "shaders/polyline.frag"),
+    wideLineShader("Wide polyLine shader", "shaders/wide_polyline.vert", "shaders/polyline.frag")
 {
     VertAttributes attrs;
     attrs.add({"POINT_INDEX", 1, 1, GL_BYTE});
@@ -20,6 +21,10 @@ PolylineRenderer::PolylineRenderer()
     part.indices = {0, 1};
     VertBuffer::uploadSingleMesh(lineSegmentMesh);
     lineSegmentMesh->vertBuffer->vboUsage = GL_DYNAMIC_DRAW;
+
+    wideLineSegmentMesh = Mesh::createQuad(0, 1);
+    VertBuffer::uploadSingleMesh(wideLineSegmentMesh);
+    wideLineSegmentMesh->vertBuffer->vboUsage = GL_DYNAMIC_DRAW;
 }
 
 void PolylineRenderer::render(const entt::registry &reg, const Camera &cam)
@@ -30,7 +35,7 @@ void PolylineRenderer::render(const entt::registry &reg, const Camera &cam)
 
     reg.view<const Polyline, const DrawPolyline>().each([&](auto e, const Polyline &line, const DrawPolyline &draw) {
 
-        if (line.points.size() < 2) // BIG OOFFF... todo: .size() on list is expensive
+        if (line.points.empty() || line.points.front() == line.points.back())
             return;
         setSegmentOffset(reg, e, draw);
 
@@ -94,20 +99,25 @@ void PolylineRenderer::render(const entt::registry &reg, const Camera &cam)
         }
     });
 
-    shader.use();
-    glUniformMatrix4fv(shader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
-
     for (auto &[width, segments] : widthSegmentsMap)
     {
         int i = segments.lineSegments.nrOfVertices();
         if (i == 0 || width == 0)
             continue;
-        glLineWidth(width);
-        segments.lineSegmentsID = lineSegmentMesh->vertBuffer->uploadPerInstanceData(segments.lineSegments, 1, segments.lineSegmentsID);
-        lineSegmentMesh->renderInstances(i);
+
+        auto &shader = width == 1 ? this->shader : wideLineShader;
+
+        shader.use();
+        glUniformMatrix4fv(shader.location("projection"), 1, GL_FALSE, &cam.combined[0][0]);
+
+        if (width != 1)
+            glUniform1f(shader.location("halfWidth"), float(width) / 2.f);
+
+        auto mesh = width == 1 ? lineSegmentMesh : wideLineSegmentMesh;
+        segments.lineSegmentsID = mesh->vertBuffer->uploadPerInstanceData(segments.lineSegments, 1, segments.lineSegmentsID);
+        mesh->renderInstances(i);
         segments.lineSegments.vertices.clear();
     }
-    glLineWidth(1.f);
 }
 
 void PolylineRenderer::addSegment(const DrawPolyline &draw, int i, int polylineSegments, ivec2 p0, ivec2 p1)

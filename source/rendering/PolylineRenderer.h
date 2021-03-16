@@ -12,9 +12,9 @@
 class PolylineRenderer
 {
 
-    ShaderAsset shader;
+    ShaderAsset shader, wideLineShader;
 
-    SharedMesh lineSegmentMesh;
+    SharedMesh lineSegmentMesh, wideLineSegmentMesh;
 
     struct Segments
     {
