@@ -45,7 +45,8 @@ function create(enemy, args)
             takesDamageFrom = {"water"},
             currHealth = 3,
             maxHealth = 3,
-            givePlayerArrowOnKill = "FireArrow"
+            givePlayerArrowOnKill = "FireArrow",
+            knockBackResistance = .3
         },
         AsepriteView {
             sprite = "sprites/fire_enemy",

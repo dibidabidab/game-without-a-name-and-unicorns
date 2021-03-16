@@ -72,13 +72,15 @@ void PhysicsSystem::update(double deltaTime, EntityEngine *)
 
         if (physics.touches.abovePolyPlatformEntity != entt::null)
         {
-            PolyPlatform &platform = room->entities.get<PolyPlatform>(physics.touches.abovePolyPlatformEntity);
-            platform.entitiesAbovePlatform.push_back(e);
+            PolyPlatform *platform = room->entities.try_get<PolyPlatform>(physics.touches.abovePolyPlatformEntity);
+            if (platform)
+                platform->entitiesAbovePlatform.push_back(e);
         }
         if (physics.touches.polyPlatform)
         {
-            PolyPlatform &platform = room->entities.get<PolyPlatform>(physics.touches.polyPlatformEntity);
-            platform.entitiesOnPlatform.push_back(e);
+            PolyPlatform *platform = room->entities.try_get<PolyPlatform>(physics.touches.polyPlatformEntity);
+            if (platform)
+                platform->entitiesOnPlatform.push_back(e);
         }
         if (physics.justMovedByPolyPlatform)
             physics.justMovedByPolyPlatform = false;
