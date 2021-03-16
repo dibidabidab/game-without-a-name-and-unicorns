@@ -14,6 +14,7 @@ GraphicsSettings:
   roomTransitionAnimation: [ bool, true ]
 
   pixelScaling: [ uint8, 3 ]
+  cameraSpeed: [ float, 8 ]
 
   imGuiFont: [string, "assets/fonts/ruda/Ruda-Bold.ttf"]
 

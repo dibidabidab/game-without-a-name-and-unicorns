@@ -7,20 +7,6 @@
 #include <game/dibidab.h>
 #include <imgui.h>
 
-void move(double deltaTime, float &x, float targetX)
-{
-    float diff = targetX - x;
-
-    static const int IGNORE_DIFF = 10;
-
-    if (diff > 0)
-        diff = max(.0f, diff - IGNORE_DIFF);
-    else diff = min(.0f, diff + IGNORE_DIFF);
-
-    x += diff * deltaTime * 4;
-}
-
-
 static const int PADDING_X = 20, PADDING_Y = 16;
 
 void limit(float &x, float camWidth, float roomWidth, float padding)
@@ -65,15 +51,11 @@ void CameraMovement::update(double deltaTime)
     });
 
     if (!firstUpdate)
-    {
-        move(deltaTime, cam->position.x, target.x);
-        move(deltaTime, cam->position.y, target.y);
-    }
-    else
-    {
-        cam->position.x = target.x;
-        cam->position.y = target.y;
-    }
+        camPos = mix(target, camPos, exp2(deltaTime * -Game::settings.graphics.cameraSpeed));
+
+    else camPos = target;
+    cam->position.x = camPos.x;
+    cam->position.y = camPos.y;
 
     limit(cam->position.x, cam->viewportWidth, room->getMap().width * TileMap::PIXELS_PER_TILE, PADDING_X + maxShake.x);
     limit(cam->position.y, cam->viewportHeight, room->getMap().height * TileMap::PIXELS_PER_TILE, PADDING_Y + maxShake.y);

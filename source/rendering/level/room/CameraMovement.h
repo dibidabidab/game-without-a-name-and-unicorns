@@ -18,6 +18,8 @@ class CameraMovement
 
   public:
 
+    vec2 camPos;
+
     vec2 offsetAnim = vec2(0);
     ivec2 devCamPos = ivec2(-1);
 
