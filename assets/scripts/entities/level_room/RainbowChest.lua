@@ -36,6 +36,8 @@ function create(chest)
 
             playAsepriteTag(component.AsepriteView.getFor(chest), "open", true)
 
+            component.SoundSpeaker.getFor(chest).sound = "sounds/chest_open"
+
             component.Health.getFor(chest).attacks:add(Damage {
                 type = "key",
                 points = 1,

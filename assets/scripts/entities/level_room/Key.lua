@@ -47,6 +47,17 @@ function create(key)
                 })
             end
 
+            setComponents(createEntity(), {
+                component.AABB.getFor(key),
+                SoundSpeaker {
+                    sound = "sounds/key_pickup"
+                },
+                DespawnAfter {
+                    time = 2
+                },
+                PositionedAudio()
+            })
+
             component.PlayerDetector.remove(key)
             component.ModelView.animate(key, "scale", vec3(.6), .07, "pow2Out", function()
                 component.ModelView.animate(key, "scale", vec3(.0), .1, "pow2In", function()
