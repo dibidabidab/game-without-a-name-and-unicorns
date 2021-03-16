@@ -41,6 +41,12 @@ function create(key)
 
             currentEngine.playerHasKey = true
 
+            if hudScreen ~= nil then
+                hudScreen.applyTemplate(hudScreen.createEntity(), "InventoryItem", {
+                    icon = "sprites/ui/key_icon"
+                })
+            end
+
             component.PlayerDetector.remove(key)
             component.ModelView.animate(key, "scale", vec3(.6), .07, "pow2Out", function()
                 component.ModelView.animate(key, "scale", vec3(.0), .1, "pow2In", function()
