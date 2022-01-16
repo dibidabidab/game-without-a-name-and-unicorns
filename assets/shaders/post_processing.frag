@@ -1,7 +1,7 @@
 precision mediump float;
 precision lowp sampler2DArray;
 
-out vec3 color;
+out vec4 color;
 
 in vec2 v_texCoords;
 
@@ -11,7 +11,7 @@ uniform sampler2D bloomImage;
 void main()
 {
 
-    color = texture(rgbImage, v_texCoords).rgb;
+    color = texture(rgbImage, v_texCoords);
 
     #ifdef VIGNETTE
     {
@@ -19,7 +19,7 @@ void main()
         uv *=  1.0 - uv.yx;
         float vig = uv.x * uv.y * 100.0;
         vig = pow(vig, .15);
-        color *= min(1.f, vig);
+        color.rgb *= min(1.f, vig);
     }
     #endif
 
@@ -44,7 +44,7 @@ void main()
         bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, 4)).rgb * weight[4];
         bloomValue += textureOffset(bloomImage, v_texCoords, ivec2(0, -4)).rgb * weight[4];
 
-        color += bloomValue;
+        color.rgb += bloomValue;
     }
     #endif
 }
