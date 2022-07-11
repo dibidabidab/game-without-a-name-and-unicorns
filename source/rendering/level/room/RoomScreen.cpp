@@ -205,7 +205,7 @@ void RoomScreen::onResize()
     // create a new framebuffer to render the pixelated scene to:
     delete indexedFbo;
     indexedFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
-    indexedFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+    indexedFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST, GL_UNSIGNED_BYTE);
     indexedFbo->addDepthTexture(GL_NEAREST, GL_NEAREST);
 
     delete rgbAndBloomFbo;

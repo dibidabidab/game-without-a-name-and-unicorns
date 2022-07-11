@@ -30,7 +30,7 @@ BloodSplatterRenderer::BloodSplatterRenderer(TiledRoom *r)
         std::vector<u_char>()
     )
 {
-    fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+    fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST, GL_UNSIGNED_BYTE);
 
     // set all pixels to 0, dont know if this is necessary:
     fbo.bind();

@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     gu::setScreen(new GameScreen);
 
     auto onResize = gu::onResize += [] {
-        ShaderDefinitions::defineInt("PIXEL_SCALING", Game::settings.graphics.pixelScaling);
+        ShaderDefinitions::global().defineInt("PIXEL_SCALING", Game::settings.graphics.pixelScaling);
     };
     gu::onResize();
 

@@ -78,7 +78,7 @@ void FluidRenderer::onResize(const Camera &cam)
 {
     delete reflectionsFbo;
     reflectionsFbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight, 0);
-    reflectionsFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+    reflectionsFbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST, GL_UNSIGNED_BYTE);
 }
 
 void FluidRenderer::renderReflections(FrameBuffer *indexedImage, const Camera &cam, float time)

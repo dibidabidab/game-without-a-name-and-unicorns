@@ -57,7 +57,7 @@ void FireRenderer::onResize(const Camera &cam)
 {
     delete fbo;
     fbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
-    fbo->addColorTexture(GL_R8, GL_RED, GL_NEAREST, GL_NEAREST);
+    fbo->addColorTexture(GL_R8, GL_RED, GL_NEAREST, GL_NEAREST, GL_UNSIGNED_BYTE);
 }
 
 void FireRenderer::renderCombined(float time, const Camera &cam)

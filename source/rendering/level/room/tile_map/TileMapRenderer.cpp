@@ -25,8 +25,8 @@ TileMapRenderer::TileMapRenderer(const TiledRoom &r)
       ),
       lastTileSetReloadTime(glfwGetTime())
 {
-    fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
-    fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+    fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST, GL_UNSIGNED_BYTE);
+    fbo.addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST, GL_UNSIGNED_BYTE);
     fbo.addDepthBuffer();
 }
 

@@ -9,25 +9,25 @@ Game::Settings Game::settings;
 void setShaderDefinitions()
 {
     if (Game::settings.graphics.vignette)
-        ShaderDefinitions::define("VIGNETTE");
+        ShaderDefinitions::global().define("VIGNETTE");
     else
-        ShaderDefinitions::undef("VIGNETTE");
+        ShaderDefinitions::global().undef("VIGNETTE");
 
     if (Game::settings.graphics.bloom)
-        ShaderDefinitions::define("BLOOM");
+        ShaderDefinitions::global().define("BLOOM");
     else
-        ShaderDefinitions::undef("BLOOM");
+        ShaderDefinitions::global().undef("BLOOM");
 
     if (Game::settings.graphics.waterReflections)
-        ShaderDefinitions::define("WATER_REFLECTIONS");
+        ShaderDefinitions::global().define("WATER_REFLECTIONS");
     else
-        ShaderDefinitions::undef("WATER_REFLECTIONS");
+        ShaderDefinitions::global().undef("WATER_REFLECTIONS");
 
 
     if (Game::settings.graphics.fireHeatDistortion)
-        ShaderDefinitions::define("FIRE_HEAT_DISTORTION");
+        ShaderDefinitions::global().define("FIRE_HEAT_DISTORTION");
     else
-        ShaderDefinitions::undef("FIRE_HEAT_DISTORTION");
+        ShaderDefinitions::global().undef("FIRE_HEAT_DISTORTION");
 }
 
 void Game::loadSettings()

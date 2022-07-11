@@ -130,6 +130,6 @@ void LightMapRenderer::onResize(const Camera &cam)
 {
     delete fbo;
     fbo = new FrameBuffer(cam.viewportWidth, cam.viewportHeight);
-    fbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST);
+    fbo->addColorTexture(GL_R8UI, GL_RED_INTEGER, GL_NEAREST, GL_NEAREST, GL_UNSIGNED_BYTE);
     fbo->addDepthBuffer();
 }
