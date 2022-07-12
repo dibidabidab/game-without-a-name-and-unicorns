@@ -32,8 +32,24 @@ class PlatformerMovementSystem : public EntitySystem
     void update(double deltaTime, EntityEngine *room) override
     {
         this->room = room;
-        room->entities.view<LocalPlayer, Aiming>().each([&](auto, Aiming &aiming) {
-            aiming.target = room->cursorPosition;
+        room->entities.view<LocalPlayer, Aiming, AABB>().each([&](auto, Aiming &aiming, const AABB &aabb) {
+
+            if (!GamepadInput::getGamepads().empty())
+            {
+                const auto aimX = GamepadInput::getAxis(0, Game::settings.gamepadInput.aimX);
+                const auto aimY = GamepadInput::getAxis(0, Game::settings.gamepadInput.aimY);
+                if (aimX != 0.f || aimY != 0.f)
+                {
+                    static const float AIM_OFFSET = 128.f;
+                    aiming.target = aabb.center;
+                    aiming.target.x += aimX * AIM_OFFSET;
+                    aiming.target.y -= aimY * AIM_OFFSET;
+                }
+            }
+            else
+            {
+                aiming.target = room->cursorPosition;
+            }
         });
         room->entities.view<Flip, Aiming, AABB>().each([&](Flip &flip, const Aiming &aiming, const AABB &aabb) {
 
@@ -49,11 +65,12 @@ class PlatformerMovementSystem : public EntitySystem
         room->entities.view<PlatformerMovement, LocalPlayer>().each([&](entt::entity e, PlatformerMovement &movement, LocalPlayer) {
 
             PlatformerMovementInput input;
-            input.jump = KeyInput::pressed(Game::settings.keyInput.jump);
-            input.fall = KeyInput::pressed(Game::settings.keyInput.fall);
-            input.left = KeyInput::pressed(Game::settings.keyInput.walkLeft);
-            input.right = KeyInput::pressed(Game::settings.keyInput.walkRight);
-            input.attack = MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT);
+            input.jump = KeyInput::pressed(Game::settings.keyInput.jump) || GamepadInput::getAxis(0, Game::settings.gamepadInput.moveY) < -.5f;
+            input.fall = KeyInput::pressed(Game::settings.keyInput.fall) || GamepadInput::getAxis(0, Game::settings.gamepadInput.moveY) > .5f;
+            input.walkX = (KeyInput::pressed(Game::settings.keyInput.walkLeft) ? -1.f : 0.f) + (KeyInput::pressed(Game::settings.keyInput.walkRight) ? 1.f : 0.f);
+            input.walkX += GamepadInput::getAxis(0, Game::settings.gamepadInput.walkX);
+            input.walkX = clamp(input.walkX, -1.f, 1.f);
+            input.attack = MouseInput::pressed(GLFW_MOUSE_BUTTON_LEFT) || GamepadInput::pressed(0, Game::settings.gamepadInput.attack);
 
             room->entities.assign_or_replace<PlatformerMovementInput>(e, input);
         });
@@ -103,7 +120,7 @@ class PlatformerMovementSystem : public EntitySystem
             if (physics.touches.fluid && input.jump && physics.velocity.y < movement.swimVelocity)
                 physics.velocity.y += movement.swimVelocity * deltaTime * min(1.f, physics.touches.fluidDepth / 16.f);
 
-            float accelerateX = ((input.left ? -1 : 0) + (input.right ? 1 : 0)) * movement.walkVelocity;
+            float accelerateX = input.walkX * movement.walkVelocity;
 
             if (physics.touches.halfSlopeDown || physics.touches.halfSlopeUp)
                 accelerateX /= 1.11803; // https://www.wolframalpha.com/input/?i=distance+between+%280%2C+0%29+and+%281%2C+0.5%29

@@ -44,7 +44,7 @@ You can find it somewhere in `desktop/out/Release/bin/....` or in a similar dire
 
 `cd html`
 
-`emconfigure cmake .` (only the first time, and everytime you add new files)
+`emcmake cmake .` (only the first time, and everytime you add/remove files)
 
 `make -j8`
 

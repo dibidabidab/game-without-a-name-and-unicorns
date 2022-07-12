@@ -35,6 +35,21 @@ KeyInputSettings:
   nextTileMaterial: [ KeyInput::Key, GLFW_KEY_DOWN ]
   prevTileMaterial: [ KeyInput::Key, GLFW_KEY_UP ]
 
+GamepadInputSettings:
+  _flags:
+    - not_a_component
+    - json_with_keys
+
+  walkX: [ GamepadInput::Axis, GLFW_GAMEPAD_AXIS_LEFT_X ]
+  moveY: [ GamepadInput::Axis, GLFW_GAMEPAD_AXIS_LEFT_Y ]
+
+  aimX: [ GamepadInput::Axis, GLFW_GAMEPAD_AXIS_RIGHT_X ]
+  aimY: [ GamepadInput::Axis, GLFW_GAMEPAD_AXIS_RIGHT_Y ]
+
+  attack: [ GamepadInput::Button, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER ]
+
+  retryLevel: [ GamepadInput::Button, GLFW_GAMEPAD_BUTTON_BACK ]
+
 Settings:
   _flags:
     - not_a_component
@@ -42,4 +57,5 @@ Settings:
 
   graphics: GraphicsSettings
   keyInput: KeyInputSettings
+  gamepadInput: GamepadInputSettings
   customSettings: [ json, json::object() ]

@@ -3,12 +3,11 @@ PlatformerMovementInput:
 
   jump: [bool, false]
   fall: [bool, false]
-  left: [bool, false]
-  right: [bool, false]
+  walkX: [float, 0.0f]
   attack: [bool, false]
 
   _hash:
-    [jump, fall, left, right]
+    [jump, fall, walkX]
 
 
 

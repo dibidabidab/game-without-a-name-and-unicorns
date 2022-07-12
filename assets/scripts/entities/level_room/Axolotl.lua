@@ -155,8 +155,7 @@ function create(axo)
         end
 
         local input = component.PlatformerMovementInput.getFor(axo)
-        input.left = xDir == -1
-        input.right = xDir == 1
+        input.walkX = xDir
 
         if physics.touches.fluid then
             input.jump = ((physics.touches.leftWall or physics.touches.rightWall) and math.random() > .2) or math.random() > .7

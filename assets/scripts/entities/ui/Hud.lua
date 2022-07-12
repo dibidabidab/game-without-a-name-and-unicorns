@@ -36,6 +36,7 @@ function create(hud)
     end
 
     listenToKey(hud, gameSettings.keyInput.retryLevel, "retry_key")
+    listenToGamepadButton(hud, 0, gameSettings.gamepadInput.retryLevel, "retry_key")
     onEntityEvent(hud, "retry_key_pressed", retryLevel)
 
     currentEngine.showRetryButton = function(showExitButton)
